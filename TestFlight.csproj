@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -14,7 +14,6 @@
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>false</DebugSymbols>
     <DebugType>none</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
@@ -61,25 +60,12 @@
     <Compile Include="KSPFramework\ExtensionsUnity.cs" />
     <Compile Include="KSPFramework\SkinsLibrary.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestFlight_Reliability.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>rem Set the Variables we need
-echo Finding KSP
-set GAMEPATH="F:\Games\Kerbal Space Program\0.24\Dev"
-echo Gamepath: %25GAMEPATH%25
-set DestPath="%25GAMEPATH%25\GameData\TestFlight"
-set Binary="%25GAMEPATH%25\KSP_x64.exe"
-
-if not $(ConfigurationName)==Debug goto END
-:DEBUGCONFIG
-rem Copy DLL and run KSP
-copy "$(TargetPath)" "%25DestPath%25"
-rem and then run the game
-"%25Binary%25"
-goto END
-
-:END</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

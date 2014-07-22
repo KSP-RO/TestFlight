@@ -44,15 +44,6 @@ namespace TestFlight
                 {
                     foreach (Part part in vessel.parts)
                     {
-                        PartModuleList pmList = part.Modules;
-                        print("Dumping part modules");
-                        foreach (PartModule pm in pmList)
-                        {
-                            if (pm.moduleName == "FlightDataRecorder")
-                            {
-                                FlightDataRecorder fdr = (FlightDataRecorder)pm;
-                            }
-                        }
                     }
                 }
             }
