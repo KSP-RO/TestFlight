@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2013 for Windows Desktop
+# Visual Studio 2012
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestFlight", "TestFlight.csproj", "{411F2FC2-8E31-4FDB-9F69-E202E7B4081A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestFlightCore", "TestFlightCore\TestFlightCore\TestFlightCore.csproj", "{CD4D0CF1-16A8-4FB9-A7CC-6566160B8CD2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestFlightAPI", "TestFlightAPI\TestFlightAPI\TestFlightAPI.csproj", "{F212E235-8856-4C7E-AFA9-051490E1350F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,57 @@ Global
 		{411F2FC2-8E31-4FDB-9F69-E202E7B4081A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{411F2FC2-8E31-4FDB-9F69-E202E7B4081A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{411F2FC2-8E31-4FDB-9F69-E202E7B4081A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD4D0CF1-16A8-4FB9-A7CC-6566160B8CD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD4D0CF1-16A8-4FB9-A7CC-6566160B8CD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD4D0CF1-16A8-4FB9-A7CC-6566160B8CD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD4D0CF1-16A8-4FB9-A7CC-6566160B8CD2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F212E235-8856-4C7E-AFA9-051490E1350F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F212E235-8856-4C7E-AFA9-051490E1350F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F212E235-8856-4C7E-AFA9-051490E1350F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F212E235-8856-4C7E-AFA9-051490E1350F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = TestFlight.csproj
+		Policies = $0
+		$0.DotNetNamingPolicy = $1
+		$1.DirectoryNamespaceAssociation = None
+		$1.ResourceNamePolicy = FileFormatDefault
+		$0.TextStylePolicy = $2
+		$2.inheritsSet = VisualStudio
+		$2.inheritsScope = text/plain
+		$2.scope = text/x-csharp
+		$0.CSharpFormattingPolicy = $3
+		$3.IndentSwitchBody = True
+		$3.IndentBlocksInsideExpressions = True
+		$3.AnonymousMethodBraceStyle = NextLine
+		$3.PropertyBraceStyle = NextLine
+		$3.PropertyGetBraceStyle = NextLine
+		$3.PropertySetBraceStyle = NextLine
+		$3.EventBraceStyle = NextLine
+		$3.EventAddBraceStyle = NextLine
+		$3.EventRemoveBraceStyle = NextLine
+		$3.StatementBraceStyle = NextLine
+		$3.ElseNewLinePlacement = NewLine
+		$3.CatchNewLinePlacement = NewLine
+		$3.FinallyNewLinePlacement = NewLine
+		$3.WhileNewLinePlacement = DoNotCare
+		$3.ArrayInitializerWrapping = DoNotChange
+		$3.ArrayInitializerBraceStyle = NextLine
+		$3.BeforeMethodDeclarationParentheses = False
+		$3.BeforeMethodCallParentheses = False
+		$3.BeforeConstructorDeclarationParentheses = False
+		$3.NewLineBeforeConstructorInitializerColon = NewLine
+		$3.NewLineAfterConstructorInitializerColon = SameLine
+		$3.BeforeDelegateDeclarationParentheses = False
+		$3.NewParentheses = False
+		$3.SpacesBeforeBrackets = False
+		$3.inheritsSet = Mono
+		$3.inheritsScope = text/x-csharp
+		$3.scope = text/x-csharp
+		$0.TextStylePolicy = $4
+		$4.inheritsSet = VisualStudio
+		$4.inheritsScope = text/plain
+		$4.scope = text/plain
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

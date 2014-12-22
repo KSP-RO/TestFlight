@@ -1,62 +1,54 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{411F2FC2-8E31-4FDB-9F69-E202E7B4081A}</ProjectGuid>
+    <ProjectGuid>{CD4D0CF1-16A8-4FB9-A7CC-6566160B8CD2}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TestFlight</RootNamespace>
-    <AssemblyName>TestFlight</AssemblyName>
+    <RootNamespace>TestFlightCore</RootNamespace>
+    <AssemblyName>TestFlightCore</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugType>none</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
     <CustomCommands>
       <CustomCommands>
-        <Command type="AfterBuild" command="cp ${TargetFile} ${TargetDir}/../../../../../GameData/TestFlight/Plugins" externalConsole="True" pauseExternalConsole="True" />
+        <Command type="AfterBuild" command="cp ${TargetFile} ${TargetDir}/../../../../../../../GameData/TestFlight/Plugins" externalConsole="True" pauseExternalConsole="True" />
       </CustomCommands>
     </CustomCommands>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugType>full</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
     <CustomCommands>
       <CustomCommands>
-        <Command type="AfterBuild" command="cp ${TargetFile} ${TargetDir}/../../../../../GameData/TestFlight/Plugins" />
+        <Command type="AfterBuild" command="cp ${TargetFile} ${TargetDir}/../../../../../../../GameData/TestFlight/Plugins" />
       </CustomCommands>
     </CustomCommands>
   </PropertyGroup>
-  <PropertyGroup>
-    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\..\..\..\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\KSP_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>..\..\..\..\..\KSP_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestFlight.cs" />
+    <Compile Include="KSPFramework\ConfigNodeStorage.cs" />
+    <Compile Include="KSPFramework\ExtensionsUnity.cs" />
     <Compile Include="KSPFramework\MonoBehaviourExtended.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -65,26 +57,10 @@
     </Compile>
     <Compile Include="KSPFramework\PartModuleExtended.cs" />
     <Compile Include="KSPFramework\PartModuleWindow.cs" />
-    <Compile Include="KSPFramework\ConfigNodeStorage.cs" />
-    <Compile Include="KSPFramework\ExtensionsUnity.cs" />
     <Compile Include="KSPFramework\SkinsLibrary.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestFlight_Reliability.cs" />
-    <Compile Include="FlightDataRecorder.cs" />
-    <Compile Include="FlightDataRecorder_Engine.cs" />
+    <Compile Include="TestFlightCore.cs" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <MonoDevelop>
       <Properties>
@@ -97,7 +73,7 @@
     </MonoDevelop>
   </ProjectExtensions>
   <ItemGroup>
-    <ProjectReference Include="TestFlightAPI\TestFlightAPI\TestFlightAPI.csproj">
+    <ProjectReference Include="..\..\TestFlightAPI\TestFlightAPI\TestFlightAPI.csproj">
       <Project>{F212E235-8856-4C7E-AFA9-051490E1350F}</Project>
       <Name>TestFlightAPI</Name>
     </ProjectReference>

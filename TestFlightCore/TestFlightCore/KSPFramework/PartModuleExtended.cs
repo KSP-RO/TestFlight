@@ -5,6 +5,13 @@ Forum Thread:http://forum.kerbalspaceprogram.com/threads/66503-KSP-Plugin-Framew
 Author: TriggerAu, 2014
 License: The MIT License (MIT)
 */
+
+/*
+ * Equivelant of MonobehaviourExtended for PartModule
+ * Original code provided by TriggerAu in KSPPluginFramework
+ * PartModuleExtended and PartModuleWindow written by Agathorn
+*/
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,62 +23,13 @@ using UnityEngine;
 namespace KSPPluginFramework
 {
     /// <summary>
-    /// An Extended version of the UnityEngine.MonoBehaviour Class
+    /// An Extended version of the UnityEngine.PartModule Class
     /// Has some added functions to simplify repeated use and some defined overridable functions for common functions
     /// </summary>
-    /// <remarks>
-    /// You want to create instances of this using either the KSPAddOn Attribute or the gameObject.AddComponent. 
-    /// 
-    /// Using the simple contructor new MonobehaviourExtended() will NOT register the object to receive Unity events and you will wonder why no events are firing
-    /// </remarks>
-    /// <example title="Initialisation Examples">
-    /// <code>
-    /// [KSPAddon(KSPAddon.Startup.Flight,false)]
-    /// class KSPAlternateResourcePanel : MonoBehaviourExtended
-    /// {
-    /// ...
-    /// }
-    /// 
-    /// OR
-    /// MonobehaviourExtended mbTemp = gameObject.AddComponent&lt;MonobehaviorExtended&gt;();
-    /// </code>
-    /// DONT DO THIS ONE!!!
-    /// MonobehaviourExtended mbTemp = new MonobehaviourExtended();
-    /// </example>
-    public abstract class MonoBehaviourExtended : MonoBehaviour
+    public abstract class PartModuleExtended : PartModule
     {
-        #region Constructor
-
-        ///// <summary>
-        ///// This is marked private so you have to use the Factory Method to create any new instance. The Factory Method will add the new instance to a gameObject which is a requirement for Unity events to occur on the object
-        ///// </summary>
-        //private MonoBehaviourExtended()
-        //{
-
-        //}
-
-        //internal static MonoBehaviourExtended CreateComponent(GameObject AttachTo)
-        //{
-        //    MonoBehaviourExtended monoReturn;
-        //    monoReturn = AttachTo.AddComponent<MonoBehaviourExtended>();
-        //    return monoReturn;
-        //}
-        static MonoBehaviourExtended()
-        {
-            UnityEngine.Random.seed = (int)(DateTime.Now - DateTime.Now.Date).TotalSeconds;
-        }
-
-        #endregion
-
-        internal T AddComponent<T>() where T : UnityEngine.Component
-        {
-            return gameObject.AddComponent<T>();
-        }
-
         #region RepeatingFunction Code
-
         private Boolean _RepeatRunning = false;
-
         /// <summary>
         /// Returns whether the RepeatingWorkerFunction is Running
         /// </summary>
@@ -112,7 +70,6 @@ namespace KSPPluginFramework
             RepeatingWorkerRate = (Single)(1 / (Single)NewTimesPerSecond);
             return RepeatingWorkerRate;
         }
-
         /// <summary>
         /// Set the repeating period by how many times a second it should repeat
         ///    eg. if you set this to 4 then it will repeat every 0.25 secs
@@ -124,7 +81,6 @@ namespace KSPPluginFramework
             RepeatingWorkerRate = (Single)(1 / NewTimesPerSecond);
             return RepeatingWorkerRate;
         }
-
         /// <summary>
         /// Set the repeating rate in seconds for the repeating function
         ///    eg. if you set this to 0.1 then it will repeat 10 times every second
@@ -148,7 +104,6 @@ namespace KSPPluginFramework
         }
 
         #region Start/Stop Functions
-
         /// <summary>
         /// Starts the RepeatingWorker Function and sets the TimesPerSec variable
         /// </summary>
@@ -204,7 +159,6 @@ namespace KSPPluginFramework
             }
             return _RepeatRunning;
         }
-
         #endregion
 
         /// <summary>
@@ -230,12 +184,10 @@ namespace KSPPluginFramework
         /// The Game Time that the Repeating Worker function last started
         /// </summary>
         private Double RepeatingWorkerUTLastStart { get; set; }
-
         /// <summary>
         /// The Game Time that the Repeating Worker function started this time
         /// </summary>
         private Double RepeatingWorkerUTStart { get; set; }
-
         /// <summary>
         /// The amount of UT that passed between the last two runs of the Repeating Worker Function
         /// 
@@ -262,23 +214,30 @@ namespace KSPPluginFramework
             //Now calc the duration
             RepeatingWorkerDuration = (DateTime.Now - Duration);
         }
-
         #endregion
 
         #region Standard Monobehaviour definitions-for overriding
-
-        //See this for info on order of execuction
+        // PartModule has 6 standard overrides and can use any standard Unity MonoBehaviour EXCEPT Awake()
+        // See this for info on order of execuction
         //  http://docs.unity3d.com/Documentation/Manual/ExecutionOrder.html
 
         /// <summary>
-        /// Unity Help: Awake is called when the script instance is being loaded.
-        ///
-        /// Trigger: Override this for initialization Code - this is before the Start Event
-        ///          See this for info on order of execuction: http://docs.unity3d.com/Documentation/Manual/ExecutionOrder.html
+        /// Awake is not allowed for PartModule
         /// </summary>
-        internal virtual void Awake()
+        //internal virtual void Awake()
+        //{
+        //    LogFormatted_DebugOnly("New PMExtended Awakened");
+        //}
+
+        /// <summary>
+        /// KSP:
+        ///     Constructor style setup.
+        ///     Called in the Part's Awake method. 
+        ///     The model may not be built by this point.
+        /// </summary>
+        public override void OnAwake()
         {
-            LogFormatted_DebugOnly("New MBExtended Awakened");
+            LogFormatted_DebugOnly("PMExtended OnAwake");
         }
 
         /// <summary>
@@ -287,9 +246,20 @@ namespace KSPPluginFramework
         /// Trigger: This is the last thing that happens before the scene starts doing stuff
         ///          See this for info on order of execuction: http://docs.unity3d.com/Documentation/Manual/ExecutionOrder.html
         /// </summary>
-        internal virtual void Start()
+        public virtual void Start()
         {
             LogFormatted_DebugOnly("New MBExtended Started");
+        }
+
+        /// <summary>
+        /// KSP:
+        ///     Called during the Part startup.
+        ///     StartState gives flag values of initial state
+        /// </summary>
+        /// <param name="state">Initial state</param>
+        public override void OnStart(StartState state)
+        {
+            LogFormatted_DebugOnly("New PMExtended OnStart");
         }
 
         /// <summary>
@@ -297,10 +267,21 @@ namespace KSPPluginFramework
         ///
         /// Trigger: This Update is called at a fixed rate and usually where you do all your physics stuff for consistent results
         ///          See this for info on order of execuction: http://docs.unity3d.com/Documentation/Manual/ExecutionOrder.html
+        ///          
+        /// Agathorn:
+        ///     For PartModule, FixedUpdate() is called every physics update even if the part is not active.  In most cases
+        ///     you will want to use OnFixedUpdate() instead.
         /// </summary>
-        internal virtual void FixedUpdate()
-        {
-        }
+        public virtual void FixedUpdate()
+        { }
+
+        /// <summary>
+        /// KSP:
+        ///     Per-physx-frame update
+        ///     Called ONLY when Part is ACTIVE!
+        /// </summary>
+        public override void OnFixedUpdate()
+        { }
 
         /// <summary>
         /// Unity: LateUpdate is called every frame, if the MonoBehaviour is enabled.
@@ -308,18 +289,54 @@ namespace KSPPluginFramework
         /// Trigger: This Update is called just before the rendering, and where you can adjust any graphical values/positions based on what has been updated in the physics, etc
         ///          See this for info on order of execuction: http://docs.unity3d.com/Documentation/Manual/ExecutionOrder.html
         /// </summary>
-        internal virtual void LateUpdate()
-        {
-        }
+        public virtual void LateUpdate()
+        { }
 
         /// <summary>
         /// Unity: Update is called every frame, if the MonoBehaviour is enabled.
         ///
         /// Trigger: This is usually where you stick all your control inputs, keyboard handling, etc
         ///          See this for info on order of execuction: http://docs.unity3d.com/Documentation/Manual/ExecutionOrder.html
+        ///          
+        /// Agathorn: Note that for PartModule, Update() will be called every frame regardless of scene or state.  In otherwords
+        ///         This will be called for example in the VAB/SPH scenes when a part is added to a vessel.  It will also be called
+        ///         in the Flight scene even if the part is not yet active.  In *most* cases you should be using OnUpdate() instead.
         /// </summary>
-        internal virtual void Update()
+        public virtual void Update()
+        { }
+
+        /// <summary>
+        /// KSP:
+        ///     Per-frame update
+        ///     Called ONLY when Part is ACTIVE!
+        ///     
+        /// Agathorn: 
+        ///     For PartModule OnUpdate() is similiar to Update() in that it is called every frame, however OnUpdate() is only
+        ///     called when the part is *active*.
+        /// </summary>
+        public override void OnUpdate()
+        { }
+
+        /// <summary>
+        /// KSP:
+        ///     Called when PartModule is asked to save its values.
+        ///     Can save additional data here.
+        /// </summary>
+        /// <param name="node">The node to save in to</param>
+        public override void OnSave(ConfigNode node)
         {
+            LogFormatted_DebugOnly("PMExtended OnSave");
+        }
+
+        /// <summary>
+        /// KSP:
+        ///     Called when PartModule is asked to load its values.
+        ///     Can load additional data here.
+        /// </summary>
+        /// <param name="node">The node to load from</param>
+        public override void OnLoad(ConfigNode node)
+        {
+            LogFormatted_DebugOnly("PMExtended OnLoad");
         }
 
         /// <summary>
@@ -328,7 +345,7 @@ namespace KSPPluginFramework
         /// Trigger: Override this for destruction and cleanup code
         ///          See this for info on order of execuction: http://docs.unity3d.com/Documentation/Manual/ExecutionOrder.html
         /// </summary>
-        internal virtual void OnDestroy()
+        public virtual void OnDestroy()
         {
             LogFormatted_DebugOnly("Destroying MBExtended");
         }
@@ -336,7 +353,6 @@ namespace KSPPluginFramework
         #endregion
 
         #region OnGuiStuff
-
         //flag to mark when OnceOnly has been done
         private Boolean _OnGUIOnceOnlyHasRun = false;
 
@@ -347,7 +363,7 @@ namespace KSPPluginFramework
         ///          Code here ignores the F2 key that disables user interface. So if you are making something to be user hidable then use the RenderingManager.PostDrawQueue functions in here
         ///          Alternatively you could use the MonoBehaviourWindow Type and its DrawWindow Function
         /// </summary>
-        private void OnGUI()
+        public void OnGUI()
         {
             if (!_OnGUIOnceOnlyHasRun)
             {
@@ -388,11 +404,9 @@ namespace KSPPluginFramework
             LogFormatted_DebugOnly("Running OnGUI OnceOnly Code");
 
         }
-
         #endregion
 
         #region Assembly/Class Information
-
         /// <summary>
         /// Name of the Assembly that is running this MonoBehaviour
         /// </summary>
@@ -404,11 +418,9 @@ namespace KSPPluginFramework
         /// </summary>
         internal String _ClassName
         { get { return this.GetType().Name; } }
-
         #endregion
 
         #region Logging
-
         /// <summary>
         /// Some Structured logging to the debug file - ONLY RUNS WHEN DLL COMPILED IN DEBUG MODE
         /// </summary>
@@ -429,8 +441,8 @@ namespace KSPPluginFramework
         {
             Message = String.Format(Message, strParams);                  // This fills the params into the message
             String strMessageLine = String.Format("{0},{2},{1}",
-                                        DateTime.Now, Message,
-                                        _AssemblyName);                                           // This adds our standardised wrapper to each line
+                DateTime.Now, Message,
+                _AssemblyName);                                           // This adds our standardised wrapper to each line
             UnityEngine.Debug.Log(strMessageLine);                        // And this puts it in the log
         }
 

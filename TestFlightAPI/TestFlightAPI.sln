@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestFlightAPI", "TestFlightAPI\TestFlightAPI.csproj", "{F212E235-8856-4C7E-AFA9-051490E1350F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F212E235-8856-4C7E-AFA9-051490E1350F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F212E235-8856-4C7E-AFA9-051490E1350F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F212E235-8856-4C7E-AFA9-051490E1350F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F212E235-8856-4C7E-AFA9-051490E1350F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = TestFlightAPI\TestFlightAPI.csproj
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,31 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="../TestFlightAPI/TestFlightAPI/FlightDataRecorder.cs">
+    <Files>
+      <File FileName="../TestFlightAPI/TestFlightAPI/TestFlightAPI.cs" Line="29" Column="3" />
+      <File FileName="TestFlightCore/TestFlightCore.cs" Line="69" Column="1" />
+      <File FileName="TestFlightCore/TestFlight.cs" Line="57" Column="1" />
+      <File FileName="../FlightDataRecorder.cs" Line="34" Column="40" />
+      <File FileName="../FlightDataConfig.cs" Line="89" Column="21" />
+      <File FileName="../FlightDataRecorder_Engine.cs" Line="45" Column="1" />
+      <File FileName="../TestFlight_Reliability.cs" Line="143" Column="43" />
+      <File FileName="TestFlightCore/FlightDataConfig.cs" Line="8" Column="25" />
+      <File FileName="../TestFlightAPI/TestFlightAPI/FlightDataConfig.cs" Line="170" Column="1" />
+      <File FileName="../TestFlightAPI/TestFlightAPI/FlightDataRecorder.cs" Line="31" Column="64" />
+      <File FileName="../TestFlightAPI/TestFlightAPI/TestFlight_Reliability.cs" Line="94" Column="48" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True">
+          <Node name="TestFlight" expanded="True">
+            <Node name="References" expanded="True" />
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
