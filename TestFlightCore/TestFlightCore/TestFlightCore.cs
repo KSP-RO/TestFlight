@@ -8,10 +8,10 @@ using TestFlightAPI;
 namespace TestFlightCore
 {
     /// <summary>
-    /// This is the core PartModule of the TestFlight system, and is the module that everythign else plugins into.
+    /// This is the core PartModule of the TestFlight system, and is the module that everything else plugins into.
     /// All relevant data for working in the system, as well as all usable API methods live here.
     /// </summary>
-    public class TestFlightCore : PartModuleWindow
+    public class TestFlightCore : PartModuleWindow, ITestFlightCore
     {
         private int lastFailureCheck = 0;
         private float lastPolling = 0.0f;
@@ -45,13 +45,19 @@ namespace TestFlightCore
                 tsm = (TestFlightManagerScenario)psm.moduleRef;
             }
         }
+        public virtual TestFlightData GetCurrentFlightData()
+        {
+            return currentFlightData;
+        }
 
-        public override void OnUpdate()
+        public virtual void DoFlightUpdate(double missionStartTime)
         {
             // Check to see if its time to poll
-            float currentMet = (float)FlightLogger.met;
+            float currentMet = (float)(Planetarium.GetUniversalTime() - missionStartTime);
+            Debug.Log("TestFlightCore: Current MET " + currentMet + ", Last Poll " + lastPolling + "(" + pollingInterval + "/" + (lastPolling + pollingInterval) + ")");
             if (currentMet > (lastPolling + pollingInterval))
             {
+                Debug.Log("TestFlightCore: Performing flight update");
                 // Poll all compatible modules in this order:
                 // 1) FlightDataRecorder
                 // 2) TestFlightReliability
@@ -64,6 +70,7 @@ namespace TestFlightCore
                     IFlightDataRecorder fdr = pm as IFlightDataRecorder;
                     if (fdr != null)
                     {
+                        fdr.DoFlightUpdate(missionStartTime);
                         currentFlightData = fdr.GetCurrentFlightData();
                         break;
                     }
@@ -84,6 +91,13 @@ namespace TestFlightCore
             {
                 lastFailureCheck = FlightLogger.met_secs;
             }
+
+        }
+
+
+        public override void OnUpdate()
+        {
+//            Debug.Log("TestFlightCore: OnUpdate()");
         }
 
         internal override void DrawWindow(int id)

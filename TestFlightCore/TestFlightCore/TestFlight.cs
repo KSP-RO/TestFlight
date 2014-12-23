@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 
 using UnityEngine;
@@ -173,9 +174,18 @@ namespace TestFlightCore
 	{
         public List<PartFlightData> partsFlightData;
         public List<String> partsPackedStrings;
+        public Dictionary<Guid, double> knownVessels;
+
         [KSPField(isPersistant = true)]
-        public string test;
+        public float pollingInterval = 5.0f;
+        [KSPField(isPersistant = true)]
+        public bool processInactiveVessels = true;
+
         private bool havePartsBeenInitialized = false;
+
+        double currentUTC = 0.0;
+        double lastPolledUTC = 0.0;
+
 
 		public override void OnAwake()
 		{
@@ -201,7 +211,6 @@ namespace TestFlightCore
                 Debug.Log("Strings were null");
                 partsPackedStrings = new List<string>();
             }
-            Debug.Log(test);
 			base.OnAwake();
 		}
 
@@ -262,32 +271,96 @@ namespace TestFlightCore
                 }
                 else
                 {
-                    foreach (Vessel vessel in FlightGlobals.Vessels)
+                    currentUTC = Planetarium.GetUniversalTime();
+//                    Debug.Log("TestFlightManagerScenario: MET " + currentUTC + ", Last Poll " + lastPolledUTC + "(" + pollingInterval + ")");
+                    if (currentUTC > (lastPolledUTC + pollingInterval))
                     {
-                        foreach (Part part in vessel.parts)
+//                        Debug.Log("TestFlightManagerScenario: Scanning all vessel parts for FlightData");
+                        lastPolledUTC = currentUTC;
+
+                        // build a list of vessels to process based on setting
+                        if (knownVessels == null)
+                            knownVessels = new Dictionary<Guid, double>();
+
+                        // iterate through our cached vessels and delete ones that are no longer valid
+                        List<Guid> vesselsToDelete = new List<Guid>();
+                        foreach(var entry in knownVessels)
                         {
-                            foreach (PartModule pm in part.Modules)
+                            Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == entry.Key);
+                            if (vessel == null)
+                                vesselsToDelete.Add(entry.Key);
+                            else
                             {
-                                IFlightDataRecorder fdr = pm as IFlightDataRecorder;
-                                if (fdr != null)
+                                if (vessel.vesselType == VesselType.Debris)
+                                    vesselsToDelete.Add(entry.Key);
+                            }
+                        }
+                        foreach (Guid id in vesselsToDelete)
+                        {
+                            knownVessels.Remove(id);
+                        }
+
+                        // Build our cached list of vessels.  The reason we do this is so that we can store an internal "missionStartTime" for each vessel because the game
+                        // doesn't consider a vessel launched, and does not start the mission clock, until the player activates the first stage.  This is fine except it
+                        // makes things like engine test stands impossible, so we instead cache the vessel the first time we see it and use that time as the missionStartTime
+
+                        if (!processInactiveVessels)
+                        {
+                            Debug.Log("TestFlightManagerScenario: Polling active vessel only");
+                            if (!knownVessels.ContainsKey(FlightGlobals.ActiveVessel.id))
+                                knownVessels.Add(FlightGlobals.ActiveVessel.id, Planetarium.GetUniversalTime());
+                        }
+                        else
+                        {
+                            Debug.Log("TestFlightManagerScenario: Polling all vessels");
+                            foreach (Vessel vessel in FlightGlobals.Vessels)
+                            {
+                                if (vessel.vesselType == VesselType.Lander || vessel.vesselType == VesselType.Probe || vessel.vesselType == VesselType.Rover || vessel.vesselType == VesselType.Ship || vessel.vesselType == VesselType.Station)
                                 {
-                                    TestFlightData currentFlightData = fdr.GetCurrentFlightData();
-                                    PartFlightData data = GetFlightDataForPartName(part.name);
-                                    if (data != null)
+                                    if ( !knownVessels.ContainsKey(vessel.id) )
                                     {
-                                        data.AddFlightData(part.name, currentFlightData);
+                                        knownVessels.Add(vessel.id, Planetarium.GetUniversalTime());
                                     }
-                                    else
-                                    {
-                                        data = new PartFlightData();
-                                        data.AddFlightData(part.name, currentFlightData);
-                                        partsFlightData.Add(data);
-                                        partsPackedStrings.Add(data.ToString());
-                                    }
-                                    break;
                                 }
                             }
-
+                        }
+                        // process those vessels
+                        Debug.Log("Processing " + knownVessels.Count + " vessels");
+                        foreach (var entry in knownVessels)
+                        {
+                            Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == entry.Key);
+                            Debug.Log("Processing vessel " + vessel.GetName() + ", launched " + vessel.launchTime);
+                            foreach (Part part in vessel.parts)
+                            {
+                                foreach (PartModule pm in part.Modules)
+                                {
+//                                    Debug.Log("    Checking part module " + pm.moduleName);
+                                    ITestFlightCore core = pm as ITestFlightCore;
+                                    if (core != null)
+                                    {
+                                        // Tell the core to do a flight update
+                                        Debug.Log("TestFlightManagerScenario: Updating TestFlightCore");
+                                        core.DoFlightUpdate(entry.Value);
+                                        // Then grab its flight data
+                                        Debug.Log("TestFlightManagerScenario: Getting current flight data");
+                                        TestFlightData currentFlightData = core.GetCurrentFlightData();
+                                        PartFlightData data = GetFlightDataForPartName(part.name);
+                                        if (data != null)
+                                        {
+                                            data.AddFlightData(part.name, currentFlightData);
+                                        }
+                                        else
+                                        {
+                                            data = new PartFlightData();
+                                            data.AddFlightData(part.name, currentFlightData);
+                                            partsFlightData.Add(data);
+                                            partsPackedStrings.Add(data.ToString());
+                                        }
+                                        break;
+                                    }
+                                }
+                                
+                            }
                         }
                     }
                 }
@@ -300,7 +373,6 @@ namespace TestFlightCore
         {
             Debug.Log("TestFlightManagerScenario: OnLoad()");
             Debug.Log(node);
-            test = "one";
             if (node.HasNode("FLIGHTDATA_PART"))
             {
                 if (partsFlightData == null)

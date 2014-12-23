@@ -11,7 +11,7 @@ namespace TestFlightAPI
         private int currentFlightTime = 0;
 		private string currentScope = "NONE";
 
-		private int lastRecordedMet = 0;
+        private double lastRecordedMet = 0;
 
         private double deepSpaceThreshold = 10000000;
 
@@ -21,6 +21,10 @@ namespace TestFlightAPI
         public FlightDataConfig flightData;
         [KSPField(isPersistant = true)]
         private bool isNewInstanceOfPart = true;
+        [KSPField(isPersistant = true)]
+        public float flightDataMultiplier = 10.0f;
+        [KSPField(isPersistant = true)]
+        public float flightDataEngineerModifier = 0.25f;
         #endregion
 
 
@@ -132,6 +136,54 @@ namespace TestFlightAPI
             deepSpaceThreshold = newThreshold;
         }
 
+        public virtual void DoFlightUpdate(double missionStartTime)
+        {
+//            int currentMet = FlightLogger.met_secs;
+//            int currentMet = FlightLogger.met_secs;
+//            float currentMetFull = (float)FlightLogger.met();
+            double currentMet = Planetarium.GetUniversalTime() - missionStartTime;
+            Debug.Log("FlightDataRecorderBase: Current MET " + (int)currentMet + ", Last Poll " + (int)lastRecordedMet + ", Current Flight Time " + currentFlightTime);
+            if (!IsRecordingFlightData())
+            {
+                lastRecordedMet = currentMet;
+//                lastRecordedMetFull = currentMetFull;
+                return;
+            }
+            
+            string scope = String.Format("{0}_{1}", GetDataBody(), GetDataSituation());
+            // Check to see if we have changed scope
+            if (scope != currentScope)
+            {
+                // If we have moved to a new scope then we need to reset our current data counters
+                // First save what we have for the old scope
+                flightData.AddFlightData(currentScope, currentData, currentFlightTime);
+                // Try to get any existing stored data for this scope, or set it to 0
+                FlightDataBody bodyData = flightData.GetFlightData(scope);
+                if (bodyData != null)
+                {
+                    currentData = bodyData.flightData;
+                    currentFlightTime = bodyData.flightTime;
+                }
+                else
+                {
+                    currentData = 0.0f;
+                    currentFlightTime = 0;
+                }
+                // move to the new scope
+                currentScope = scope;
+            }
+            // TODO once migrated to KSP 0.90, hook this up to the Kerbal engineer skill if an engineer is present on board ship
+            int engineerLevel = 0;
+            float engineerModifier = 1.0f + (engineerLevel * flightDataEngineerModifier);
+
+            if (currentMet > lastRecordedMet)
+            {
+                currentData += (float)(((currentMet - lastRecordedMet) * flightDataMultiplier) * flightDataEngineerModifier);
+                currentFlightTime += (int)(currentMet - lastRecordedMet);
+            }
+            lastRecordedMet = currentMet;
+        }
+
         public virtual bool IsRecordingFlightData()
         {
             bool isRecording = true;
@@ -144,6 +196,7 @@ namespace TestFlightAPI
 
         public override void OnAwake()
         {
+            Debug.Log("FlightDataRecorderBase: OnAwake()");
             base.OnAwake();
             if (flightData == null)
             {
@@ -176,40 +229,6 @@ namespace TestFlightAPI
 
         public override void OnFixedUpdate()
         {
-            int currentMet = FlightLogger.met_secs;
-            if (!IsRecordingFlightData())
-            {
-                lastRecordedMet = currentMet;
-                return;
-            }
-
-            string scope = String.Format("{0}_{1}", GetDataBody(), GetDataSituation());
-            // Check to see if we have changed scope
-            if (scope != currentScope)
-            {
-                // If we have moved to a new scope then we need to reset our current data counters
-                // First save what we have for the old scope
-                flightData.AddFlightData(currentScope, currentData, currentFlightTime);
-                // Try to get any existing stored data for this scope, or set it to 0
-                FlightDataBody bodyData = flightData.GetFlightData(scope);
-                if (bodyData != null)
-                {
-                    currentData = bodyData.flightData;
-                    currentFlightTime = bodyData.flightTime;
-                }
-                else
-                {
-                    currentData = 0.0f;
-                    currentFlightTime = 0;
-                }
-                // move to the new scope
-                currentScope = scope;
-            }
-
-            currentData = currentData + 1;
-            if (currentMet > lastRecordedMet)
-                currentFlightTime = (currentMet = lastRecordedMet);
-            lastRecordedMet = currentMet;
         }
 
         public override void OnActive()

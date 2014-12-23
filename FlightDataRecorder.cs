@@ -11,6 +11,11 @@ namespace TestFlight
 
     public class FlightDataRecorder : FlightDataRecorderBase
     {
+        public override void OnAwake()
+        {
+            Debug.Log("FlightDataRecorder: OnAwake()");
+            base.OnAwake();
+        }
     }
 }
 

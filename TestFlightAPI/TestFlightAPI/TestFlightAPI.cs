@@ -25,6 +25,7 @@ namespace TestFlightAPI
 		TestFlightData GetCurrentFlightData();
         void InitializeFlightData(List<TestFlightData> allFlightData);
         void SetDeepSpaceThreshold(double newThreshold);
+        void DoFlightUpdate(double missionStartTime);
 	}
 
 	public interface ITestFlightReliability
@@ -52,13 +53,15 @@ namespace TestFlightAPI
     /// </summary>
     public interface ITestFlightCore
     {
-        void PerformPreflight();
-        /// <summary>
+//        void PerformPreflight();
+//        /// <summary>
         /// 0 = OK, 1 = Minor Failure, 2 = Failure, 3 = Major Failure
         /// </summary>
         /// <returns>The part status.</returns>
-        int GetPartStatus();
-        string GetFailureModule();
+//        int GetPartStatus();
+//        string GetFailureModule();
+        TestFlightData GetCurrentFlightData();
+        void DoFlightUpdate(double missionStartTime);
     }
 }
 
