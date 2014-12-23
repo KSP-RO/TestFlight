@@ -164,7 +164,7 @@ namespace TestFlightCore
 			if (psm == null)
 			{
                 Debug.Log("Creating new TestFlightManagerScenario");
-				GameScenes[] desiredScenes = new GameScenes[4] { GameScenes.EDITOR, GameScenes.FLIGHT, GameScenes.TRACKSTATION, GameScenes.SPH };
+				GameScenes[] desiredScenes = new GameScenes[3] { GameScenes.EDITOR, GameScenes.FLIGHT, GameScenes.TRACKSTATION };
 				psm = game.AddProtoScenarioModule(typeof(TestFlightManagerScenario), desiredScenes);
 			}
 		}
