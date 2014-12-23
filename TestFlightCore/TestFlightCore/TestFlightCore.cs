@@ -32,6 +32,7 @@ namespace TestFlightCore
 
         public override void OnAwake()
         {
+            Debug.Log("TestFlightCore: OnAwake()");
             base.OnAwake();
             WindowCaption = "TestFlight";
             WindowRect = new Rect(0, 0, 250, 50);

@@ -104,6 +104,7 @@ namespace TestFlightAPI
         /// <param name="allFlightData">All flight data.</param>
         public void InitializeFlightData(List<TestFlightData> allFlightData)
         {
+            Debug.Log("FlightDataRecorderBase: InitializeFlightData()");
             if (isNewInstanceOfPart)
             {
                 foreach (TestFlightData data in allFlightData)
@@ -115,6 +116,10 @@ namespace TestFlightAPI
                     flightData.AddFlightData(data.scope, data.flightData, 0);
                 }
                 isNewInstanceOfPart = false;
+            }
+            else
+            {
+                Debug.Log("Skipping intialization because not a new instance of part");
             }
             // Initialize our current scope with the data we just received
             currentScope = String.Format("{0}_{1}", GetDataBody(), GetDataSituation());
@@ -148,6 +153,8 @@ namespace TestFlightAPI
 
         public override void OnLoad(ConfigNode node)
         {
+            if (node.HasValue("isNewInstanceOfPart"))
+                isNewInstanceOfPart = bool.Parse(node.GetValue("isNewInstanceOfPart"));
             base.OnLoad(node);
         }
 
@@ -163,6 +170,7 @@ namespace TestFlightAPI
         {
             // Make sure our FlightData configs are up to date
             flightData.AddFlightData(currentScope, currentData, currentFlightTime);
+            node.AddValue("isNewInstanceOfPart", isNewInstanceOfPart);
             base.OnSave(node);
         }
 

@@ -16,6 +16,7 @@ namespace TestFlightCore
 
         public void AddFlightData(string name, TestFlightData data)
         {
+//            Debug.Log("PartFlightData: AddFlightData()");
             if (flightData == null)
             {
                 flightData = new List<TestFlightData>();
@@ -56,16 +57,19 @@ namespace TestFlightCore
 
         public List<TestFlightData> GetFlightData()
         {
+//            Debug.Log("PartFlightData: GetFlightData()");
             return flightData;
         }
 
         public string GetPartName()
         {
+//            Debug.Log("PartFlightData: GetPartName()");
             return partName;
         }
 
         public override string ToString()
         {
+//            Debug.Log("PartFlightData: ToString()");
             string baseString = partName + ":";
             foreach (TestFlightData data in flightData)
             {
@@ -78,6 +82,7 @@ namespace TestFlightCore
 
         public static PartFlightData FromString(string str)
         {
+//            Debug.Log("PartFlightData: FromString()");
             // String format is
             // partName:scope,data,0 scope,data scope,data,0 scope,data,0 
             PartFlightData newData = null;
@@ -111,6 +116,7 @@ namespace TestFlightCore
 
         public void Load(ConfigNode node)
         {
+            Debug.Log("PartFlightData: Load()");
             partName = node.GetValue("partName");
             Debug.Log("Loading FlightData for " + partName);
             if (node.HasNode("FLIGHTDATA"))
@@ -131,6 +137,7 @@ namespace TestFlightCore
 
         public void Save(ConfigNode node)
         {
+            Debug.Log("PartFlightData: Save()");
             node.AddValue("partName", partName);
             Debug.Log("Saving FlightData for " + partName);
             foreach (TestFlightData data in flightData)
@@ -200,6 +207,7 @@ namespace TestFlightCore
 
         private PartFlightData GetFlightDataForPartName(string partName)
         {
+//            Debug.Log("TestFlightManagerScenario: GetFlightDataForPartName(" + partName + ")");
             foreach (PartFlightData data in partsFlightData)
             {
                 if (data.GetPartName() == partName)
@@ -210,6 +218,7 @@ namespace TestFlightCore
 
         private void InitializeParts()
         {
+            Debug.Log("TestFlightManagerScenario: InitializeParts()");
             Vessel vessel = FlightGlobals.ActiveVessel;
             foreach (Part part in vessel.parts)
             {
@@ -218,11 +227,17 @@ namespace TestFlightCore
                     IFlightDataRecorder fdr = pm as IFlightDataRecorder;
                     if (fdr != null)
                     {
-                        PartFlightData partData = GetFlightDataForPartName(pm.part.partName);
+                        Debug.Log("TestFlightManagerScenario: Found FlightDataRecorder");
+                        Debug.Log("TestFlightManagerScenario: Looking for flightdata for partname: " + pm.part.name);
+                        PartFlightData partData = GetFlightDataForPartName(pm.part.name);
                         if (partData != null)
                         {
                             Debug.Log("Init flight data");
                             fdr.InitializeFlightData(partData.GetFlightData());
+                        }
+                        else
+                        {
+                            Debug.Log("Unable to find any flightdata");
                         }
                         break;
                     }
@@ -240,6 +255,7 @@ namespace TestFlightCore
 //                Debug.Log(FlightGlobals.ActiveVessel.situation);
                 if (havePartsBeenInitialized == false)
                 {
+//                    Debug.Log("TestFlightManagerScenario: Initializing parts");
                     InitializeParts();
                     havePartsBeenInitialized = true;
 //                    PerformPreflightTests();
@@ -266,6 +282,7 @@ namespace TestFlightCore
                                         data = new PartFlightData();
                                         data.AddFlightData(part.name, currentFlightData);
                                         partsFlightData.Add(data);
+                                        partsPackedStrings.Add(data.ToString());
                                     }
                                     break;
                                 }
@@ -281,6 +298,8 @@ namespace TestFlightCore
 
         public override void OnLoad(ConfigNode node)
         {
+            Debug.Log("TestFlightManagerScenario: OnLoad()");
+            Debug.Log(node);
             test = "one";
             if (node.HasNode("FLIGHTDATA_PART"))
             {
@@ -301,9 +320,20 @@ namespace TestFlightCore
 
 		public override void OnSave(ConfigNode node)
 		{
+            Debug.Log("TestFlightManagerScenario: OnSave()");
+            Debug.Log(node);
             if (HighLogic.LoadedSceneIsFlight)
             {
-                Debug.Log("TestFlight: Saving in FLIGHT scene");
+                Debug.Log("TestFlightManagerScenario: Saving in FLIGHT scene");
+                foreach (PartFlightData partData in partsFlightData)
+                {
+                    ConfigNode partNode = node.AddNode("FLIGHTDATA_PART");
+                    partData.Save(partNode);
+                }
+            }
+            else
+            {
+                Debug.Log("TestFlightManagerScenario: Saving in NON-FLIGHT scene");
                 foreach (PartFlightData partData in partsFlightData)
                 {
                     ConfigNode partNode = node.AddNode("FLIGHTDATA_PART");

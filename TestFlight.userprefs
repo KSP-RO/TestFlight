@@ -1,12 +1,12 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" PreferredExecutionTarget="MonoDevelop.Default" />
   <MonoDevelop.Ide.Workbench ActiveDocument="TestFlightCore/TestFlightCore/TestFlight.cs">
     <Files>
       <File FileName="TestFlightAPI/TestFlightAPI/TestFlight_Reliability.cs" Line="1" Column="1" />
       <File FileName="TestFlightAPI/TestFlightAPI/FlightDataRecorder.cs" Line="1" Column="1" />
       <File FileName="TestFlightAPI/TestFlightAPI/FlightDataConfig.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/TestFlight.cs" Line="35" Column="35" />
-      <File FileName="TestFlightCore/TestFlightCore/TestFlightCore.cs" Line="1" Column="1" />
+      <File FileName="TestFlightCore/TestFlightCore/TestFlight.cs" Line="40" Column="61" />
+      <File FileName="TestFlightCore/TestFlightCore/TestFlightCore.cs" Line="11" Column="95" />
       <File FileName="FlightDataRecorder.cs" Line="1" Column="1" />
       <File FileName="FlightDataRecorder_Engine.cs" Line="1" Column="1" />
       <File FileName="TestFlightAPI/TestFlightAPI/TestFlightAPI.cs" Line="1" Column="1" />
