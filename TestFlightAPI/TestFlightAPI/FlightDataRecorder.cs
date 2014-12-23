@@ -65,13 +65,16 @@ namespace TestFlightAPI
         public string GetDataSituation()
         {
             string situation = this.vessel.situation.ToString().ToLower();
+
             // Determine if we are recording data in SPACE or ATMOSHPHERE
-            if (situation == "sub_orbital" || situation == "orbiting" || situation == "escaping")
-            if (this.vessel.altitude > deepSpaceThreshold)
-                situation = "deep-space";
-            else
-                situation = "space";
-            else if (situation == "flying")
+            if (situation == "sub_orbital" || situation == "orbiting" || situation == "escaping" || situation == "docked")
+            {
+                if (this.vessel.altitude > deepSpaceThreshold)
+                    situation = "deep-space";
+                else
+                    situation = "space";
+            }
+            else if (situation == "flying" || situation == "landed" || situation == "splashed" || situation == "prelaunch")
                 situation = "atmosphere";
             else
                 situation = "default";
@@ -178,7 +181,7 @@ namespace TestFlightAPI
 
             if (currentMet > lastRecordedMet)
             {
-                currentData += (float)(((currentMet - lastRecordedMet) * flightDataMultiplier) * flightDataEngineerModifier);
+                currentData += (float)(((currentMet - lastRecordedMet) * flightDataMultiplier) * engineerModifier);
                 currentFlightTime += (int)(currentMet - lastRecordedMet);
             }
             lastRecordedMet = currentMet;

@@ -104,6 +104,7 @@ namespace TestFlightCore
         {
 			GUILayout.Label(String.Format("TestFlight Debug for {0}", this.part.name));
             GUILayout.Label(String.Format("flight data:{0:F0}", currentFlightData.flightData));
+            GUILayout.Label(String.Format("flight data scope:{0}", currentFlightData.scope));
             GUILayout.Label(String.Format("flight time:{0:D}", currentFlightData.flightTime));
             GUILayout.Label(String.Format("reliability:{0:F2}", currentReliability));
         }
