@@ -146,35 +146,39 @@ namespace TestFlightAPI
 //            float currentMetFull = (float)FlightLogger.met();
             double currentMet = Planetarium.GetUniversalTime() - missionStartTime;
             Debug.Log("FlightDataRecorderBase: Current MET " + (int)currentMet + ", Last Poll " + (int)lastRecordedMet + ", Current Flight Time " + currentFlightTime);
-            if (!IsRecordingFlightData())
-            {
-                lastRecordedMet = currentMet;
-//                lastRecordedMetFull = currentMetFull;
-                return;
-            }
-            
+
             string scope = String.Format("{0}_{1}", GetDataBody(), GetDataSituation());
             // Check to see if we have changed scope
             if (scope != currentScope)
             {
                 // If we have moved to a new scope then we need to reset our current data counters
                 // First save what we have for the old scope
+                Debug.Log("FlightDataRecorderBase: Changing scope from " + currentScope + " to " + scope);
                 flightData.AddFlightData(currentScope, currentData, currentFlightTime);
                 // Try to get any existing stored data for this scope, or set it to 0
                 FlightDataBody bodyData = flightData.GetFlightData(scope);
                 if (bodyData != null)
                 {
+                    Debug.Log("FlightDataRecorderBase: Loading existing data for new scope");
                     currentData = bodyData.flightData;
                     currentFlightTime = bodyData.flightTime;
                 }
                 else
                 {
+                    Debug.Log("FlightDataRecorderBase: No existing data for new scope.  Starting fresh");
                     currentData = 0.0f;
                     currentFlightTime = 0;
                 }
                 // move to the new scope
                 currentScope = scope;
             }
+            if (!IsRecordingFlightData())
+            {
+                lastRecordedMet = currentMet;
+                //                lastRecordedMetFull = currentMetFull;
+                return;
+            }
+
             // TODO once migrated to KSP 0.90, hook this up to the Kerbal engineer skill if an engineer is present on board ship
             int engineerLevel = 0;
             float engineerModifier = 1.0f + (engineerLevel * flightDataEngineerModifier);

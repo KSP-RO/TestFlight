@@ -1,17 +1,31 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="TestFlightCore/TestFlightCore/TestFlight.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="TestFlightAPI/TestFlightAPI/FlightDataRecorder.cs">
     <Files>
       <File FileName="TestFlightAPI/TestFlightAPI/TestFlight_Reliability.cs" Line="1" Column="1" />
-      <File FileName="TestFlightAPI/TestFlightAPI/FlightDataRecorder.cs" Line="1" Column="1" />
+      <File FileName="TestFlightAPI/TestFlightAPI/FlightDataRecorder.cs" Line="172" Column="41" />
       <File FileName="TestFlightAPI/TestFlightAPI/FlightDataConfig.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/TestFlight.cs" Line="40" Column="61" />
-      <File FileName="TestFlightCore/TestFlightCore/TestFlightCore.cs" Line="11" Column="95" />
-      <File FileName="FlightDataRecorder.cs" Line="1" Column="1" />
-      <File FileName="FlightDataRecorder_Engine.cs" Line="1" Column="1" />
-      <File FileName="TestFlightAPI/TestFlightAPI/TestFlightAPI.cs" Line="1" Column="1" />
+      <File FileName="TestFlightCore/TestFlightCore/TestFlight.cs" Line="212" Column="1" />
+      <File FileName="TestFlightCore/TestFlightCore/TestFlightCore.cs" Line="107" Column="91" />
+      <File FileName="TestFlightAPI/TestFlightAPI/TestFlightAPI.cs" Line="28" Column="52" />
       <File FileName="TestFlight_Reliability.cs" Line="1" Column="1" />
+      <File FileName="TestFlightCore/TestFlightCore/KSPFramework/PartModuleWindow.cs" Line="1" Column="1" />
+      <File FileName="TestFlightCore/TestFlightCore/KSPFramework/PartModuleExtended.cs" Line="29" Column="52" />
+      <File FileName="TestFlightCore/TestFlightCore/KSPFramework/MonoBehaviourExtended.cs" Line="1" Column="1" />
     </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True">
+          <Node name="TestFlight" expanded="True" />
+          <Node name="TestFlightAPI" expanded="True">
+            <Node name="FlightDataRecorder.cs" selected="True" />
+          </Node>
+          <Node name="TestFlightCore" expanded="True">
+            <Node name="KSPFramework" expanded="True" />
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
