@@ -89,7 +89,7 @@ namespace TestFlightAPI
             if (situation == "deep-space")
                 return "none";
             else
-                return this.vessel.mainBody.name;
+                return this.vessel.mainBody.name.ToLower();
         }
 
         // Interface Implementation
