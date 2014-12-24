@@ -103,4 +103,12 @@
       <Name>TestFlightAPI</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="TestFlight\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestFlight\Resources.cfg" />
+    <None Include="TestFlight\Squad_Engines.cfg" />
+    <None Include="TestFlight\Parts\KRCS block\part.cfg" />
+  </ItemGroup>
 </Project>
