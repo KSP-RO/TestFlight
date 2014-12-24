@@ -62,6 +62,7 @@
     <Compile Include="KSPFramework\PartModuleWindow.cs" />
     <Compile Include="KSPFramework\SkinsLibrary.cs" />
     <Compile Include="TestFlightCore.cs" />
+    <Compile Include="Settings.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

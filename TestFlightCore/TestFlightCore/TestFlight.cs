@@ -155,19 +155,34 @@ namespace TestFlightCore
     }
 
     [KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
-	public class TestFlightManager : MonoBehaviour
+	public class TestFlightManager : MonoBehaviourWindow
 	{
-		public void Start()
+        private TestFlightManagerScenario tsm;
+		internal override void Start()
 		{
+            Debug.Log("TestFlightManager: Start()");
 			var game = HighLogic.CurrentGame;
 			ProtoScenarioModule psm = game.scenarios.Find(s => s.moduleName == typeof(TestFlightManagerScenario).Name);
 			if (psm == null)
 			{
                 Debug.Log("Creating new TestFlightManagerScenario");
-				GameScenes[] desiredScenes = new GameScenes[3] { GameScenes.EDITOR, GameScenes.FLIGHT, GameScenes.TRACKSTATION };
+				GameScenes[] desiredScenes = new GameScenes[4] { GameScenes.EDITOR, GameScenes.FLIGHT, GameScenes.TRACKSTATION, GameScenes.SPACECENTER };
 				psm = game.AddProtoScenarioModule(typeof(TestFlightManagerScenario), desiredScenes);
 			}
+            tsm = (TestFlightManagerScenario)psm.moduleRef;
+            Debug.Log("TestFlightManager: Value of TSM = " + tsm);
+            base.Start();
 		}
+
+        internal override void Awake()
+        {
+            Debug.Log("TestFlightManager: Awake()");
+            base.Awake();
+        }
+
+        internal override void DrawWindow(Int32 id)
+        {
+        }
 	}
 
 	public class TestFlightManagerScenario : ScenarioModule
@@ -176,9 +191,8 @@ namespace TestFlightCore
         public List<String> partsPackedStrings;
         public Dictionary<Guid, double> knownVessels;
 
-        [KSPField(isPersistant = true)]
-        public float pollingInterval = 5.0f;
-        [KSPField(isPersistant = true)]
+        Settings settings = null;
+        public double pollingInterval = 5.0f;
         public bool processInactiveVessels = true;
 
         private bool havePartsBeenInitialized = false;
@@ -186,8 +200,7 @@ namespace TestFlightCore
         double currentUTC = 0.0;
         double lastPolledUTC = 0.0;
 
-
-		public override void OnAwake()
+        public override void OnAwake()
 		{
 			Debug.Log("TestFlightManagerScenario: OnAwake()");
             if (partsFlightData == null)
@@ -211,6 +224,11 @@ namespace TestFlightCore
                 Debug.Log("Strings were null");
                 partsPackedStrings = new List<string>();
             }
+            if (settings == null)
+            {
+                settings = new Settings("../settings.cfg");
+            }
+            settings.Load();
 			base.OnAwake();
 		}
 
@@ -272,8 +290,8 @@ namespace TestFlightCore
                 else
                 {
                     currentUTC = Planetarium.GetUniversalTime();
-//                    Debug.Log("TestFlightManagerScenario: MET " + currentUTC + ", Last Poll " + lastPolledUTC + "(" + pollingInterval + ")");
-                    if (currentUTC > (lastPolledUTC + pollingInterval))
+                    //                    Debug.Log("TestFlightManagerScenario: MET " + currentUTC + ", Last Poll " + lastPolledUTC + "(" + settings.globalPollingTime + ")");
+                    if (currentUTC > (lastPolledUTC + settings.globalPollingTime))
                     {
 //                        Debug.Log("TestFlightManagerScenario: Scanning all vessel parts for FlightData");
                         lastPolledUTC = currentUTC;
@@ -304,7 +322,7 @@ namespace TestFlightCore
                         // doesn't consider a vessel launched, and does not start the mission clock, until the player activates the first stage.  This is fine except it
                         // makes things like engine test stands impossible, so we instead cache the vessel the first time we see it and use that time as the missionStartTime
 
-                        if (!processInactiveVessels)
+                        if (!settings.processAllVessels)
                         {
                             Debug.Log("TestFlightManagerScenario: Polling active vessel only");
                             if (!knownVessels.ContainsKey(FlightGlobals.ActiveVessel.id))
