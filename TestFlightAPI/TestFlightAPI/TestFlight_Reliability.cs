@@ -96,11 +96,17 @@ namespace TestFlightAPI
 
         public ReliabilityBodyConfig GetReliabilityBody(string scope)
         {
+            Debug.Log("TestFlight_ReliabilityBase: GetReliabilityBody(" + scope + ")");
+            foreach (ReliabilityBodyConfig config in reliabilityBodies)
+            {
+                Debug.Log(config.scope + " ? " + scope);
+            }
             return reliabilityBodies.Find(s => s.scope == scope);
         }
 
         public float GetCurrentReliability(TestFlightData flightData)
         {
+            Debug.Log("TestFlight_ReliabilityBase: GetCurrentReliability(" + flightData.scope + ")");
             // Get the flight data for the currently active body and situation
             float currentFlightData = flightData.flightData;
             // Determine current situation
@@ -111,6 +117,7 @@ namespace TestFlightAPI
             ReliabilityBodyConfig body = GetReliabilityBody(scope);
             if (body != null)
             {
+                Debug.Log("TestFlight_ReliabilityBase: Found ReliabilityBody from scope");
                 if (rawReliability < body.minReliability)
                     return body.minReliability;
                 if (rawReliability > body.maxReliability)
@@ -122,6 +129,7 @@ namespace TestFlightAPI
 
         public override void OnAwake()
         {
+            Debug.Log("TestFlight_ReliabilityBase: OnAwake()");
             if (reliabilityBodies == null)
                 reliabilityBodies = new List<ReliabilityBodyConfig>();
             if (reliabilityBodiesPackedString == null)
@@ -132,17 +140,26 @@ namespace TestFlightAPI
         {
             // when starting we need to re-load our data from the packed strings
             // because for some reason KSP/Unity will dump the more complex datastructures from memory
-            reliabilityBodies.Clear();
-            foreach (string packedString in reliabilityBodiesPackedString)
+            Debug.Log("TestFlight_ReliabilityBase: OnStart()");
+            if (reliabilityBodies == null || reliabilityBodies.Count == 0)
             {
-                ReliabilityBodyConfig reliabilityBody = ReliabilityBodyConfig.FromString(packedString);
-                reliabilityBodies.Add(reliabilityBody);
+                Debug.Log("TestFlight_ReliabilityBase: Rebuilding bodies from packed strings");
+                foreach (string packedString in reliabilityBodiesPackedString)
+                {
+                    ReliabilityBodyConfig reliabilityBody = ReliabilityBodyConfig.FromString(packedString);
+                    reliabilityBodies.Add(reliabilityBody);
+                }
+            }
+            else
+            {
+                Debug.Log("TestFlight_ReliabilityBase: " + reliabilityBodies.Count + " bodies in memory");
             }
         }
 
         public override void OnLoad(ConfigNode node)
         {
-            base.OnLoad(node);
+            Debug.Log("TestFlight_ReliabilityBase: OnLoad()");
+            Debug.Log(node);
             foreach (ConfigNode bodyNode in node.GetNodes("RELIABILITY_BODY"))
             {
                 ReliabilityBodyConfig reliabilityBody = new ReliabilityBodyConfig();
@@ -150,14 +167,19 @@ namespace TestFlightAPI
                 reliabilityBodies.Add(reliabilityBody);
                 reliabilityBodiesPackedString.Add(reliabilityBody.ToString());
             }
+            base.OnLoad(node);
         }
 
         public override void OnSave(ConfigNode node)
         {
+            Debug.Log("TestFlight_ReliabilityBase: OnSave()");
+            Debug.Log(node);
             foreach (ReliabilityBodyConfig reliabilityBody in reliabilityBodies)
             {
                 reliabilityBody.Save(node.AddNode("RELIABILITY_BODY"));
             }
+            Debug.Log(node);
+            base.OnLoad(node);
         }
     }
 }
