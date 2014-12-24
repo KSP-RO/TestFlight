@@ -38,12 +38,12 @@ namespace TestFlightCore
             WindowRect = new Rect(0, 0, 250, 50);
             Visible = false;
             DragEnabled = true;
-            var game = HighLogic.CurrentGame;
-            ProtoScenarioModule psm = game.scenarios.Find(s => s.moduleName == typeof(TestFlightManagerScenario).Name);
-            if (psm != null)
-            {
-                tsm = (TestFlightManagerScenario)psm.moduleRef;
-            }
+//            var game = HighLogic.CurrentGame;
+//            ProtoScenarioModule psm = game.scenarios.Find(s => s.moduleName == typeof(TestFlightManagerScenario).Name);
+//            if (psm != null)
+//            {
+//                tsm = (TestFlightManagerScenario)psm.moduleRef;
+//            }
         }
         public virtual TestFlightData GetCurrentFlightData()
         {
@@ -70,6 +70,7 @@ namespace TestFlightCore
                     IFlightDataRecorder fdr = pm as IFlightDataRecorder;
                     if (fdr != null)
                     {
+                        Debug.Log("    TestFlightCore: Processing FlightDataRecorder Module");
                         fdr.DoFlightUpdate(missionStartTime);
                         currentFlightData = fdr.GetCurrentFlightData();
                         break;
@@ -81,6 +82,7 @@ namespace TestFlightCore
                     ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
                     if (reliabilityModule != null)
                     {
+                        Debug.Log("    TestFlightCore: Processing TestFlight_Reliability Module");
                         totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(currentFlightData);
                     }
                 }
