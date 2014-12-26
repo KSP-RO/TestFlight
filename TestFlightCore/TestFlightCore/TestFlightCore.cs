@@ -13,14 +13,15 @@ namespace TestFlightCore
     /// </summary>
     public class TestFlightCore : PartModuleWindow, ITestFlightCore
     {
-        private int lastFailureCheck = 0;
+        private float lastFailureCheck = 0;
         private float lastPolling = 0.0f;
         private TestFlightData currentFlightData;
-        private float currentReliability = 0.0f;
-        private TestFlightManagerScenario tsm;
+        private double currentReliability = 0.0f;
+        private List<ITestFlightFailure> failureModules = null;
+        private ITestFlightFailure activeFailure = null;
 
         [KSPField(isPersistant = true)]
-        public int failureCheckFrequency = 120;
+        public float failureCheckFrequency = 120;
         [KSPField(isPersistant = true)]
         public float pollingInterval = 5.0f;
 
@@ -28,6 +29,24 @@ namespace TestFlightCore
         public void ToggleDebugGUI()
         {
             Visible = !Visible;
+        }
+
+        [KSPEvent(guiActive = true, guiName = "Attempt Part Repair")]
+        public void AttemptRepair()
+        {
+            if (activeFailure == null)
+                return;
+
+            if (activeFailure.CanAttemptRepair())
+            {
+                Debug.Log("TestFlightCore: Attempting repair");
+                bool isRepaired = activeFailure.AttemptRepair();
+                if (isRepaired)
+                {
+                    Debug.Log("TestFlightCore: Repaired");
+                    activeFailure = null;
+                }
+            }
         }
 
         public override void OnAwake()
@@ -38,23 +57,56 @@ namespace TestFlightCore
             WindowRect = new Rect(0, 0, 250, 50);
             Visible = false;
             DragEnabled = true;
-//            var game = HighLogic.CurrentGame;
-//            ProtoScenarioModule psm = game.scenarios.Find(s => s.moduleName == typeof(TestFlightManagerScenario).Name);
-//            if (psm != null)
-//            {
-//                tsm = (TestFlightManagerScenario)psm.moduleRef;
-//            }
         }
+
+        public override void OnStart(StartState state)
+        {
+            if (failureModules == null)
+            {
+                failureModules = new List<ITestFlightFailure>();
+            }
+            failureModules.Clear();
+            foreach(PartModule pm in this.part.Modules)
+            {
+                ITestFlightFailure failureModule = pm as ITestFlightFailure;
+                if (failureModule != null)
+                {
+                    failureModules.Add(failureModule);
+                }
+            }
+            base.OnStart(state);
+        }
+
         public virtual TestFlightData GetCurrentFlightData()
         {
             return currentFlightData;
         }
 
-        public virtual void DoFlightUpdate(double missionStartTime)
+        public virtual int GetPartStatus()
+        {
+            if (activeFailure == null)
+                return 0;
+
+            if (activeFailure.GetFailureDetails().severity == "minor")
+                return 1;
+            if (activeFailure.GetFailureDetails().severity == "failure")
+                return 1;
+            if (activeFailure.GetFailureDetails().severity == "major")
+                return 1;
+
+            return -1;
+        }
+
+        public virtual ITestFlightFailure GetFailureModule()
+        {
+            return activeFailure;
+        }
+
+        public virtual void DoFlightUpdate(double missionStartTime, double flightDataMultiplier, double flightDataEngineerMultiplier, double globalReliabilityModifier)
         {
             // Check to see if its time to poll
+            double totalReliability = 0.0;
             float currentMet = (float)(Planetarium.GetUniversalTime() - missionStartTime);
-            Debug.Log("TestFlightCore: Current MET " + currentMet + ", Last Poll " + lastPolling + "(" + pollingInterval + "/" + (lastPolling + pollingInterval) + ")");
             if (currentMet > (lastPolling + pollingInterval))
             {
                 Debug.Log("TestFlightCore: Performing flight update");
@@ -71,12 +123,11 @@ namespace TestFlightCore
                     if (fdr != null)
                     {
                         Debug.Log("    TestFlightCore: Processing FlightDataRecorder Module");
-                        fdr.DoFlightUpdate(missionStartTime);
+                        fdr.DoFlightUpdate(missionStartTime, flightDataMultiplier, flightDataEngineerMultiplier);
                         currentFlightData = fdr.GetCurrentFlightData();
                         break;
                     }
                 }
-                float totalReliability = 0.0f;
                 foreach (PartModule pm in this.part.Modules)
                 {
                     ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
@@ -86,16 +137,62 @@ namespace TestFlightCore
                         totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(currentFlightData);
                     }
                 }
-                currentReliability = totalReliability;
+                currentReliability = totalReliability * globalReliabilityModifier;
                 lastPolling = currentMet;
             }
-            if (FlightLogger.met_secs > (lastFailureCheck + failureCheckFrequency))
-            {
-                lastFailureCheck = FlightLogger.met_secs;
-            }
-
         }
 
+        public virtual bool DoFailureCheck(double missionStartTime, double globalReliabilityModifier)
+        {
+            float totalReliability = 0.0f;
+            float currentMet = (float)(Planetarium.GetUniversalTime() - missionStartTime);
+            foreach (PartModule pm in this.part.Modules)
+            {
+                ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
+                if (reliabilityModule != null)
+                {
+                    Debug.Log("    TestFlightCore: Processing TestFlight_Reliability Module");
+                    totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(currentFlightData);
+                }
+            }
+            currentReliability = totalReliability;
+            if ( currentMet > (lastFailureCheck + failureCheckFrequency) && activeFailure == null )
+            {
+                Debug.Log("TestFlightCore: Running failure check");
+                lastFailureCheck = currentMet;
+                // Roll for failure
+                float roll = UnityEngine.Random.Range(0.0f,100.0f);
+                Debug.Log("TestFlightCore: Reliability " + totalReliability + ", Failure Roll " + roll);
+                if (roll > totalReliability)
+                {
+                    // Failure occurs.  Determine which failure module to trigger
+                    Debug.Log("TestFlightCore: Triggering failure");
+                    int totalWeight = 0;
+                    int currentWeight = 0;
+                    int chosenWeight = 0;
+                    foreach(ITestFlightFailure fm in failureModules)
+                    {
+                        totalWeight += fm.GetFailureDetails().weight;
+                    }
+                    Debug.Log("TestFlightCore: Total Weight " + totalWeight);
+                    chosenWeight = UnityEngine.Random.Range(1,totalWeight);
+                    Debug.Log("TestFlightCore: Chosen Weight " + chosenWeight);
+                    foreach(ITestFlightFailure fm in failureModules)
+                    {
+                        currentWeight += fm.GetFailureDetails().weight;
+                        if (currentWeight >= chosenWeight)
+                        {
+                            // Trigger this module's failure
+                            Debug.Log("TestFlightCore: Triggering failure on " + fm);
+                            activeFailure = fm;
+                            fm.DoFailure();
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
 
         public override void OnUpdate()
         {

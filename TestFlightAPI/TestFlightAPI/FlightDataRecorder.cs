@@ -25,6 +25,8 @@ namespace TestFlightAPI
         public float flightDataMultiplier = 10.0f;
         [KSPField(isPersistant = true)]
         public float flightDataEngineerModifier = 0.25f;
+        [KSPField(isPersistant = true)]
+        public float maxFlightData = 10000.0f;
         #endregion
 
 
@@ -139,14 +141,9 @@ namespace TestFlightAPI
             deepSpaceThreshold = newThreshold;
         }
 
-        public virtual void DoFlightUpdate(double missionStartTime)
+        public virtual void DoFlightUpdate(double missionStartTime, double flightDataMultiplier, double flightDataEngineerMultiplier)
         {
-//            int currentMet = FlightLogger.met_secs;
-//            int currentMet = FlightLogger.met_secs;
-//            float currentMetFull = (float)FlightLogger.met();
             double currentMet = Planetarium.GetUniversalTime() - missionStartTime;
-            Debug.Log("FlightDataRecorderBase: Current MET " + (int)currentMet + ", Last Poll " + (int)lastRecordedMet + ", Current Flight Time " + currentFlightTime);
-
             string scope = String.Format("{0}_{1}", GetDataBody(), GetDataSituation());
             // Check to see if we have changed scope
             if (scope != currentScope)
@@ -175,13 +172,13 @@ namespace TestFlightAPI
             if (!IsRecordingFlightData())
             {
                 lastRecordedMet = currentMet;
-                //                lastRecordedMetFull = currentMetFull;
                 return;
             }
 
             // TODO once migrated to KSP 0.90, hook this up to the Kerbal engineer skill if an engineer is present on board ship
             int engineerLevel = 0;
-            float engineerModifier = 1.0f + (engineerLevel * flightDataEngineerModifier);
+            double baseEnginerModifier = engineerLevel * flightDataEngineerModifier * flightDataEngineerMultiplier;
+            double engineerModifier = 1.0 + baseEnginerModifier;
 
             if (currentMet > lastRecordedMet)
             {
@@ -218,32 +215,12 @@ namespace TestFlightAPI
             base.OnLoad(node);
         }
 
-        public override void OnStart(StartState state)
-        {
-        }
-
-        public override void OnUpdate()
-        {
-        }
-
         public override void OnSave(ConfigNode node)
         {
             // Make sure our FlightData configs are up to date
             flightData.AddFlightData(currentScope, currentData, currentFlightTime);
             node.AddValue("isNewInstanceOfPart", isNewInstanceOfPart);
             base.OnSave(node);
-        }
-
-        public override void OnFixedUpdate()
-        {
-        }
-
-        public override void OnActive()
-        {
-        }
-
-        public override void OnInactive()
-        {
         }
     }
 }
