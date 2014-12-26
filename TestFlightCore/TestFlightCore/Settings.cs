@@ -20,13 +20,19 @@ namespace TestFlightCore
         }
 
         [Persistent]
-        public double globalPollingTime;
+        public double minTimeBetweenDataPoll;
+        [Persistent]
+        public double minTimeBetweenFailurePoll;
         [Persistent]
         public bool processAllVessels;
         [Persistent]
         public double flightDataMultiplier;
         [Persistent]
         public double flightDataEngineerMultiplier;
+        [Persistent]
+        public double globalReliabilityModifier;
+        [Persistent]
+        public double masterStatusUpdateFrequency;
     }
 }
 
