@@ -25,8 +25,6 @@ namespace TestFlightAPI
         public float flightDataMultiplier = 10.0f;
         [KSPField(isPersistant = true)]
         public float flightDataEngineerModifier = 0.25f;
-        [KSPField(isPersistant = true)]
-        public float maxFlightData = 10000.0f;
         #endregion
 
 
