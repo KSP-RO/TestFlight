@@ -17,7 +17,7 @@ namespace TestFlight
         {
             Debug.Log("TestFlightFailure_Disable: Failing part");
             List<ModuleEngines> partEngines = this.part.Modules.OfType<ModuleEngines>().ToList();
-            List<ModuleEnginesFX> PartEnginesFX = this.part.Modules.OfType<ModuleEnginesFX>().ToList();
+            List<ModuleEnginesFX> partEnginesFX = this.part.Modules.OfType<ModuleEnginesFX>().ToList();
             foreach (ModuleEngines engine in partEngines)
             {
                 engine.Shutdown();
@@ -25,11 +25,10 @@ namespace TestFlight
                 engine.DeactivatePowerFX();
                 engine.enabled = false;
             }
-            foreach (ModuleEngines engineFX in partEngines)
+            foreach (ModuleEnginesFX engineFX in partEnginesFX)
             {
                 engineFX.Shutdown();
-                engineFX.DeactivateRunningFX();
-                engineFX.DeactivatePowerFX();
+                engineFX.DeactivateLoopingFX();
                 engineFX.enabled = false;
             }
         }
@@ -51,12 +50,12 @@ namespace TestFlight
         {
             Debug.Log("TestFlightFailure_Disable: Repairing part");
             List<ModuleEngines> partEngines = this.part.Modules.OfType<ModuleEngines>().ToList();
-            List<ModuleEnginesFX> PartEnginesFX = this.part.Modules.OfType<ModuleEnginesFX>().ToList();
+            List<ModuleEnginesFX> partEnginesFX = this.part.Modules.OfType<ModuleEnginesFX>().ToList();
             foreach (ModuleEngines engine in partEngines)
             {
                 engine.enabled = true;
             }
-            foreach (ModuleEngines engineFX in partEngines)
+            foreach (ModuleEnginesFX engineFX in partEnginesFX)
             {
                 engineFX.enabled = true;
             }
