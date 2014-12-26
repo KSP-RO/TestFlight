@@ -96,10 +96,6 @@ namespace TestFlightAPI
 
         public ReliabilityBodyConfig GetReliabilityBody(string scope)
         {
-            foreach (ReliabilityBodyConfig config in reliabilityBodies)
-            {
-                Debug.Log(config.scope + " ? " + scope);
-            }
             return reliabilityBodies.Find(s => s.scope == scope);
         }
 

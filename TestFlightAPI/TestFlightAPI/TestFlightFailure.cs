@@ -219,7 +219,7 @@ namespace TestFlightAPI
         
         public override void OnStart(StartState state)
         {
-            base.OnStart();
+        base.OnStart(state);
         }
         
         public override void OnLoad(ConfigNode node)
