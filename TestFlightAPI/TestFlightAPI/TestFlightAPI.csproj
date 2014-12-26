@@ -8,8 +8,6 @@
     <RootNamespace>TestFlightAPI</RootNamespace>
     <AssemblyName>TestFlightAPI</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <ProductVersion>12.0.0</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>True</DebugSymbols>
@@ -53,7 +51,8 @@
     <Compile Include="TestFlightAPI.cs" />
     <Compile Include="FlightDataConfig.cs" />
     <Compile Include="FlightDataRecorder.cs" />
-    <Compile Include="TestFlight_Reliability.cs" />
+    <Compile Include="TestFlightReliability.cs" />
+    <Compile Include="TestFlightFailure.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

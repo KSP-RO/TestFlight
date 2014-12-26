@@ -16,7 +16,7 @@ namespace TestFlightAPI
         public void Load(ConfigNode node)
         {
             if (node.HasValue("scope"))
-                scope = node.GetValue("scope");
+                scope = node.GetValue("scope").ToLower();
             if (node.HasValue("minReliability"))
                 minReliability = float.Parse(node.GetValue("minReliability"));
             if (node.HasValue("maxReliability"))
@@ -25,7 +25,7 @@ namespace TestFlightAPI
 
         public void Save(ConfigNode node)
         {
-            node.AddValue("scope", scope);
+            node.AddValue("scope", scope.ToLower());
             node.AddValue("minReliability", minReliability);
             node.AddValue("maxReliability", maxReliability);
         }
@@ -59,7 +59,7 @@ namespace TestFlightAPI
     /// <summary>
     /// This part module determines the part's current reliability and passes that on to the TestFlight core.
     /// </summary>
-    public class TestFlight_ReliabilityBase : PartModule, ITestFlightReliability
+    public class TestFlightReliabilityBase : PartModule, ITestFlightReliability
     {
         //		MODULE
         //		{
@@ -96,7 +96,7 @@ namespace TestFlightAPI
 
         public ReliabilityBodyConfig GetReliabilityBody(string scope)
         {
-            Debug.Log("TestFlight_ReliabilityBase: GetReliabilityBody(" + scope + ")");
+            Debug.Log("TestFlightReliabilityBase: GetReliabilityBody(" + scope + ")");
             foreach (ReliabilityBodyConfig config in reliabilityBodies)
             {
                 Debug.Log(config.scope + " ? " + scope);
@@ -106,7 +106,7 @@ namespace TestFlightAPI
 
         public float GetCurrentReliability(TestFlightData flightData)
         {
-            Debug.Log("TestFlight_ReliabilityBase: GetCurrentReliability(" + flightData.scope + ")");
+            Debug.Log("TestFlightReliabilityBase: GetCurrentReliability(" + flightData.scope + ")");
             // Get the flight data for the currently active body and situation
             float currentFlightData = flightData.flightData;
             // Determine current situation
@@ -117,7 +117,7 @@ namespace TestFlightAPI
             ReliabilityBodyConfig body = GetReliabilityBody(scope);
             if (body != null)
             {
-                Debug.Log("TestFlight_ReliabilityBase: Found ReliabilityBody from scope");
+                Debug.Log("TestFlightReliabilityBase: Found ReliabilityBody from scope");
                 if (rawReliability < body.minReliability)
                     return body.minReliability;
                 if (rawReliability > body.maxReliability)
@@ -129,7 +129,7 @@ namespace TestFlightAPI
 
         public override void OnAwake()
         {
-            Debug.Log("TestFlight_ReliabilityBase: OnAwake()");
+            Debug.Log("TestFlightReliabilityBase: OnAwake()");
             if (reliabilityBodies == null)
                 reliabilityBodies = new List<ReliabilityBodyConfig>();
             if (reliabilityBodiesPackedString == null)
@@ -140,10 +140,10 @@ namespace TestFlightAPI
         {
             // when starting we need to re-load our data from the packed strings
             // because for some reason KSP/Unity will dump the more complex datastructures from memory
-            Debug.Log("TestFlight_ReliabilityBase: OnStart()");
+            Debug.Log("TestFlightReliabilityBase: OnStart()");
             if (reliabilityBodies == null || reliabilityBodies.Count == 0)
             {
-                Debug.Log("TestFlight_ReliabilityBase: Rebuilding bodies from packed strings");
+                Debug.Log("TestFlightReliabilityBase: Rebuilding bodies from packed strings");
                 foreach (string packedString in reliabilityBodiesPackedString)
                 {
                     ReliabilityBodyConfig reliabilityBody = ReliabilityBodyConfig.FromString(packedString);
@@ -152,13 +152,13 @@ namespace TestFlightAPI
             }
             else
             {
-                Debug.Log("TestFlight_ReliabilityBase: " + reliabilityBodies.Count + " bodies in memory");
+                Debug.Log("TestFlightReliabilityBase: " + reliabilityBodies.Count + " bodies in memory");
             }
         }
 
         public override void OnLoad(ConfigNode node)
         {
-            Debug.Log("TestFlight_ReliabilityBase: OnLoad()");
+            Debug.Log("TestFlightReliabilityBase: OnLoad()");
             Debug.Log(node);
             foreach (ConfigNode bodyNode in node.GetNodes("RELIABILITY_BODY"))
             {
@@ -172,7 +172,7 @@ namespace TestFlightAPI
 
         public override void OnSave(ConfigNode node)
         {
-            Debug.Log("TestFlight_ReliabilityBase: OnSave()");
+            Debug.Log("TestFlightReliabilityBase: OnSave()");
             Debug.Log(node);
             foreach (ReliabilityBodyConfig reliabilityBody in reliabilityBodies)
             {
