@@ -96,7 +96,6 @@ namespace TestFlightAPI
 
         public ReliabilityBodyConfig GetReliabilityBody(string scope)
         {
-            Debug.Log("TestFlightReliabilityBase: GetReliabilityBody(" + scope + ")");
             foreach (ReliabilityBodyConfig config in reliabilityBodies)
             {
                 Debug.Log(config.scope + " ? " + scope);
@@ -106,7 +105,6 @@ namespace TestFlightAPI
 
         public float GetCurrentReliability(TestFlightData flightData)
         {
-            Debug.Log("TestFlightReliabilityBase: GetCurrentReliability(" + flightData.scope + ")");
             // Get the flight data for the currently active body and situation
             float currentFlightData = flightData.flightData;
             // Determine current situation
@@ -117,7 +115,6 @@ namespace TestFlightAPI
             ReliabilityBodyConfig body = GetReliabilityBody(scope);
             if (body != null)
             {
-                Debug.Log("TestFlightReliabilityBase: Found ReliabilityBody from scope");
                 if (rawReliability < body.minReliability)
                     return body.minReliability;
                 if (rawReliability > body.maxReliability)
@@ -129,7 +126,6 @@ namespace TestFlightAPI
 
         public override void OnAwake()
         {
-            Debug.Log("TestFlightReliabilityBase: OnAwake()");
             if (reliabilityBodies == null)
                 reliabilityBodies = new List<ReliabilityBodyConfig>();
             if (reliabilityBodiesPackedString == null)
@@ -140,10 +136,8 @@ namespace TestFlightAPI
         {
             // when starting we need to re-load our data from the packed strings
             // because for some reason KSP/Unity will dump the more complex datastructures from memory
-            Debug.Log("TestFlightReliabilityBase: OnStart()");
             if (reliabilityBodies == null || reliabilityBodies.Count == 0)
             {
-                Debug.Log("TestFlightReliabilityBase: Rebuilding bodies from packed strings");
                 foreach (string packedString in reliabilityBodiesPackedString)
                 {
                     ReliabilityBodyConfig reliabilityBody = ReliabilityBodyConfig.FromString(packedString);
@@ -158,8 +152,6 @@ namespace TestFlightAPI
 
         public override void OnLoad(ConfigNode node)
         {
-            Debug.Log("TestFlightReliabilityBase: OnLoad()");
-            Debug.Log(node);
             foreach (ConfigNode bodyNode in node.GetNodes("RELIABILITY_BODY"))
             {
                 ReliabilityBodyConfig reliabilityBody = new ReliabilityBodyConfig();
@@ -172,13 +164,10 @@ namespace TestFlightAPI
 
         public override void OnSave(ConfigNode node)
         {
-            Debug.Log("TestFlightReliabilityBase: OnSave()");
-            Debug.Log(node);
             foreach (ReliabilityBodyConfig reliabilityBody in reliabilityBodies)
             {
                 reliabilityBody.Save(node.AddNode("RELIABILITY_BODY"));
             }
-            Debug.Log(node);
             base.OnLoad(node);
         }
     }

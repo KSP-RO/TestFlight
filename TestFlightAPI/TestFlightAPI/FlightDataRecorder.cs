@@ -113,7 +113,6 @@ namespace TestFlightAPI
         /// <param name="allFlightData">All flight data.</param>
         public void InitializeFlightData(List<TestFlightData> allFlightData)
         {
-            Debug.Log("FlightDataRecorderBase: InitializeFlightData()");
             if (isNewInstanceOfPart)
             {
                 foreach (TestFlightData data in allFlightData)
@@ -125,10 +124,6 @@ namespace TestFlightAPI
                     flightData.AddFlightData(data.scope, data.flightData, 0);
                 }
                 isNewInstanceOfPart = false;
-            }
-            else
-            {
-                Debug.Log("Skipping intialization because not a new instance of part");
             }
             // Initialize our current scope with the data we just received
             currentScope = String.Format("{0}_{1}", GetDataBody(), GetDataSituation());
@@ -150,19 +145,16 @@ namespace TestFlightAPI
             {
                 // If we have moved to a new scope then we need to reset our current data counters
                 // First save what we have for the old scope
-                Debug.Log("FlightDataRecorderBase: Changing scope from " + currentScope + " to " + scope);
                 flightData.AddFlightData(currentScope, currentData, currentFlightTime);
                 // Try to get any existing stored data for this scope, or set it to 0
                 FlightDataBody bodyData = flightData.GetFlightData(scope);
                 if (bodyData != null)
                 {
-                    Debug.Log("FlightDataRecorderBase: Loading existing data for new scope");
                     currentData = bodyData.flightData;
                     currentFlightTime = bodyData.flightTime;
                 }
                 else
                 {
-                    Debug.Log("FlightDataRecorderBase: No existing data for new scope.  Starting fresh");
                     currentData = 0.0f;
                     currentFlightTime = 0;
                 }
@@ -200,7 +192,6 @@ namespace TestFlightAPI
 
         public override void OnAwake()
         {
-            Debug.Log("FlightDataRecorderBase: OnAwake()");
             base.OnAwake();
             if (flightData == null)
             {

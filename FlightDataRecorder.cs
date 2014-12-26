@@ -13,7 +13,6 @@ namespace TestFlight
     {
         public override void OnAwake()
         {
-            Debug.Log("FlightDataRecorder: OnAwake()");
             base.OnAwake();
         }
     }

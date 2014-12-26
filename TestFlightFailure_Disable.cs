@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+
 using UnityEngine;
 using KSPPluginFramework;
 using TestFlightAPI;
@@ -14,7 +16,22 @@ namespace TestFlight
         public override void DoFailure()
         {
             Debug.Log("TestFlightFailure_Disable: Failing part");
-            this.part.enabled = false;
+            List<ModuleEngines> partEngines = this.part.Modules.OfType<ModuleEngines>().ToList();
+            List<ModuleEnginesFX> PartEnginesFX = this.part.Modules.OfType<ModuleEnginesFX>().ToList();
+            foreach (ModuleEngines engine in partEngines)
+            {
+                engine.Shutdown();
+                engine.DeactivateRunningFX();
+                engine.DeactivatePowerFX();
+                engine.enabled = false;
+            }
+            foreach (ModuleEngines engineFX in partEngines)
+            {
+                engineFX.Shutdown();
+                engineFX.DeactivateRunningFX();
+                engineFX.DeactivatePowerFX();
+                engineFX.enabled = false;
+            }
         }
         
         /// <summary>
@@ -33,7 +50,16 @@ namespace TestFlight
         public override bool AttemptRepair()
         {
             Debug.Log("TestFlightFailure_Disable: Repairing part");
-            this.part.enabled = true;
+            List<ModuleEngines> partEngines = this.part.Modules.OfType<ModuleEngines>().ToList();
+            List<ModuleEnginesFX> PartEnginesFX = this.part.Modules.OfType<ModuleEnginesFX>().ToList();
+            foreach (ModuleEngines engine in partEngines)
+            {
+                engine.enabled = true;
+            }
+            foreach (ModuleEngines engineFX in partEngines)
+            {
+                engineFX.enabled = true;
+            }
             return true;
         }
     }

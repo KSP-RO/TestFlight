@@ -79,16 +79,16 @@ namespace TestFlightAPI
             string stringRepresentation = "";
             
             stringRepresentation = String.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8:F2},{9:F2}", 
-                                                 canBeRepairedInFlight,
-                                                 canBeRepairedOnLanded,
-                                                 canBeRepairedOnSplashed,
-                                                 canBeRepairedByRemote,
-                                                 requiresEVA,
-                                                 sparePartsRequired,
-                                                 timeRequired,
-                                                 repairChance,
-                                                 dataScale,
-                                                 dataScale);
+                canBeRepairedInFlight,
+                canBeRepairedOnLanded,
+                canBeRepairedOnSplashed,
+                canBeRepairedByRemote,
+                requiresEVA,
+                sparePartsRequired,
+                timeRequired,
+                repairChance,
+                dataScale,
+                dataSize);
             
             return stringRepresentation;
         }
@@ -112,6 +112,7 @@ namespace TestFlightAPI
                 
                 repairConfig.dataScale = float.Parse(sections[8]);
                 repairConfig.dataScale = float.Parse(sections[9]);
+
             }
             
             return repairConfig;
@@ -151,6 +152,8 @@ namespace TestFlightAPI
         public string severity;
         [KSPField(isPersistant = true)]
         public int weight;
+        [KSPField(isPersistant = true)]
+        public string failureTitle = "Failure";
 
 
         public RepairConfig repairConfig;
@@ -166,6 +169,7 @@ namespace TestFlightAPI
             details.weight = weight;
             details.failureType = failureType;
             details.severity = severity;
+            details.failureTitle = failureTitle;
             if (repairConfig == null)
             {
                 details.canBeRepaired = false;
@@ -210,18 +214,16 @@ namespace TestFlightAPI
         
         public override void OnAwake()
         {
-            Debug.Log("TestFlightFailureBase: OnAwake()");
+            base.OnAwake();
         }
         
         public override void OnStart(StartState state)
         {
-            Debug.Log("TestFlightFailureBase: OnStart()");
+            base.OnStart();
         }
         
         public override void OnLoad(ConfigNode node)
         {
-            Debug.Log("TestFlightFailureBase: OnLoad()");
-            Debug.Log(node);
             if (node.HasNode("REPAIR"))
             {
                 repairConfig = new RepairConfig();
@@ -236,12 +238,10 @@ namespace TestFlightAPI
         
         public override void OnSave(ConfigNode node)
         {
-            Debug.Log("TestFlightFailureBase: OnSave()");
             if (repairConfig != null)
             {
                 repairConfig.Save(node.AddNode("REPAIR"));
             }
-            Debug.Log(node);
             base.OnLoad(node);
         }
     }

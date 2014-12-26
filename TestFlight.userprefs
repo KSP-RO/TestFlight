@@ -1,22 +1,25 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="TestFlightCore/TestFlightCore/TestFlight.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="TestFlight/Squad_Engines.cfg">
     <Files>
       <File FileName="TestFlightAPI/TestFlightAPI/FlightDataRecorder.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/TestFlight.cs" Line="65" Column="65" />
-      <File FileName="TestFlightCore/TestFlightCore/TestFlightCore.cs" Line="1" Column="1" />
+      <File FileName="TestFlightCore/TestFlightCore/TestFlight.cs" Line="74" Column="74" />
+      <File FileName="TestFlightCore/TestFlightCore/TestFlightCore.cs" Line="43" Column="43" />
       <File FileName="TestFlightCore/TestFlightCore/Settings.cs" Line="51" Column="51" />
+      <File FileName="TestFlight/Squad_Engines.cfg" Line="43" Column="43" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
-          <Node name="TestFlight" expanded="True" selected="True">
+          <Node name="TestFlight" expanded="True">
             <Node name="References" expanded="True" />
             <Node name="TestFlight" expanded="True" />
           </Node>
           <Node name="TestFlightAPI" expanded="True" />
           <Node name="TestFlightCore" expanded="True">
-            <Node name="KSPFramework" expanded="True" />
+            <Node name="KSPFramework" expanded="True">
+              <Node name="ExtensionsUnity.cs" selected="True" />
+            </Node>
           </Node>
         </State>
       </Pad>

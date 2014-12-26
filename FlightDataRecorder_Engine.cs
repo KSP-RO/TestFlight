@@ -15,13 +15,11 @@ namespace TestFlight
     {
         public override void OnAwake()
         {
-            Debug.Log("FlightDataRecorder_Engine: OnAwake()");
             base.OnAwake();
         }
 
         public override bool IsRecordingFlightData()
         {
-            Debug.Log("FlightDataRecorder_Engine: IsRecordingFlightData()");
             bool isRecording = true;
 
             if (!isEnabled)

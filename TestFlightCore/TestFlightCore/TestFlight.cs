@@ -393,15 +393,23 @@ namespace TestFlightCore
             List<Guid> vesselsToDelete = new List<Guid>();
             foreach(var entry in masterStatus)
             {
+                Debug.Log("TestFlightManagerScenario: Checking if vessel(" + entry.Key + ") in Master Status is still valid");
                 Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == entry.Key);
                 if (vessel == null)
+                {
+                    Debug.Log("TestFlightManagerScenario: Vessel no longer exists. Marking it for deletion.");
                     vesselsToDelete.Add(entry.Key);
+                }
                 else
                 {
                     if (vessel.vesselType == VesselType.Debris)
+                    {
+                        Debug.Log("TestFlightManagerScenario: Vessel appears to be debris now. Marking it for deletion.");
                         vesselsToDelete.Add(entry.Key);
+                    }
                 }
             }
+            Debug.Log("TestFlightManagerScenario: Removing " + vesselsToDelete.Count() + " vessels from Master Status");
             foreach (Guid id in vesselsToDelete)
             {
                 masterStatus.Remove(id);
@@ -410,15 +418,20 @@ namespace TestFlightCore
             List<PartStatus> partsToDelete = new List<PartStatus>();
             foreach (var entry in masterStatus)
             {
+                partsToDelete.Clear();
                 Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == entry.Key);
+                Debug.Log("TestFlightManagerScenario: Scanning parts on vessel" + vessel.GetName() + " for master status update");
                 foreach (PartStatus partStatus in masterStatus[entry.Key].allPartsStatus)
                 {
+                    Debug.Log("TestFlightManagerScenario: Looking to see if part with flightID " + partStatus.partID + " still exists");
                     Part part = vessel.Parts.Find(p => p.flightID == partStatus.partID);
                     if (part == null)
                     {
+                        Debug.Log("TestFlightManagerScenario: Could not find part.  Marking it for deletion.");
                         partsToDelete.Add(partStatus);
                     }
                 }
+                Debug.Log("TestFlightManagerScenario: Deleting " + partsToDelete.Count() + " parts from vessel " + vessel.GetName());
                 foreach (PartStatus oldPartStatus in partsToDelete)
                 {
                     masterStatus[entry.Key].allPartsStatus.Remove(oldPartStatus);
@@ -428,14 +441,12 @@ namespace TestFlightCore
 
         public void CacheVessels()
         {
-            Debug.Log("TestFlightManagerScenario: Caching vessels");
             // build a list of vessels to process based on setting
             if (knownVessels == null)
                 knownVessels = new Dictionary<Guid, double>();
 
             // iterate through our cached vessels and delete ones that are no longer valid
             List<Guid> vesselsToDelete = new List<Guid>();
-            Debug.Log("TestFlightManagerScenario: Looking for vessels to delete");
             foreach(var entry in knownVessels)
             {
                 Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == entry.Key);
@@ -447,7 +458,8 @@ namespace TestFlightCore
                         vesselsToDelete.Add(entry.Key);
                 }
             }
-            Debug.Log("TestFlightManagerScenario: Deleting vessels that no longer exist");
+            if (vesselsToDelete.Count() > 0)
+                Debug.Log("TestFlightManagerScenario: Deleting " + vesselsToDelete.Count() + " vessels from cached vessels");
             foreach (Guid id in vesselsToDelete)
             {
                 knownVessels.Remove(id);
@@ -457,10 +469,8 @@ namespace TestFlightCore
             // doesn't consider a vessel launched, and does not start the mission clock, until the player activates the first stage.  This is fine except it
             // makes things like engine test stands impossible, so we instead cache the vessel the first time we see it and use that time as the missionStartTime
 
-            Debug.Log("TestFlightManagerScenario: Scanning for new vessels");
             if (!settings.processAllVessels)
             {
-                Debug.Log("TestFlightManagerScenario: Processing active vessel only");
                 if (FlightGlobals.ActiveVessel != null && !knownVessels.ContainsKey(FlightGlobals.ActiveVessel.id))
                 {
                     Debug.Log("TestFlightManagerScenario: Adding new vessel " + FlightGlobals.ActiveVessel.GetName() + " with launchtime " + Planetarium.GetUniversalTime());
@@ -470,7 +480,6 @@ namespace TestFlightCore
             }
             else
             {
-                Debug.Log("TestFlightManagerScenario: Processing ALL vessels");
                 foreach (Vessel vessel in FlightGlobals.Vessels)
                 {
                     if (vessel.vesselType == VesselType.Lander || vessel.vesselType == VesselType.Probe || vessel.vesselType == VesselType.Rover || vessel.vesselType == VesselType.Ship || vessel.vesselType == VesselType.Station)
@@ -489,19 +498,18 @@ namespace TestFlightCore
         public void DoFlightUpdate(ITestFlightCore core, double launchTime)
         {
             // Tell the core to do a flight update
-            Debug.Log("TestFlightManagerScenario: Updating TestFlightCore");
             core.DoFlightUpdate(launchTime, settings.flightDataMultiplier, settings.flightDataEngineerMultiplier, settings.globalReliabilityModifier);
         }
 
         public TestFlightData DoDataUpdate(ITestFlightCore core, Part part)
         {
             // Then grab its flight data
-            Debug.Log("TestFlightManagerScenario: Getting current flight data");
             return core.GetCurrentFlightData();
         }
 
         public void DoFailureUpdate(ITestFlightCore core, double launchTime)
         {
+            Debug.Log("TestFlightManagerScenario: Doing Failure Update");
             core.DoFailureCheck(launchTime, settings.globalReliabilityModifier);
         }
 
@@ -539,6 +547,7 @@ namespace TestFlightCore
                                 PartStatus partStatus = new PartStatus();
                                 partStatus.flightCore = core;
                                 partStatus.partName = part.name;
+                                partStatus.partID = part.flightID;
                                 partStatus.flightData = currentFlightData.flightData;
                                 partStatus.flightTime = currentFlightData.flightTime;
                                 partStatus.partStatus = core.GetPartStatus();
@@ -562,7 +571,7 @@ namespace TestFlightCore
                                         existingPartIndex = masterStatus[vessel.id].allPartsStatus.FindIndex(p => p.partID == part.flightID);
                                         masterStatus[vessel.id].allPartsStatus[existingPartIndex] = partStatus;
                                     }
-                                    if (numItems == 0)
+                                    else if (numItems == 0)
                                     {
                                         masterStatus[vessel.id].allPartsStatus.Add(partStatus);
                                     }
@@ -570,7 +579,7 @@ namespace TestFlightCore
                                     {
                                         existingPartIndex = masterStatus[vessel.id].allPartsStatus.FindIndex(p => p.partID == part.flightID);
                                         masterStatus[vessel.id].allPartsStatus[existingPartIndex] = partStatus;
-                                        Debug.Log("[ERROR] TestFlightManagerScenario: Found more than one matching part in Master Status Display!");
+                                        Debug.Log("[ERROR] TestFlightManagerScenario: Found " + numItems + " matching parts in Master Status Display!");
                                     }
                                 }
                                 else

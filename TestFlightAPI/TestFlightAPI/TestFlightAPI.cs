@@ -13,6 +13,7 @@ namespace TestFlightAPI
 	public struct TestFlightFailureDetails
 	{
         // Failure details
+        public string failureTitle;
 		public string severity;
 		public int weight;
 		public string failureType;

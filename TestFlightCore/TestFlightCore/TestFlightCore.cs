@@ -13,7 +13,7 @@ namespace TestFlightCore
     /// </summary>
     public class TestFlightCore : PartModuleWindow, ITestFlightCore
     {
-        private float lastFailureCheck = 0;
+        private float lastFailureCheck = 0f;
         private float lastPolling = 0.0f;
         private TestFlightData currentFlightData;
         private double currentReliability = 0.0f;
@@ -21,9 +21,9 @@ namespace TestFlightCore
         private ITestFlightFailure activeFailure = null;
 
         [KSPField(isPersistant = true)]
-        public float failureCheckFrequency = 120;
+        public float failureCheckFrequency = 0f;
         [KSPField(isPersistant = true)]
-        public float pollingInterval = 5.0f;
+        public float pollingInterval = 0f;
 
         [KSPEvent(guiActive = true, guiName = "Toggle TestFlight Debug GUI")]
         public void ToggleDebugGUI()
@@ -39,11 +39,9 @@ namespace TestFlightCore
 
             if (activeFailure.CanAttemptRepair())
             {
-                Debug.Log("TestFlightCore: Attempting repair");
                 bool isRepaired = activeFailure.AttemptRepair();
                 if (isRepaired)
                 {
-                    Debug.Log("TestFlightCore: Repaired");
                     activeFailure = null;
                 }
             }
@@ -51,7 +49,6 @@ namespace TestFlightCore
 
         public override void OnAwake()
         {
-            Debug.Log("TestFlightCore: OnAwake()");
             base.OnAwake();
             WindowCaption = "TestFlight";
             WindowRect = new Rect(0, 0, 250, 50);
@@ -109,7 +106,6 @@ namespace TestFlightCore
             float currentMet = (float)(Planetarium.GetUniversalTime() - missionStartTime);
             if (currentMet > (lastPolling + pollingInterval))
             {
-                Debug.Log("TestFlightCore: Performing flight update");
                 // Poll all compatible modules in this order:
                 // 1) FlightDataRecorder
                 // 2) TestFlightReliability
@@ -122,7 +118,6 @@ namespace TestFlightCore
                     IFlightDataRecorder fdr = pm as IFlightDataRecorder;
                     if (fdr != null)
                     {
-                        Debug.Log("    TestFlightCore: Processing FlightDataRecorder Module");
                         fdr.DoFlightUpdate(missionStartTime, flightDataMultiplier, flightDataEngineerMultiplier);
                         currentFlightData = fdr.GetCurrentFlightData();
                         break;
@@ -133,7 +128,6 @@ namespace TestFlightCore
                     ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
                     if (reliabilityModule != null)
                     {
-                        Debug.Log("    TestFlightCore: Processing TestFlight_Reliability Module");
                         totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(currentFlightData);
                     }
                 }
@@ -151,22 +145,18 @@ namespace TestFlightCore
                 ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
                 if (reliabilityModule != null)
                 {
-                    Debug.Log("    TestFlightCore: Processing TestFlight_Reliability Module");
                     totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(currentFlightData);
                 }
             }
             currentReliability = totalReliability;
             if ( currentMet > (lastFailureCheck + failureCheckFrequency) && activeFailure == null )
             {
-                Debug.Log("TestFlightCore: Running failure check");
                 lastFailureCheck = currentMet;
                 // Roll for failure
                 float roll = UnityEngine.Random.Range(0.0f,100.0f);
-                Debug.Log("TestFlightCore: Reliability " + totalReliability + ", Failure Roll " + roll);
                 if (roll > totalReliability)
                 {
                     // Failure occurs.  Determine which failure module to trigger
-                    Debug.Log("TestFlightCore: Triggering failure");
                     int totalWeight = 0;
                     int currentWeight = 0;
                     int chosenWeight = 0;
@@ -206,6 +196,10 @@ namespace TestFlightCore
             GUILayout.Label(String.Format("flight data scope:{0}", currentFlightData.scope));
             GUILayout.Label(String.Format("flight time:{0:D}", currentFlightData.flightTime));
             GUILayout.Label(String.Format("reliability:{0:F2}", currentReliability));
+            if (activeFailure != null)
+            {
+                GUILayout.Label(String.Format("active failure:{0}", activeFailure.GetFailureDetails().failureTitle));
+            }
         }
     }
 }
