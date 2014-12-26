@@ -154,6 +154,7 @@ namespace TestFlightCore
                 lastFailureCheck = currentMet;
                 // Roll for failure
                 float roll = UnityEngine.Random.Range(0.0f,100.0f);
+                Debug.Log("TestFlightCore: " + this.part.name + "(" + this.part.flightID + ") Reliability " + totalReliability + ", Failure Roll " + roll);
                 if (roll > totalReliability)
                 {
                     // Failure occurs.  Determine which failure module to trigger
@@ -191,7 +192,13 @@ namespace TestFlightCore
 
         internal override void DrawWindow(int id)
         {
-			GUILayout.Label(String.Format("TestFlight Debug for {0}", this.part.name));
+            if (this.part == null)
+            {
+                Visible = false;
+                return;
+            }
+
+            GUILayout.Label(String.Format("TestFlight Debug for {0}({1})", this.part.name, this.part.flightID));
             GUILayout.Label(String.Format("flight data:{0:F0}", currentFlightData.flightData));
             GUILayout.Label(String.Format("flight data scope:{0}", currentFlightData.scope));
             GUILayout.Label(String.Format("flight time:{0:D}", currentFlightData.flightTime));
