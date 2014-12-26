@@ -17,7 +17,6 @@ namespace TestFlightCore
 
         public void AddFlightData(string name, TestFlightData data)
         {
-           Debug.Log("PartFlightData: AddFlightData()");
             if (flightData == null)
             {
                 flightData = new List<TestFlightData>();
@@ -117,9 +116,7 @@ namespace TestFlightCore
 
         public void Load(ConfigNode node)
         {
-            Debug.Log("PartFlightData: Load()");
             partName = node.GetValue("partName");
-            Debug.Log("Loading FlightData for " + partName);
             if (node.HasNode("FLIGHTDATA"))
             {
                 flightData = new List<TestFlightData>();
@@ -138,9 +135,7 @@ namespace TestFlightCore
 
         public void Save(ConfigNode node)
         {
-            Debug.Log("PartFlightData: Save()");
             node.AddValue("partName", partName);
-            Debug.Log("Saving FlightData for " + partName);
             foreach (TestFlightData data in flightData)
             {
                 ConfigNode dataNode = node.AddNode("FLIGHTDATA");
@@ -179,27 +174,20 @@ namespace TestFlightCore
 
 		internal override void Start()
 		{
-            Debug.Log("TestFlightManager: Start()");
 			var game = HighLogic.CurrentGame;
 			ProtoScenarioModule psm = game.scenarios.Find(s => s.moduleName == typeof(TestFlightManagerScenario).Name);
 			if (psm == null)
 			{
-                Debug.Log("TestFlightManager: Creating new TestFlightManagerScenario");
 				GameScenes[] desiredScenes = new GameScenes[4] { GameScenes.EDITOR, GameScenes.FLIGHT, GameScenes.TRACKSTATION, GameScenes.SPACECENTER };
 				psm = game.AddProtoScenarioModule(typeof(TestFlightManagerScenario), desiredScenes);
-                Debug.Log("TestFlightManager: psm.moduleRef=" + psm.moduleRef);
 			}
-//            tsm = (TestFlightManagerScenario)psm.moduleRef;
             psm.Load(ScenarioRunner.fetch);
             tsm = game.scenarios.Select(s => s.moduleRef).OfType<TestFlightManagerScenario>().SingleOrDefault();
-            Debug.Log("TestFlightManager: Value of PSM = " + psm);
-            Debug.Log("TestFlightManager: Value of TSM = " + tsm);
             base.Start();
 		}
 
         internal override void Awake()
         {
-            Debug.Log("TestFlightManager: Awake()");
             Visible = true;
             base.Awake();
         }
@@ -216,24 +204,20 @@ namespace TestFlightCore
 
         internal override void Start()
         {
-            Debug.Log("MasterStatusDisplay: Start()");
             var game = HighLogic.CurrentGame;
             ProtoScenarioModule psm = game.scenarios.Find(s => s.moduleName == typeof(TestFlightManagerScenario).Name);
             if (psm == null)
             {
-                Debug.Log("MasterStatusDisplay: Creating new TestFlightManagerScenario");
                 GameScenes[] desiredScenes = new GameScenes[4] { GameScenes.EDITOR, GameScenes.FLIGHT, GameScenes.TRACKSTATION, GameScenes.SPACECENTER };
                 psm = game.AddProtoScenarioModule(typeof(TestFlightManagerScenario), desiredScenes);
             }
             psm.Load(ScenarioRunner.fetch);
             tsm = game.scenarios.Select(s => s.moduleRef).OfType<TestFlightManagerScenario>().SingleOrDefault();
-            Debug.Log("MasterStatusDisplay: Value of TSM = " + tsm);
             base.Start();
         }
         
         internal override void Awake()
         {
-            Debug.Log("MasterStatusDisplay: Awake()");
             Styles.Init();
             SkinsLibrary.SetCurrent("Default");
             WindowRect = new Rect(0, 50, 300, 200);
@@ -301,17 +285,13 @@ namespace TestFlightCore
 
         public override void OnAwake()
 		{
-			Debug.Log("TestFlightManagerScenario: OnAwake()");
             if (partsFlightData == null)
             {
-                Debug.Log("TestFlightManagerScenario: Parts data is null");
                 partsFlightData = new List<PartFlightData>();
                 if (partsPackedStrings != null)
                 {
-                    Debug.Log("TestFlightManagerScenario: Found string data");
                     foreach (string packedString in partsPackedStrings)
                     {
-                        Debug.Log("TestFlightManagerScenario: Adding Data");
                         Debug.Log(packedString);
                         PartFlightData data = PartFlightData.FromString(packedString);
                         partsFlightData.Add(data);
@@ -320,14 +300,16 @@ namespace TestFlightCore
             }
             if (partsPackedStrings == null)
             {
-                Debug.Log("TestFlightManagerScenario: Strings were null");
                 partsPackedStrings = new List<string>();
             }
             if (settings == null)
             {
                 settings = new Settings("../settings.cfg");
             }
-            if (!System.IO.File.Exists("../settings.cfg"))
+            string assemblyPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            string filePath = System.IO.Path.Combine(assemblyPath, "../settings.cfg").Replace("\\","/");
+            Debug.Log("Settings stored in " + filePath);
+            if (!System.IO.File.Exists(filePath))
             {
                 settings.flightDataEngineerMultiplier = 1.0;
                 settings.flightDataMultiplier = 1.0;
@@ -530,6 +512,7 @@ namespace TestFlightCore
             foreach (var entry in knownVessels)
             {
                 Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == entry.Key);
+//                Debug.Log("TestFlightManagerScenario: Processing Vessel " + vessel.GetName() + "(" + vessel.id + ")");
                 foreach (Part part in vessel.parts)
                 {
                     foreach (PartModule pm in part.Modules)
@@ -540,7 +523,7 @@ namespace TestFlightCore
                             // Poll for flight data and part status
                             if (currentUTC >= lastDataPoll + settings.minTimeBetweenDataPoll)
                             {
-                                lastDataPoll = currentUTC;
+                                Debug.Log("TestFlightManagerScenario: Processing Part " + part.name + "(" + part.flightID + ")");
                                 DoFlightUpdate(core, entry.Value);
                                 TestFlightData currentFlightData = DoDataUpdate(core, part);
 
@@ -609,11 +592,18 @@ namespace TestFlightCore
                             // Poll for failures
                             if (currentUTC >= lastFailurePoll + settings.minTimeBetweenFailurePoll)
                             {
-                                lastFailurePoll = currentUTC;
                                 DoFailureUpdate(core, entry.Value);
                             }
                         }
                     }
+                }
+                if (currentUTC >= lastDataPoll + settings.minTimeBetweenDataPoll)
+                {
+                    lastDataPoll = currentUTC;
+                }
+                if (currentUTC >= lastFailurePoll + settings.minTimeBetweenFailurePoll)
+                {
+                    lastFailurePoll = currentUTC;
                 }
             }
         }
