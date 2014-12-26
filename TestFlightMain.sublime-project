@@ -1,0 +1,23 @@
+{
+	"folders":
+	[
+		{
+			"follow_symlinks": true,
+			"path": ".",
+			"file_exclude_patterns":
+						[
+							"*.dll",
+							"*.meta"
+						]
+		}
+	],
+	"build_systems" : 
+	[
+		{
+			"name" : "Build",
+			"shell_cmd": "/Applications/Unity/MonoDevelop.app/Contents/MacOS/mdtool build ~/Developer/KSP/0.90/TestFlightDEV/Dev/_DEV/GitHub/TestFlight/TestFlight.sln",
+			"selector" : "source.Unity3D/UnityC#",
+			"working_dir" : "$(project_path)"
+		}
+	]
+}
