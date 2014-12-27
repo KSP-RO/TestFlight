@@ -16,6 +16,7 @@ namespace TestFlightCore
         private float lastFailureCheck = 0f;
         private float lastPolling = 0.0f;
         private TestFlightData currentFlightData;
+        private List<TestFlightData> initialFlightData;
         private double currentReliability = 0.0f;
         private List<ITestFlightFailure> failureModules = null;
         private ITestFlightFailure activeFailure = null;
@@ -99,10 +100,35 @@ namespace TestFlightCore
             return activeFailure;
         }
 
+        public void InitializeFlightData(List<TestFlightData> allFlightData, double globalReliabilityModifier)
+        {
+            initialFlightData = allFlightData;
+            double totalReliability = 0.0;
+            foreach (PartModule pm in this.part.Modules)
+            {
+                IFlightDataRecorder fdr = pm as IFlightDataRecorder;
+                if (fdr != null)
+                {
+                    fdr.InitializeFlightData(allFlightData);
+                    currentFlightData = fdr.GetCurrentFlightData();
+                }
+            }
+            // Calculate reliability based on initial flight data, not current
+            foreach (PartModule pm in this.part.Modules)
+            {
+                ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
+                if (reliabilityModule != null)
+                {
+                    totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(currentFlightData);
+                }
+            }
+            currentReliability = totalReliability * globalReliabilityModifier;
+        }
+
+
         public virtual void DoFlightUpdate(double missionStartTime, double flightDataMultiplier, double flightDataEngineerMultiplier, double globalReliabilityModifier)
         {
             // Check to see if its time to poll
-            double totalReliability = 0.0;
             float currentMet = (float)(Planetarium.GetUniversalTime() - missionStartTime);
             if (currentMet > (lastPolling + pollingInterval))
             {
@@ -123,6 +149,8 @@ namespace TestFlightCore
                         break;
                     }
                 }
+                // Calculate reliability based on initial flight data, not current
+                double totalReliability = 0.0;
                 foreach (PartModule pm in this.part.Modules)
                 {
                     ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
@@ -138,24 +166,25 @@ namespace TestFlightCore
 
         public virtual bool DoFailureCheck(double missionStartTime, double globalReliabilityModifier)
         {
-            float totalReliability = 0.0f;
             float currentMet = (float)(Planetarium.GetUniversalTime() - missionStartTime);
-            foreach (PartModule pm in this.part.Modules)
-            {
-                ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
-                if (reliabilityModule != null)
-                {
-                    totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(currentFlightData);
-                }
-            }
-            currentReliability = totalReliability;
             if ( currentMet > (lastFailureCheck + failureCheckFrequency) && activeFailure == null )
             {
                 lastFailureCheck = currentMet;
+                // Calculate reliability based on initial flight data, not current
+                double totalReliability = 0.0;
+                foreach (PartModule pm in this.part.Modules)
+                {
+                    ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
+                    if (reliabilityModule != null)
+                    {
+                        totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(currentFlightData);
+                    }
+                }
+                currentReliability = totalReliability * globalReliabilityModifier;
                 // Roll for failure
                 float roll = UnityEngine.Random.Range(0.0f,100.0f);
-                Debug.Log("TestFlightCore: " + this.part.name + "(" + this.part.flightID + ") Reliability " + totalReliability + ", Failure Roll " + roll);
-                if (roll > totalReliability)
+                Debug.Log("TestFlightCore: " + this.part.name + "(" + this.part.flightID + ") Reliability " + currentReliability + ", Failure Roll " + roll);
+                if (roll > currentReliability)
                 {
                     // Failure occurs.  Determine which failure module to trigger
                     int totalWeight = 0;
@@ -187,7 +216,6 @@ namespace TestFlightCore
 
         public override void OnUpdate()
         {
-//            Debug.Log("TestFlightCore: OnUpdate()");
         }
 
         internal override void DrawWindow(int id)

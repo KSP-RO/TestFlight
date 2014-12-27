@@ -95,6 +95,9 @@ namespace TestFlightAPI
         bool DoFailureCheck(double missionStartTime, double globalReliabilityModifier);
 
         void DoFlightUpdate(double missionStartTime, double flightDataMultiplier, double flightDataEngineerMultiplier, double globalReliabilityModifier);
+
+        void InitializeFlightData(List<TestFlightData> allFlightData, double globalReliabilityModifier);
+
     }
 }
 

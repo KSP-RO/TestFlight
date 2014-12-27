@@ -169,7 +169,8 @@ namespace TestFlightAPI
             int engineerLevel = 0;
             double baseEnginerModifier = engineerLevel * flightDataEngineerModifier * flightDataEngineerMultiplier;
             double engineerModifier = 1.0 + baseEnginerModifier;
-
+            Debug.Log("FlightDataRecorderBase: flightDataMultiplier=" + flightDataMultiplier);
+            Debug.Log("FlightDataRecorderBase: engineerModifier=" + engineerModifier);
             if (currentMet > lastRecordedMet)
             {
                 currentData += (float)(((currentMet - lastRecordedMet) * flightDataMultiplier) * engineerModifier);

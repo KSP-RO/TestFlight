@@ -346,25 +346,16 @@ namespace TestFlightCore
             {
                 foreach (PartModule pm in part.Modules)
                 {
-                    IFlightDataRecorder fdr = pm as IFlightDataRecorder;
-                    if (fdr != null)
+                    ITestFlightCore core = pm as ITestFlightCore;
+                    if (core != null)
                     {
-                        Debug.Log("TestFlightManagerScenario: Found FlightDataRecorder");
-                        Debug.Log("TestFlightManagerScenario: Looking for flightdata for partname: " + pm.part.name);
                         PartFlightData partData = GetFlightDataForPartName(pm.part.name);
                         if (partData != null)
                         {
-                            Debug.Log("TestFlightManagerScenario: Init flight data");
-                            fdr.InitializeFlightData(partData.GetFlightData());
+                            core.InitializeFlightData(partData.GetFlightData(), settings.globalReliabilityModifier);
                         }
-                        else
-                        {
-                            Debug.Log("TestFlightManagerScenario: Unable to find any flightdata");
-                        }
-                        break;
                     }
                 }
-
             }
         }
 

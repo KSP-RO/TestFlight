@@ -90,10 +90,9 @@ namespace TestFlightAPI
         /// <summary>
         /// Adds flight data for the given body & situation scope.  Creates new entry if one doesn't yet exist, or updates one if it exists
         /// </summary>
-        /// <param name="name">Name of the body as given by Vessel.mainBody.name</param>
-        /// <param name="name">Name of the situation</param>
-        /// <param name="flightData">Flight data value for the given scope</param>
-        /// <param name="flightTime">Flight time for the given scope</param>
+        /// <param name="scope">Scope.</param>
+        /// <param name="flightData">Flight data.</param>
+        /// <param name="flightTime">Flight time.</param>
         public void AddFlightData(string scope, float flightData, int flightTime)
         {
             if (dataBodies == null)
