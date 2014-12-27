@@ -104,6 +104,7 @@ namespace TestFlightCore
         {
             initialFlightData = allFlightData;
             double totalReliability = 0.0;
+            string scope;
             foreach (PartModule pm in this.part.Modules)
             {
                 IFlightDataRecorder fdr = pm as IFlightDataRecorder;
@@ -111,6 +112,7 @@ namespace TestFlightCore
                 {
                     fdr.InitializeFlightData(allFlightData);
                     currentFlightData = fdr.GetCurrentFlightData();
+                    scope = String.Format("{0}_{1}", fdr.GetDataBody(), fdr.GetDataSituation());
                 }
             }
             // Calculate reliability based on initial flight data, not current
@@ -119,7 +121,7 @@ namespace TestFlightCore
                 ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
                 if (reliabilityModule != null)
                 {
-                    totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(currentFlightData);
+                    totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(initialFlightData.Find(fd => fd.scope == scope));
                 }
             }
             currentReliability = totalReliability * globalReliabilityModifier;
@@ -129,6 +131,7 @@ namespace TestFlightCore
         public virtual void DoFlightUpdate(double missionStartTime, double flightDataMultiplier, double flightDataEngineerMultiplier, double globalReliabilityModifier)
         {
             // Check to see if its time to poll
+            string scope;
             float currentMet = (float)(Planetarium.GetUniversalTime() - missionStartTime);
             if (currentMet > (lastPolling + pollingInterval))
             {
@@ -146,6 +149,7 @@ namespace TestFlightCore
                     {
                         fdr.DoFlightUpdate(missionStartTime, flightDataMultiplier, flightDataEngineerMultiplier);
                         currentFlightData = fdr.GetCurrentFlightData();
+                        scope = String.Format("{0}_{1}", fdr.GetDataBody(), fdr.GetDataSituation());
                         break;
                     }
                 }
@@ -156,7 +160,7 @@ namespace TestFlightCore
                     ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
                     if (reliabilityModule != null)
                     {
-                        totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(currentFlightData);
+                        totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(initialFlightData.Find(fd => fd.scope == scope));
                     }
                 }
                 currentReliability = totalReliability * globalReliabilityModifier;
@@ -166,6 +170,7 @@ namespace TestFlightCore
 
         public virtual bool DoFailureCheck(double missionStartTime, double globalReliabilityModifier)
         {
+            string scope;
             float currentMet = (float)(Planetarium.GetUniversalTime() - missionStartTime);
             if ( currentMet > (lastFailureCheck + failureCheckFrequency) && activeFailure == null )
             {
@@ -174,10 +179,19 @@ namespace TestFlightCore
                 double totalReliability = 0.0;
                 foreach (PartModule pm in this.part.Modules)
                 {
+                    IFlightDataRecorder fdr = pm as IFlightDataRecorder;
+                    if (fdr != null)
+                    {
+                        scope = String.Format("{0}_{1}", fdr.GetDataBody(), fdr.GetDataSituation());
+                        break;
+                    }
+                }
+                foreach (PartModule pm in this.part.Modules)
+                {
                     ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
                     if (reliabilityModule != null)
                     {
-                        totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(currentFlightData);
+                        totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(initialFlightData.Find(fd => fd.scope == scope));
                     }
                 }
                 currentReliability = totalReliability * globalReliabilityModifier;

@@ -36,6 +36,8 @@ namespace TestFlightAPI
         void InitializeFlightData(List<TestFlightData> allFlightData);
         void SetDeepSpaceThreshold(double newThreshold);
         void DoFlightUpdate(double missionStartTime, double flightDataMultiplier, double flightDataEngineerMultiplier);
+        string GetDataSituation();
+        string GetDataBody();
 	}
 
 	public interface ITestFlightReliability
