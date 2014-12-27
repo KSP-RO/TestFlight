@@ -169,6 +169,17 @@ namespace TestFlightCore
         internal List<PartStatus> allPartsStatus;
     }
 
+    internal struct PartWindowSettings
+    {
+        internal bool partHighlight;
+    }
+
+    internal struct WindowSettings
+    {
+        internal Dictionary<uint, PartWindowSettings> partWindowSettings;
+    }
+
+
     [KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
 	public class TestFlightManager : MonoBehaviourWindow
 	{
@@ -190,7 +201,7 @@ namespace TestFlightCore
 
         internal override void Awake()
         {
-            Visible = true;
+            Visible = false;
             base.Awake();
         }
 
@@ -203,6 +214,8 @@ namespace TestFlightCore
     internal class MasterStatusDisplay : MonoBehaviourWindow
     {
         private TestFlightManagerScenario tsm;
+        private WindowSettings winSettings;
+        private PartWindowSettings partSettings;
 
         internal override void Start()
         {
@@ -228,6 +241,11 @@ namespace TestFlightCore
             TooltipsEnabled = true;
             WindowCaption = "TestFlight Master Status Display";
             Visible = true;
+            if (winSettings.partWindowSettings == null)
+            {
+                Debug.Log("TestFlight MasterStatusDisplay: Init partSettings");
+                winSettings.partWindowSettings = new Dictionary<uint, PartWindowSettings>();
+            }
             base.Awake();
         }
 
@@ -238,16 +256,24 @@ namespace TestFlightCore
                 Visible = false;
                 return;
             }
-            Visible = true;
             Dictionary<Guid, MasterStatusItem> masterStatus = tsm.GetMasterStatus();
 
             if (masterStatus != null && masterStatus.Count() > 0)
             {
+                Visible = true;
                 Guid currentVessel = masterStatus.First().Key;
                 GUILayout.BeginVertical();
                 GUILayout.Label("MSD for " + masterStatus[currentVessel].vesselName);
-                foreach(PartStatus status in masterStatus[currentVessel].allPartsStatus)
+                foreach (PartStatus status in masterStatus[currentVessel].allPartsStatus)
                 {
+                    // load window settings for this part
+                    if (!winSettings.partWindowSettings.ContainsKey(status.partID))
+                    {
+                        winSettings.partWindowSettings.Add(status.partID, new PartWindowSettings());
+                    }
+                    partSettings = winSettings.partWindowSettings[status.partID];
+
+                    // Display part data
                     GUILayout.BeginHorizontal();
                     GUILayout.Label(status.partName);
                     GUILayout.Label(String.Format("{0,7:F2}du", status.flightData));
@@ -258,17 +284,17 @@ namespace TestFlightCore
                         if (status.activeFailure.GetFailureDetails().severity == "major")
                             useStyle = Styles.textStyleCritical;
 
-                        GUILayout.Label(String.Format("{0,25}",status.activeFailure.GetFailureDetails().failureTitle), useStyle);
+                        GUILayout.Label(String.Format("{0,25}", status.activeFailure.GetFailureDetails().failureTitle), useStyle);
                     }
                     else
                     {
-                        GUILayout.Label(String.Format("{0,25}","Status OK"), Styles.textStyleSafe);
+                        GUILayout.Label(String.Format("{0,25}", "Status OK"), Styles.textStyleSafe);
                     }
                     if (GUILayout.Button("H"))
                     {
                         // Highlight part
-                        status.highlightPart = !status.highlightPart;
-                        status.flightCore.HighlightPart(status.highlightPart);
+                        partSettings.partHighlight = !partSettings.partHighlight;
+                        status.flightCore.HighlightPart(partSettings.partHighlight);
                     }
                     if (status.activeFailure != null)
                     {
@@ -280,9 +306,12 @@ namespace TestFlightCore
                     }
                      
                     GUILayout.EndHorizontal();
+                    winSettings.partWindowSettings[status.partID] = partSettings;
                 }
                 GUILayout.EndVertical();
             }
+            else
+                Visible = false;
         }
     }
 
