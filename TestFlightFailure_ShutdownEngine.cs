@@ -8,7 +8,7 @@ using TestFlightAPI;
 
 namespace TestFlight
 {
-    public class TestFlightFailure_Disable : TestFlightFailureBase
+    public class TestFlightFailure_ShutdownEngine : TestFlightFailureBase
     {
         /// <summary>
         /// Triggers the failure controlled by the failure module

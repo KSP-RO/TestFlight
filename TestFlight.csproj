@@ -71,7 +71,7 @@
     <Compile Include="TestFlightReliability.cs" />
     <Compile Include="FlightDataRecorder.cs" />
     <Compile Include="FlightDataRecorder_Engine.cs" />
-    <Compile Include="TestFlightFailure_Disable.cs" />
+    <Compile Include="TestFlightFailure_ShutdownEngine.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
