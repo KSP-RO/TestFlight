@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+
 using UnityEngine;
 
 namespace TestFlightAPI
@@ -134,7 +136,7 @@ namespace TestFlightAPI
             deepSpaceThreshold = newThreshold;
         }
 
-        public virtual void DoFlightUpdate(double missionStartTime, double flightDataMultiplier, double flightDataEngineerMultiplier)
+        public virtual void DoFlightUpdate(double missionStartTime, double globalFlightDataMultiplier, double globalFlightDataEngineerMultiplier)
         {
             double currentMet = Planetarium.GetUniversalTime() - missionStartTime;
             string scope = String.Format("{0}_{1}", GetDataBody(), GetDataSituation());
@@ -165,15 +167,19 @@ namespace TestFlightAPI
                 return;
             }
 
-            // TODO once migrated to KSP 0.90, hook this up to the Kerbal engineer skill if an engineer is present on board ship
-            int engineerLevel = 0;
-            double baseEnginerModifier = engineerLevel * flightDataEngineerModifier * flightDataEngineerMultiplier;
-            double engineerModifier = 1.0 + baseEnginerModifier;
+            List<ProtoCrewMember> crew = this.part.vessel.GetVesselCrew().Where(c => c.experienceTrait.Title == "Engineer");
+            double totalEngineerBonus = 0;
+            foreach (ProtoCrewMember crewMember in crew)
+            {
+                int engineerLevel = crewMember.experienceLevel;
+                totalEngineerBonus = totalEngineerBonus + (flightDataEngineerModifier * engineerLevel * globalFlightDataEngineerMultiplier);
+            }
+            double engineerModifier = 1.0 + totalEngineerBonus;
             Debug.Log("FlightDataRecorderBase: flightDataMultiplier=" + flightDataMultiplier);
             Debug.Log("FlightDataRecorderBase: engineerModifier=" + engineerModifier);
             if (currentMet > lastRecordedMet)
             {
-                currentData += (float)(((currentMet - lastRecordedMet) * flightDataMultiplier) * engineerModifier);
+                currentData += (float)(((currentMet - lastRecordedMet) * flightDataMultiplier * globalFlightDataMultiplier) * engineerModifier);
                 currentFlightTime += (int)(currentMet - lastRecordedMet);
             }
             lastRecordedMet = currentMet;
