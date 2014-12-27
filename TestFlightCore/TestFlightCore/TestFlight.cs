@@ -156,8 +156,10 @@ namespace TestFlightCore
         internal int partStatus;
         internal int flightTime;
         internal double flightData;
+        internal double reliability;
         internal ITestFlightCore flightCore;
         internal ITestFlightFailure activeFailure;
+        internal bool highlightPart;
     }
 
     internal struct MasterStatusItem
@@ -220,7 +222,7 @@ namespace TestFlightCore
         {
             Styles.Init();
             SkinsLibrary.SetCurrent("Default");
-            WindowRect = new Rect(0, 50, 300, 200);
+            WindowRect = new Rect(0, 50, 500, 200);
             DragEnabled = true;
             ClampToScreen = true;
             TooltipsEnabled = true;
@@ -248,15 +250,35 @@ namespace TestFlightCore
                 {
                     GUILayout.BeginHorizontal();
                     GUILayout.Label(status.partName);
+                    GUILayout.Label(String.Format("{0,7:F2}du", status.flightData));
+                    GUILayout.Label(String.Format("{0,5:F2}%", status.reliability));
                     if (status.activeFailure != null)
                     {
-                        if (status.activeFailure.GetFailureDetails().severity == "minor")
-                            GUILayout.Label(" - Minor Failure", Styles.textStyleWarning);
-                        if (status.activeFailure.GetFailureDetails().severity == "failure")
-                            GUILayout.Label(" - Failure", Styles.textStyleWarning);
+                        GUIStyle useStyle = Styles.textStyleWarning;
                         if (status.activeFailure.GetFailureDetails().severity == "major")
-                            GUILayout.Label(" - Major Failure", Styles.textStyleWarning);
+                            useStyle = Styles.textStyleCritical;
+
+                        GUILayout.Label(String.Format("{0,25}",status.activeFailure.GetFailureDetails().failureTitle), useStyle);
                     }
+                    else
+                    {
+                        GUILayout.Label(String.Format("{0,25}","Status OK"), Styles.textStyleSafe);
+                    }
+                    if (GUILayout.Button("H"))
+                    {
+                        // Highlight part
+                        status.highlightPart = !status.highlightPart;
+                        status.flightCore.HighlightPart(status.highlightPart);
+                    }
+                    if (status.activeFailure != null)
+                    {
+                        if (GUILayout.Button("R"))
+                        {
+                            // attempt repair
+                            bool repairSuccess = status.flightCore.AttemptRepair();
+                        }
+                    }
+                     
                     GUILayout.EndHorizontal();
                 }
                 GUILayout.EndVertical();
@@ -531,6 +553,7 @@ namespace TestFlightCore
                                 partStatus.flightData = currentFlightData.flightData;
                                 partStatus.flightTime = currentFlightData.flightTime;
                                 partStatus.partStatus = core.GetPartStatus();
+                                partStatus.reliability = core.GetCurrentReliability(settings.globalReliabilityModifier);
                                 if (core.GetPartStatus() > 0)
                                 {
                                     partStatus.activeFailure = core.GetFailureModule();

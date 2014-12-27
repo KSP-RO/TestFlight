@@ -32,11 +32,10 @@ namespace TestFlightCore
             Visible = !Visible;
         }
 
-        [KSPEvent(guiActive = true, guiName = "Attempt Part Repair")]
-        public void AttemptRepair()
+        public bool AttemptRepair()
         {
             if (activeFailure == null)
-                return;
+                return true;
 
             if (activeFailure.CanAttemptRepair())
             {
@@ -44,8 +43,15 @@ namespace TestFlightCore
                 if (isRepaired)
                 {
                     activeFailure = null;
+                    return true;
                 }
             }
+            return false;
+        }
+
+        public void HighlightPart(bool doHighlight)
+        {
+            this.part.SetHighlight(doHighlight, false);
         }
 
         public override void OnAwake()
@@ -98,6 +104,51 @@ namespace TestFlightCore
         public virtual ITestFlightFailure GetFailureModule()
         {
             return activeFailure;
+        }
+
+        public virtual double GetCurrentReliability(double globalReliabilityModifier)
+        {
+            // Calculate reliability based on initial flight data, not current
+            double totalReliability = 0.0;
+            string scope;
+            IFlightDataRecorder dataRecorder = null;
+            foreach (PartModule pm in this.part.Modules)
+            {
+                IFlightDataRecorder fdr = pm as IFlightDataRecorder;
+                if (fdr != null)
+                {
+                    dataRecorder = fdr;
+                }
+            }
+            foreach (PartModule pm in this.part.Modules)
+            {
+                ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
+                if (reliabilityModule != null)
+                {
+                    scope = String.Format("{0}_{1}", dataRecorder.GetDataBody(), dataRecorder.GetDataSituation());
+                    TestFlightData flightData;
+                    if (initialFlightData == null)
+                    {
+                        Debug.Log("TestFlightCore: initialFlightData is null");
+                        flightData = new TestFlightData();
+                        flightData.scope = scope;
+                        flightData.flightData = 0.0f;
+                    }
+                    else
+                    {
+                        Debug.Log("TestFlightCore: initialFlightData is valid");
+                        foreach (TestFlightData tfd in initialFlightData)
+                        {
+                            Debug.Log("TestFlightCore: initialFlightData " + tfd.flightData);
+                        }
+                        flightData = initialFlightData.Find(fd => fd.scope == scope);
+                    }
+                    Debug.Log("TestFlightCore: Doing Reliability check with flightData " + flightData.flightData);
+                    totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(flightData);
+                }
+            }
+            currentReliability = totalReliability * globalReliabilityModifier;
+            return currentReliability;
         }
 
         public void InitializeFlightData(List<TestFlightData> allFlightData, double globalReliabilityModifier)

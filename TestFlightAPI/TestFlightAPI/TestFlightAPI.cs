@@ -88,6 +88,8 @@ namespace TestFlightAPI
 
         TestFlightData GetCurrentFlightData();
 
+        double GetCurrentReliability(double globalReliabilityModifier);
+
         /// <summary>
         /// Does the failure check.
         /// </summary>
@@ -100,6 +102,8 @@ namespace TestFlightAPI
 
         void InitializeFlightData(List<TestFlightData> allFlightData, double globalReliabilityModifier);
 
+        void HighlightPart(bool doHighlight);
+        bool AttemptRepair();
     }
 }
 

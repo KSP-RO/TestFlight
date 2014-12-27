@@ -25,10 +25,9 @@ namespace TestFlightCore
 
         public static void Init()
         {
-            panelStyle = new GUIStyle();
-//            panelStyle.normal.background = Resources.texPanel;
-            panelStyle.border = new RectOffset(6, 6, 6, 6);
-            panelStyle.padding = new RectOffset(8, 3, 7, 0);
+            panelStyle = new GUIStyle(SkinsLibrary.DefKSPSkin.window);
+//            panelStyle.border = new RectOffset(6, 6, 6, 6);
+//            panelStyle.padding = new RectOffset(8, 3, 7, 0);
 
             textStyleStandard = new GUIStyle(SkinsLibrary.DefUnitySkin.label);
             textStyleStandard.fontSize = 12;
