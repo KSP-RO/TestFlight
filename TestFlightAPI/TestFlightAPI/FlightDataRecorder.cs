@@ -167,7 +167,7 @@ namespace TestFlightAPI
                 return;
             }
 
-            List<ProtoCrewMember> crew = this.part.vessel.GetVesselCrew().Where(c => c.experienceTrait.Title == "Engineer");
+            List<ProtoCrewMember> crew = this.part.vessel.GetVesselCrew().Where(c => c.experienceTrait.Title == "Engineer").ToList();
             double totalEngineerBonus = 0;
             foreach (ProtoCrewMember crewMember in crew)
             {
