@@ -233,9 +233,10 @@ namespace TestFlightCore
         {
             if (tsm == null)
             {
+                Visible = false;
                 return;
             }
-
+            Visible = true;
             Dictionary<Guid, MasterStatusItem> masterStatus = tsm.GetMasterStatus();
 
             if (masterStatus != null && masterStatus.Count() > 0)
