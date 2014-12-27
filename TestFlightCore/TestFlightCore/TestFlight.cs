@@ -350,6 +350,11 @@ namespace TestFlightCore
                     if (core != null)
                     {
                         PartFlightData partData = GetFlightDataForPartName(pm.part.name);
+                        if (partData == null)
+                        {
+                            partData = new PartFlightData();
+                        }
+
                         if (partData != null)
                         {
                             core.InitializeFlightData(partData.GetFlightData(), settings.globalReliabilityModifier);
@@ -446,7 +451,7 @@ namespace TestFlightCore
             {
                 if (FlightGlobals.ActiveVessel != null && !knownVessels.ContainsKey(FlightGlobals.ActiveVessel.id))
                 {
-                    Debug.Log("TestFlightManagerScenario: Adding new vessel " + FlightGlobals.ActiveVessel.GetName() + " with launchtime " + Planetarium.GetUniversalTime());
+                    Debug.Log("TestFlightManagerScenario: Adding new vessel " + FlightGlobals.ActiveVessel.GetName() + " with launch time " + Planetarium.GetUniversalTime());
                     knownVessels.Add(FlightGlobals.ActiveVessel.id, Planetarium.GetUniversalTime());
                     InitializeParts(FlightGlobals.ActiveVessel);
                 }
@@ -459,7 +464,7 @@ namespace TestFlightCore
                     {
                         if ( !knownVessels.ContainsKey(vessel.id) )
                         {
-                            Debug.Log("TestFlightManagerScenario: Adding new vessel " + vessel.GetName() + " with launchtime " + Planetarium.GetUniversalTime());
+                            Debug.Log("TestFlightManagerScenario: Adding new vessel " + vessel.GetName() + " with launch time " + Planetarium.GetUniversalTime());
                             knownVessels.Add(vessel.id, Planetarium.GetUniversalTime());
                             InitializeParts(vessel);
                         }

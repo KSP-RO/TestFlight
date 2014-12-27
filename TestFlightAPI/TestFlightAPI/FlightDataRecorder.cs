@@ -115,15 +115,18 @@ namespace TestFlightAPI
         {
             if (isNewInstanceOfPart)
             {
-                foreach (TestFlightData data in allFlightData)
+                if (allFlightData != null)
                 {
-                    if (flightData == null)
+                    foreach (TestFlightData data in allFlightData)
                     {
-                        flightData = new FlightDataConfig();
+                        if (flightData == null)
+                        {
+                            flightData = new FlightDataConfig();
+                        }
+                        flightData.AddFlightData(data.scope, data.flightData, 0);
                     }
-                    flightData.AddFlightData(data.scope, data.flightData, 0);
+                    isNewInstanceOfPart = false;
                 }
-                isNewInstanceOfPart = false;
             }
             // Initialize our current scope with the data we just received
             currentScope = String.Format("{0}_{1}", GetDataBody(), GetDataSituation());

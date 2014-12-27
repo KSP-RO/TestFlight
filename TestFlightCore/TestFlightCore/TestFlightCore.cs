@@ -102,7 +102,8 @@ namespace TestFlightCore
 
         public void InitializeFlightData(List<TestFlightData> allFlightData, double globalReliabilityModifier)
         {
-            initialFlightData = allFlightData;
+            Debug.Log("TestFlightCore: " + this.part.name + "(" + this.part.flightID + ") Initializing");
+            initialFlightData = new List<TestFlightData>(allFlightData);
             double totalReliability = 0.0;
             string scope;
             IFlightDataRecorder dataRecorder = null;
@@ -123,7 +124,22 @@ namespace TestFlightCore
                 if (reliabilityModule != null)
                 {
                     scope = String.Format("{0}_{1}", dataRecorder.GetDataBody(), dataRecorder.GetDataSituation());
-                    totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(initialFlightData.Find(fd => fd.scope == scope));
+                    TestFlightData flightData;
+                    if (initialFlightData == null)
+                    {
+                        flightData = new TestFlightData();
+                        flightData.scope = scope;
+                        flightData.flightData = 0.0f;
+                    }
+                    else
+                    {
+                        foreach (TestFlightData tfd in initialFlightData)
+                        {
+                            Debug.Log("TestFlightCore: initialFlightData " + tfd.flightData);
+                        }
+                        flightData = initialFlightData.Find(fd => fd.scope == scope);
+                    }
+                    totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(flightData);
                 }
             }
             currentReliability = totalReliability * globalReliabilityModifier;
@@ -132,6 +148,7 @@ namespace TestFlightCore
 
         public virtual void DoFlightUpdate(double missionStartTime, double flightDataMultiplier, double flightDataEngineerMultiplier, double globalReliabilityModifier)
         {
+            Debug.Log("TestFlightCore: " + this.part.name + "(" + this.part.flightID + ") FlightUpdate");
             // Check to see if its time to poll
             IFlightDataRecorder dataRecorder = null;
             string scope;
@@ -164,7 +181,25 @@ namespace TestFlightCore
                     if (reliabilityModule != null)
                     {
                         scope = String.Format("{0}_{1}", dataRecorder.GetDataBody(), dataRecorder.GetDataSituation());
-                        totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(initialFlightData.Find(fd => fd.scope == scope));
+                        TestFlightData flightData;
+                        if (initialFlightData == null)
+                        {
+                            Debug.Log("TestFlightCore: initialFlightData is null");
+                            flightData = new TestFlightData();
+                            flightData.scope = scope;
+                            flightData.flightData = 0.0f;
+                        }
+                        else
+                        {
+                            Debug.Log("TestFlightCore: initialFlightData is valid");
+                            foreach (TestFlightData tfd in initialFlightData)
+                            {
+                                Debug.Log("TestFlightCore: initialFlightData " + tfd.flightData);
+                            }
+                            flightData = initialFlightData.Find(fd => fd.scope == scope);
+                        }
+                        Debug.Log("TestFlightCore: Doing Reliability check with flightData " + flightData.flightData);
+                        totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(flightData);
                     }
                 }
                 currentReliability = totalReliability * globalReliabilityModifier;
@@ -197,7 +232,17 @@ namespace TestFlightCore
                     if (reliabilityModule != null)
                     {
                         scope = String.Format("{0}_{1}", dataRecorder.GetDataBody(), dataRecorder.GetDataSituation());
-                        totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(initialFlightData.Find(fd => fd.scope == scope));
+                        TestFlightData flightData;
+                        if (initialFlightData == null)
+                        {
+                            flightData = new TestFlightData();
+                            flightData.scope = scope;
+                            flightData.flightData = 0.0f;
+                        }
+                        else
+                            flightData = initialFlightData.Find(fd => fd.scope == scope);
+                        Debug.Log("TestFlightCore: Doing Failure check with flightData " + flightData.flightData);
+                        totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(flightData);
                     }
                 }
                 currentReliability = totalReliability * globalReliabilityModifier;
