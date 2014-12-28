@@ -14,7 +14,7 @@ using KSPPluginFramework;
 
 namespace TestFlightCore
 {
-    public class Styles
+    internal static class Styles
     {
         internal static GUIStyle panelStyle;
 
@@ -23,8 +23,9 @@ namespace TestFlightCore
         internal static GUIStyle textStyleSafe;
         internal static GUIStyle textStyleStandard;
 
-        public static void Init()
+        internal static void Init()
         {
+            Debug.Log("TestFlight Styles: Init");
             panelStyle = new GUIStyle(SkinsLibrary.DefKSPSkin.window);
 //            panelStyle.border = new RectOffset(6, 6, 6, 6);
 //            panelStyle.padding = new RectOffset(8, 3, 7, 0);

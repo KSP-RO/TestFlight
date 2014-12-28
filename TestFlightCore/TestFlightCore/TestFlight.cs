@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -216,6 +217,8 @@ namespace TestFlightCore
         private TestFlightManagerScenario tsm;
         private WindowSettings winSettings;
         private PartWindowSettings partSettings;
+        private ApplicationLauncherButton appLauncherButton;
+        private bool sticky = false;
 
         internal override void Start()
         {
@@ -233,34 +236,120 @@ namespace TestFlightCore
         
         internal override void Awake()
         {
+            if (winSettings.partWindowSettings == null)
+            {
+                winSettings.partWindowSettings = new Dictionary<uint, PartWindowSettings>();
+            }
+            StartCoroutine("AddToToolbar");
+            base.Awake();
+        }
+
+        internal override void OnGUIOnceOnly()
+        {
             Styles.Init();
             SkinsLibrary.SetCurrent("Default");
-            WindowRect = new Rect(0, 50, 500, 200);
+            // Default position and size -- will get proper bounds calculated when needed
+            WindowRect = new Rect(0, 50, 500, 50);
             DragEnabled = true;
             ClampToScreen = true;
             TooltipsEnabled = true;
             WindowCaption = "TestFlight Master Status Display";
-            Visible = true;
-            if (winSettings.partWindowSettings == null)
-            {
-                Debug.Log("TestFlight MasterStatusDisplay: Init partSettings");
-                winSettings.partWindowSettings = new Dictionary<uint, PartWindowSettings>();
-            }
-            base.Awake();
         }
 
-        internal override void DrawWindow(Int32 id)
+        internal void CalculateWindowBounds()
         {
-            if (tsm == null)
-            {
-                Visible = false;
+            if (appLauncherButton == null)
                 return;
-            }
+            if (tsm == null)
+                return;
+            float windowWidth = 500f;
+            float topLeft = Screen.width - windowWidth;
+            float topRight = 40f;
+            float windowHeight = 10f;
+            // Calculate height based on amount of parts
             Dictionary<Guid, MasterStatusItem> masterStatus = tsm.GetMasterStatus();
 
             if (masterStatus != null && masterStatus.Count() > 0)
             {
-                Visible = true;
+                Guid currentVessel = masterStatus.First().Key;
+                windowHeight = masterStatus[currentVessel].allPartsStatus.Count() * 20f;
+            }
+            WindowRect = new Rect(topLeft, topRight, windowWidth, windowHeight);
+        }
+
+        IEnumerator AddToToolbar()
+        {
+            while (!ApplicationLauncher.Ready)
+            {
+                yield return null;
+            }
+            try
+            {
+                // Load the icon for the button
+                Debug.Log("TestFlight MasterStatusDisplay: Loading icon texture");
+                Texture iconTexture = GameDatabase.Instance.GetTexture("TestFlight/Resources/AppLauncherIcon", false);
+                if (iconTexture == null)
+                {
+                    throw new Exception("TestFlight MasterStatusDisplay: Failed to load icon texture");
+                }
+                Debug.Log("TestFlight MasterStatusDisplay: Creating icon on toolbar");
+                appLauncherButton = ApplicationLauncher.Instance.AddModApplication(
+                    OpenWindow,
+                    CloseWindow,
+                    HoverInButton,
+                    HoverOutButton,
+                    null,
+                    null,
+                    ApplicationLauncher.AppScenes.ALWAYS,
+                    iconTexture);
+                ApplicationLauncher.Instance.AddOnHideCallback(HideButton);
+                ApplicationLauncher.Instance.AddOnRepositionCallback(RepostionWindow);
+            }
+            catch (Exception e)
+            {
+                Debug.Log("TestFlight MasterStatusDisplay: Unable to add button to application launcher: " + e.Message);
+                throw e;
+            }
+        }
+        void OpenWindow()
+        {
+            CalculateWindowBounds();
+            Visible = true;
+            sticky = true;
+        }
+        void CloseWindow()
+        {
+            Visible = false;
+            sticky = false;
+        }
+        void HideButton()
+        {
+            ApplicationLauncher.Instance.RemoveModApplication(appLauncherButton);
+        }
+        void RepostionWindow()
+        {
+            Debug.Log("TestFlight MasterStatusDisplay: RepositionWindow");
+        }
+        void HoverInButton()
+        {
+            CalculateWindowBounds();
+            Visible = true;
+        }
+        void HoverOutButton()
+        {
+            if (!sticky)
+                Visible = false;
+        }
+        internal override void DrawWindow(Int32 id)
+        {
+            if (tsm == null)
+            {
+                return;
+            }
+            Dictionary<Guid, MasterStatusItem> masterStatus = tsm.GetMasterStatus();
+            CalculateWindowBounds();
+            if (masterStatus != null && masterStatus.Count() > 0)
+            {
                 Guid currentVessel = masterStatus.First().Key;
                 GUILayout.BeginVertical();
                 GUILayout.Label("MSD for " + masterStatus[currentVessel].vesselName);
