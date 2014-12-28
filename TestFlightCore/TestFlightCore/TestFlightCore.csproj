@@ -46,6 +46,9 @@
     <Reference Include="UnityEngine">
       <HintPath>..\..\..\..\..\KSP.app\Contents\Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>..\..\..\..\..\KSP.app\Contents\Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />

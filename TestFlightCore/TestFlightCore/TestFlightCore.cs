@@ -51,7 +51,36 @@ namespace TestFlightCore
 
         public void HighlightPart(bool doHighlight)
         {
-            this.part.SetHighlight(doHighlight, false);
+            Color highlightColor;
+            if (activeFailure == null)
+                highlightColor = XKCDColors.HighlighterGreen;
+            else
+            {
+                if (activeFailure.GetFailureDetails().severity == "major")
+                    highlightColor = XKCDColors.FireEngineRed;
+                else
+                    highlightColor = XKCDColors.OrangeYellow;
+            }
+
+            if (doHighlight)
+            {
+                this.part.SetHighlightDefault();
+                this.part.SetHighlightType(Part.HighlightType.AlwaysOn);
+                this.part.SetHighlight(true, false);
+                this.part.SetHighlightColor(highlightColor);
+                HighlightingSystem.Highlighter highlighter;
+                highlighter = this.part.FindModelTransform("model").gameObject.AddComponent<HighlightingSystem.Highlighter>();
+                highlighter.ConstantOn(highlightColor);
+                highlighter.SeeThroughOn();
+            }
+            else
+            {
+                this.part.SetHighlightDefault();
+                this.part.SetHighlightType(Part.HighlightType.AlwaysOn);
+                this.part.SetHighlight(false, false);
+                this.part.SetHighlightColor(XKCDColors.HighlighterGreen);
+                Destroy(this.part.FindModelTransform("model").gameObject.GetComponent(typeof(HighlightingSystem.Highlighter)));
+            }
         }
 
         public override void OnAwake()

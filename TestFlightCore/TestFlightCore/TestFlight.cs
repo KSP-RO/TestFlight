@@ -266,6 +266,7 @@ namespace TestFlightCore
             float topLeft = Screen.width - windowWidth;
             float topRight = 40f;
             float windowHeight = 10f;
+
             // Calculate height based on amount of parts
             Dictionary<Guid, MasterStatusItem> masterStatus = tsm.GetMasterStatus();
 
