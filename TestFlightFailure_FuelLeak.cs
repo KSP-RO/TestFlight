@@ -23,8 +23,11 @@ namespace TestFlight
 
         internal IEnumerator LeakFuel()
         {
-            this.part.RequestResource("LiquidFuel", 5);
-            yield return new WaitForSeconds(1f);
+            while (true)
+            {
+                this.part.RequestResource("LiquidFuel", 5);
+                yield return new WaitForSeconds(1f);
+            }
         }
 
         /// <summary>
