@@ -74,6 +74,7 @@
     <Compile Include="TestFlightFailure_ShutdownEngine.cs" />
     <Compile Include="TestFlightFailure_FuelLeak.cs" />
     <Compile Include="TestFlightFailure_Explode.cs" />
+    <Compile Include="TestFlightFailure_LockGimbal.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
