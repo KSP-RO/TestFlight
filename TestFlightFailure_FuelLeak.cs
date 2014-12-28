@@ -25,7 +25,7 @@ namespace TestFlight
         {
             while (true)
             {
-                this.part.RequestResource("LiquidFuel", 5);
+                this.part.RequestResource("LiquidFuel", 0.5);
                 yield return new WaitForSeconds(1f);
             }
         }
