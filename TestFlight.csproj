@@ -72,6 +72,7 @@
     <Compile Include="FlightDataRecorder.cs" />
     <Compile Include="FlightDataRecorder_Engine.cs" />
     <Compile Include="TestFlightFailure_ShutdownEngine.cs" />
+    <Compile Include="TestFlightFailure_FuelLeak.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
@@ -109,5 +110,6 @@
     <None Include="TestFlight\Resources.cfg" />
     <None Include="TestFlight\Squad_Engines.cfg" />
     <None Include="TestFlight\Parts\KRCS block\part.cfg" />
+    <None Include="TestFlight\Squad_FuelTanks.cfg" />
   </ItemGroup>
 </Project>
