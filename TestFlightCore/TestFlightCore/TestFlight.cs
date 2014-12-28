@@ -275,20 +275,20 @@ namespace TestFlightCore
 
                     // Display part data
                     GUILayout.BeginHorizontal();
-                    GUILayout.Label(status.partName);
+                    GUILayout.Label(String.Format("{0,50}", status.partName));
                     GUILayout.Label(String.Format("{0,7:F2}du", status.flightData));
-                    GUILayout.Label(String.Format("{0,5:F2}%", status.reliability));
+                    GUILayout.Label(String.Format("{0,7:F2}%", status.reliability));
                     if (status.activeFailure != null)
                     {
                         GUIStyle useStyle = Styles.textStyleWarning;
                         if (status.activeFailure.GetFailureDetails().severity == "major")
                             useStyle = Styles.textStyleCritical;
 
-                        GUILayout.Label(String.Format("{0,25}", status.activeFailure.GetFailureDetails().failureTitle), useStyle);
+                        GUILayout.Label(String.Format("{0,-25}", status.activeFailure.GetFailureDetails().failureTitle), useStyle);
                     }
                     else
                     {
-                        GUILayout.Label(String.Format("{0,25}", "Status OK"), Styles.textStyleSafe);
+                        GUILayout.Label(String.Format("{0,-25}", "Status OK"), Styles.textStyleSafe);
                     }
                     if (GUILayout.Button("H"))
                     {
@@ -577,7 +577,7 @@ namespace TestFlightCore
 
                                 PartStatus partStatus = new PartStatus();
                                 partStatus.flightCore = core;
-                                partStatus.partName = part.name;
+                                partStatus.partName = part.partInfo.title;
                                 partStatus.partID = part.flightID;
                                 partStatus.flightData = currentFlightData.flightData;
                                 partStatus.flightTime = currentFlightData.flightTime;
