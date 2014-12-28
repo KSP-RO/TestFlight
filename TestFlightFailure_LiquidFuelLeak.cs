@@ -9,7 +9,7 @@ using TestFlightAPI;
 
 namespace TestFlight
 {
-    public class TestFlightFailure_FuelLeak : TestFlightFailureBase
+    public class TestFlightFailure_LiquidFuelLeak : TestFlightFailureBase
     {
         /// <summary>
         /// Triggers the failure controlled by the failure module
