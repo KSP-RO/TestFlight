@@ -79,6 +79,7 @@
     <Compile Include="TestFlightFailure_LockGimbal.cs" />
     <Compile Include="TestFlightFailure_ReducedMaxThrust.cs" />
     <Compile Include="TestFlightFailure_LiquidFuelLeak.cs" />
+    <Compile Include="FlightDataRecorder_Resources.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
