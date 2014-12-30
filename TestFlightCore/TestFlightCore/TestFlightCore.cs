@@ -263,7 +263,7 @@ namespace TestFlightCore
             IFlightDataRecorder dataRecorder = null;
             string scope;
             float currentMet = (float)(Planetarium.GetUniversalTime() - missionStartTime);
-            if (currentMet > (lastPolling + pollingInterval))
+            if (currentMet > (lastPolling + pollingInterval) && currentMet > 10)
             {
                 // Poll all compatible modules in this order:
                 // 1) FlightDataRecorder
@@ -322,7 +322,7 @@ namespace TestFlightCore
             string scope;
             IFlightDataRecorder dataRecorder = null;
             float currentMet = (float)(Planetarium.GetUniversalTime() - missionStartTime);
-            if ( currentMet > (lastFailureCheck + failureCheckFrequency) && activeFailure == null )
+            if ( currentMet > (lastFailureCheck + failureCheckFrequency) && activeFailure == null && currentMet > 10)
             {
                 lastFailureCheck = currentMet;
                 // Calculate reliability based on initial flight data, not current
