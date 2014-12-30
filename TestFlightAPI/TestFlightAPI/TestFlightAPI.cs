@@ -38,7 +38,7 @@ namespace TestFlightAPI
         public bool requirementMet;
         // Is this an optional requirement that will give a repair bonus if met?
         public bool optionalRequirement;
-        // Repair chance bonus (IE 0.5 = +5%) if the optional requirement is met
+        // Repair chance bonus (IE 0.05 = +5%) if the optional requirement is met
         public float repairBonus;
     }
 
