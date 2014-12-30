@@ -263,7 +263,7 @@ namespace TestFlightCore
                 return;
             if (tsm == null)
                 return;
-            float windowWidth = 500f;
+            float windowWidth = 650f;
             float topLeft = Screen.width - windowWidth;
             float topRight = 40f;
             float windowHeight = 10f;
@@ -402,8 +402,6 @@ namespace TestFlightCore
                 }
                 GUILayout.EndVertical();
             }
-            else
-                Visible = false;
         }
     }
 
