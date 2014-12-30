@@ -7,9 +7,6 @@ namespace TestFlightAPI
     public class RepairConfig : IConfigNode
     {
         [KSPField(isPersistant = true)]
-        public bool canBeRepairedOnLanded = false;
-
-        [KSPField(isPersistant = true)]
         public bool requiresEVA = false;
 
         [KSPField(isPersistant = true)]
@@ -22,12 +19,6 @@ namespace TestFlightAPI
         public bool canBeRepairedInFlight = false;
 
         [KSPField(isPersistant = true)]
-        public int sparePartsRequired = 0;
-
-        [KSPField(isPersistant = true)]
-        public int timeRequired = 0;
-
-        [KSPField(isPersistant = true)]
         public int repairChance = 0;
 
         [KSPField(isPersistant = true)]
@@ -36,59 +27,67 @@ namespace TestFlightAPI
         [KSPField(isPersistant = true)]
         public float dataSize = 0;
 
+        [KSPField(isPersistant = true)]
+        public string replacementPart = "NONE";
+
+        [KSPField(isPersistant = true)]
+        public bool replacementPartOptional = false;
+
+        [KSPField(isPersistant = true)]
+        public float replacementPartBonus = 0.5f;
+
         public void Load(ConfigNode node)
         {
             if (node.HasValue("canBeRepairedInFlight"))
                 canBeRepairedInFlight = bool.Parse(node.GetValue("canBeRepairedInFlight"));
-            if (node.HasValue("canBeRepairedOnLanded"))
-                canBeRepairedOnLanded = bool.Parse(node.GetValue("canBeRepairedOnLanded"));
             if (node.HasValue("canBeRepairedOnSplashed"))
                 canBeRepairedOnSplashed = bool.Parse(node.GetValue("canBeRepairedOnSplashed"));
             if (node.HasValue("canBeRepairedByRemote"))
                 canBeRepairedByRemote = bool.Parse(node.GetValue("canBeRepairedByRemote"));
             if (node.HasValue("requiresEVA"))
                 requiresEVA = bool.Parse(node.GetValue("requiresEVA"));
-            if (node.HasValue("sparePartsRequired"))
-                sparePartsRequired = int.Parse(node.GetValue("sparePartsRequired"));
-            if (node.HasValue("timeRequired"))
-                timeRequired = int.Parse(node.GetValue("timeRequired"));
             if (node.HasValue("repairChance"))
                 repairChance = int.Parse(node.GetValue("repairChance"));
             if (node.HasValue("dataScale"))
                 dataScale = float.Parse(node.GetValue("dataScale"));
             if (node.HasValue("dataSize"))
                 dataSize = float.Parse(node.GetValue("dataSize"));
+            if (node.HasValue("replacementPart"))
+                replacementPart = node.GetValue("replacementPart");
+            if (node.HasValue("replacementPartOptional"))
+                replacementPartOptional = bool.Parse(node.GetValue("replacementPartOptional"));
+            if (node.HasValue("replacementPartBonus"))
+                replacementPartBonus = float.Parse(node.GetValue("replacementPartBonus"));
         }
         
         public void Save(ConfigNode node)
         {
             node.AddValue("requiresEVA", requiresEVA);
-            node.AddValue("canBeRepairedInFlight", canBeRepairedOnLanded);
-            node.AddValue("canBeRepairedOnLanded", canBeRepairedOnLanded);
             node.AddValue("canBeRepairedOnSplashed", canBeRepairedOnSplashed);
             node.AddValue("canBeRepairedByRemote", canBeRepairedByRemote);
-            node.AddValue("sparePartsRequired", sparePartsRequired);
-            node.AddValue("timeRequired", timeRequired);
             node.AddValue("repairChance", repairChance);
             node.AddValue("dataScale", dataScale);
             node.AddValue("dataSize", dataSize);
+            node.AddValue("replacementPart", replacementPart);
+            node.AddValue("replacementPartOptional", replacementPartOptional);
+            node.AddValue("replacementPartBonus", replacementPartBonus);
         }
         
         public override string ToString()
         {
             string stringRepresentation = "";
             
-            stringRepresentation = String.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8:F2},{9:F2}", 
+            stringRepresentation = String.Format("{0},{1},{2},{3},{4},{5:F2},{6:F2},{7},{8},{9:F2}", 
                 canBeRepairedInFlight,
-                canBeRepairedOnLanded,
                 canBeRepairedOnSplashed,
                 canBeRepairedByRemote,
                 requiresEVA,
-                sparePartsRequired,
-                timeRequired,
                 repairChance,
                 dataScale,
-                dataSize);
+                dataSize,
+                replacementPart,
+                replacementPartOptional,
+                replacementPartBonus);
             
             return stringRepresentation;
         }
@@ -101,18 +100,18 @@ namespace TestFlightAPI
             {
                 repairConfig = new RepairConfig();
                 repairConfig.canBeRepairedInFlight = bool.Parse(sections[0]);
-                repairConfig.canBeRepairedOnLanded = bool.Parse(sections[1]);
-                repairConfig.canBeRepairedOnSplashed = bool.Parse(sections[2]);
-                repairConfig.canBeRepairedByRemote = bool.Parse(sections[3]);
-                repairConfig.requiresEVA = bool.Parse(sections[4]);
+                repairConfig.canBeRepairedOnSplashed = bool.Parse(sections[1]);
+                repairConfig.canBeRepairedByRemote = bool.Parse(sections[2]);
+                repairConfig.requiresEVA = bool.Parse(sections[3]);
 
-                repairConfig.sparePartsRequired = int.Parse(sections[5]);
-                repairConfig.timeRequired = int.Parse(sections[6]);
-                repairConfig.repairChance = int.Parse(sections[7]);
+                repairConfig.repairChance = int.Parse(sections[4]);
                 
-                repairConfig.dataScale = float.Parse(sections[8]);
-                repairConfig.dataScale = float.Parse(sections[9]);
+                repairConfig.dataScale = float.Parse(sections[5]);
+                repairConfig.dataScale = float.Parse(sections[6]);
 
+                repairConfig.replacementPart = sections[7];
+                repairConfig.replacementPartOptional = bool.Parse(sections[8]);
+                repairConfig.replacementPartBonus = float.Parse(sections[9]);
             }
             
             return repairConfig;
@@ -125,27 +124,6 @@ namespace TestFlightAPI
     /// </summary>
     public class TestFlightFailureBase : PartModule, ITestFlightFailure
     {
-        /*
-         *  Example Module
-         *     MODULE
-         *      {
-         *          name = TestFlightFailure_Disable
-         *          failureType = mechanical
-         *          severity = major
-         *          // 2 = Rare, 4 = Seldom, 8 = Average, 16 = Often, 32 = Common
-         *          weight = 4
-         *          REPAIR
-         *          {
-         *              canBeRepairedOnLanded = true
-         *              canBeRepairedOnEVA = true
-         *              canBeRepairedOnSplashed = false
-         *              sparePartsRequired = 10
-         *              repairTimeRequired = 100
-         *              repairChance = 100
-         *          }
-         *      }
-         */
-
         [KSPField(isPersistant = true)]
         public string failureType;
         [KSPField(isPersistant = true)]
@@ -170,22 +148,121 @@ namespace TestFlightAPI
             details.failureType = failureType;
             details.severity = severity;
             details.failureTitle = failureTitle;
-            if (repairConfig == null)
-            {
-                details.canBeRepaired = false;
-                return details;
-            }
-            details.canBeRepairedByRemote = repairConfig.canBeRepairedByRemote;
-            details.requiresEVA = repairConfig.requiresEVA;
-            details.canBeRepairedOnLanded = repairConfig.canBeRepairedOnLanded;
-            details.canBeRepairedInFlight = repairConfig.canBeRepairedInFlight;
-            details.canBeRepairedOnSplashed = repairConfig.canBeRepairedOnSplashed;
-
-            details.sparePartsRequired = repairConfig.sparePartsRequired;
 
             return details;
         }
+
+        internal bool HasReplacementPart(string replacementPart)
+        {
+            // Look that all materials are available
+            List<PartResource> availableResources = new List<PartResource> ();
+            int resourceID = PartResourceLibrary.Instance.GetDefinition(replacementPart).id;
+            this.part.GetConnectedResources (resourceID, ResourceFlowMode.ALL_VESSEL, availableResources);
+            foreach (PartResource res in availableResources) {
+                if (res.amount >= 1.0f)
+                    return true;
+            }
+            return false;
+        }
         
+        /// <summary>
+        /// Gets the repair requirements from the Failure module for display to the user
+        /// </summary>
+        /// <returns>A List of all repair requirements for attempting repair of the part</returns>
+        public List<RepairRequirements> GetRepairRequirements()
+        {
+            if (repairConfig == null)
+                return null;
+
+            List<RepairRequirements> requirements = new List<RepairRequirements>();
+            Vessel.Situations situation = this.vessel.situation;
+
+            // In flight
+            if (!repairConfig.canBeRepairedInFlight)
+            {
+                RepairRequirements requirement = new RepairRequirements();
+                requirement.requirementMessage = "Vessel must not be in flight";
+                if (situation == Vessel.Situations.DOCKED
+                    || situation == Vessel.Situations.LANDED
+                    || situation == Vessel.Situations.PRELAUNCH
+                    || situation == Vessel.Situations.SPLASHED)
+                {
+                    requirement.requirementMet = true;
+                }
+                else
+                    requirement.requirementMet = false;
+                requirements.Add(requirement);
+            }
+
+            // Splashed down
+            if (!repairConfig.canBeRepairedOnSplashed)
+            {
+                RepairRequirements requirement = new RepairRequirements();
+                requirement.requirementMessage = "Vessel must not be in water";
+                if (situation == Vessel.Situations.SPLASHED)
+                {
+                    requirement.requirementMet = false;
+                }
+                else
+                    requirement.requirementMet = true;
+                requirements.Add(requirement);
+            }
+
+            // Requires EVA
+            // TODO
+            // Don't know how to do this yet
+
+            // Remote repair
+            if (!repairConfig.canBeRepairedByRemote)
+            {
+                RepairRequirements requirement = new RepairRequirements();
+                requirement.requirementMessage = "Vessel must not be under remote control";
+                if (this.vessel.GetCrewCount() <= 0)
+                    requirement.requirementMet = false;
+                else
+                    requirement.requirementMet = true;
+                requirements.Add(requirement);
+            }
+
+            // Replacement part
+            if (repairConfig.replacementPart != "NONE")
+            {
+                RepairRequirements requirement = new RepairRequirements();
+                if (repairConfig.replacementPartOptional)
+                {
+                    requirement.requirementMessage = "Having a replacement " + repairConfig.replacementPart + " on board would be a bonus";
+                    requirement.optionalRequirement = true;
+                    requirement.repairBonus = repairConfig.replacementPartBonus;
+                }
+                else
+                {
+                    requirement.requirementMessage = "Need a replacement " + repairConfig.replacementPart;
+                }
+                if (HasReplacementPart(repairConfig.replacementPart))
+                    requirement.requirementMet = true;
+                else
+                {
+                    requirement.requirementMet = false;
+                }
+                requirements.Add(requirement);
+            }
+
+            return requirements;
+        }
+
+        internal float GetOptionalRepairBonus()
+        {
+            float totalBonus = 0f;
+            List<RepairRequirements> requirements = GetRepairRequirements();
+            foreach (var entry in requirements)
+            {
+                if (entry.optionalRequirement && entry.requirementMet)
+                    totalBonus += entry.repairBonus;
+            }
+
+            return totalBonus;
+        }
+
         /// <summary>
         /// Triggers the failure controlled by the failure module
         /// </summary>
@@ -199,7 +276,13 @@ namespace TestFlightAPI
         /// <returns><c>true</c> if this instance can attempt repair; otherwise, <c>false</c>.</returns>
         public virtual bool CanAttemptRepair()
         {
-            return false;
+            List<RepairRequirements> requirements = GetRepairRequirements();
+            foreach (var entry in requirements)
+            {
+                if (!entry.optionalRequirement && !entry.requirementMet)
+                    return false;
+            }
+            return true;
         }
         
         /// <summary>

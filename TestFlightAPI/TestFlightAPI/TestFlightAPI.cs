@@ -28,26 +28,19 @@ namespace TestFlightAPI
         // "mechanical" indicates a physical failure that requires physical repair
         // "software" indicates a software or electric failure that might be fixed remotely by code
 		public string failureType;
-        // Indicates in broad sense, is it ever possible to attempt a repair under some condition?
-        public bool canBeRepaired;
-        // Repair details
-        // Time required to complete repairs.  Not currently supported.
-        public int repairTimeRequired;
-        // For mechanical failures
-        // Does the repair require that a Kerbal be EVA to repair the part?
-        public bool requiresEVA;
-        // Can the part be repaired while the vessel is in flight?
-        public bool canBeRepairedInFlight;
-        // Can the part be repaired when the vessel is landed on the surface?
-        public bool canBeRepairedOnLanded;
-        // Can the part be repaired when the vessel is splashed down in the water?
-        public bool canBeRepairedOnSplashed;
-        // How many spare parts does it take to attempt repair?
-        public int sparePartsRequired;
-        // For software failures
-        // Can the part be repaired by remote?
-        public bool canBeRepairedByRemote;
 	}
+
+    public struct RepairRequirements
+    {
+        // Player friendly string explaining the requirement.  Should be kept short as is feasible
+        public string requirementMessage;
+        // Is the requirement currently met?
+        public bool requirementMet;
+        // Is this an optional requirement that will give a repair bonus if met?
+        public bool optionalRequirement;
+        // Repair chance bonus (IE 0.5 = +5%) if the optional requirement is met
+        public float repairBonus;
+    }
 
 	public interface IFlightDataRecorder
 	{
@@ -120,6 +113,12 @@ namespace TestFlightAPI
         /// Triggers the failure controlled by the failure module
         /// </summary>
         void DoFailure();
+
+        /// <summary>
+        /// Gets the repair requirements from the Failure module for display to the user
+        /// </summary>
+        /// <returns>A List of all repair requirements for attempting repair of the part</returns>
+        List<RepairRequirements> GetRepairRequirements();
 
         /// <summary>
         /// Asks the repair module if all condtions have been met for the player to attempt repair of the failure.  Here the module can verify things such as the conditions (landed, eva, splashed), parts requirements, etc
