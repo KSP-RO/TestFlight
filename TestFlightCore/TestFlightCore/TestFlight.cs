@@ -652,11 +652,6 @@ namespace TestFlightCore
             foreach (var entry in knownVessels)
             {
                 Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == entry.Key);
-                // This is a safety check to prevent any updates to a new vessel for a short period 
-                // after mission start so that things dont' happen while the vessel is loading
-                if (currentUTC <= entry.Value + 10)
-                    continue;
-//                Debug.Log("TestFlightManagerScenario: Processing Vessel " + vessel.GetName() + "(" + vessel.id + ")");
                 foreach (Part part in vessel.parts)
                 {
                     foreach (PartModule pm in part.Modules)
