@@ -20,6 +20,7 @@ namespace TestFlightCore
         private double currentReliability = 0.0f;
         private List<ITestFlightFailure> failureModules = null;
         private ITestFlightFailure activeFailure = null;
+        private bool isReady = false;
 
         [KSPField(isPersistant = true)]
         public float failureCheckFrequency = 0f;
@@ -107,6 +108,7 @@ namespace TestFlightCore
                     failureModules.Add(failureModule);
                 }
             }
+            isReady = true;
             base.OnStart(state);
         }
 
@@ -258,6 +260,10 @@ namespace TestFlightCore
         public virtual void DoFlightUpdate(double missionStartTime, double flightDataMultiplier, double flightDataEngineerMultiplier, double globalReliabilityModifier)
         {
             Debug.Log("TestFlightCore: " + this.part.name + "(" + this.part.flightID + ") FlightUpdate");
+
+            if (!isReady)
+                return;
+
             // Check to see if its time to poll
             IFlightDataRecorder dataRecorder = null;
             string scope;
@@ -318,6 +324,9 @@ namespace TestFlightCore
 
         public virtual bool DoFailureCheck(double missionStartTime, double globalReliabilityModifier)
         {
+            if (!isReady)
+                return false;
+
             string scope;
             IFlightDataRecorder dataRecorder = null;
             float currentMet = (float)(Planetarium.GetUniversalTime() - missionStartTime);
