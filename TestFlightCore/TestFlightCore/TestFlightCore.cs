@@ -143,7 +143,7 @@ namespace TestFlightCore
             List<RepairRequirements> requirements = activeFailure.GetRepairRequirements();
 
             if (requirements == null)
-                return "This repair jhas no requirements";
+                return "This repair has no requirements";
 
             string tooltip = "";
 
