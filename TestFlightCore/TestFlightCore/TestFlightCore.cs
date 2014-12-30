@@ -135,6 +135,35 @@ namespace TestFlightCore
             return activeFailure;
         }
 
+        public string GetRequirementsTooltip()
+        {
+            if (activeFailure == null)
+                return "No Repair Neccesary";
+
+            List<RepairRequirements> requirements = activeFailure.GetRepairRequirements();
+
+            if (requirements == null)
+                return "This repair jhas no requirements";
+
+            string tooltip = "";
+
+            foreach (RepairRequirements requirement in requirements)
+            {
+                if (requirement.requirementMet)
+                    tooltip += "[*]";
+                else
+                    tooltip += "[ ]";
+                if (requirement.optionalRequirement)
+                    tooltip += String.Format("(OPTIONAL +{0:F2}%) ", requirement.repairBonus * 100.0f);
+                else
+                    tooltip += " ";
+                tooltip += requirement.requirementMessage;
+                tooltip += "\n";
+            }
+
+            return tooltip;
+        }
+
         public virtual double GetCurrentReliability(double globalReliabilityModifier)
         {
             // Calculate reliability based on initial flight data, not current

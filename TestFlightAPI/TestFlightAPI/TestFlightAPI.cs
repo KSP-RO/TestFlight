@@ -166,6 +166,8 @@ namespace TestFlightAPI
 
         void HighlightPart(bool doHighlight);
         bool AttemptRepair();
+
+        string GetRequirementsTooltip();
     }
 }
 

@@ -161,6 +161,7 @@ namespace TestFlightCore
         internal ITestFlightCore flightCore;
         internal ITestFlightFailure activeFailure;
         internal bool highlightPart;
+        internal string repairRequirements;
     }
 
     internal struct MasterStatusItem
@@ -388,7 +389,8 @@ namespace TestFlightCore
                     }
                     if (status.activeFailure != null)
                     {
-                        if (GUILayout.Button("R"))
+                        string tooltip = status.repairRequirements;
+                        if (GUILayout.Button(new GUIContent("R", tooltip)))
                         {
                             // attempt repair
                             bool repairSuccess = status.flightCore.AttemptRepair();
@@ -650,6 +652,10 @@ namespace TestFlightCore
             foreach (var entry in knownVessels)
             {
                 Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == entry.Key);
+                // This is a safety check to prevent any updates to a new vessel for a short period 
+                // after mission start so that things dont' happen while the vessel is loading
+                if (currentUTC <= entry.Value + 10)
+                    continue;
 //                Debug.Log("TestFlightManagerScenario: Processing Vessel " + vessel.GetName() + "(" + vessel.id + ")");
                 foreach (Part part in vessel.parts)
                 {
@@ -673,6 +679,7 @@ namespace TestFlightCore
                                 partStatus.flightTime = currentFlightData.flightTime;
                                 partStatus.partStatus = core.GetPartStatus();
                                 partStatus.reliability = core.GetCurrentReliability(settings.globalReliabilityModifier);
+                                partStatus.repairRequirements = core.GetRequirementsTooltip();
                                 if (core.GetPartStatus() > 0)
                                 {
                                     partStatus.activeFailure = core.GetFailureModule();
