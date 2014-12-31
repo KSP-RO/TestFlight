@@ -295,7 +295,17 @@ namespace TestFlightAPI
         /// <returns>Should return true if the failure was repaired, false otherwise</returns>
         public virtual bool AttemptRepair()
         {
-            return true;
+            if (repairConfig == null)
+                return false;
+
+            if (!CanAttemptRepair())
+                return false;
+
+            float repairChance = repairConfig.repairChance;
+            repairChance += GetOptionalRepairBonus();
+            if (UnityEngine.Random.Range(0f, 100f) <= repairChance)
+                return true;
+            return false;
         }
 
         

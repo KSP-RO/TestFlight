@@ -32,7 +32,7 @@ namespace TestFlight
         /// <returns><c>true</c> if this instance can attempt repair; otherwise, <c>false</c>.</returns>
         public override bool CanAttemptRepair()
         {
-            return true;
+            return base.CanAttemptRepair();
         }
 
         /// <summary>
@@ -41,12 +41,17 @@ namespace TestFlight
         /// <returns>Should return true if the failure was repaired, false otherwise</returns>
         public override bool AttemptRepair()
         {
-            List<ModuleGimbal> gimbals = this.part.Modules.OfType<ModuleGimbal>().ToList();
-            foreach (ModuleGimbal gimbal in gimbals)
+            if (base.AttemptRepair())
             {
-                gimbal.gimbalRange = gimbalRange;
+                List<ModuleGimbal> gimbals = this.part.Modules.OfType<ModuleGimbal>().ToList();
+                foreach (ModuleGimbal gimbal in gimbals)
+                {
+                    gimbal.gimbalRange = gimbalRange;
+                }
+                return true;
             }
-            return true;
+            else
+                return false;
         }
     }
 }

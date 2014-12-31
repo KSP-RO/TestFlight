@@ -36,7 +36,7 @@ namespace TestFlight
         /// <returns><c>true</c> if this instance can attempt repair; otherwise, <c>false</c>.</returns>
         public override bool CanAttemptRepair()
         {
-            return true;
+            return base.CanAttemptRepair();
         }
 
         /// <summary>
@@ -45,18 +45,21 @@ namespace TestFlight
         /// <returns>Should return true if the failure was repaired, false otherwise</returns>
         public override bool AttemptRepair()
         {
-            Debug.Log("TestFlightFailure_Disable: Repairing part");
-            List<ModuleEngines> partEngines = this.part.Modules.OfType<ModuleEngines>().ToList();
-            List<ModuleEnginesFX> partEnginesFX = this.part.Modules.OfType<ModuleEnginesFX>().ToList();
-            foreach (ModuleEngines engine in partEngines)
+            bool success = base.AttemptRepair();
+            if (success)
             {
-                engine.maxThrust = maxThrust;
+                List<ModuleEngines> partEngines = this.part.Modules.OfType<ModuleEngines>().ToList();
+                List<ModuleEnginesFX> partEnginesFX = this.part.Modules.OfType<ModuleEnginesFX>().ToList();
+                foreach (ModuleEngines engine in partEngines)
+                {
+                    engine.maxThrust = maxThrust;
+                }
+                foreach (ModuleEnginesFX engineFX in partEnginesFX)
+                {
+                    engineFX.maxThrust = maxThrust;
+                }
             }
-            foreach (ModuleEnginesFX engineFX in partEnginesFX)
-            {
-                engineFX.maxThrust = maxThrust;
-            }
-            return true;
+            return success;
         }
     }
 }

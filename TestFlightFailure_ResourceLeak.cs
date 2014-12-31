@@ -53,7 +53,7 @@ namespace TestFlight
         /// <returns><c>true</c> if this instance can attempt repair; otherwise, <c>false</c>.</returns>
         public override bool CanAttemptRepair()
         {
-            return true;
+            return base.CanAttemptRepair();
         }
 
         /// <summary>
@@ -62,8 +62,12 @@ namespace TestFlight
         /// <returns>Should return true if the failure was repaired, false otherwise</returns>
         public override bool AttemptRepair()
         {
-            StopCoroutine("LeakResource");
-            return true;
+            bool success = base.AttemptRepair();
+            if (success)
+            {
+                StopCoroutine("LeakResource");
+            }
+            return success;
         }
         public override void OnLoad(ConfigNode node)
         {
