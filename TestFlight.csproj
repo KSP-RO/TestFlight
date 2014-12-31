@@ -83,8 +83,10 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>copy "$(TargetPath)" "F:\Games\Kerbal Space Program\0.90\GameData\TestFlight\Plugins\$(TargetFileName)"</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>xcopy /E /Y "$(SolutionDir)TestFlight\*.*" "F:\Games\Kerbal Space Program\0.90\GameData\TestFlight\"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -110,9 +112,7 @@
       <Name>TestFlightAPI</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="TestFlight\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="TestFlight\Resources.cfg" />
     <None Include="TestFlight\Squad_Engines.cfg" />
