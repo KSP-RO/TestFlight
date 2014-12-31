@@ -106,7 +106,8 @@ namespace TestFlightAPI
             // Determine current situation
             string scope = flightData.scope;
             // Determine raw reliability
-            float rawReliability = (float)Math.Pow(currentFlightData * reliabilityMultiplier, 1.0 / reliabilityFactor);
+            float rawReliability = (float)Math.Sqrt(currentFlightData * reliabilityMultiplier);
+            //float rawReliability = (float)Math.Pow(currentFlightData * reliabilityMultiplier, 1.0 / reliabilityFactor);
             // Now adjust if needed based on situation
             ReliabilityBodyConfig body = GetReliabilityBody(scope);
             if (body != null)
