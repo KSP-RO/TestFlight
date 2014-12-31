@@ -133,6 +133,8 @@ namespace TestFlightAPI
         [KSPField(isPersistant = true)]
         public string failureTitle = "Failure";
 
+        public string repairConfigString;
+
 
         public RepairConfig repairConfig;
 
@@ -172,7 +174,9 @@ namespace TestFlightAPI
         public List<RepairRequirements> GetRepairRequirements()
         {
             if (repairConfig == null)
+            {
                 return null;
+            }
 
             List<RepairRequirements> requirements = new List<RepairRequirements>();
             Vessel.Situations situation = this.vessel.situation;
@@ -302,15 +306,22 @@ namespace TestFlightAPI
         
         public override void OnStart(StartState state)
         {
-        base.OnStart(state);
+            if (repairConfig == null && repairConfigString.Length > 0)
+            {
+                Debug.Log("TestFlightFailureBase: Restoring from packed string");
+                repairConfig = RepairConfig.FromString(repairConfigString);
+            }
+            base.OnStart(state);
         }
         
         public override void OnLoad(ConfigNode node)
         {
             if (node.HasNode("REPAIR"))
             {
+                Debug.Log("TestFlightFailureBase: Loading REPAIR node");
                 repairConfig = new RepairConfig();
                 repairConfig.Load(node.GetNode("REPAIR"));
+                repairConfigString = repairConfig.ToString();
             }
             else
             {
