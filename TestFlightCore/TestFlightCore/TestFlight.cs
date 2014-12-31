@@ -369,18 +369,23 @@ namespace TestFlightCore
                     GUILayout.Label(String.Format("{0,50}", status.partName));
                     GUILayout.Label(String.Format("{0,7:F2}du", status.flightData));
                     GUILayout.Label(String.Format("{0,7:F2}%", status.reliability));
+                    string goNoGo;
+                    GUIStyle useStyle;
                     if (status.activeFailure != null)
                     {
-                        GUIStyle useStyle = Styles.textStyleWarning;
                         if (status.activeFailure.GetFailureDetails().severity == "major")
                             useStyle = Styles.textStyleCritical;
-
-                        GUILayout.Label(String.Format("{0,-25}", status.activeFailure.GetFailureDetails().failureTitle), useStyle);
+                        else
+                            useStyle = Styles.textStyleWarning;
+                        goNoGo = String.Format("{0,-25}", status.activeFailure.GetFailureDetails().failureTitle);
                     }
                     else
                     {
-                        GUILayout.Label(String.Format("{0,-25}", "Status OK"), Styles.textStyleSafe);
+                        useStyle = Styles.textStyleSafe;
+                        goNoGo = String.Format("{0,-25}", "Status OK");
                     }
+                    string tooltip = status.repairRequirements;
+                    GUILayout.Label(new GUIContent(goNoGo, tooltip), useStyle);
                     if (GUILayout.Button("H"))
                     {
                         // Highlight part
@@ -389,8 +394,7 @@ namespace TestFlightCore
                     }
                     if (status.activeFailure != null)
                     {
-                        string tooltip = status.repairRequirements;
-                        if (GUILayout.Button(new GUIContent("R", tooltip)))
+                        if (GUILayout.Button("R"))
                         {
                             // attempt repair
                             bool repairSuccess = status.flightCore.AttemptRepair();
