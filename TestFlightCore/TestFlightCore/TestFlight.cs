@@ -179,6 +179,10 @@ namespace TestFlightCore
     internal struct WindowSettings
     {
         internal Dictionary<uint, PartWindowSettings> partWindowSettings;
+        internal int activePage;
+        internal Guid selectedVessel;
+        internal bool showSelectedVessel;
+        internal Vector2 vesselSelectionScroll;
     }
 
 
@@ -264,9 +268,9 @@ namespace TestFlightCore
             if (tsm == null)
                 return;
             float windowWidth = 650f;
-            float topLeft = Screen.width - windowWidth;
-            float topRight = 40f;
+            float left = Screen.width - windowWidth;
             float windowHeight = 10f;
+            float top = 40f;
 
             // Calculate height based on amount of parts
             Dictionary<Guid, MasterStatusItem> masterStatus = tsm.GetMasterStatus();
@@ -276,7 +280,12 @@ namespace TestFlightCore
                 Guid currentVessel = masterStatus.First().Key;
                 windowHeight = masterStatus[currentVessel].allPartsStatus.Count() * 20f;
             }
-            WindowRect = new Rect(topLeft, topRight, windowWidth, windowHeight);
+            if (!ApplicationLauncher.Instance.IsPositionedAtTop)
+            {
+                top = Screen.height - windowHeight - 40f;
+            }
+
+            WindowRect = new Rect(left, top, windowWidth, windowHeight);
         }
 
         IEnumerator AddToToolbar()
@@ -330,6 +339,7 @@ namespace TestFlightCore
         }
         void RepostionWindow()
         {
+            CalculateWindowBounds();
             Debug.Log("TestFlight MasterStatusDisplay: RepositionWindow");
         }
         void HoverInButton()
@@ -344,18 +354,46 @@ namespace TestFlightCore
         }
         internal override void DrawWindow(Int32 id)
         {
-            if (tsm == null)
-            {
-                return;
-            }
-            Dictionary<Guid, MasterStatusItem> masterStatus = tsm.GetMasterStatus();
             CalculateWindowBounds();
-            if (masterStatus != null && masterStatus.Count() > 0)
+
+            GUILayout.BeginVertical();
+            Dictionary<Guid, MasterStatusItem> masterStatus = tsm.GetMasterStatus();
+            if (masterStatus == null)
+                GUILayout.Label("TestFlight is starting up...");
+            else if (masterStatus.Count() <= 0)
+                GUILayout.Label("TestFlight is not currently tracking any vessels");
+            else
             {
-                Guid currentVessel = masterStatus.First().Key;
-                GUILayout.BeginVertical();
-                GUILayout.Label("MSD for " + masterStatus[currentVessel].vesselName);
-                foreach (PartStatus status in masterStatus[currentVessel].allPartsStatus)
+                GUILayout.Label("Select Vessel to Display");
+                // Set up button to select vessel for display
+                string selectionButtonText = "Active Vessel";
+                if (winSettings.showSelectedVessel)
+                    selectionButtonText = masterStatus[winSettings.selectedVessel].vesselName;
+                if (GUILayout.Button(selectionButtonText))
+                {
+                    // If selection button is pressed, we open a scrollview containing buttons for all the vessels we track
+                    winSettings.vesselSelectionScroll = GUILayout.BeginScrollView(winSettings.vesselSelectionScroll);
+                    foreach (var entry in masterStatus)
+                    {
+                        GUILayout.Button(entry.Value.vesselName);
+                    }
+                    GUILayout.EndScrollView();
+                }
+
+                // Determine which vessel is our focused one
+                if (winSettings.showSelectedVessel)
+                {
+                    if (!masterStatus.ContainsKey(winSettings.selectedVessel))
+                        winSettings.selectedVessel = masterStatus.First().Key;
+                }
+                else
+                {
+                    winSettings.selectedVessel = masterStatus[FlightGlobals.ActiveVessel.id];
+                }
+
+                // Display information on selected vessel
+                GUILayout.Label("MSD for " + masterStatus[winSettings.selectedVessel].vesselName);
+                foreach (PartStatus status in masterStatus[winSettings.selectedVessel].allPartsStatus)
                 {
                     // load window settings for this part
                     if (!winSettings.partWindowSettings.ContainsKey(status.partID))
@@ -400,12 +438,13 @@ namespace TestFlightCore
                             bool repairSuccess = status.flightCore.AttemptRepair();
                         }
                     }
-                     
+
                     GUILayout.EndHorizontal();
                     winSettings.partWindowSettings[status.partID] = partSettings;
                 }
-                GUILayout.EndVertical();
             }
+
+            GUILayout.EndVertical();
         }
     }
 
