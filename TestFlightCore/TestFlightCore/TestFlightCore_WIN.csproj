@@ -3,15 +3,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F212E235-8856-4C7E-AFA9-051490E1350F}</ProjectGuid>
+    <ProjectGuid>{CD4D0CF1-16A8-4FB9-A7CC-6566160B8CD2}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>TestFlightAPI</RootNamespace>
-    <AssemblyName>TestFlightAPI</AssemblyName>
+    <RootNamespace>TestFlightCore</RootNamespace>
+    <AssemblyName>TestFlightCore</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>True</DebugSymbols>
-    <DebugType>full</DebugType>
     <Optimize>False</Optimize>
     <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
@@ -21,8 +19,10 @@
     <CustomCommands>
       <CustomCommands>
         <Command type="AfterBuild" command="cp ${TargetFile} ${TargetDir}/../../../../../../../GameData/TestFlight/Plugins" />
+        <Command type="AfterBuild" command="cp -r /USers/john/Developer/KSP/0.90/TestFlightDEV/Dev/_DEV/GitHub/TestFlight/TestFlight /Users/john/Developer/KSP/0.90/TestFlightDEV/Dev/GameData/" />
       </CustomCommands>
     </CustomCommands>
+    <DebugType>none</DebugType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -34,13 +34,11 @@
     <CustomCommands>
       <CustomCommands>
         <Command type="AfterBuild" command="cp ${TargetFile} ${TargetDir}/../../../../../../../GameData/TestFlight/Plugins" />
+        <Command type="AfterBuild" command="cp -r /USers/john/Developer/KSP/0.90/TestFlightDEV/Dev/_DEV/GitHub/TestFlight/TestFlight /Users/john/Developer/KSP/0.90/TestFlightDEV/Dev/GameData/" />
       </CustomCommands>
     </CustomCommands>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>..\..\..\..\..\KSP.app\Contents\Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="Assembly-CSharp">
       <HintPath>..\..\..\..\..\KSP.app\Contents\Data\Managed\Assembly-CSharp.dll</HintPath>
@@ -48,14 +46,26 @@
     <Reference Include="UnityEngine">
       <HintPath>..\..\..\..\..\KSP.app\Contents\Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>..\..\..\..\..\KSP.app\Contents\Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestFlightAPI.cs" />
-    <Compile Include="FlightDataConfig.cs" />
-    <Compile Include="FlightDataRecorder.cs" />
-    <Compile Include="TestFlightReliability.cs" />
-    <Compile Include="TestFlightFailure.cs" />
+    <Compile Include="TestFlight.cs" />
+    <Compile Include="TestFlightCore.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="UserInterface.cs" />
+    <Compile Include="Framework\ConfigNodeStorage.cs" />
+    <Compile Include="Framework\ExtensionsUnity.cs" />
+    <Compile Include="Framework\MonoBehaviourExtended.cs" />
+    <Compile Include="Framework\MonoBehaviourWindow.cs" />
+    <Compile Include="Framework\SkinsLibrary.cs" />
+    <Compile Include="FrameworkExt\AudioController.cs" />
+    <Compile Include="FrameworkExt\ClassDefinitions.cs" />
+    <Compile Include="FrameworkExt\Extensions.cs" />
+    <Compile Include="FrameworkExt\ExtensionsKSP.cs" />
+    <Compile Include="FrameworkExt\MonoBehaviourWindowPlus.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -69,4 +79,20 @@
       </Properties>
     </MonoDevelop>
   </ProjectExtensions>
+  <ItemGroup>
+    <ProjectReference Include="..\..\TestFlightAPI\TestFlightAPI\TestFlightAPI.csproj">
+      <Project>{F212E235-8856-4C7E-AFA9-051490E1350F}</Project>
+      <Name>TestFlightAPI</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <PropertyGroup>
+    <PostBuildEvent>copy "$(TargetPath)" "F:\Games\Kerbal Space Program\0.90\GameData\TestFlight\Plugins\$(TargetFileName)"</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>xcopy /E /Y "$(SolutionDir)TestFlight\*.*" "F:\Games\Kerbal Space Program\0.90\GameData\TestFlight\"</PreBuildEvent>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Framework\" />
+    <Folder Include="FrameworkExt\" />
+  </ItemGroup>
 </Project>

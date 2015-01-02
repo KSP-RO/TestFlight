@@ -82,6 +82,12 @@
     <Compile Include="TestFlightFailure_ResourceLeak.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy "$(TargetPath)" "F:\Games\Kerbal Space Program\0.90\GameData\TestFlight\Plugins\$(TargetFileName)"</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>xcopy /E /Y "$(SolutionDir)TestFlight\*.*" "F:\Games\Kerbal Space Program\0.90\GameData\TestFlight\"</PreBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

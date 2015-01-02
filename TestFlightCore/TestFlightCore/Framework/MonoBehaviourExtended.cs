@@ -41,7 +41,6 @@ namespace KSPPluginFramework
     public abstract class MonoBehaviourExtended : MonoBehaviour
     {
         #region Constructor
-
         ///// <summary>
         ///// This is marked private so you have to use the Factory Method to create any new instance. The Factory Method will add the new instance to a gameObject which is a requirement for Unity events to occur on the object
         ///// </summary>
@@ -60,7 +59,6 @@ namespace KSPPluginFramework
         {
             UnityEngine.Random.seed = (int)(DateTime.Now - DateTime.Now.Date).TotalSeconds;
         }
-
         #endregion
 
         internal T AddComponent<T>() where T : UnityEngine.Component
@@ -69,9 +67,7 @@ namespace KSPPluginFramework
         }
 
         #region RepeatingFunction Code
-
         private Boolean _RepeatRunning = false;
-
         /// <summary>
         /// Returns whether the RepeatingWorkerFunction is Running
         /// </summary>
@@ -112,7 +108,6 @@ namespace KSPPluginFramework
             RepeatingWorkerRate = (Single)(1 / (Single)NewTimesPerSecond);
             return RepeatingWorkerRate;
         }
-
         /// <summary>
         /// Set the repeating period by how many times a second it should repeat
         ///    eg. if you set this to 4 then it will repeat every 0.25 secs
@@ -124,7 +119,6 @@ namespace KSPPluginFramework
             RepeatingWorkerRate = (Single)(1 / NewTimesPerSecond);
             return RepeatingWorkerRate;
         }
-
         /// <summary>
         /// Set the repeating rate in seconds for the repeating function
         ///    eg. if you set this to 0.1 then it will repeat 10 times every second
@@ -148,7 +142,6 @@ namespace KSPPluginFramework
         }
 
         #region Start/Stop Functions
-
         /// <summary>
         /// Starts the RepeatingWorker Function and sets the TimesPerSec variable
         /// </summary>
@@ -204,7 +197,6 @@ namespace KSPPluginFramework
             }
             return _RepeatRunning;
         }
-
         #endregion
 
         /// <summary>
@@ -230,12 +222,10 @@ namespace KSPPluginFramework
         /// The Game Time that the Repeating Worker function last started
         /// </summary>
         private Double RepeatingWorkerUTLastStart { get; set; }
-
         /// <summary>
         /// The Game Time that the Repeating Worker function started this time
         /// </summary>
         private Double RepeatingWorkerUTStart { get; set; }
-
         /// <summary>
         /// The amount of UT that passed between the last two runs of the Repeating Worker Function
         /// 
@@ -262,11 +252,9 @@ namespace KSPPluginFramework
             //Now calc the duration
             RepeatingWorkerDuration = (DateTime.Now - Duration);
         }
-
         #endregion
 
         #region Standard Monobehaviour definitions-for overriding
-
         //See this for info on order of execuction
         //  http://docs.unity3d.com/Documentation/Manual/ExecutionOrder.html
 
@@ -299,8 +287,7 @@ namespace KSPPluginFramework
         ///          See this for info on order of execuction: http://docs.unity3d.com/Documentation/Manual/ExecutionOrder.html
         /// </summary>
         internal virtual void FixedUpdate()
-        {
-        }
+        { }
 
         /// <summary>
         /// Unity: LateUpdate is called every frame, if the MonoBehaviour is enabled.
@@ -309,8 +296,7 @@ namespace KSPPluginFramework
         ///          See this for info on order of execuction: http://docs.unity3d.com/Documentation/Manual/ExecutionOrder.html
         /// </summary>
         internal virtual void LateUpdate()
-        {
-        }
+        { }
 
         /// <summary>
         /// Unity: Update is called every frame, if the MonoBehaviour is enabled.
@@ -319,8 +305,7 @@ namespace KSPPluginFramework
         ///          See this for info on order of execuction: http://docs.unity3d.com/Documentation/Manual/ExecutionOrder.html
         /// </summary>
         internal virtual void Update()
-        {
-        }
+        { }
 
         /// <summary>
         /// Unity Help: This function is called when the MonoBehaviour will be destroyed..
@@ -336,7 +321,6 @@ namespace KSPPluginFramework
         #endregion
 
         #region OnGuiStuff
-
         //flag to mark when OnceOnly has been done
         private Boolean _OnGUIOnceOnlyHasRun = false;
 
@@ -388,11 +372,9 @@ namespace KSPPluginFramework
             LogFormatted_DebugOnly("Running OnGUI OnceOnly Code");
 
         }
-
         #endregion
 
         #region Assembly/Class Information
-
         /// <summary>
         /// Name of the Assembly that is running this MonoBehaviour
         /// </summary>
@@ -404,11 +386,9 @@ namespace KSPPluginFramework
         /// </summary>
         internal String _ClassName
         { get { return this.GetType().Name; } }
-
         #endregion
 
         #region Logging
-
         /// <summary>
         /// Some Structured logging to the debug file - ONLY RUNS WHEN DLL COMPILED IN DEBUG MODE
         /// </summary>
@@ -429,8 +409,8 @@ namespace KSPPluginFramework
         {
             Message = String.Format(Message, strParams);                  // This fills the params into the message
             String strMessageLine = String.Format("{0},{2},{1}",
-                                        DateTime.Now, Message,
-                                        _AssemblyName);                                           // This adds our standardised wrapper to each line
+                DateTime.Now, Message,
+                _AssemblyName);                                           // This adds our standardised wrapper to each line
             UnityEngine.Debug.Log(strMessageLine);                        // And this puts it in the log
         }
 

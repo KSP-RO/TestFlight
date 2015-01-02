@@ -33,6 +33,7 @@ namespace TestFlightCore
         public double globalReliabilityModifier;
         [Persistent]
         public double masterStatusUpdateFrequency;
+        [Persistent] public int currentView;
     }
 }
 
