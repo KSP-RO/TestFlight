@@ -89,6 +89,12 @@ namespace TestFlightAPI
         /// </summary>
         /// <returns>The current SOI for the data scope</returns>
         string GetDataBody();
+
+        /// <summary>
+        /// Tell the Recorder to add or subtract an amount of FlightData
+        /// </summary>
+        /// <param name="modifier">Amount of flight data to add (positive) or subract (negative)</param>
+        void ModifyCurrentFlightData(float modifier);
 	}
 
 	public interface ITestFlightReliability
