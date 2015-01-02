@@ -70,6 +70,9 @@ Global
 		$4.inheritsSet = VisualStudio
 		$4.inheritsScope = text/plain
 		$4.scope = text/plain
+		$0.VersionControlPolicy = $5
+		$5.inheritsSet = Mono
+		version = 0.2.1
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

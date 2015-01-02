@@ -8,6 +8,7 @@
     <RootNamespace>TestFlightCore</RootNamespace>
     <AssemblyName>TestFlightCore</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <ReleaseVersion>0.2.1</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Optimize>False</Optimize>
@@ -86,10 +87,4 @@
       <Name>TestFlightAPI</Name>
     </ProjectReference>
   </ItemGroup>
-  <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "F:\Games\Kerbal Space Program\0.90\GameData\TestFlight\Plugins\$(TargetFileName)"</PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PreBuildEvent>xcopy /E /Y "$(SolutionDir)TestFlight\*.*" "F:\Games\Kerbal Space Program\0.90\GameData\TestFlight\"</PreBuildEvent>
-  </PropertyGroup>
 </Project>
