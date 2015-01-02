@@ -364,33 +364,7 @@ namespace TestFlightCore
                 GUILayout.Label("TestFlight is not currently tracking any vessels");
             else
             {
-                GUILayout.Label("Select Vessel to Display");
-                // Set up button to select vessel for display
-                string selectionButtonText = "Active Vessel";
-                if (winSettings.showSelectedVessel)
-                    selectionButtonText = masterStatus[winSettings.selectedVessel].vesselName;
-                if (GUILayout.Button(selectionButtonText))
-                {
-                    // If selection button is pressed, we open a scrollview containing buttons for all the vessels we track
-                    winSettings.vesselSelectionScroll = GUILayout.BeginScrollView(winSettings.vesselSelectionScroll);
-                    foreach (var entry in masterStatus)
-                    {
-                        GUILayout.Button(entry.Value.vesselName);
-                    }
-                    GUILayout.EndScrollView();
-                }
-
-                // Determine which vessel is our focused one
-                if (winSettings.showSelectedVessel)
-                {
-                    if (!masterStatus.ContainsKey(winSettings.selectedVessel))
-                        winSettings.selectedVessel = masterStatus.First().Key;
-                }
-                else
-                {
-                    winSettings.selectedVessel = masterStatus[FlightGlobals.ActiveVessel.id];
-                }
-
+                winSettings.selectedVessel = FlightGlobals.ActiveVessel.id;
                 // Display information on selected vessel
                 GUILayout.Label("MSD for " + masterStatus[winSettings.selectedVessel].vesselName);
                 foreach (PartStatus status in masterStatus[winSettings.selectedVessel].allPartsStatus)
