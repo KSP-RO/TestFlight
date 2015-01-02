@@ -158,8 +158,12 @@ namespace TestFlightAPI
         {
             // Look that all materials are available
             List<PartResource> availableResources = new List<PartResource> ();
-            int resourceID = PartResourceLibrary.Instance.GetDefinition(replacementPart).id;
-            this.part.GetConnectedResources (resourceID, ResourceFlowMode.ALL_VESSEL, availableResources);
+            // Try to find the resource which represents the part
+            PartResourceDefinition partDefinition = PartResourceLibrary.Instance.GetDefinition(replacementPart);
+            if (partDefinition == null)
+                return false;
+
+            this.part.GetConnectedResources (partDefinition.id, ResourceFlowMode.ALL_VESSEL, availableResources);
             foreach (PartResource res in availableResources) {
                 if (res.amount >= 1.0f)
                     return true;
