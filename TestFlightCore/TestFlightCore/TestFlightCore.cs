@@ -91,9 +91,11 @@ namespace TestFlightCore
             failureModules.Clear();
             foreach(PartModule pm in this.part.Modules)
             {
+                LogFormatted_DebugOnly("TestFlightCore: Inspecting Module " + pm.moduleName + " for ITestFlightFailure interface");
                 ITestFlightFailure failureModule = pm as ITestFlightFailure;
                 if (failureModule != null)
                 {
+                    LogFormatted_DebugOnly("TestFlightCore: Added Failure Module " + pm.moduleName);
                     failureModules.Add(failureModule);
                 }
             }
@@ -177,21 +179,14 @@ namespace TestFlightCore
                     TestFlightData flightData;
                     if (initialFlightData == null)
                     {
-                        Debug.Log("TestFlightCore: initialFlightData is null");
                         flightData = new TestFlightData();
                         flightData.scope = scope;
                         flightData.flightData = 0.0f;
                     }
                     else
                     {
-                        Debug.Log("TestFlightCore: initialFlightData is valid");
-                        foreach (TestFlightData tfd in initialFlightData)
-                        {
-                            Debug.Log("TestFlightCore: initialFlightData " + tfd.flightData);
-                        }
                         flightData = initialFlightData.Find(fd => fd.scope == scope);
                     }
-                    Debug.Log("TestFlightCore: Doing Reliability check with flightData " + flightData.flightData);
                     totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(flightData);
                 }
             }
@@ -201,7 +196,6 @@ namespace TestFlightCore
 
         public void InitializeFlightData(List<TestFlightData> allFlightData, double globalReliabilityModifier)
         {
-            Debug.Log("TestFlightCore: " + this.part.name + "(" + this.part.flightID + ") Initializing");
             initialFlightData = new List<TestFlightData>(allFlightData);
             double totalReliability = 0.0;
             string scope;
@@ -232,10 +226,6 @@ namespace TestFlightCore
                     }
                     else
                     {
-                        foreach (TestFlightData tfd in initialFlightData)
-                        {
-                            Debug.Log("TestFlightCore: initialFlightData " + tfd.flightData);
-                        }
                         flightData = initialFlightData.Find(fd => fd.scope == scope);
                     }
                     totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(flightData);
@@ -247,8 +237,6 @@ namespace TestFlightCore
 
         public virtual void DoFlightUpdate(double missionStartTime, double flightDataMultiplier, double flightDataEngineerMultiplier, double globalReliabilityModifier)
         {
-            Debug.Log("TestFlightCore: " + this.part.name + "(" + this.part.flightID + ") FlightUpdate");
-
             // Check to see if its time to poll
             IFlightDataRecorder dataRecorder = null;
             string scope;
@@ -284,21 +272,14 @@ namespace TestFlightCore
                         TestFlightData flightData;
                         if (initialFlightData == null)
                         {
-                            Debug.Log("TestFlightCore: initialFlightData is null");
                             flightData = new TestFlightData();
                             flightData.scope = scope;
                             flightData.flightData = 0.0f;
                         }
                         else
                         {
-                            Debug.Log("TestFlightCore: initialFlightData is valid");
-                            foreach (TestFlightData tfd in initialFlightData)
-                            {
-                                Debug.Log("TestFlightCore: initialFlightData " + tfd.flightData);
-                            }
                             flightData = initialFlightData.Find(fd => fd.scope == scope);
                         }
-                        Debug.Log("TestFlightCore: Doing Reliability check with flightData " + flightData.flightData);
                         totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(flightData);
                     }
                 }
@@ -341,14 +322,13 @@ namespace TestFlightCore
                         }
                         else
                             flightData = initialFlightData.Find(fd => fd.scope == scope);
-                        Debug.Log("TestFlightCore: Doing Failure check with flightData " + flightData.flightData);
                         totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(flightData);
                     }
                 }
                 currentReliability = totalReliability * globalReliabilityModifier;
                 // Roll for failure
                 float roll = UnityEngine.Random.Range(0.0f,100.0f);
-                Debug.Log("TestFlightCore: " + this.part.name + "(" + this.part.flightID + ") Reliability " + currentReliability + ", Failure Roll " + roll);
+                LogFormatted_DebugOnly("TestFlightCore: " + this.part.name + "(" + this.part.flightID + ") Reliability " + currentReliability + ", Failure Roll " + roll);
                 if (roll > currentReliability)
                 {
                     // Failure occurs.  Determine which failure module to trigger
@@ -359,16 +339,16 @@ namespace TestFlightCore
                     {
                         totalWeight += fm.GetFailureDetails().weight;
                     }
-                    Debug.Log("TestFlightCore: Total Weight " + totalWeight);
+                    LogFormatted_DebugOnly("TestFlightCore: Total Weight " + totalWeight);
                     chosenWeight = UnityEngine.Random.Range(1,totalWeight);
-                    Debug.Log("TestFlightCore: Chosen Weight " + chosenWeight);
+                    LogFormatted_DebugOnly("TestFlightCore: Chosen Weight " + chosenWeight);
                     foreach(ITestFlightFailure fm in failureModules)
                     {
                         currentWeight += fm.GetFailureDetails().weight;
                         if (currentWeight >= chosenWeight)
                         {
                             // Trigger this module's failure
-                            Debug.Log("TestFlightCore: Triggering failure on " + fm);
+                            LogFormatted_DebugOnly("TestFlightCore: Triggering failure on " + fm);
                             activeFailure = fm;
                             fm.DoFailure();
                             return true;

@@ -214,3 +214,5 @@ $RECYCLE.BIN/
 *.msp
 
 *.userprefs
+
+TestFlight.userprefs

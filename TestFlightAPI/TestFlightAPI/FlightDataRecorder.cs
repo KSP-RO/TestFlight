@@ -188,6 +188,11 @@ namespace TestFlightAPI
             lastRecordedMet = currentMet;
         }
 
+        public virtual void ModifyCurrentFlightData(float modifier)
+        {
+            currentData += modifier;
+        }
+
         public virtual bool IsRecordingFlightData()
         {
             bool isRecording = true;

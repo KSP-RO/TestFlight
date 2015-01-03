@@ -175,18 +175,18 @@ namespace TestFlightCore
 	{
         public TestFlightManagerScenario tsm;
 
-        public void Start() 
-		{
-			var game = HighLogic.CurrentGame;
-			ProtoScenarioModule psm = game.scenarios.Find(s => s.moduleName == typeof(TestFlightManagerScenario).Name);
-			if (psm == null)
-			{
-				GameScenes[] desiredScenes = new GameScenes[4] { GameScenes.EDITOR, GameScenes.FLIGHT, GameScenes.TRACKSTATION, GameScenes.SPACECENTER };
-				psm = game.AddProtoScenarioModule(typeof(TestFlightManagerScenario), desiredScenes);
-			}
+        public void Start()
+        {
+            var game = HighLogic.CurrentGame;
+            ProtoScenarioModule psm = game.scenarios.Find(s => s.moduleName == typeof(TestFlightManagerScenario).Name);
+            if (psm == null)
+            {
+                GameScenes[] desiredScenes = new GameScenes[4] { GameScenes.EDITOR, GameScenes.FLIGHT, GameScenes.TRACKSTATION, GameScenes.SPACECENTER };
+                psm = game.AddProtoScenarioModule(typeof(TestFlightManagerScenario), desiredScenes);
+            }
             psm.Load(ScenarioRunner.fetch);
             tsm = game.scenarios.Select(s => s.moduleRef).OfType<TestFlightManagerScenario>().SingleOrDefault();
-		}
+        }
     }
 
 
