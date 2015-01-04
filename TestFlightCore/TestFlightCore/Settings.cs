@@ -33,7 +33,8 @@ namespace TestFlightCore
         public double globalReliabilityModifier;
         [Persistent]
         public double masterStatusUpdateFrequency;
-        [Persistent] public int currentView;
+        [Persistent] public bool displaySettingsWindow;
+        [Persistent] public bool enableHUD;
     }
 }
 

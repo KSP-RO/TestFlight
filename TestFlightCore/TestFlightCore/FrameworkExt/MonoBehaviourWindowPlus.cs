@@ -74,7 +74,15 @@ namespace KSPPluginFramework
             Single intOld = dblVar;
 
             dblVar = GUILayout.HorizontalSlider(dblVar, leftValue, rightValue, options);
-            return DrawResultChanged(intOld, dblVar, "Integer HorizSlider");
+            return DrawResultChanged(intOld, dblVar, "Single HorizSlider");
+        }
+
+        internal static Boolean DrawHorizontalSlider(ref double dblVar, double leftValue, double rightValue, params GUILayoutOption[] options)
+        {
+            double dblOld = dblVar;
+
+            dblVar = (float)GUILayout.HorizontalSlider((float)dblVar, (float)leftValue, (float)rightValue, options);
+            return DrawResultChanged(dblOld, dblVar, "Double HorizSlider");
         }
 
         /// <summary>

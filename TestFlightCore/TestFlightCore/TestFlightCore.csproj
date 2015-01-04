@@ -69,6 +69,7 @@
     <Compile Include="TestFlightWindow.cs" />
     <Compile Include="StylesAndSkins.cs" />
     <Compile Include="Resources.cs" />
+    <Compile Include="Framework\PartModuleExtended.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

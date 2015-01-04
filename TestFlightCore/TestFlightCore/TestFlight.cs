@@ -196,7 +196,7 @@ namespace TestFlightCore
         public List<String> partsPackedStrings;
         public Dictionary<Guid, double> knownVessels;
 
-        Settings settings = null;
+        internal Settings settings = null;
         public double pollingInterval = 5.0f;
         public bool processInactiveVessels = true;
 

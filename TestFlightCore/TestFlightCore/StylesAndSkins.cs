@@ -9,7 +9,7 @@ using KSP;
 using UnityEngine;
 using KSPPluginFramework;
 
-namespace KSPAlternateResourcePanel
+namespace TestFlightCore
 {
     internal class Styles
     {
@@ -32,24 +32,8 @@ namespace KSPAlternateResourcePanel
 
         private static GUIStyle stylePanel;
 
-        internal static GUIStyle styleAlarmButton;
-
-        internal static GUIStyle styleBarName;
-        internal static GUIStyle styleBarDef;
-
-        internal static GUIStyle styleBarBlue;
-        internal static GUIStyle styleBarBlue_Back;
-        internal static GUIStyle styleBarBlue_Thin;
-        internal static GUIStyle styleBarGreen;
-        internal static GUIStyle styleBarGreen_Back;
-        internal static GUIStyle styleBarGreen_Thin;
 
         internal static GUIStyle styleBarText;
-        internal static GUIStyle styleBarRateText;
-
-        internal static GUIStyle styleBarHighlight;
-        internal static GUIStyle styleBarHighlightGreen;
-        internal static GUIStyle styleBarHighlightRed;
 
         internal static GUIStyle styleText;
         internal static GUIStyle styleTextCenter;
@@ -59,9 +43,10 @@ namespace KSPAlternateResourcePanel
         internal static GUIStyle styleTextYellow;
         internal static GUIStyle styleTextYellowBold;
 
-        internal static GUIStyle styleStageText;
-        internal static GUIStyle styleStageTextHead;
-        //internal static GUIStyle styleStageButton;
+        internal static GUIStyle textStyleSafe;
+        internal static GUIStyle textStyleWarning;
+        internal static GUIStyle textStyleCritical;
+
 
         internal static GUIStyle stylePartWindowPanel;
         internal static GUIStyle stylePartWindowPanelUnity;
@@ -72,14 +57,12 @@ namespace KSPAlternateResourcePanel
         internal static GUIStyle styleToggle;
 
         internal static GUIStyle styleSettingsArea;
-        internal static GUIStyle styleResourceSettingsArea;
 
         internal static GUIStyle styleDropDownGlyph;
         
         internal static GUIStyle styleSeparatorV;
         internal static GUIStyle styleSeparatorH;
 
-        internal static GUIStyle styleDragInsert;
 
         /// <summary>
         /// This one sets up the styles we use
@@ -184,34 +167,6 @@ namespace KSPAlternateResourcePanel
             #endregion
 
             #region Common Styles
-            styleAlarmButton = new GUIStyle();
-            styleAlarmButton.fixedWidth=16;
-            styleAlarmButton.fixedHeight=16;
-
-            styleBarName = new GUIStyle() { fixedHeight = 16, fixedWidth = 32 };
-            styleBarName.normal.textColor = Color.white;
-            //styleBarName.alignment = TextAnchor.MiddleCenter;
-
-            //styleBarDef = new GUIStyle(GUI.skin.box);
-            styleBarDef = new GUIStyle(SkinsLibrary.DefUnitySkin.box);
-            styleBarDef.border = new RectOffset(2, 2, 2, 2);
-            styleBarDef.normal.textColor = Color.white;
-            styleBarDef.fixedHeight = 15;
-            styleBarDef.alignment = TextAnchor.UpperCenter;
-
-            styleBarBlue = new GUIStyle(styleBarDef);
-            styleBarBlue.normal.background = TestFlight.Resources.texBarBlue;
-            styleBarBlue_Back = new GUIStyle(styleBarDef);
-            styleBarBlue_Back.normal.background = TestFlight.Resources.texBarBlue_Back;
-            styleBarBlue_Thin = new GUIStyle(styleBarBlue);
-            styleBarBlue_Thin.border = new RectOffset(0, 0, 0, 0);
-            styleBarGreen = new GUIStyle(styleBarDef);
-            styleBarGreen.normal.background = TestFlight.Resources.texBarGreen;
-            styleBarGreen_Back = new GUIStyle(styleBarDef);
-            styleBarGreen_Back.normal.background = TestFlight.Resources.texBarGreen_Back;
-            styleBarGreen_Thin = new GUIStyle(styleBarGreen);
-            styleBarGreen_Thin.border = new RectOffset(0, 0, 0, 0);
-
             styleText = new GUIStyle(SkinsLibrary.DefUnitySkin.label);
             styleText.fontSize = 12;
             styleText.alignment = TextAnchor.MiddleLeft;
@@ -220,7 +175,7 @@ namespace KSPAlternateResourcePanel
 
             styleTextGreen = new GUIStyle(styleText);
             styleTextGreen.normal.textColor = new Color32(183, 254, 0, 255); ;
-             styleTextYellow = new GUIStyle(styleText);
+            styleTextYellow = new GUIStyle(styleText);
             styleTextYellow.normal.textColor = Color.yellow;
             styleTextYellowBold = new GUIStyle(styleTextYellow);
             styleTextYellowBold.fontStyle = FontStyle.Bold;
@@ -234,28 +189,14 @@ namespace KSPAlternateResourcePanel
             styleBarText.alignment = TextAnchor.MiddleCenter;
             styleBarText.normal.textColor = new Color(255, 255, 255, 0.8f);
 
-            styleBarRateText = new GUIStyle(styleBarText);
-            styleBarRateText.alignment = TextAnchor.MiddleRight;
+            textStyleSafe = new GUIStyle(styleText);
+            textStyleSafe.normal.textColor = new Color32(133, 153, 0, 255);        
 
-            styleBarHighlight = new GUIStyle();
-            styleBarHighlight.normal.background = TestFlight.Resources.texBarHighlight;
-            styleBarHighlight.border = new RectOffset(3, 3, 3, 3);
+            textStyleWarning = new GUIStyle(styleText);
+            textStyleWarning.normal.textColor = new Color32(203, 75, 22, 255);        
 
-            styleBarHighlightGreen = new GUIStyle(styleBarHighlight);
-            styleBarHighlightGreen.normal.background = TestFlight.Resources.texBarHighlightGreen;
-            styleBarHighlightRed = new GUIStyle(styleBarHighlight);
-            styleBarHighlightRed.normal.background = TestFlight.Resources.texBarHighlightRed;
-
-            styleStageText = new GUIStyle(GUI.skin.label);
-            styleStageText.normal.textColor = new Color(207, 207, 207);
-            styleStageText.wordWrap = false;
-
-
-            styleStageTextHead = new GUIStyle(styleStageText);
-            styleStageTextHead.fontStyle = FontStyle.Bold;
-            styleStageTextHead.wordWrap = false;
-
-
+            textStyleCritical = new GUIStyle(styleText);
+            textStyleCritical.normal.textColor = new Color32(220, 50, 47, 255);        
 
             styleToggle = new GUIStyle(HighLogic.Skin.toggle);
             styleToggle.normal.textColor = new Color(207, 207, 207);
@@ -264,10 +205,6 @@ namespace KSPAlternateResourcePanel
 
             styleSettingsArea = new GUIStyle(HighLogic.Skin.textArea);
             styleSettingsArea.padding = new RectOffset(0, 0, 0, 4);
-
-            styleResourceSettingsArea = new GUIStyle(styleSettingsArea);
-            styleResourceSettingsArea.padding = new RectOffset(1, 0, 0, 0);
-            styleResourceSettingsArea.margin.left = 0;
 
             styleDropDownGlyph = new GUIStyle();
             styleDropDownGlyph.alignment = TextAnchor.MiddleCenter;
@@ -282,11 +219,6 @@ namespace KSPAlternateResourcePanel
             styleSeparatorH.border = new RectOffset(6, 6, 0, 0);
             styleSeparatorH.fixedHeight = 2;
 
-            //the border determins which bit doesnt repeat
-            styleDragInsert = new GUIStyle();
-            styleDragInsert.normal.background = TestFlight.Resources.texResourceMove;
-            styleDragInsert.border = new RectOffset(8, 8, 3, 3);
-            
             #endregion
         }
         #endregion
@@ -317,6 +249,11 @@ namespace KSPAlternateResourcePanel
             SkinsLibrary.AddStyle("Default", "DropDownListBox", styleDropDownListBox);
             SkinsLibrary.AddStyle("Default", "DropDownListItem", styleDropDownListItem);
 
+            SkinsLibrary.AddStyle("Default", "SafeText", textStyleSafe);
+            SkinsLibrary.AddStyle("Default", "WarningText", textStyleWarning);
+            SkinsLibrary.AddStyle("Default", "CriticalText", textStyleCritical);
+
+
             //Now a Unity Style one
             GUISkin DefUnity = SkinsLibrary.CopySkin(SkinsLibrary.DefSkinType.Unity);
             DefUnity.window = DefUnity.box;
@@ -340,6 +277,11 @@ namespace KSPAlternateResourcePanel
             SkinsLibrary.AddStyle("Unity", "DropDownButton", styleDropDownButtonUnity);
             SkinsLibrary.AddStyle("Unity", "DropDownListBox", styleDropDownListBoxUnity);
             SkinsLibrary.AddStyle("Unity", "DropDownListItem", styleDropDownListItem);
+
+            SkinsLibrary.AddStyle("Unity", "SafeText", textStyleSafe);
+            SkinsLibrary.AddStyle("Unity", "WarningText", textStyleWarning);
+            SkinsLibrary.AddStyle("Unity", "CriticalText", textStyleCritical);
+
 
             ////Now a Unity Style one with KSP buttons
             GUISkin UnityWKSPButtons = SkinsLibrary.CopySkin("Unity");

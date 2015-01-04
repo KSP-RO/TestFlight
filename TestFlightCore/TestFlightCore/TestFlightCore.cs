@@ -11,7 +11,7 @@ namespace TestFlightCore
     /// This is the core PartModule of the TestFlight system, and is the module that everything else plugins into.
     /// All relevant data for working in the system, as well as all usable API methods live here.
     /// </summary>
-    public class TestFlightCore : PartModule, ITestFlightCore
+    public class TestFlightCore : PartModuleExtended, ITestFlightCore
     {
         private float lastFailureCheck = 0f;
         private float lastPolling = 0.0f;
