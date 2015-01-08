@@ -566,7 +566,10 @@ namespace TestFlightCore
             GUILayout.Space(10);
             GUILayout.EndVertical();
             if (GUI.changed)
+            {
                 CalculateWindowBounds();
+                settings.Save();
+            }
         }
 
         // GUI EVent Handlers

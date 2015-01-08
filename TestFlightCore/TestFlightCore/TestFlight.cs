@@ -552,6 +552,7 @@ namespace TestFlightCore
 
         public override void OnLoad(ConfigNode node)
         {
+            settings.Load();
             if (node.HasNode("FLIGHTDATA_PART"))
             {
                 if (partsFlightData == null)
@@ -570,6 +571,7 @@ namespace TestFlightCore
 
 		public override void OnSave(ConfigNode node)
 		{
+            settings.Save();
             if (HighLogic.LoadedSceneIsFlight)
             {
                 foreach (PartFlightData partData in partsFlightData)
