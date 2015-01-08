@@ -132,7 +132,7 @@ namespace TestFlightCore
                 return;
             if (tfScenario == null)
                 return;
-            float windowWidth = 670f;
+            float windowWidth = 710f;
             if (settings.shortenPartNameInMSD)
                 windowWidth -= 100f;
             if (!settings.showFlightDataInMSD)
