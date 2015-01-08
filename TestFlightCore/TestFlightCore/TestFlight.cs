@@ -257,10 +257,14 @@ namespace TestFlightCore
                 settings.settingsPage = 0;
                 settings.mainWindowLocked = true;
                 settings.mainWindowPosition = new Rect(0, 0, 0, 0);
+                settings.mainWindowPositionLeft = 0f;
+                settings.mainWindowPositionTop = 0f;
                 settings.currentMSDSize = 1;
 
                 settings.flightHUDEnabled = false;
                 settings.flightHUDPosition = new Rect(0, 0, 0, 0);
+                settings.flightHUDPositionLeft = 0f;
+                settings.flightHUDPositionTop = 0f;
 
                 settings.Save();
             }

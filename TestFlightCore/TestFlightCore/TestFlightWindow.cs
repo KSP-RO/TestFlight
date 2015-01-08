@@ -61,10 +61,14 @@ namespace TestFlightCore
                 settings.settingsPage = 0;
                 settings.mainWindowLocked = true;
                 settings.mainWindowPosition = new Rect(0, 0, 0, 0);
+                settings.mainWindowPositionLeft = 0f;
+                settings.mainWindowPositionTop = 0f;
                 settings.currentMSDSize = 1;
 
                 settings.flightHUDEnabled = false;
                 settings.flightHUDPosition = new Rect(0, 0, 0, 0);
+                settings.flightHUDPositionLeft = 0f;
+                settings.flightHUDPositionTop = 0f;
 
                 settings.Save();
             }
@@ -159,8 +163,8 @@ namespace TestFlightCore
                 windowHeight += 250f;
             if (!settings.mainWindowLocked)
             {
-                left = settings.mainWindowPosition.xMin;
-                top = settings.mainWindowPosition.yMin;
+                left = settings.mainWindowPositionLeft;
+                top = settings.mainWindowPositionTop;
             }
             WindowRect = new Rect(left, top, windowWidth, windowHeight);
         }
@@ -454,6 +458,8 @@ namespace TestFlightCore
                                 settings.mainWindowLocked = true;
                                 CalculateWindowBounds();
                                 settings.mainWindowPosition = WindowRect;
+                                settings.mainWindowPositionLeft = WindowRect.xMin;
+                                settings.mainWindowPositionTop = WindowRect.yMin;
                                 DragEnabled = false;
                             }
                             else
@@ -581,6 +587,8 @@ namespace TestFlightCore
         void MainWindow_OnWindowMoveComplete(MonoBehaviourWindow sender)
         {
             settings.mainWindowPosition = WindowRect;
+            settings.mainWindowPositionLeft = WindowRect.xMin;
+            settings.mainWindowPositionTop = WindowRect.yMin;
             settings.Save();
         }
     }
