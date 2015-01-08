@@ -34,7 +34,20 @@ namespace TestFlightCore
         [Persistent]
         public double masterStatusUpdateFrequency;
         [Persistent] public bool displaySettingsWindow;
+        [Persistent] public int settingsPage;
         [Persistent] public bool enableHUD;
+        [Persistent] public bool showFailedPartsOnlyInMSD;
+        [Persistent] public bool showFlightDataInMSD;
+        [Persistent] public bool showRestingReliabilityInMSD;
+        [Persistent] public bool showMomentaryReliabilityInMSD;
+        [Persistent] public bool showStatusTextInMSD;
+        [Persistent] public bool shortenPartNameInMSD;
+        [Persistent] public Rect mainWindowPosition;
+        [Persistent] public bool mainWindowLocked;
+        [Persistent] public int currentMSDSize;
+        [Persistent] public Vector2 currentMSDScrollPosition;
+        [Persistent] public bool flightHUDEnabled;
+        [Persistent] public Rect flightHUDPosition;
     }
 }
 
