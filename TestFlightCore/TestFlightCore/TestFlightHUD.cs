@@ -91,7 +91,7 @@ namespace TestFlightCore
 
                 GUILayout.BeginHorizontal();
                 // Part Name
-                string tooltip = status.repairRequirements;
+                string tooltip = status.activeFailure.GetFailureDetails().failureTitle + "\n" + status.repairRequirements;
                 if (status.activeFailure.GetFailureDetails().severity == "minor")
                     GUILayout.Label(new GUIContent(String.Format("<color=#859900ff>{0}</color>", status.partName), tooltip), GUILayout.Width(200));
                 else if (status.activeFailure.GetFailureDetails().severity == "failure")
