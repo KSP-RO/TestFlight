@@ -315,8 +315,12 @@ namespace TestFlightCore
 //                    GUILayout.Label(String.Format("{0,50}", status.partName));
 //                    GUILayout.Label(String.Format("{0,7:F2}du", status.flightData));
 //                    GUILayout.Label(String.Format("{0,7:F2}%", status.reliability));
+
                     if (settings.showFailedPartsOnlyInMSD && status.activeFailure == null)
                         continue;
+                    if (settings.showFailedPartsOnlyInMSD && status.acknowledged)
+                        continue;
+
                     GUILayout.BeginHorizontal();
                     string partDisplay;
                     // Part Name
@@ -360,10 +364,18 @@ namespace TestFlightCore
                     }
                     if (status.activeFailure != null)
                     {
-                        if (GUILayout.Button("R", GUILayout.Width(38)))
+                        if (status.activeFailure.CanAttemptRepair())
+                        {
+                            if (GUILayout.Button("R", GUILayout.Width(38)))
+                            {
+                                // attempt repair
+                                bool repairSuccess = status.flightCore.AttemptRepair();
+                            }
+                        }
+                        if (GUILayout.Button("A", GUILayout.Width(38)))
                         {
                             // attempt repair
-                            bool repairSuccess = status.flightCore.AttemptRepair();
+                            status.flightCore.AcknowledgeFailure();
                         }
                     }
                     GUILayout.EndHorizontal();

@@ -86,7 +86,7 @@ namespace TestFlightCore
             foreach (PartStatus status in masterStatus[currentVessl].allPartsStatus)
             {
                 // We only show failed parts in Flight HUD
-                if (status.activeFailure == null)
+                if (status.activeFailure == null || status.acknowledged)
                     continue;
 
                 GUILayout.BeginHorizontal();
@@ -101,10 +101,18 @@ namespace TestFlightCore
                 GUILayout.Space(10);
                 if (status.activeFailure != null)
                 {
-                    if (GUILayout.Button("R", GUILayout.Width(38)))
+                    if (status.activeFailure.CanAttemptRepair())
+                    {
+                        if (GUILayout.Button("R", GUILayout.Width(38)))
+                        {
+                            // attempt repair
+                            bool repairSuccess = status.flightCore.AttemptRepair();
+                        }
+                    }
+                    if (GUILayout.Button("A", GUILayout.Width(38)))
                     {
                         // attempt repair
-                        bool repairSuccess = status.flightCore.AttemptRepair();
+                        status.flightCore.AcknowledgeFailure();
                     }
                 }
                 GUILayout.EndHorizontal();

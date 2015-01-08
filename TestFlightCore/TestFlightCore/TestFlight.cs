@@ -23,6 +23,7 @@ namespace TestFlightCore
         internal ITestFlightFailure activeFailure;
         internal bool highlightPart;
         internal string repairRequirements;
+        internal bool acknowledged;
     }
 
     internal struct MasterStatusItem
@@ -470,6 +471,7 @@ namespace TestFlightCore
                                     partStatus.partStatus = core.GetPartStatus();
                                     partStatus.reliability = core.GetCurrentReliability(settings.globalReliabilityModifier);
                                     partStatus.repairRequirements = core.GetRequirementsTooltip();
+                                    partStatus.acknowledged = core.IsFailureAcknowledged();
                                     if (core.GetPartStatus() > 0)
                                     {
                                         partStatus.activeFailure = core.GetFailureModule();

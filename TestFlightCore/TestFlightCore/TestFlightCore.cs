@@ -20,6 +20,7 @@ namespace TestFlightCore
         private double currentReliability = 0.0f;
         private List<ITestFlightFailure> failureModules = null;
         private ITestFlightFailure activeFailure = null;
+        private bool failureAcknowledged = false;
 
         [KSPField(isPersistant = true)]
         public float failureCheckFrequency = 0f;
@@ -37,10 +38,16 @@ namespace TestFlightCore
                 if (isRepaired)
                 {
                     activeFailure = null;
+                    failureAcknowledged = false;
                     return true;
                 }
             }
             return false;
+        }
+
+        public bool AcknowledgeFailure()
+        {
+            failureAcknowledged = true;
         }
 
         public void HighlightPart(bool doHighlight)
@@ -125,6 +132,11 @@ namespace TestFlightCore
         public virtual ITestFlightFailure GetFailureModule()
         {
             return activeFailure;
+        }
+
+        public bool IsFailureAcknowledged()
+        {
+            return failureAcknowledged;
         }
 
         public string GetRequirementsTooltip()
@@ -350,6 +362,7 @@ namespace TestFlightCore
                             // Trigger this module's failure
                             LogFormatted_DebugOnly("TestFlightCore: Triggering failure on " + fm);
                             activeFailure = fm;
+                            failureAcknowledged = false;
                             fm.DoFailure();
                             return true;
                         }
