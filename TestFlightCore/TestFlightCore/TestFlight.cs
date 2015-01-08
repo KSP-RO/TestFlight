@@ -259,6 +259,9 @@ namespace TestFlightCore
                 settings.mainWindowPosition = new Rect(0, 0, 0, 0);
                 settings.currentMSDSize = 1;
 
+                settings.flightHUDEnabled = false;
+                settings.flightHUDPosition = new Rect(0, 0, 0, 0);
+
                 settings.Save();
             }
             settings.Load();
