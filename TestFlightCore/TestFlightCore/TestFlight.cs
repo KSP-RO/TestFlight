@@ -18,6 +18,7 @@ namespace TestFlightCore
         internal int flightTime;
         internal double flightData;
         internal double reliability;
+        internal double momentaryReliability;
         internal ITestFlightCore flightCore;
         internal ITestFlightFailure activeFailure;
         internal bool highlightPart;
@@ -244,6 +245,19 @@ namespace TestFlightCore
                 settings.minTimeBetweenFailurePoll = 60;
                 settings.processAllVessels = false;
                 settings.masterStatusUpdateFrequency = 10;
+                settings.displaySettingsWindow = true;
+
+                settings.showFailedPartsOnlyInMSD = false;
+                settings.showFlightDataInMSD = true;
+                settings.showMomentaryReliabilityInMSD = false;
+                settings.showRestingReliabilityInMSD = true;
+                settings.showStatusTextInMSD = true;
+                settings.shortenPartNameInMSD = false;
+                settings.settingsPage = 0;
+                settings.mainWindowLocked = true;
+                settings.mainWindowPosition = new Rect(0, 0, 0, 0);
+                settings.currentMSDSize = 1;
+
                 settings.Save();
             }
             settings.Load();
@@ -297,7 +311,6 @@ namespace TestFlightCore
             List<Guid> vesselsToDelete = new List<Guid>();
             foreach(var entry in masterStatus)
             {
-                Debug.Log("TestFlightManagerScenario: Checking if vessel(" + entry.Key + ") in Master Status is still valid");
                 Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == entry.Key);
                 if (vessel == null)
                 {
@@ -313,7 +326,8 @@ namespace TestFlightCore
                     }
                 }
             }
-            Debug.Log("TestFlightManagerScenario: Removing " + vesselsToDelete.Count() + " vessels from Master Status");
+            if (vesselsToDelete.Count > 0)
+                Debug.Log("TestFlightManagerScenario: Removing " + vesselsToDelete.Count() + " vessels from Master Status");
             foreach (Guid id in vesselsToDelete)
             {
                 masterStatus.Remove(id);
@@ -324,18 +338,17 @@ namespace TestFlightCore
             {
                 partsToDelete.Clear();
                 Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == entry.Key);
-                Debug.Log("TestFlightManagerScenario: Scanning parts on vessel" + vessel.GetName() + " for master status update");
                 foreach (PartStatus partStatus in masterStatus[entry.Key].allPartsStatus)
                 {
-                    Debug.Log("TestFlightManagerScenario: Looking to see if part with flightID " + partStatus.partID + " still exists");
                     Part part = vessel.Parts.Find(p => p.flightID == partStatus.partID);
                     if (part == null)
                     {
-                        Debug.Log("TestFlightManagerScenario: Could not find part.  Marking it for deletion.");
+                        Debug.Log("TestFlightManagerScenario: Could not find part. " + partStatus.partName + "(" + partStatus.partID + ") Marking it for deletion.");
                         partsToDelete.Add(partStatus);
                     }
                 }
-                Debug.Log("TestFlightManagerScenario: Deleting " + partsToDelete.Count() + " parts from vessel " + vessel.GetName());
+                if (partsToDelete.Count > 0)
+                    Debug.Log("TestFlightManagerScenario: Deleting " + partsToDelete.Count() + " parts from vessel " + vessel.GetName());
                 foreach (PartStatus oldPartStatus in partsToDelete)
                 {
                     masterStatus[entry.Key].allPartsStatus.Remove(oldPartStatus);
@@ -413,7 +426,6 @@ namespace TestFlightCore
 
         public void DoFailureUpdate(ITestFlightCore core, double launchTime)
         {
-            Debug.Log("TestFlightManagerScenario: Doing Failure Update");
             core.DoFailureCheck(launchTime, settings.globalReliabilityModifier);
         }
 
@@ -535,8 +547,6 @@ namespace TestFlightCore
 
         public override void OnLoad(ConfigNode node)
         {
-            Debug.Log("TestFlightManagerScenario: OnLoad()");
-            Debug.Log(node);
             if (node.HasNode("FLIGHTDATA_PART"))
             {
                 if (partsFlightData == null)
@@ -544,7 +554,6 @@ namespace TestFlightCore
 
                 foreach (ConfigNode partNode in node.GetNodes("FLIGHTDATA_PART"))
                 {
-                    Debug.Log("TestFlightManagerScenario: Loading Flight Data");
                     PartFlightData partData = new PartFlightData();
                     partData.Load(partNode);
                     partsFlightData.Add(partData);
@@ -556,10 +565,8 @@ namespace TestFlightCore
 
 		public override void OnSave(ConfigNode node)
 		{
-            Debug.Log("TestFlightManagerScenario: OnSave()");
             if (HighLogic.LoadedSceneIsFlight)
             {
-                Debug.Log("TestFlightManagerScenario: Saving in FLIGHT scene");
                 foreach (PartFlightData partData in partsFlightData)
                 {
                     ConfigNode partNode = node.AddNode("FLIGHTDATA_PART");
@@ -568,15 +575,12 @@ namespace TestFlightCore
             }
             else
             {
-                Debug.Log("TestFlightManagerScenario: Saving in NON-FLIGHT scene");
                 foreach (PartFlightData partData in partsFlightData)
                 {
                     ConfigNode partNode = node.AddNode("FLIGHTDATA_PART");
                     partData.Save(partNode);
                 }
             }
-            Debug.Log(node);
-			Debug.Log("TestFlight: Scenario Saved");
 		}
 
 	}
