@@ -33,6 +33,7 @@ namespace TestFlight
 
 
         internal static Texture2D texPanel = new Texture2D(16, 16, TextureFormat.ARGB32, false);
+        internal static Texture2D texPanelSolarizedDark = new Texture2D(16, 16, TextureFormat.ARGB32, false);
 
         internal static Texture2D btnChevronUp = new Texture2D(17, 16, TextureFormat.ARGB32, false);
         internal static Texture2D btnChevronDown = new Texture2D(17, 16, TextureFormat.ARGB32, false);
@@ -53,6 +54,7 @@ namespace TestFlight
             LoadImageFromFile(ref btnChevronDown, "ChevronDown.png", PathPluginResources);
 
             LoadImageFromFile(ref texPanel, "img_PanelBack.png");
+            LoadImageFromFile(ref texPanelSolarizedDark, "img_PanelSolarizedDark.png");
 
             LoadImageFromFile(ref texPartWindowHead, "img_PartWindowHead.png");
 

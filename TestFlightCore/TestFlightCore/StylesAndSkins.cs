@@ -14,54 +14,61 @@ namespace TestFlightCore
     internal class Styles
     {
         #region Styles
+        // Base styles
         internal static GUIStyle styleButton;
-        private static GUIStyle styleButtonMain;
-        private static GUIStyle styleButtonSettings;
-
-        private static GUIStyle styleButtonUnity;
-        private static GUIStyle styleButtonMainUnity;
-        private static GUIStyle styleButtonSettingsUnity;
-
+        internal static GUIStyle styleButtonMain;
+        internal static GUIStyle styleButtonSettings;
         internal static GUIStyle styleDropDownButton;
-        internal static GUIStyle styleDropDownButtonUnity;
-
-        internal static GUIStyle styleDropDownListBox;
-        internal static GUIStyle styleDropDownListBoxUnity;
-
         internal static GUIStyle styleDropDownListItem;
-
-        private static GUIStyle stylePanel;
-
-
-        internal static GUIStyle styleBarText;
-
+        internal static GUIStyle stylePanel;
         internal static GUIStyle styleText;
         internal static GUIStyle styleTextCenter;
+        internal static GUIStyle styleTooltipStyle;
+        internal static GUIStyle styleSeparatorV;
+        internal static GUIStyle styleSeparatorH;
+        internal static GUIStyle styleDropDownListBox;
+        internal static GUIStyle styleBarText;
         internal static GUIStyle styleTextCenterGreen;
-
         internal static GUIStyle styleTextGreen;
         internal static GUIStyle styleTextYellow;
         internal static GUIStyle styleTextYellowBold;
-
+        internal static GUIStyle stylePartWindowPanel;
+        internal static GUIStyle styleToggle;
         internal static GUIStyle textStyleSafe;
         internal static GUIStyle textStyleWarning;
         internal static GUIStyle textStyleCritical;
+        // KSP Styles
+        // Unity Styles
+        internal static GUIStyle styleButtonUnity;
+        internal static GUIStyle styleButtonMainUnity;
+        internal static GUIStyle styleButtonSettingsUnity;
+        internal static GUIStyle styleDropDownButtonUnity;
+        internal static GUIStyle styleDropDownListBoxUnity;
+        // Solarized Dark Styles
+        internal static GUIStyle stylePanelSolarizedDark;
+        internal static GUIStyle stylePanelSolarizedDarkHUD;
+        internal static GUIStyle styleTextSolarizedDark;
+        internal static GUIStyle styleButtonSolarizedDark;
+        internal static GUIStyle styleTextSafeSolarizedDark;
+        internal static GUIStyle styleTextWarningSolarizedDark;
+        internal static GUIStyle styleTextCriticalSolarizedDark;
+        internal static GUIStyle styleTooltipSolarizedDark;
+        internal static GUIStyle styleTooltipRequirementsSolarizedDark;
+
+        // Solarized Light Styles
 
 
-        internal static GUIStyle stylePartWindowPanel;
+
+
+
+
+
+
         internal static GUIStyle stylePartWindowPanelUnity;
         internal static GUIStyle stylePartWindowHead;
-
-        internal static GUIStyle styleTooltipStyle;
-
-        internal static GUIStyle styleToggle;
-
         internal static GUIStyle styleSettingsArea;
-
         internal static GUIStyle styleDropDownGlyph;
         
-        internal static GUIStyle styleSeparatorV;
-        internal static GUIStyle styleSeparatorH;
 
 
         /// <summary>
@@ -76,6 +83,15 @@ namespace TestFlightCore
             stylePanel.normal.background = TestFlight.Resources.texPanel;
             stylePanel.border = new RectOffset(6, 6, 6, 6);
             stylePanel.padding = new RectOffset(8, 3, 7, 0);
+
+            stylePanelSolarizedDark = new GUIStyle();
+            stylePanelSolarizedDark.normal.background = TestFlight.Resources.texPanelSolarizedDark;
+            stylePanelSolarizedDark.border = new RectOffset(27, 27, 27, 27);
+            stylePanelSolarizedDark.padding = new RectOffset(10, 10, 10, 10);
+
+            stylePanelSolarizedDarkHUD = new GUIStyle();
+            stylePanelSolarizedDarkHUD.normal.background = CreateColorPixel(new Color32 (0,20,26,200) );
+
 
             styleButton = new GUIStyle(SkinsLibrary.DefUnitySkin.button);
             styleButton.name = "ButtonGeneral";
@@ -121,6 +137,16 @@ namespace TestFlightCore
             styleTooltipStyle.border = new RectOffset(3, 3, 3, 3);
             styleTooltipStyle.padding = new RectOffset(4, 4, 6, 4);
             styleTooltipStyle.alignment = TextAnchor.MiddleCenter;
+
+            styleTooltipSolarizedDark = new GUIStyle(styleTooltipStyle);
+            styleTooltipSolarizedDark.fontSize = 12;
+            styleTooltipSolarizedDark.normal.background = CreateColorPixel(new Color32(7,54,66,255));
+            styleTooltipSolarizedDark.normal.textColor = new Color32(147,161,161,255);
+
+            styleTooltipRequirementsSolarizedDark = new GUIStyle(styleTooltipSolarizedDark);
+            styleTooltipRequirementsSolarizedDark.wordWrap = false;
+            styleTooltipRequirementsSolarizedDark.alignment = TextAnchor.UpperLeft;
+            styleTooltipRequirementsSolarizedDark.richText = true;
 
             styleDropDownButton = new GUIStyle(styleButton);
             styleDropDownButton.padding.right = 20;
@@ -172,6 +198,11 @@ namespace TestFlightCore
             styleText.alignment = TextAnchor.MiddleLeft;
             styleText.normal.textColor = new Color(207, 207, 207);
             styleText.wordWrap = false;
+            styleText.richText = true;
+
+            styleTextSolarizedDark = new GUIStyle(styleText);
+            styleTextSolarizedDark.fontSize = 12;
+            styleTextSolarizedDark.normal.textColor = new Color(131, 148, 150);
 
             styleTextGreen = new GUIStyle(styleText);
             styleTextGreen.normal.textColor = new Color32(183, 254, 0, 255); ;
@@ -192,11 +223,20 @@ namespace TestFlightCore
             textStyleSafe = new GUIStyle(styleText);
             textStyleSafe.normal.textColor = new Color32(133, 153, 0, 255);        
 
+            styleTextSafeSolarizedDark = new GUIStyle(textStyleSafe);
+            styleTextSafeSolarizedDark.fontSize = 12;
+
             textStyleWarning = new GUIStyle(styleText);
             textStyleWarning.normal.textColor = new Color32(203, 75, 22, 255);        
 
+            styleTextWarningSolarizedDark = new GUIStyle(textStyleWarning);
+            styleTextWarningSolarizedDark.fontSize = 12;
+
             textStyleCritical = new GUIStyle(styleText);
             textStyleCritical.normal.textColor = new Color32(220, 50, 47, 255);        
+
+            styleTextCriticalSolarizedDark = new GUIStyle(textStyleCritical);
+            styleTextCriticalSolarizedDark.fontSize = 12;
 
             styleToggle = new GUIStyle(HighLogic.Skin.toggle);
             styleToggle.normal.textColor = new Color(207, 207, 207);
@@ -302,6 +342,14 @@ namespace TestFlightCore
             SkinsLibrary.AddStyle("UnityWKSPButtons", "DropDownListBox", styleDropDownListBox);
             SkinsLibrary.AddStyle("UnityWKSPButtons", "DropDownListItem", styleDropDownListItem);
 
+            // Solarized Dark theme
+            // http://ethanschoonover.com/solarized
+            GUISkin solarizedDarkSkin = SkinsLibrary.CopySkin("Unity");
+            solarizedDarkSkin.window = stylePanelSolarizedDark;
+            solarizedDarkSkin.label.fontSize = 12;
+            SkinsLibrary.AddSkin("SolarizedDark", solarizedDarkSkin);
+            SkinsLibrary.AddStyle("SolarizedDark", "HUD", stylePanelSolarizedDarkHUD);
+            SkinsLibrary.AddStyle("SolarizedDark", "Tooltip", styleTooltipRequirementsSolarizedDark);
         }
 
         /// <summary>
