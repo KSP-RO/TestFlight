@@ -45,7 +45,7 @@ namespace TestFlightCore
             return false;
         }
 
-        public bool AcknowledgeFailure()
+        public void AcknowledgeFailure()
         {
             failureAcknowledged = true;
         }
@@ -154,15 +154,17 @@ namespace TestFlightCore
             foreach (RepairRequirements requirement in requirements)
             {
                 if (requirement.requirementMet)
-                    tooltip += "[*]";
+                {
+                    tooltip = String.Format("{0}<color=#859900ff>{1}</color>\n", tooltip, requirement.requirementMessage);
+                }
                 else
-                    tooltip += "[ ]";
+                {
+                    tooltip = String.Format("{0}<color=#dc322fff>{1}</color>\n", tooltip, requirement.requirementMessage);
+                }
                 if (requirement.optionalRequirement)
-                    tooltip += String.Format("(OPTIONAL +{0:F2}%) ", requirement.repairBonus * 100.0f);
-                else
-                    tooltip += " ";
-                tooltip += requirement.requirementMessage;
-                tooltip += "\n";
+                {
+                    tooltip = String.Format("{0}(OPTIONAL +{1:f2}%) <color=#b58900ff>{2}</color>\n", tooltip, requirement.repairBonus * 100.0f, requirement.requirementMessage);
+                }
             }
 
             return tooltip;
