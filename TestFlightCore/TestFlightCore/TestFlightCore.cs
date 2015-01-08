@@ -157,11 +157,11 @@ namespace TestFlightCore
                 {
                     tooltip = String.Format("{0}<color=#859900ff>{1}</color>\n", tooltip, requirement.requirementMessage);
                 }
-                else
+                else if (!requirement.requirementMet && !requirement.optionalRequirement)
                 {
                     tooltip = String.Format("{0}<color=#dc322fff>{1}</color>\n", tooltip, requirement.requirementMessage);
                 }
-                if (requirement.optionalRequirement)
+                else if (!requirement.requirementMet && requirement.optionalRequirement)
                 {
                     tooltip = String.Format("{0}(OPTIONAL +{1:f2}%) <color=#b58900ff>{2}</color>\n", tooltip, requirement.repairBonus * 100.0f, requirement.requirementMessage);
                 }
