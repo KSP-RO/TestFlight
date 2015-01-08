@@ -70,6 +70,7 @@
     <Compile Include="StylesAndSkins.cs" />
     <Compile Include="Resources.cs" />
     <Compile Include="Framework\PartModuleExtended.cs" />
+    <Compile Include="TestFlightHUD.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
