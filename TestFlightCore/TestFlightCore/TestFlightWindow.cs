@@ -387,7 +387,7 @@ namespace TestFlightCore
                 {
                     case 0:
                         GUILayout.BeginHorizontal();
-                        if (DrawToggle(ref settings.showFailedPartsOnlyInMSD, "Short Failed Parts Only", Styles.styleToggle))
+                        if (DrawToggle(ref settings.showFailedPartsOnlyInMSD, "Show Failed Parts Only", Styles.styleToggle))
                         {
                             settings.Save();
                             CalculateWindowBounds();
