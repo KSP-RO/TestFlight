@@ -6,11 +6,32 @@ using System.Linq;
 
 using UnityEngine;
 using KSPPluginFramework;
-
 using TestFlightAPI;
 
 namespace TestFlightCore
 {
+    internal struct PartStatus
+    {
+        internal string partName;
+        internal uint partID;
+        internal int partStatus;
+        internal int flightTime;
+        internal double flightData;
+        internal double reliability;
+        internal double momentaryReliability;
+        internal ITestFlightCore flightCore;
+        internal ITestFlightFailure activeFailure;
+        internal bool highlightPart;
+        internal string repairRequirements;
+    }
+
+    internal struct MasterStatusItem
+    {
+        internal Guid vesselID;
+        internal string vesselName;
+        internal List<PartStatus> allPartsStatus;
+    }
+
     public class PartFlightData : IConfigNode
     {
         private List<TestFlightData> flightData = null;
@@ -150,82 +171,12 @@ namespace TestFlightCore
 
     }
 
-    internal struct PartStatus
-    {
-        internal string partName;
-        internal uint partID;
-        internal int partStatus;
-        internal int flightTime;
-        internal double flightData;
-        internal double reliability;
-        internal ITestFlightCore flightCore;
-        internal ITestFlightFailure activeFailure;
-        internal bool highlightPart;
-        internal string repairRequirements;
-    }
-
-    internal struct MasterStatusItem
-    {
-        internal Guid vesselID;
-        internal string vesselName;
-        internal List<PartStatus> allPartsStatus;
-    }
-
-    internal struct PartWindowSettings
-    {
-        internal bool partHighlight;
-    }
-
-    internal struct WindowSettings
-    {
-        internal Dictionary<uint, PartWindowSettings> partWindowSettings;
-        internal int activePage;
-        internal Guid selectedVessel;
-        internal bool showSelectedVessel;
-        internal Vector2 vesselSelectionScroll;
-    }
-
-
-    [KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
-	public class TestFlightManager : MonoBehaviourWindow
+    [KSPAddon(KSPAddon.Startup.SpaceCentre, true)]
+	public class TestFlightManager : MonoBehaviour
 	{
         public TestFlightManagerScenario tsm;
 
-		internal override void Start()
-		{
-			var game = HighLogic.CurrentGame;
-			ProtoScenarioModule psm = game.scenarios.Find(s => s.moduleName == typeof(TestFlightManagerScenario).Name);
-			if (psm == null)
-			{
-				GameScenes[] desiredScenes = new GameScenes[4] { GameScenes.EDITOR, GameScenes.FLIGHT, GameScenes.TRACKSTATION, GameScenes.SPACECENTER };
-				psm = game.AddProtoScenarioModule(typeof(TestFlightManagerScenario), desiredScenes);
-			}
-            psm.Load(ScenarioRunner.fetch);
-            tsm = game.scenarios.Select(s => s.moduleRef).OfType<TestFlightManagerScenario>().SingleOrDefault();
-            base.Start();
-		}
-
-        internal override void Awake()
-        {
-            Visible = false;
-            base.Awake();
-        }
-
-        internal override void DrawWindow(Int32 id)
-        {
-        }
-	}
-
-    [KSPAddon(KSPAddon.Startup.EveryScene, false)]
-    internal class MasterStatusDisplay : MonoBehaviourWindow
-    {
-        private TestFlightManagerScenario tsm;
-        private WindowSettings winSettings;
-        private PartWindowSettings partSettings;
-        private ApplicationLauncherButton appLauncherButton;
-        private bool sticky = false;
-
-        internal override void Start()
+        public void Start()
         {
             var game = HighLogic.CurrentGame;
             ProtoScenarioModule psm = game.scenarios.Find(s => s.moduleName == typeof(TestFlightManagerScenario).Name);
@@ -236,189 +187,6 @@ namespace TestFlightCore
             }
             psm.Load(ScenarioRunner.fetch);
             tsm = game.scenarios.Select(s => s.moduleRef).OfType<TestFlightManagerScenario>().SingleOrDefault();
-            base.Start();
-        }
-        
-        internal override void Awake()
-        {
-            if (winSettings.partWindowSettings == null)
-            {
-                winSettings.partWindowSettings = new Dictionary<uint, PartWindowSettings>();
-            }
-            StartCoroutine("AddToToolbar");
-            base.Awake();
-        }
-
-        internal override void OnGUIOnceOnly()
-        {
-            Styles.Init();
-            SkinsLibrary.SetCurrent("Default");
-            // Default position and size -- will get proper bounds calculated when needed
-            WindowRect = new Rect(0, 50, 500, 50);
-            DragEnabled = true;
-            ClampToScreen = true;
-            TooltipsEnabled = true;
-            WindowCaption = "TestFlight Master Status Display";
-        }
-
-        internal void CalculateWindowBounds()
-        {
-            if (appLauncherButton == null)
-                return;
-            if (tsm == null)
-                return;
-            float windowWidth = 650f;
-            float left = Screen.width - windowWidth;
-            float windowHeight = 10f;
-            float top = 40f;
-
-            // Calculate height based on amount of parts
-            Dictionary<Guid, MasterStatusItem> masterStatus = tsm.GetMasterStatus();
-
-            if (masterStatus != null && masterStatus.Count() > 0)
-            {
-                Guid currentVessel = masterStatus.First().Key;
-                windowHeight = masterStatus[currentVessel].allPartsStatus.Count() * 20f;
-            }
-            if (!ApplicationLauncher.Instance.IsPositionedAtTop)
-            {
-                top = Screen.height - windowHeight - 40f;
-            }
-
-            WindowRect = new Rect(left, top, windowWidth, windowHeight);
-        }
-
-        IEnumerator AddToToolbar()
-        {
-            while (!ApplicationLauncher.Ready)
-            {
-                yield return null;
-            }
-            try
-            {
-                // Load the icon for the button
-                Debug.Log("TestFlight MasterStatusDisplay: Loading icon texture");
-                Texture iconTexture = GameDatabase.Instance.GetTexture("TestFlight/Resources/AppLauncherIcon", false);
-                if (iconTexture == null)
-                {
-                    throw new Exception("TestFlight MasterStatusDisplay: Failed to load icon texture");
-                }
-                Debug.Log("TestFlight MasterStatusDisplay: Creating icon on toolbar");
-                appLauncherButton = ApplicationLauncher.Instance.AddModApplication(
-                    OpenWindow,
-                    CloseWindow,
-                    HoverInButton,
-                    HoverOutButton,
-                    null,
-                    null,
-                    ApplicationLauncher.AppScenes.ALWAYS,
-                    iconTexture);
-                ApplicationLauncher.Instance.AddOnHideCallback(HideButton);
-                ApplicationLauncher.Instance.AddOnRepositionCallback(RepostionWindow);
-            }
-            catch (Exception e)
-            {
-                Debug.Log("TestFlight MasterStatusDisplay: Unable to add button to application launcher: " + e.Message);
-                throw e;
-            }
-        }
-        void OpenWindow()
-        {
-            CalculateWindowBounds();
-            Visible = true;
-            sticky = true;
-        }
-        void CloseWindow()
-        {
-            Visible = false;
-            sticky = false;
-        }
-        void HideButton()
-        {
-            ApplicationLauncher.Instance.RemoveModApplication(appLauncherButton);
-        }
-        void RepostionWindow()
-        {
-            CalculateWindowBounds();
-            Debug.Log("TestFlight MasterStatusDisplay: RepositionWindow");
-        }
-        void HoverInButton()
-        {
-            CalculateWindowBounds();
-            Visible = true;
-        }
-        void HoverOutButton()
-        {
-            if (!sticky)
-                Visible = false;
-        }
-        internal override void DrawWindow(Int32 id)
-        {
-            CalculateWindowBounds();
-
-            GUILayout.BeginVertical();
-            Dictionary<Guid, MasterStatusItem> masterStatus = tsm.GetMasterStatus();
-            if (masterStatus == null)
-                GUILayout.Label("TestFlight is starting up...");
-            else if (masterStatus.Count() <= 0)
-                GUILayout.Label("TestFlight is not currently tracking any vessels");
-            else
-            {
-                winSettings.selectedVessel = FlightGlobals.ActiveVessel.id;
-                // Display information on selected vessel
-                GUILayout.Label("MSD for " + masterStatus[winSettings.selectedVessel].vesselName);
-                foreach (PartStatus status in masterStatus[winSettings.selectedVessel].allPartsStatus)
-                {
-                    // load window settings for this part
-                    if (!winSettings.partWindowSettings.ContainsKey(status.partID))
-                    {
-                        winSettings.partWindowSettings.Add(status.partID, new PartWindowSettings());
-                    }
-                    partSettings = winSettings.partWindowSettings[status.partID];
-
-                    // Display part data
-                    GUILayout.BeginHorizontal();
-                    GUILayout.Label(String.Format("{0,50}", status.partName));
-                    GUILayout.Label(String.Format("{0,7:F2}du", status.flightData));
-                    GUILayout.Label(String.Format("{0,7:F2}%", status.reliability));
-                    string goNoGo;
-                    GUIStyle useStyle;
-                    if (status.activeFailure != null)
-                    {
-                        if (status.activeFailure.GetFailureDetails().severity == "major")
-                            useStyle = Styles.textStyleCritical;
-                        else
-                            useStyle = Styles.textStyleWarning;
-                        goNoGo = String.Format("{0,-25}", status.activeFailure.GetFailureDetails().failureTitle);
-                    }
-                    else
-                    {
-                        useStyle = Styles.textStyleSafe;
-                        goNoGo = String.Format("{0,-25}", "Status OK");
-                    }
-                    string tooltip = status.repairRequirements;
-                    GUILayout.Label(new GUIContent(goNoGo, tooltip), useStyle);
-                    if (GUILayout.Button("H"))
-                    {
-                        // Highlight part
-                        partSettings.partHighlight = !partSettings.partHighlight;
-                        status.flightCore.HighlightPart(partSettings.partHighlight);
-                    }
-                    if (status.activeFailure != null)
-                    {
-                        if (GUILayout.Button("R"))
-                        {
-                            // attempt repair
-                            bool repairSuccess = status.flightCore.AttemptRepair();
-                        }
-                    }
-
-                    GUILayout.EndHorizontal();
-                    winSettings.partWindowSettings[status.partID] = partSettings;
-                }
-            }
-
-            GUILayout.EndVertical();
         }
     }
 
@@ -429,7 +197,7 @@ namespace TestFlightCore
         public List<String> partsPackedStrings;
         public Dictionary<Guid, double> knownVessels;
 
-        Settings settings = null;
+        internal Settings settings = null;
         public double pollingInterval = 5.0f;
         public bool processInactiveVessels = true;
 
@@ -477,6 +245,19 @@ namespace TestFlightCore
                 settings.minTimeBetweenFailurePoll = 60;
                 settings.processAllVessels = false;
                 settings.masterStatusUpdateFrequency = 10;
+                settings.displaySettingsWindow = true;
+
+                settings.showFailedPartsOnlyInMSD = false;
+                settings.showFlightDataInMSD = true;
+                settings.showMomentaryReliabilityInMSD = false;
+                settings.showRestingReliabilityInMSD = true;
+                settings.showStatusTextInMSD = true;
+                settings.shortenPartNameInMSD = false;
+                settings.settingsPage = 0;
+                settings.mainWindowLocked = true;
+                settings.mainWindowPosition = new Rect(0, 0, 0, 0);
+                settings.currentMSDSize = 1;
+
                 settings.Save();
             }
             settings.Load();
@@ -530,7 +311,6 @@ namespace TestFlightCore
             List<Guid> vesselsToDelete = new List<Guid>();
             foreach(var entry in masterStatus)
             {
-                Debug.Log("TestFlightManagerScenario: Checking if vessel(" + entry.Key + ") in Master Status is still valid");
                 Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == entry.Key);
                 if (vessel == null)
                 {
@@ -546,7 +326,8 @@ namespace TestFlightCore
                     }
                 }
             }
-            Debug.Log("TestFlightManagerScenario: Removing " + vesselsToDelete.Count() + " vessels from Master Status");
+            if (vesselsToDelete.Count > 0)
+                Debug.Log("TestFlightManagerScenario: Removing " + vesselsToDelete.Count() + " vessels from Master Status");
             foreach (Guid id in vesselsToDelete)
             {
                 masterStatus.Remove(id);
@@ -557,18 +338,17 @@ namespace TestFlightCore
             {
                 partsToDelete.Clear();
                 Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == entry.Key);
-                Debug.Log("TestFlightManagerScenario: Scanning parts on vessel" + vessel.GetName() + " for master status update");
                 foreach (PartStatus partStatus in masterStatus[entry.Key].allPartsStatus)
                 {
-                    Debug.Log("TestFlightManagerScenario: Looking to see if part with flightID " + partStatus.partID + " still exists");
                     Part part = vessel.Parts.Find(p => p.flightID == partStatus.partID);
                     if (part == null)
                     {
-                        Debug.Log("TestFlightManagerScenario: Could not find part.  Marking it for deletion.");
+                        Debug.Log("TestFlightManagerScenario: Could not find part. " + partStatus.partName + "(" + partStatus.partID + ") Marking it for deletion.");
                         partsToDelete.Add(partStatus);
                     }
                 }
-                Debug.Log("TestFlightManagerScenario: Deleting " + partsToDelete.Count() + " parts from vessel " + vessel.GetName());
+                if (partsToDelete.Count > 0)
+                    Debug.Log("TestFlightManagerScenario: Deleting " + partsToDelete.Count() + " parts from vessel " + vessel.GetName());
                 foreach (PartStatus oldPartStatus in partsToDelete)
                 {
                     masterStatus[entry.Key].allPartsStatus.Remove(oldPartStatus);
@@ -646,7 +426,6 @@ namespace TestFlightCore
 
         public void DoFailureUpdate(ITestFlightCore core, double launchTime)
         {
-            Debug.Log("TestFlightManagerScenario: Doing Failure Update");
             core.DoFailureCheck(launchTime, settings.globalReliabilityModifier);
         }
 
@@ -667,88 +446,90 @@ namespace TestFlightCore
             foreach (var entry in knownVessels)
             {
                 Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == entry.Key);
-                foreach (Part part in vessel.parts)
+                if (vessel.loaded)
                 {
-                    foreach (PartModule pm in part.Modules)
+                    foreach(Part part in vessel.parts)
                     {
-                        ITestFlightCore core = pm as ITestFlightCore;
-                        if (core != null)
+                        foreach (PartModule pm in part.Modules)
                         {
-                            // Poll for flight data and part status
-                            if (currentUTC >= lastDataPoll + settings.minTimeBetweenDataPoll)
+                            ITestFlightCore core = pm as ITestFlightCore;
+                            if (core != null)
                             {
-                                Debug.Log("TestFlightManagerScenario: Processing Part " + part.name + "(" + part.flightID + ")");
-                                DoFlightUpdate(core, entry.Value);
-                                TestFlightData currentFlightData = DoDataUpdate(core, part);
+                                // Poll for flight data and part status
+                                if (currentUTC >= lastDataPoll + settings.minTimeBetweenDataPoll)
+                                {
+                                    DoFlightUpdate(core, entry.Value);
+                                    TestFlightData currentFlightData = DoDataUpdate(core, part);
 
-                                PartStatus partStatus = new PartStatus();
-                                partStatus.flightCore = core;
-                                partStatus.partName = part.partInfo.title;
-                                partStatus.partID = part.flightID;
-                                partStatus.flightData = currentFlightData.flightData;
-                                partStatus.flightTime = currentFlightData.flightTime;
-                                partStatus.partStatus = core.GetPartStatus();
-                                partStatus.reliability = core.GetCurrentReliability(settings.globalReliabilityModifier);
-                                partStatus.repairRequirements = core.GetRequirementsTooltip();
-                                if (core.GetPartStatus() > 0)
-                                {
-                                    partStatus.activeFailure = core.GetFailureModule();
-                                }
-                                else
-                                {
-                                    partStatus.activeFailure = null;
-                                }
-
-                                // Update or Add part status in Master Status
-                                if (masterStatus.ContainsKey(vessel.id))
-                                {
-                                    // Vessel is already in the Master Status, so check if part is in there as well
-                                    int numItems = masterStatus[vessel.id].allPartsStatus.Count(p => p.partID == part.flightID);
-                                    int existingPartIndex;
-                                    if (numItems == 1)
+                                    PartStatus partStatus = new PartStatus();
+                                    partStatus.flightCore = core;
+                                    partStatus.partName = part.partInfo.title;
+                                    partStatus.partID = part.flightID;
+                                    partStatus.flightData = currentFlightData.flightData;
+                                    partStatus.flightTime = currentFlightData.flightTime;
+                                    partStatus.partStatus = core.GetPartStatus();
+                                    partStatus.reliability = core.GetCurrentReliability(settings.globalReliabilityModifier);
+                                    partStatus.repairRequirements = core.GetRequirementsTooltip();
+                                    if (core.GetPartStatus() > 0)
                                     {
-                                        existingPartIndex = masterStatus[vessel.id].allPartsStatus.FindIndex(p => p.partID == part.flightID);
-                                        masterStatus[vessel.id].allPartsStatus[existingPartIndex] = partStatus;
-                                    }
-                                    else if (numItems == 0)
-                                    {
-                                        masterStatus[vessel.id].allPartsStatus.Add(partStatus);
+                                        partStatus.activeFailure = core.GetFailureModule();
                                     }
                                     else
                                     {
-                                        existingPartIndex = masterStatus[vessel.id].allPartsStatus.FindIndex(p => p.partID == part.flightID);
-                                        masterStatus[vessel.id].allPartsStatus[existingPartIndex] = partStatus;
-                                        Debug.Log("[ERROR] TestFlightManagerScenario: Found " + numItems + " matching parts in Master Status Display!");
+                                        partStatus.activeFailure = null;
+                                    }
+
+                                    // Update or Add part status in Master Status
+                                    if (masterStatus.ContainsKey(vessel.id))
+                                    {
+                                        // Vessel is already in the Master Status, so check if part is in there as well
+                                        int numItems = masterStatus[vessel.id].allPartsStatus.Count(p => p.partID == part.flightID);
+                                        int existingPartIndex;
+                                        if (numItems == 1)
+                                        {
+                                            existingPartIndex = masterStatus[vessel.id].allPartsStatus.FindIndex(p => p.partID == part.flightID);
+                                            masterStatus[vessel.id].allPartsStatus[existingPartIndex] = partStatus;
+                                        }
+                                        else if (numItems == 0)
+                                        {
+                                            masterStatus[vessel.id].allPartsStatus.Add(partStatus);
+                                        }
+                                        else
+                                        {
+                                            existingPartIndex = masterStatus[vessel.id].allPartsStatus.FindIndex(p => p.partID == part.flightID);
+                                            masterStatus[vessel.id].allPartsStatus[existingPartIndex] = partStatus;
+                                            Debug.Log("[ERROR] TestFlightManagerScenario: Found " + numItems + " matching parts in Master Status Display!");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Vessel is not in the Master Status so create a new entry for it and add this part
+                                        MasterStatusItem masterStatusItem = new MasterStatusItem();
+                                        masterStatusItem.vesselID = vessel.id;
+                                        masterStatusItem.vesselName = vessel.GetName();
+                                        masterStatusItem.allPartsStatus = new List<PartStatus>();
+                                        masterStatusItem.allPartsStatus.Add(partStatus);
+                                        masterStatus.Add(vessel.id, masterStatusItem);
+                                    }
+
+                                    PartFlightData data = GetFlightDataForPartName(part.name);
+                                    if (data != null)
+                                    {
+                                        data.AddFlightData(part.name, currentFlightData);
+                                    }
+                                    else
+                                    {
+                                        data = new PartFlightData();
+                                        data.AddFlightData(part.name, currentFlightData);
+                                        partsFlightData.Add(data);
+                                        partsPackedStrings.Add(data.ToString());
                                     }
                                 }
-                                else
+                                // Poll for failures
+                                if (currentUTC >= lastFailurePoll + settings.minTimeBetweenFailurePoll)
                                 {
-                                    // Vessel is not in the Master Status so create a new entry for it and add this part
-                                    MasterStatusItem masterStatusItem = new MasterStatusItem();
-                                    masterStatusItem.vesselID = vessel.id;
-                                    masterStatusItem.vesselName = vessel.GetName();
-                                    masterStatusItem.allPartsStatus = new List<PartStatus>();
-                                    masterStatusItem.allPartsStatus.Add(partStatus);
-                                    masterStatus.Add(vessel.id, masterStatusItem);
+                                    DoFailureUpdate(core, entry.Value);
                                 }
-
-                                PartFlightData data = GetFlightDataForPartName(part.name);
-                                if (data != null)
-                                {
-                                    data.AddFlightData(part.name, currentFlightData);
-                                }
-                                else
-                                {
-                                    data = new PartFlightData();
-                                    data.AddFlightData(part.name, currentFlightData);
-                                    partsFlightData.Add(data);
-                                    partsPackedStrings.Add(data.ToString());
-                                }
-                            }
-                            // Poll for failures
-                            if (currentUTC >= lastFailurePoll + settings.minTimeBetweenFailurePoll)
-                            {
-                                DoFailureUpdate(core, entry.Value);
                             }
                         }
                     }
@@ -766,8 +547,6 @@ namespace TestFlightCore
 
         public override void OnLoad(ConfigNode node)
         {
-            Debug.Log("TestFlightManagerScenario: OnLoad()");
-            Debug.Log(node);
             if (node.HasNode("FLIGHTDATA_PART"))
             {
                 if (partsFlightData == null)
@@ -775,7 +554,6 @@ namespace TestFlightCore
 
                 foreach (ConfigNode partNode in node.GetNodes("FLIGHTDATA_PART"))
                 {
-                    Debug.Log("TestFlightManagerScenario: Loading Flight Data");
                     PartFlightData partData = new PartFlightData();
                     partData.Load(partNode);
                     partsFlightData.Add(partData);
@@ -787,10 +565,8 @@ namespace TestFlightCore
 
 		public override void OnSave(ConfigNode node)
 		{
-            Debug.Log("TestFlightManagerScenario: OnSave()");
             if (HighLogic.LoadedSceneIsFlight)
             {
-                Debug.Log("TestFlightManagerScenario: Saving in FLIGHT scene");
                 foreach (PartFlightData partData in partsFlightData)
                 {
                     ConfigNode partNode = node.AddNode("FLIGHTDATA_PART");
@@ -799,15 +575,12 @@ namespace TestFlightCore
             }
             else
             {
-                Debug.Log("TestFlightManagerScenario: Saving in NON-FLIGHT scene");
                 foreach (PartFlightData partData in partsFlightData)
                 {
                     ConfigNode partNode = node.AddNode("FLIGHTDATA_PART");
                     partData.Save(partNode);
                 }
             }
-            Debug.Log(node);
-			Debug.Log("TestFlight: Scenario Saved");
 		}
 
 	}

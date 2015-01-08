@@ -11,7 +11,7 @@ namespace TestFlightCore
     /// This is the core PartModule of the TestFlight system, and is the module that everything else plugins into.
     /// All relevant data for working in the system, as well as all usable API methods live here.
     /// </summary>
-    public class TestFlightCore : PartModuleWindow, ITestFlightCore
+    public class TestFlightCore : PartModuleExtended, ITestFlightCore
     {
         private float lastFailureCheck = 0f;
         private float lastPolling = 0.0f;
@@ -25,12 +25,6 @@ namespace TestFlightCore
         public float failureCheckFrequency = 0f;
         [KSPField(isPersistant = true)]
         public float pollingInterval = 0f;
-
-        [KSPEvent(guiActive = true, guiName = "Toggle TestFlight Debug GUI")]
-        public void ToggleDebugGUI()
-        {
-            Visible = !Visible;
-        }
 
         public bool AttemptRepair()
         {
@@ -86,10 +80,6 @@ namespace TestFlightCore
         public override void OnAwake()
         {
             base.OnAwake();
-            WindowCaption = "TestFlight";
-            WindowRect = new Rect(0, 0, 250, 50);
-            Visible = false;
-            DragEnabled = true;
         }
 
         public override void OnStart(StartState state)
@@ -371,25 +361,6 @@ namespace TestFlightCore
 
         public override void OnUpdate()
         {
-        }
-
-        internal override void DrawWindow(int id)
-        {
-            if (this.part == null)
-            {
-                Visible = false;
-                return;
-            }
-
-            GUILayout.Label(String.Format("TestFlight Debug for {0}({1})", this.part.name, this.part.flightID));
-            GUILayout.Label(String.Format("flight data:{0:F0}", currentFlightData.flightData));
-            GUILayout.Label(String.Format("flight data scope:{0}", currentFlightData.scope));
-            GUILayout.Label(String.Format("flight time:{0:D}", currentFlightData.flightTime));
-            GUILayout.Label(String.Format("reliability:{0:F2}", currentReliability));
-            if (activeFailure != null)
-            {
-                GUILayout.Label(String.Format("active failure:{0}", activeFailure.GetFailureDetails().failureTitle));
-            }
         }
     }
 }

@@ -16,14 +16,25 @@ using UnityEngine;
 namespace KSPPluginFramework
 {
 
+    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+    sealed class WindowInitialsAttribute : Attribute
+    {
+        public String Caption { get; set; }
+        public Boolean Visible { get; set; }
+        public Boolean DragEnabled { get; set; }
+        public Boolean TooltipsEnabled { get; set; }
+        public Boolean ClampToScreen { get; set; }
+        public Boolean WindowMoveEventsEnabled { get; set; }
+    }
+
     /// <summary>
     /// An Extended version of the UnityEngine.MonoBehaviour Class
     /// Basically a template for a Window, has the MonoBehaviourExtended properties and extra bits to make drawing a window easier
     /// </summary>
-    public abstract class PartModuleWindow : PartModuleExtended
+    public abstract class MonoBehaviourWindow : MonoBehaviourExtended
     {
         #region "Constructors"
-        internal PartModuleWindow()
+        internal MonoBehaviourWindow()
             : base()
         {
             //do the assembly name add so we get different windowIDs for multiple plugins
@@ -35,11 +46,12 @@ namespace KSPPluginFramework
             WindowInitialsAttribute[] attrs = (WindowInitialsAttribute[])Attribute.GetCustomAttributes(this.GetType(), typeof(WindowInitialsAttribute));
             foreach (WindowInitialsAttribute attr in attrs)
             {
+                WindowCaption = attr.Caption;
                 Visible = attr.Visible;
                 DragEnabled = attr.DragEnabled;
-                ClampToScreen = attr.ClampToScreen;
                 TooltipsEnabled = attr.TooltipsEnabled;
-                WindowCaption = attr.Caption;
+                ClampToScreen = attr.ClampToScreen;
+                WindowMoveEventsEnabled = attr.WindowMoveEventsEnabled;
             }
         }
         ///CANT USE THE ONES BELOW HERE AS WE NEED TO INSTANTIATE THE WINDOW USING AddComponent()
@@ -66,14 +78,13 @@ namespace KSPPluginFramework
 
         #endregion
 
-        // Agathorn: Awake can't be used in PartModule
-        //internal override void Awake()
-        //{
-        //    //just some debugging stuff here
-        //    LogFormatted_DebugOnly("New MBWindow Awakened");
+        internal override void Awake()
+        {
+            //just some debugging stuff here
+            LogFormatted_DebugOnly("New MBWindow Awakened");
 
-        //    //base.Awake();
-        //}
+            //base.Awake();
+        }
 
         /// <summary>
         /// WindowID variable - randomly set at window creation
@@ -83,6 +94,46 @@ namespace KSPPluginFramework
         /// Window position on screen, is fed in to the Window routine and the resulting position after GUILayout is what you read
         /// </summary>
         internal Rect WindowRect;
+
+        private Boolean _WindowMoveEventsEnabled=false;
+        public Boolean WindowMoveEventsEnabled
+        {
+            get { return _WindowMoveEventsEnabled; }
+            set { _WindowMoveEventsEnabled = value;
+                if (WindowMoveEventsEnabled)
+                {
+                    WindowPosLast = new Vector2(WindowRect.x, WindowRect.y);
+                    WindowMoveStarted = false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Location of the window at last OnGUI
+        /// </summary>
+        private Vector2 WindowPosLast;
+        /// <summary>
+        /// What datetime did we detect the window pos changing
+        /// </summary>
+        private DateTime WindowMoveDetectedAt;
+        /// <summary>
+        /// Has a move of the window been started
+        /// </summary>
+        private Boolean WindowMoveStarted = false;
+        
+        /// <summary>
+        /// If a move is started how long must it stay still for to be finished
+        /// </summary>
+        private Double _WindowMoveCompleteAfter=1;
+        /// <summary>
+        /// How long after a window move is finished do we fire the window moved event
+        /// </summary>
+        internal Double WindowMoveCompleteAfter
+        {
+            get { return _WindowMoveCompleteAfter; }
+            set { _WindowMoveCompleteAfter = value; }
+        }
+
 
         /// <summary>
         /// Caption of the Window
@@ -136,16 +187,26 @@ namespace KSPPluginFramework
                         LogFormatted_DebugOnly("Removing Window from PostDrawQueue", WindowID);
                         RenderingManager.RemoveFromPostDrawQueue(5, this.DrawGUI);
                     }
+
+                    //raise event if theres one registered
+                    if (onWindowVisibleChanged != null)
+                        onWindowVisibleChanged(this, value);
                 }
                 _Visible = value;
+                
             }
+        }
+
+        internal void ClampToScreenNow()
+        {
+            WindowRect = WindowRect.ClampToScreen(ClampToScreenOffset);
         }
 
         /// <summary>
         /// This is the Code that draws the window and sets the skin
         /// !!!! You have to set the skin before drawing the window or you will scratch your head for ever
         /// </summary>
-        public void DrawGUI()
+        private void DrawGUI()
         {
             //this sets the skin on each draw loop
             GUI.skin = SkinsLibrary.CurrentSkin;
@@ -164,10 +225,39 @@ namespace KSPPluginFramework
                 WindowRect = GUILayout.Window(WindowID, WindowRect, DrawWindowInternal, WindowCaption, WindowStyle, WindowOptions);
             }
 
+            if (WindowMoveEventsEnabled)
+            {
+                //Is the window in the same position?
+                if (WindowRect.x != WindowPosLast.x || WindowRect.y != WindowPosLast.y)
+                {
+                    if (!WindowMoveStarted)
+                    {
+                        //LogFormatted_DebugOnly("{0}-{1}", WindowRect, WindowPosLast);
+                        WindowMoveStarted = true;
+                        if (onWindowMoveStarted != null)
+                            onWindowMoveStarted(this);
+                    }
+                    WindowMoveDetectedAt = DateTime.Now;
+                }
+                if(WindowMoveStarted && WindowMoveDetectedAt.AddSeconds(WindowMoveCompleteAfter)<DateTime.Now)
+                {
+                    if (onWindowMoveComplete != null)
+                        onWindowMoveComplete(this);
+                    WindowMoveStarted = false;
+                }
+                WindowPosLast = new Vector2(WindowRect.x, WindowRect.y);
+            }
             //Draw the tooltip of its there to be drawn
             if (TooltipsEnabled)
                 DrawToolTip();
         }
+
+        public event WindowMoveHandler onWindowMoveStarted;
+        public event WindowMoveHandler onWindowMoveComplete;
+        public delegate void WindowMoveHandler(MonoBehaviourWindow sender);
+
+        public event WindowVisibleHandler onWindowVisibleChanged;
+        public delegate void WindowVisibleHandler(MonoBehaviourWindow sender,Boolean NewVisibleState);
 
         /// <summary>
         /// Time that the last iteration of RepeatingWorkerFunction ran for. Can use this value to see how much impact your code is having
@@ -190,6 +280,8 @@ namespace KSPPluginFramework
 
             DrawWindowPost(id);
 
+            _MouseOver = WindowRect.Contains(Event.current.mousePosition);
+
             //Set the Tooltip variable based on whats in this window
             if (TooltipsEnabled)
                 SetTooltipText();
@@ -204,6 +296,9 @@ namespace KSPPluginFramework
             //Now calc the duration
             DrawWindowInternalDuration = (DateTime.Now - Duration);
         }
+
+        private Boolean _MouseOver=false;
+        internal Boolean IsMouseOver { get { return _MouseOver; } }
 
         /// <summary>
         /// This is the optionally overridden function that runs before DrawWindow

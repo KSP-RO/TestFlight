@@ -8,7 +8,6 @@
     <RootNamespace>TestFlightCore</RootNamespace>
     <AssemblyName>TestFlightCore</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <ReleaseVersion>0.2.1</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Optimize>False</Optimize>
@@ -62,15 +61,11 @@
     <Compile Include="Framework\MonoBehaviourExtended.cs" />
     <Compile Include="Framework\MonoBehaviourWindow.cs" />
     <Compile Include="Framework\SkinsLibrary.cs" />
+    <Compile Include="FrameworkExt\AudioController.cs" />
     <Compile Include="FrameworkExt\ClassDefinitions.cs" />
     <Compile Include="FrameworkExt\Extensions.cs" />
     <Compile Include="FrameworkExt\ExtensionsKSP.cs" />
     <Compile Include="FrameworkExt\MonoBehaviourWindowPlus.cs" />
-    <Compile Include="TestFlightWindow.cs" />
-    <Compile Include="StylesAndSkins.cs" />
-    <Compile Include="Resources.cs" />
-    <Compile Include="Framework\PartModuleExtended.cs" />
-    <Compile Include="TestFlightHUD.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -90,6 +85,12 @@
       <Name>TestFlightAPI</Name>
     </ProjectReference>
   </ItemGroup>
+  <PropertyGroup>
+    <PostBuildEvent>copy "$(TargetPath)" "F:\Games\Kerbal Space Program\0.90\GameData\TestFlight\Plugins\$(TargetFileName)"</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>xcopy /E /Y "$(SolutionDir)TestFlight\*.*" "F:\Games\Kerbal Space Program\0.90\GameData\TestFlight\"</PreBuildEvent>
+  </PropertyGroup>
   <ItemGroup>
     <Folder Include="Framework\" />
     <Folder Include="FrameworkExt\" />

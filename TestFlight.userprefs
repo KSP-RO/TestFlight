@@ -1,30 +1,45 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="TestFlightAPI/TestFlightAPI/TestFlightAPI.cs">
     <Files>
       <File FileName="TestFlightAPI/TestFlightAPI/FlightDataRecorder.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/TestFlight.cs" Line="1" Column="1" />
+      <File FileName="TestFlightCore/TestFlightCore/TestFlight.cs" Line="48" Column="48" />
       <File FileName="TestFlightCore/TestFlightCore/TestFlightCore.cs" Line="1" Column="1" />
       <File FileName="TestFlightCore/TestFlightCore/Settings.cs" Line="1" Column="1" />
       <File FileName="TestFlight/Squad_Engines.cfg" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/KSPFramework/ConfigNodeStorage.cs" Line="1" Column="1" />
       <File FileName="TestFlightAPI/TestFlightAPI/TestFlightFailure.cs" Line="1" Column="1" />
       <File FileName="TestFlightFailure_ShutdownEngine.cs" Line="1" Column="1" />
       <File FileName="FlightDataRecorder_Engine.cs" Line="1" Column="1" />
       <File FileName="FlightDataRecorder.cs" Line="1" Column="1" />
       <File FileName="TestFlightAPI/TestFlightAPI/FlightDataConfig.cs" Line="1" Column="1" />
-      <File FileName="TestFlightAPI/TestFlightAPI/TestFlightAPI.cs" Line="58" Column="58" />
+      <File FileName="TestFlightAPI/TestFlightAPI/TestFlightAPI.cs" Line="79" Column="79" />
       <File FileName="TestFlightCore/TestFlightCore/UserInterface.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/KSPFramework/MonoBehaviourWindow.cs" Line="1" Column="1" />
       <File FileName="TestFlightAPI/TestFlightAPI/TestFlightReliability.cs" Line="1" Column="1" />
       <File FileName="TestFlight/Squad_FuelTanks.cfg" Line="1" Column="1" />
       <File FileName="TestFlightFailure_Explode.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/KSPFramework/SkinsLibrary.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/KSPFramework/MonoBehaviourExtended.cs" Line="1" Column="1" />
       <File FileName="TestFlightFailure_LockGimbal.cs" Line="1" Column="1" />
       <File FileName="TestFlightFailure_ReducedMaxThrust.cs" Line="1" Column="1" />
       <File FileName="Properties/AssemblyInfo.cs" Line="1" Column="1" />
+      <File FileName="TestFlightFailure_ResourceLeak.cs" Line="1" Column="1" />
+      <File FileName="FlightDataRecorder_Resources.cs" Line="1" Column="1" />
+      <File FileName="../../../../../../../../../../Library/Frameworks/Mono.framework/Versions/3.10.0/lib/mono/4.5/Microsoft.Common.targets" Line="1" Column="1" />
+      <File FileName="TestFlightCore/TestFlightCore/TestFlightWindow.cs" Line="43" Column="43" />
+      <File FileName="TestFlightCore/TestFlightCore/StylesAndSkins.cs" Line="1" Column="1" />
+      <File FileName="TestFlightCore/TestFlightCore/Resources.cs" Line="65" Column="65" />
+      <File FileName="TestFlightCore/TestFlightCore/FrameworkExt/MonoBehaviourWindowPlus.cs" Line="1" Column="1" />
+      <File FileName="TestFlightCore/TestFlightCore/Framework/MonoBehaviourWindow.cs" Line="1" Column="1" />
+      <File FileName="TestFlightCore/TestFlightCore/Framework/MonoBehaviourExtended.cs" Line="1" Column="1" />
     </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True">
+          <Node name="TestFlightAPI" expanded="True">
+            <Node name="TestFlightAPI.cs" selected="True" />
+          </Node>
+          <Node name="TestFlightCore" expanded="True" />
+        </State>
+      </Pad>
+    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
