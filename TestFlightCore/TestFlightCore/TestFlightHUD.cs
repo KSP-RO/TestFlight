@@ -26,8 +26,7 @@ namespace TestFlightCore
             LogFormatted_DebugOnly("TestFlightHUD Startup()");
             parentWindow = parent;
             tfScenario = parent.tfScenario;
-            settings = parent.settings;
-            LogFormatted_DebugOnly("TestFlightHUD WindowRect " + settings.flightHUDPositionLeft + "," + settings.flightHUDPositionTop);
+            settings = parent.tfScenario.settings;
             WindowMoveEventsEnabled = true;
             onWindowMoveComplete += Window_OnWindowMoveComplete;
             return this;
@@ -48,7 +47,7 @@ namespace TestFlightCore
         internal override void OnGUIOnceOnly()
         {
             // Default position and size -- will get proper bounds calculated when needed
-            WindowRect = new Rect(settings.flightHUDPositionLeft, settings.flightHUDPositionTop, 50f, 50f);
+            WindowRect = new Rect(settings.flightHUDPosition.xMin, settings.flightHUDPosition.yMin, 50f, 50f);
             DragEnabled = true;
             ClampToScreen = true;
             TooltipsEnabled = true;
@@ -125,8 +124,6 @@ namespace TestFlightCore
         {
             LogFormatted_DebugOnly("TestFlightHUD Saving window position");
             settings.flightHUDPosition = WindowRect;
-            settings.flightHUDPositionLeft = WindowRect.xMin;
-            settings.flightHUDPositionTop = WindowRect.yMin;
             settings.Save();
         }
     }

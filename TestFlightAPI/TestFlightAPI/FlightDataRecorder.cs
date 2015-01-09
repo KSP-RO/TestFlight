@@ -178,8 +178,6 @@ namespace TestFlightAPI
                 totalEngineerBonus = totalEngineerBonus + (flightDataEngineerModifier * engineerLevel * globalFlightDataEngineerMultiplier);
             }
             double engineerModifier = 1.0 + totalEngineerBonus;
-            Debug.Log("FlightDataRecorderBase: flightDataMultiplier=" + flightDataMultiplier);
-            Debug.Log("FlightDataRecorderBase: engineerModifier=" + engineerModifier);
             if (currentMet > lastRecordedMet)
             {
                 currentData += (float)(((currentMet - lastRecordedMet) * flightDataMultiplier * globalFlightDataMultiplier) * engineerModifier);

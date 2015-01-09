@@ -172,7 +172,7 @@ namespace TestFlightCore
 
     }
 
-    [KSPAddon(KSPAddon.Startup.SpaceCentre, true)]
+    [KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
 	public class TestFlightManager : MonoBehaviour
 	{
         public TestFlightManagerScenario tsm;
@@ -187,7 +187,7 @@ namespace TestFlightCore
                 psm = game.AddProtoScenarioModule(typeof(TestFlightManagerScenario), desiredScenes);
             }
             psm.Load(ScenarioRunner.fetch);
-            tsm = game.scenarios.Select(s => s.moduleRef).OfType<TestFlightManagerScenario>().SingleOrDefault();
+            tsm = game.scenarios.Select(s => s.moduleRef).OfType<TestFlightManagerScenario>().FirstOrDefault();
         }
     }
 
@@ -233,40 +233,6 @@ namespace TestFlightCore
             if (settings == null)
             {
                 settings = new Settings("../settings.cfg");
-            }
-            string assemblyPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            string filePath = System.IO.Path.Combine(assemblyPath, "../settings.cfg").Replace("\\","/");
-            Debug.Log("Settings stored in " + filePath);
-            if (!System.IO.File.Exists(filePath))
-            {
-                settings.flightDataEngineerMultiplier = 1.0;
-                settings.flightDataMultiplier = 1.0;
-                settings.globalReliabilityModifier = 1.0;
-                settings.minTimeBetweenDataPoll = 0.5;
-                settings.minTimeBetweenFailurePoll = 60;
-                settings.processAllVessels = false;
-                settings.masterStatusUpdateFrequency = 10;
-                settings.displaySettingsWindow = true;
-
-                settings.showFailedPartsOnlyInMSD = false;
-                settings.showFlightDataInMSD = true;
-                settings.showMomentaryReliabilityInMSD = false;
-                settings.showRestingReliabilityInMSD = true;
-                settings.showStatusTextInMSD = true;
-                settings.shortenPartNameInMSD = false;
-                settings.settingsPage = 0;
-                settings.mainWindowLocked = true;
-                settings.mainWindowPosition = new Rect(0, 0, 0, 0);
-                settings.mainWindowPositionLeft = 0f;
-                settings.mainWindowPositionTop = 0f;
-                settings.currentMSDSize = 1;
-
-                settings.flightHUDEnabled = false;
-                settings.flightHUDPosition = new Rect(0, 0, 0, 0);
-                settings.flightHUDPositionLeft = 0f;
-                settings.flightHUDPositionTop = 0f;
-
-                settings.Save();
             }
             settings.Load();
 			base.OnAwake();
