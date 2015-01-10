@@ -48,6 +48,8 @@ namespace TestFlightCore
         [Persistent] public Vector2 currentMSDScrollPosition;
         [Persistent] public bool flightHUDEnabled;
         [Persistent] public Rect flightHUDPosition;
+
+        [Persistent] public bool debugLog = false;
     }
 }
 

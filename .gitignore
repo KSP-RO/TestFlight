@@ -216,3 +216,5 @@ $RECYCLE.BIN/
 *.userprefs
 
 TestFlight.userprefs
+
+*.userprefs

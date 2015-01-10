@@ -79,19 +79,16 @@ namespace TestFlightCore
 
         public List<TestFlightData> GetFlightData()
         {
-//            Debug.Log("PartFlightData: GetFlightData()");
             return flightData;
         }
 
         public string GetPartName()
         {
-//            Debug.Log("PartFlightData: GetPartName()");
             return partName;
         }
 
         public override string ToString()
         {
-//            Debug.Log("PartFlightData: ToString()");
             string baseString = partName + ":";
             foreach (TestFlightData data in flightData)
             {
@@ -104,7 +101,6 @@ namespace TestFlightCore
 
         public static PartFlightData FromString(string str)
         {
-//            Debug.Log("PartFlightData: FromString()");
             // String format is
             // partName:scope,data,0 scope,data scope,data,0 scope,data,0 
             PartFlightData newData = null;
@@ -148,8 +144,6 @@ namespace TestFlightCore
                     newData.scope = dataNode.GetValue("scope");
                     if (dataNode.HasValue("flightData"))
                         newData.flightData = float.Parse(dataNode.GetValue("flightData"));
-                    Debug.Log("SCOPE: " + newData.scope);
-                    Debug.Log("DATA: " + newData.flightData);
                     flightData.Add(newData);
                 }
             }
@@ -161,9 +155,7 @@ namespace TestFlightCore
             foreach (TestFlightData data in flightData)
             {
                 ConfigNode dataNode = node.AddNode("FLIGHTDATA");
-                Debug.Log("SCOPE: " + data.scope);
                 dataNode.AddValue("scope", data.scope);
-                Debug.Log("DATA: " + data.flightData);
                 dataNode.AddValue("flightData", data.flightData);
             }
         }
@@ -191,7 +183,12 @@ namespace TestFlightCore
 //    }
 
     [KSPScenario(ScenarioCreationOptions.AddToAllGames, 
-        new GameScenes[] { GameScenes.SPACECENTER, GameScenes.FLIGHT })]
+        new GameScenes[] 
+        { 
+            GameScenes.FLIGHT,
+            GameScenes.EDITOR
+        }
+    )]
 	public class TestFlightManagerScenario : ScenarioModule
 	{
         public List<PartFlightData> partsFlightData;
@@ -212,21 +209,11 @@ namespace TestFlightCore
         double lastMasterStatusUpdate = 0.0;
 
         public static TestFlightManagerScenario Instance { get; private set; }
+        public bool isReady = false;
 
-        TestFlightManagerScenario()
+        public void Awake()
         {
-            Debug.Log("TestFlightManagerScenario: In Constructor");
-            Debug.Log(this);
             Instance = this;
-        }
-
-        ~TestFlightManagerScenario()
-        {
-            Debug.Log("TestFlightManagerScenario: In Destructor");
-        }
-
-        public override void OnAwake()
-		{
             if (partsFlightData == null)
             {
                 partsFlightData = new List<PartFlightData>();
@@ -234,7 +221,7 @@ namespace TestFlightCore
                 {
                     foreach (string packedString in partsPackedStrings)
                     {
-                        Debug.Log(packedString);
+                        Log(packedString);
                         PartFlightData data = PartFlightData.FromString(packedString);
                         partsFlightData.Add(data);
                     }
@@ -248,34 +235,12 @@ namespace TestFlightCore
             {
                 settings = new Settings("../settings.cfg");
             }
-            string assemblyPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            string filePath = System.IO.Path.Combine(assemblyPath, "../settings.cfg").Replace("\\","/");
-            Debug.Log("Settings stored in " + filePath);
-            if (!System.IO.File.Exists(filePath))
-            {
-                settings.flightDataEngineerMultiplier = 1.0;
-                settings.flightDataMultiplier = 1.0;
-                settings.globalReliabilityModifier = 1.0;
-                settings.minTimeBetweenDataPoll = 0.5;
-                settings.minTimeBetweenFailurePoll = 60;
-                settings.processAllVessels = false;
-                settings.masterStatusUpdateFrequency = 10;
-                settings.displaySettingsWindow = true;
-
-                settings.showFailedPartsOnlyInMSD = false;
-                settings.showFlightDataInMSD = true;
-                settings.showMomentaryReliabilityInMSD = false;
-                settings.showRestingReliabilityInMSD = true;
-                settings.showStatusTextInMSD = true;
-                settings.shortenPartNameInMSD = false;
-                settings.settingsPage = 0;
-                settings.mainWindowLocked = true;
-                settings.mainWindowPosition = new Rect(0, 0, 0, 0);
-                settings.currentMSDSize = 1;
-
-                settings.Save();
-            }
             settings.Load();
+            isReady = true;
+        }
+
+        public override void OnAwake()
+		{
 			base.OnAwake();
 		}
 
@@ -296,7 +261,7 @@ namespace TestFlightCore
 
         private void InitializeParts(Vessel vessel)
         {
-            Debug.Log("TestFlightManagerScenario: Initializing parts for vessel " + vessel.GetName());
+            Log("TestFlightManagerScenario: Initializing parts for vessel " + vessel.GetName());
             foreach (Part part in vessel.parts)
             {
                 foreach (PartModule pm in part.Modules)
@@ -329,20 +294,20 @@ namespace TestFlightCore
                 Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == entry.Key);
                 if (vessel == null)
                 {
-                    Debug.Log("TestFlightManagerScenario: Vessel no longer exists. Marking it for deletion.");
+                    Log("TestFlightManagerScenario: Vessel no longer exists. Marking it for deletion.");
                     vesselsToDelete.Add(entry.Key);
                 }
                 else
                 {
                     if (vessel.vesselType == VesselType.Debris)
                     {
-                        Debug.Log("TestFlightManagerScenario: Vessel appears to be debris now. Marking it for deletion.");
+                        Log("TestFlightManagerScenario: Vessel appears to be debris now. Marking it for deletion.");
                         vesselsToDelete.Add(entry.Key);
                     }
                 }
             }
             if (vesselsToDelete.Count > 0)
-                Debug.Log("TestFlightManagerScenario: Removing " + vesselsToDelete.Count() + " vessels from Master Status");
+                Log("TestFlightManagerScenario: Removing " + vesselsToDelete.Count() + " vessels from Master Status");
             foreach (Guid id in vesselsToDelete)
             {
                 masterStatus.Remove(id);
@@ -358,12 +323,12 @@ namespace TestFlightCore
                     Part part = vessel.Parts.Find(p => p.flightID == partStatus.partID);
                     if (part == null)
                     {
-                        Debug.Log("TestFlightManagerScenario: Could not find part. " + partStatus.partName + "(" + partStatus.partID + ") Marking it for deletion.");
+                        Log("TestFlightManagerScenario: Could not find part. " + partStatus.partName + "(" + partStatus.partID + ") Marking it for deletion.");
                         partsToDelete.Add(partStatus);
                     }
                 }
                 if (partsToDelete.Count > 0)
-                    Debug.Log("TestFlightManagerScenario: Deleting " + partsToDelete.Count() + " parts from vessel " + vessel.GetName());
+                    Log("TestFlightManagerScenario: Deleting " + partsToDelete.Count() + " parts from vessel " + vessel.GetName());
                 foreach (PartStatus oldPartStatus in partsToDelete)
                 {
                     masterStatus[entry.Key].allPartsStatus.Remove(oldPartStatus);
@@ -391,7 +356,7 @@ namespace TestFlightCore
                 }
             }
             if (vesselsToDelete.Count() > 0)
-                Debug.Log("TestFlightManagerScenario: Deleting " + vesselsToDelete.Count() + " vessels from cached vessels");
+                Log("TestFlightManagerScenario: Deleting " + vesselsToDelete.Count() + " vessels from cached vessels");
             foreach (Guid id in vesselsToDelete)
             {
                 knownVessels.Remove(id);
@@ -405,7 +370,7 @@ namespace TestFlightCore
             {
                 if (FlightGlobals.ActiveVessel != null && !knownVessels.ContainsKey(FlightGlobals.ActiveVessel.id))
                 {
-                    Debug.Log("TestFlightManagerScenario: Adding new vessel " + FlightGlobals.ActiveVessel.GetName() + " with launch time " + Planetarium.GetUniversalTime());
+                    Log("TestFlightManagerScenario: Adding new vessel " + FlightGlobals.ActiveVessel.GetName() + " with launch time " + Planetarium.GetUniversalTime());
                     knownVessels.Add(FlightGlobals.ActiveVessel.id, Planetarium.GetUniversalTime());
                     InitializeParts(FlightGlobals.ActiveVessel);
                 }
@@ -418,7 +383,7 @@ namespace TestFlightCore
                     {
                         if ( !knownVessels.ContainsKey(vessel.id) )
                         {
-                            Debug.Log("TestFlightManagerScenario: Adding new vessel " + vessel.GetName() + " with launch time " + Planetarium.GetUniversalTime());
+                            Log("TestFlightManagerScenario: Adding new vessel " + vessel.GetName() + " with launch time " + Planetarium.GetUniversalTime());
                             knownVessels.Add(vessel.id, Planetarium.GetUniversalTime());
                             InitializeParts(vessel);
                         }
@@ -446,7 +411,6 @@ namespace TestFlightCore
 
 		public void Update()
 		{
-            Debug.Log("SETTINGSTEST " + settings.showFlightDataInMSD);
             if (masterStatus == null)
                 masterStatus = new Dictionary<Guid, MasterStatusItem>();
 
@@ -514,7 +478,7 @@ namespace TestFlightCore
                                         {
                                             existingPartIndex = masterStatus[vessel.id].allPartsStatus.FindIndex(p => p.partID == part.flightID);
                                             masterStatus[vessel.id].allPartsStatus[existingPartIndex] = partStatus;
-                                            Debug.Log("[ERROR] TestFlightManagerScenario: Found " + numItems + " matching parts in Master Status Display!");
+                                            Log("[ERROR] TestFlightManagerScenario: Found " + numItems + " matching parts in Master Status Display!");
                                         }
                                     }
                                     else
@@ -574,7 +538,7 @@ namespace TestFlightCore
                     partData.Load(partNode);
                     partsFlightData.Add(partData);
                     partsPackedStrings.Add(partData.ToString());
-                    Debug.Log(partData.ToString());
+                    Log(partData.ToString());
                 }
             }
         }
@@ -598,6 +562,53 @@ namespace TestFlightCore
                 }
             }
 		}
+        #region Assembly/Class Information
+        /// <summary>
+        /// Name of the Assembly that is running this MonoBehaviour
+        /// </summary>
+        internal static String _AssemblyName
+        { get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Name; } }
+
+        /// <summary>
+        /// Name of the Class - including Derivations
+        /// </summary>
+        internal String _ClassName
+        { get { return this.GetType().Name; } }
+        #endregion
+
+        #region Logging
+        /// <summary>
+        /// Some Structured logging to the debug file - ONLY RUNS WHEN DLL COMPILED IN DEBUG MODE
+        /// </summary>
+        /// <param name="Message">Text to be printed - can be formatted as per String.format</param>
+        /// <param name="strParams">Objects to feed into a String.format</param>
+        [System.Diagnostics.Conditional("DEBUG")]
+        internal static void LogFormatted_DebugOnly(String Message, params object[] strParams)
+        {
+            LogFormatted("DEBUG: " + Message, strParams);
+        }
+
+        /// <summary>
+        /// Some Structured logging to the debug file
+        /// </summary>
+        /// <param name="Message">Text to be printed - can be formatted as per String.format</param>
+        /// <param name="strParams">Objects to feed into a String.format</param>
+        internal static void LogFormatted(String Message, params object[] strParams)
+        {
+            Message = String.Format(Message, strParams);                  // This fills the params into the message
+            String strMessageLine = String.Format("{0},{2},{1}",
+                DateTime.Now, Message,
+                _AssemblyName);                                           // This adds our standardised wrapper to each line
+            UnityEngine.Debug.Log(strMessageLine);                        // And this puts it in the log
+        }
+
+        internal void Log(String Message, params object[] strParams)
+        {
+            if (settings.debugLog)
+                LogFormatted("DEBUG: " + Message, strParams);
+        }
+
+        #endregion
 
 	}
 }

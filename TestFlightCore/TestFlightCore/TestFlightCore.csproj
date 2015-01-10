@@ -23,7 +23,7 @@
         <Command type="AfterBuild" command="cp -r /USers/john/Developer/KSP/0.90/TestFlightDEV/Dev/_DEV/GitHub/TestFlight/TestFlight /Users/john/Developer/KSP/0.90/TestFlightDEV/Dev/GameData/" />
       </CustomCommands>
     </CustomCommands>
-    <DebugType>none</DebugType>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>

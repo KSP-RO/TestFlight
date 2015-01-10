@@ -13,6 +13,7 @@ namespace TestFlightCore
     public class TestFlightWindow : MonoBehaviourWindowPlus
     {
         internal TestFlightManagerScenario tfScenario;
+        private bool isReady = false;
         private ApplicationLauncherButton appLauncherButton;
         private TestFlightHUD hud;
         private bool stickyWindow;
@@ -24,9 +25,34 @@ namespace TestFlightCore
 
         internal override void Start()
         {
-            LogFormatted_DebugOnly("Starting up MSD");
+            LogFormatted_DebugOnly("TRACE MSD Start");
+            Visible = false;
+            isReady = false;
+            tfScenario = null;
+            settings = null;
+            StartCoroutine("ConnectToScenario");
+            base.Start();
+        }
+
+        IEnumerator ConnectToScenario()
+        {
+            while (TestFlightManagerScenario.Instance == null)
+            {
+                yield return null;
+            }
+
             tfScenario = TestFlightManagerScenario.Instance;
-            LogFormatted_DebugOnly("TestFlightManagerScenario = " + tfScenario);
+            while (!tfScenario.isReady)
+            {
+                yield return null;
+            }
+            Startup();
+        }
+
+        internal void Startup()
+        {
+            tfScenario = TestFlightManagerScenario.Instance;
+            LogFormatted_DebugOnly("TRACE TestFlightManagerScenario = " + tfScenario);
             settings = tfScenario.settings;
             if (settings == null)
             {
@@ -48,7 +74,25 @@ namespace TestFlightCore
                 }
                 GameEvents.onGameSceneLoadRequested.Add(Event_OnGameSceneLoadRequested);
             }
-            base.Start();
+            // Default position and size -- will get proper bounds calculated when needed
+            WindowRect = new Rect(0, 50, 500, 50);
+            DragEnabled = !settings.mainWindowLocked;
+            ClampToScreen = true;
+            TooltipsEnabled = true;
+            TooltipMouseOffset = new Vector2d(10, 10);
+            TooltipStatic = true;
+            WindowCaption = "";
+            List<string> views = new List<string>()
+            {
+                "Visual Settings",
+                "Difficulty/Performance Settings"
+            };
+            ddlSettingsPage = new DropDownList(views, this);
+            ddlManager.AddDDL(ddlSettingsPage);
+            ddlSettingsPage.OnSelectionChanged += SettingsPage_OnSelectionChanged;
+            WindowMoveEventsEnabled = true;
+            onWindowMoveComplete += MainWindow_OnWindowMoveComplete;
+            isReady = true;
         }
 
         public void Event_OnGameSceneLoadRequested(GameScenes scene)
@@ -68,27 +112,10 @@ namespace TestFlightCore
 
         internal override void OnGUIOnceOnly()
         {
+            LogFormatted_DebugOnly("TRACE MSD OnGUIOnceOnly()");
             Styles.InitStyles();
             Styles.InitSkins();
             SkinsLibrary.SetCurrent("SolarizedDark");
-            // Default position and size -- will get proper bounds calculated when needed
-            WindowRect = new Rect(0, 50, 500, 50);
-            DragEnabled = !settings.mainWindowLocked;
-            ClampToScreen = true;
-            TooltipsEnabled = true;
-            TooltipMouseOffset = new Vector2d(10, 10);
-            TooltipStatic = true;
-            WindowCaption = "";
-            List<string> views = new List<string>()
-            {
-                "Visual Settings",
-                "Difficulty/Performance Settings"
-            };
-            ddlSettingsPage = new DropDownList(views, this);
-            ddlManager.AddDDL(ddlSettingsPage);
-            ddlSettingsPage.OnSelectionChanged += SettingsPage_OnSelectionChanged;
-            WindowMoveEventsEnabled = true;
-            onWindowMoveComplete += MainWindow_OnWindowMoveComplete;
         }
 
         internal void CalculateWindowBounds()
@@ -130,6 +157,7 @@ namespace TestFlightCore
             }
             WindowRect = new Rect(left, top, windowWidth, windowHeight);
         }
+
 
         IEnumerator AddToToolbar()
         {
@@ -226,6 +254,7 @@ namespace TestFlightCore
 
             if (masterStatus == null)
             {
+                LogFormatted_DebugOnly("TRACE masterStatus = null");
                 GUILayout.Space(10);
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("TestFlight is starting up...");
@@ -239,6 +268,7 @@ namespace TestFlightCore
             }
             else if (masterStatus.Count() <= 0)
             {
+                LogFormatted_DebugOnly("TRACE masterStatus.Count <= 0");
                 GUILayout.Space(10);
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("TestFlight is not currently tracking any vessels");
@@ -252,31 +282,43 @@ namespace TestFlightCore
             }
             else
             {
+                LogFormatted_DebugOnly("TRACE masterStatus is valid");
                 // Display information on active vessel
-                Guid currentVessl = FlightGlobals.ActiveVessel.id;
+                Guid currentVessel = FlightGlobals.ActiveVessel.id;
+                LogFormatted_DebugOnly("TRACE grabbed currentVessel");
+
                 if (settings.showFailedPartsOnlyInMSD)
                 {
-                    if (masterStatus[currentVessl].allPartsStatus.Count(ps => ps.activeFailure != null) < lastPartCount)
+                    if (masterStatus[currentVessel].allPartsStatus.Count(ps => ps.activeFailure != null) < lastPartCount)
                     {
-                        lastPartCount = masterStatus[currentVessl].allPartsStatus.Count(ps => ps.activeFailure != null);
+                        lastPartCount = masterStatus[currentVessel].allPartsStatus.Count(ps => ps.activeFailure != null);
                         CalculateWindowBounds();
                     }
                 }
                 else
                 {
-                    if (masterStatus[currentVessl].allPartsStatus.Count < lastPartCount)
+                    if (masterStatus[currentVessel].allPartsStatus.Count < lastPartCount)
                     {
-                        lastPartCount = masterStatus[currentVessl].allPartsStatus.Count;
+                        lastPartCount = masterStatus[currentVessel].allPartsStatus.Count;
                         CalculateWindowBounds();
                     }
                 }
                 GUILayout.Space(10);
                 GUILayout.BeginHorizontal();
-                GUILayout.Label("MSD for " + masterStatus[currentVessl].vesselName);
+                LogFormatted_DebugOnly("TRACE starting layout");
+                GUILayout.Label("MSD for " + masterStatus[currentVessel].vesselName);
                 GUILayout.EndHorizontal();
                 settings.currentMSDScrollPosition = GUILayout.BeginScrollView(settings.currentMSDScrollPosition);
-                foreach (PartStatus status in masterStatus[currentVessl].allPartsStatus)
+                LogFormatted_DebugOnly("TRACE setup scrollview");
+                LogFormatted_DebugOnly("TRACE checking for valid currentVessel");
+                if (masterStatus.ContainsKey(currentVessel))
+                    LogFormatted_DebugOnly("TRACE found currentVessel in masterStatus");
+                else
+                    LogFormatted_DebugOnly("TRACE Could not find currentVessel in masterStatus");
+                    
+                foreach (PartStatus status in masterStatus[currentVessel].allPartsStatus)
                 {
+                    LogFormatted_DebugOnly("TRACE Displaying data for part " + status.partName);
                     // Display part data
 //                    GUILayout.Label(String.Format("{0,50}", status.partName));
 //                    GUILayout.Label(String.Format("{0,7:F2}du", status.flightData));
@@ -335,6 +377,8 @@ namespace TestFlightCore
                     GUILayout.EndHorizontal();
                 }
                 GUILayout.EndScrollView();
+                LogFormatted_DebugOnly("TRACE Done displaying part data");
+
                 if (GUILayout.Button(settingsButton, GUILayout.Width(38)))
                 {
                     settings.displaySettingsWindow = !settings.displaySettingsWindow;
@@ -346,12 +390,22 @@ namespace TestFlightCore
             // Draw settings pane if opened
             if (settings.displaySettingsWindow)
             {
+                LogFormatted_DebugOnly("TRACE Drawing settings selection");
                 GUILayout.Space(15);
+                if (ddlSettingsPage == null)
+                {
+                    LogFormatted_DebugOnly("TRACE ddlSettings is invalid!");
+                    GUILayout.Space(10);
+                    GUILayout.EndVertical();
+                    return;
+                }
                 ddlSettingsPage.DrawButton();
+                LogFormatted_DebugOnly("TRACE Drawing selected settings pane");
 
                 switch (settings.settingsPage)
                 {
                     case 0:
+                        LogFormatted_DebugOnly("TRACE Drawing visual settings");
                         GUILayout.BeginHorizontal();
                         if (DrawToggle(ref settings.showFailedPartsOnlyInMSD, "Short Failed Parts Only", Styles.styleToggle))
                         {
