@@ -23,6 +23,7 @@ namespace TestFlightCore
         internal ITestFlightFailure activeFailure;
         internal bool highlightPart;
         internal string repairRequirements;
+        internal bool acknowledged;
     }
 
     internal struct MasterStatusItem
@@ -163,24 +164,6 @@ namespace TestFlightCore
 
     }
 
-//    [KSPAddon(KSPAddon.Startup.SpaceCentre, true)]
-//	public class TestFlightManager : MonoBehaviour
-//	{
-//        public TestFlightManagerScenario tsm;
-//
-//        public void Start()
-//        {
-//            var game = HighLogic.CurrentGame;
-//            ProtoScenarioModule psm = game.scenarios.Find(s => s.moduleName == typeof(TestFlightManagerScenario).Name);
-//            if (psm == null)
-//            {
-//                GameScenes[] desiredScenes = new GameScenes[4] { GameScenes.EDITOR, GameScenes.FLIGHT, GameScenes.TRACKSTATION, GameScenes.SPACECENTER };
-//                psm = game.AddProtoScenarioModule(typeof(TestFlightManagerScenario), desiredScenes);
-//            }
-//            psm.Load(ScenarioRunner.fetch);
-//            tsm = game.scenarios.Select(s => s.moduleRef).OfType<TestFlightManagerScenario>().SingleOrDefault();
-//        }
-//    }
 
     [KSPScenario(ScenarioCreationOptions.AddToAllGames, 
         new GameScenes[] 
@@ -450,6 +433,7 @@ namespace TestFlightCore
                                     partStatus.partStatus = core.GetPartStatus();
                                     partStatus.reliability = core.GetCurrentReliability(settings.globalReliabilityModifier);
                                     partStatus.repairRequirements = core.GetRequirementsTooltip();
+                                    partStatus.acknowledged = core.IsFailureAcknowledged();
                                     if (core.GetPartStatus() > 0)
                                     {
                                         partStatus.activeFailure = core.GetFailureModule();
@@ -527,6 +511,7 @@ namespace TestFlightCore
 
         public override void OnLoad(ConfigNode node)
         {
+            settings.Load();
             if (node.HasNode("FLIGHTDATA_PART"))
             {
                 if (partsFlightData == null)
@@ -545,6 +530,7 @@ namespace TestFlightCore
 
 		public override void OnSave(ConfigNode node)
 		{
+            settings.Save();
             if (HighLogic.LoadedSceneIsFlight)
             {
                 foreach (PartFlightData partData in partsFlightData)

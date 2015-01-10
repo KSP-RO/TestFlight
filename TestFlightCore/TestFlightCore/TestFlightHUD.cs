@@ -26,8 +26,7 @@ namespace TestFlightCore
             LogFormatted_DebugOnly("TestFlightHUD Startup()");
             parentWindow = parent;
             tfScenario = parent.tfScenario;
-            settings = parent.settings;
-            LogFormatted_DebugOnly("TestFlightHUD WindowRect " + settings.flightHUDPosition.xMin + "," + settings.flightHUDPosition.yMin);
+            settings = parent.tfScenario.settings;
             WindowMoveEventsEnabled = true;
             onWindowMoveComplete += Window_OnWindowMoveComplete;
             return this;
@@ -86,12 +85,12 @@ namespace TestFlightCore
             foreach (PartStatus status in masterStatus[currentVessl].allPartsStatus)
             {
                 // We only show failed parts in Flight HUD
-                if (status.activeFailure == null)
+                if (status.activeFailure == null || status.acknowledged)
                     continue;
 
                 GUILayout.BeginHorizontal();
                 // Part Name
-                string tooltip = status.repairRequirements;
+                string tooltip = status.activeFailure.GetFailureDetails().failureTitle + "\n" + status.repairRequirements;
                 if (status.activeFailure.GetFailureDetails().severity == "minor")
                     GUILayout.Label(new GUIContent(String.Format("<color=#859900ff>{0}</color>", status.partName), tooltip), GUILayout.Width(200));
                 else if (status.activeFailure.GetFailureDetails().severity == "failure")
@@ -101,10 +100,18 @@ namespace TestFlightCore
                 GUILayout.Space(10);
                 if (status.activeFailure != null)
                 {
-                    if (GUILayout.Button("R", GUILayout.Width(38)))
+                    if (status.activeFailure.CanAttemptRepair())
+                    {
+                        if (GUILayout.Button("R", GUILayout.Width(38)))
+                        {
+                            // attempt repair
+                            bool repairSuccess = status.flightCore.AttemptRepair();
+                        }
+                    }
+                    if (GUILayout.Button("A", GUILayout.Width(38)))
                     {
                         // attempt repair
-                        bool repairSuccess = status.flightCore.AttemptRepair();
+                        status.flightCore.AcknowledgeFailure();
                     }
                 }
                 GUILayout.EndHorizontal();

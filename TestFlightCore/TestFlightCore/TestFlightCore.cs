@@ -20,6 +20,7 @@ namespace TestFlightCore
         private double currentReliability = 0.0f;
         private List<ITestFlightFailure> failureModules = null;
         private ITestFlightFailure activeFailure = null;
+        private bool failureAcknowledged = false;
 
         [KSPField(isPersistant = true)]
         public float failureCheckFrequency = 0f;
@@ -37,10 +38,16 @@ namespace TestFlightCore
                 if (isRepaired)
                 {
                     activeFailure = null;
+                    failureAcknowledged = false;
                     return true;
                 }
             }
             return false;
+        }
+
+        public void AcknowledgeFailure()
+        {
+            failureAcknowledged = true;
         }
 
         public void HighlightPart(bool doHighlight)
@@ -127,6 +134,11 @@ namespace TestFlightCore
             return activeFailure;
         }
 
+        public bool IsFailureAcknowledged()
+        {
+            return failureAcknowledged;
+        }
+
         public string GetRequirementsTooltip()
         {
             if (activeFailure == null)
@@ -142,15 +154,17 @@ namespace TestFlightCore
             foreach (RepairRequirements requirement in requirements)
             {
                 if (requirement.requirementMet)
-                    tooltip += "[*]";
-                else
-                    tooltip += "[ ]";
-                if (requirement.optionalRequirement)
-                    tooltip += String.Format("(OPTIONAL +{0:F2}%) ", requirement.repairBonus * 100.0f);
-                else
-                    tooltip += " ";
-                tooltip += requirement.requirementMessage;
-                tooltip += "\n";
+                {
+                    tooltip = String.Format("{0}<color=#859900ff>{1}</color>\n", tooltip, requirement.requirementMessage);
+                }
+                else if (!requirement.requirementMet && !requirement.optionalRequirement)
+                {
+                    tooltip = String.Format("{0}<color=#dc322fff>{1}</color>\n", tooltip, requirement.requirementMessage);
+                }
+                else if (!requirement.requirementMet && requirement.optionalRequirement)
+                {
+                    tooltip = String.Format("{0}(OPTIONAL +{1:f2}%) <color=#b58900ff>{2}</color>\n", tooltip, requirement.repairBonus * 100.0f, requirement.requirementMessage);
+                }
             }
 
             return tooltip;
@@ -350,6 +364,7 @@ namespace TestFlightCore
                             // Trigger this module's failure
                             LogFormatted_DebugOnly("TestFlightCore: Triggering failure on " + fm);
                             activeFailure = fm;
+                            failureAcknowledged = false;
                             fm.DoFailure();
                             return true;
                         }
