@@ -171,26 +171,27 @@ namespace TestFlightCore
 
     }
 
-    [KSPAddon(KSPAddon.Startup.SpaceCentre, true)]
-	public class TestFlightManager : MonoBehaviour
-	{
-        public TestFlightManagerScenario tsm;
+//    [KSPAddon(KSPAddon.Startup.SpaceCentre, true)]
+//	public class TestFlightManager : MonoBehaviour
+//	{
+//        public TestFlightManagerScenario tsm;
+//
+//        public void Start()
+//        {
+//            var game = HighLogic.CurrentGame;
+//            ProtoScenarioModule psm = game.scenarios.Find(s => s.moduleName == typeof(TestFlightManagerScenario).Name);
+//            if (psm == null)
+//            {
+//                GameScenes[] desiredScenes = new GameScenes[4] { GameScenes.EDITOR, GameScenes.FLIGHT, GameScenes.TRACKSTATION, GameScenes.SPACECENTER };
+//                psm = game.AddProtoScenarioModule(typeof(TestFlightManagerScenario), desiredScenes);
+//            }
+//            psm.Load(ScenarioRunner.fetch);
+//            tsm = game.scenarios.Select(s => s.moduleRef).OfType<TestFlightManagerScenario>().SingleOrDefault();
+//        }
+//    }
 
-        public void Start()
-        {
-            var game = HighLogic.CurrentGame;
-            ProtoScenarioModule psm = game.scenarios.Find(s => s.moduleName == typeof(TestFlightManagerScenario).Name);
-            if (psm == null)
-            {
-                GameScenes[] desiredScenes = new GameScenes[4] { GameScenes.EDITOR, GameScenes.FLIGHT, GameScenes.TRACKSTATION, GameScenes.SPACECENTER };
-                psm = game.AddProtoScenarioModule(typeof(TestFlightManagerScenario), desiredScenes);
-            }
-            psm.Load(ScenarioRunner.fetch);
-            tsm = game.scenarios.Select(s => s.moduleRef).OfType<TestFlightManagerScenario>().SingleOrDefault();
-        }
-    }
-
-
+    [KSPScenario(ScenarioCreationOptions.AddToAllGames, 
+        new GameScenes[] { GameScenes.SPACECENTER, GameScenes.FLIGHT })]
 	public class TestFlightManagerScenario : ScenarioModule
 	{
         public List<PartFlightData> partsFlightData;
@@ -209,6 +210,20 @@ namespace TestFlightCore
         double lastDataPoll = 0.0;
         double lastFailurePoll = 0.0;
         double lastMasterStatusUpdate = 0.0;
+
+        public static TestFlightManagerScenario Instance { get; private set; }
+
+        TestFlightManagerScenario()
+        {
+            Debug.Log("TestFlightManagerScenario: In Constructor");
+            Debug.Log(this);
+            Instance = this;
+        }
+
+        ~TestFlightManagerScenario()
+        {
+            Debug.Log("TestFlightManagerScenario: In Destructor");
+        }
 
         public override void OnAwake()
 		{
@@ -431,6 +446,7 @@ namespace TestFlightCore
 
 		public void Update()
 		{
+            Debug.Log("SETTINGSTEST " + settings.showFlightDataInMSD);
             if (masterStatus == null)
                 masterStatus = new Dictionary<Guid, MasterStatusItem>();
 

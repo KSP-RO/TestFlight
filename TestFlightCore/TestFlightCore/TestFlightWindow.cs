@@ -9,7 +9,7 @@ using KSPPluginFramework;
 
 namespace TestFlightCore
 {
-    [KSPAddon(KSPAddon.Startup.EveryScene, false)]
+    [KSPAddon(KSPAddon.Startup.Flight, false)]
     public class TestFlightWindow : MonoBehaviourWindowPlus
     {
         internal TestFlightManagerScenario tfScenario;
@@ -24,51 +24,17 @@ namespace TestFlightCore
 
         internal override void Start()
         {
-            var game = HighLogic.CurrentGame;
-            ProtoScenarioModule psm = game.scenarios.Find(s => s.moduleName == typeof(TestFlightManagerScenario).Name);
-            if (psm == null)
-            {
-                GameScenes[] desiredScenes = new GameScenes[4] { GameScenes.EDITOR, GameScenes.FLIGHT, GameScenes.TRACKSTATION, GameScenes.SPACECENTER };
-                psm = game.AddProtoScenarioModule(typeof(TestFlightManagerScenario), desiredScenes);
-            }
-            psm.Load(ScenarioRunner.fetch);
-            tfScenario = game.scenarios.Select(s => s.moduleRef).OfType<TestFlightManagerScenario>().SingleOrDefault();
+            LogFormatted_DebugOnly("Starting up MSD");
+            tfScenario = TestFlightManagerScenario.Instance;
+            LogFormatted_DebugOnly("TestFlightManagerScenario = " + tfScenario);
             settings = tfScenario.settings;
             if (settings == null)
             {
                 settings = new Settings("../settings.cfg");
                 tfScenario.settings = settings;
             }
-            string assemblyPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            string filePath = System.IO.Path.Combine(assemblyPath, "../settings.cfg").Replace("\\","/");
-            if (!System.IO.File.Exists(filePath))
-            {
-                settings.flightDataEngineerMultiplier = 1.0;
-                settings.flightDataMultiplier = 1.0;
-                settings.globalReliabilityModifier = 1.0;
-                settings.minTimeBetweenDataPoll = 0.5;
-                settings.minTimeBetweenFailurePoll = 60;
-                settings.processAllVessels = false;
-                settings.masterStatusUpdateFrequency = 10;
-                settings.displaySettingsWindow = true;
-
-                settings.showFailedPartsOnlyInMSD = false;
-                settings.showFlightDataInMSD = true;
-                settings.showMomentaryReliabilityInMSD = false;
-                settings.showRestingReliabilityInMSD = true;
-                settings.showStatusTextInMSD = true;
-                settings.shortenPartNameInMSD = false;
-                settings.settingsPage = 0;
-                settings.mainWindowLocked = true;
-                settings.mainWindowPosition = new Rect(0, 0, 0, 0);
-                settings.currentMSDSize = 1;
-
-                settings.flightHUDEnabled = false;
-                settings.flightHUDPosition = new Rect(0, 0, 0, 0);
-
-                settings.Save();
-            }
             settings.Load();
+            LogFormatted_DebugOnly("Starting coroutine to add toolbar icon");
             StartCoroutine("AddToToolbar");
             TestFlight.Resources.LoadTextures();
 
