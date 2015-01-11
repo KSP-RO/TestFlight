@@ -10,7 +10,7 @@ namespace TestFlightAPI
         // The one exception is "deep-space" which applies regardless of the SOI if you are deep enough into space
 		public string scope;
         // The total accumulated flight data for the part
-		public float flightData;
+		public double flightData;
         // The specific flight time, in seconds, of this part instance
 		public int flightTime;
 	}
@@ -218,8 +218,8 @@ namespace TestFlightAPI
         // Get the FlightData or FlightTime for the part
         double GetFlightData();
         double GetFlightDataForScope(String scope);
-        double GetFlightTime();
-        double GetFlightTimeForScope(String scope);
+        int GetFlightTime();
+        int GetFlightTimeForScope(String scope);
         // Set the FlightData for FlightTime or the part - this is an absolute set and replaces the previous FlightData
         void SetFlightData(double data);
         void SetFlightTime(double seconds);

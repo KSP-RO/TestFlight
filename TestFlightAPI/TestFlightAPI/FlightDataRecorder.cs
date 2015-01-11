@@ -9,7 +9,7 @@ namespace TestFlightAPI
 
     public class FlightDataRecorderBase : PartModule, IFlightDataRecorder
     {
-        private float currentData = 0.0f;
+        private double currentData = 0.0f;
         private int currentFlightTime = 0;
 		private string currentScope = "NONE";
 
@@ -50,7 +50,7 @@ namespace TestFlightAPI
         /// Gets the flight data for the current body and situation
         /// </summary>
         /// <returns>The current data.</returns>
-        public float GetCurrentData()
+        public double GetCurrentData()
         {
             return currentData;
         }

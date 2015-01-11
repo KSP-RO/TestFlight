@@ -22,41 +22,41 @@ namespace TestFlightCore
         private FlightDataConfig baseFlightData;
 
         // Get a proper scope string for use in other parts of the API
-        String GetScope()
+        public String GetScope()
         {
             return GetScopeForSituationAndBody(this.vessel.situation, this.vessel.mainBody);
         }
-        String GetScopeForSituation(String situation)
+        public String GetScopeForSituation(String situation)
         {
             return GetScopeForSituationAndBody(situation, this.vessel.mainBody);
         }
-        String GetScopeForSituation(Vessel.Situations situation)
+        public String GetScopeForSituation(Vessel.Situations situation)
         {
             return GetScopeForSituationAndBody(situation.ToString(), this.vessel.mainBody);
         }
-        String GetScopeForSituationAndBody(String situation, CelestialBody body)
+        public String GetScopeForSituationAndBody(String situation, CelestialBody body)
         {
             return GetScopeForSituationAndBody(situation, body.ToString());
         }
-        String GetScopeForSituationAndBody(Vessel.Situations situation, String body)
+        public String GetScopeForSituationAndBody(Vessel.Situations situation, String body)
         {
             return GetScopeForSituationAndBody(situation.ToString(), body);
         }
-        String GetScopeForSituationAndBody(Vessel.Situations situation, CelestialBody body)
+        public String GetScopeForSituationAndBody(Vessel.Situations situation, CelestialBody body)
         {
             return GetScopeForSituationAndBody(situation.ToString(), body.ToString());
         }
-        String GetScopeForSituationAndBody(String situation, String body)
+        public String GetScopeForSituationAndBody(String situation, String body)
         {
             return String.Format("{0}_{1}", situation.ToLower(), body.ToLower());
         }
 
         // Get the FlightData or FlightTime for the part
-        double GetFlightData()
+        public double GetFlightData()
         {
             return GetFlightDataForScope(GetScope());
         }
-        double GetFlightDataForScope(String scope)
+        public double GetFlightDataForScope(String scope)
         {
             FlightDataBody dataBody = flightData.GetFlightData(scope);
             if (dataBody == null)
@@ -68,11 +68,11 @@ namespace TestFlightCore
                 return dataBody.flightData;
             }
         }
-        double GetFlightTime()
+        public int GetFlightTime()
         {
             return GetFlightTimeForScope(GetScope());
         }
-        double GetFlightTimeForScope(String scope)
+        public int GetFlightTimeForScope(String scope)
         {
             FlightDataBody dataBody = flightData.GetFlightData(scope);
             if (dataBody == null)

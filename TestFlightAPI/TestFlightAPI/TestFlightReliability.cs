@@ -102,7 +102,7 @@ namespace TestFlightAPI
         public float GetCurrentReliability(TestFlightData flightData)
         {
             // Get the flight data for the currently active body and situation
-            float currentFlightData = flightData.flightData;
+            double currentFlightData = flightData.flightData;
             // Determine current situation
             string scope = flightData.scope;
             // Determine raw reliability

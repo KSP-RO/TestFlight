@@ -93,7 +93,7 @@ namespace TestFlightAPI
         /// <param name="scope">Scope.</param>
         /// <param name="flightData">Flight data.</param>
         /// <param name="flightTime">Flight time.</param>
-        public void AddFlightData(string scope, float flightData, int flightTime)
+        public void AddFlightData(string scope, double flightData, int flightTime)
         {
             if (dataBodies == null)
             {
