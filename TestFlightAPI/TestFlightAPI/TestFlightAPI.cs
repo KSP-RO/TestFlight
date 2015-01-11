@@ -212,9 +212,9 @@ namespace TestFlightAPI
         // Returned string will be of the format "123 units"
         // units should be one of:
         //  seconds, hours, days, months, years, flights, missions
-        String FailureRateToMTBF(double failureRate, String units);
+        String FailureRateToMTBFString(double failureRate, String units);
         // Simply converts the failure rate to a MTBF number, without any string formatting
-        double FailureRateToMTBF(double failureRate);
+        double FailureRateToMTBF(double failureRate, String units);
         // Get the FlightData or FlightTime for the part
         double GetFlightData();
         double GetFlightDataForScope(String scope);
