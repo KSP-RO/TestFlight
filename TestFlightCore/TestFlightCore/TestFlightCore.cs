@@ -98,11 +98,9 @@ namespace TestFlightCore
             failureModules.Clear();
             foreach(PartModule pm in this.part.Modules)
             {
-                LogFormatted_DebugOnly("TestFlightCore: Inspecting Module " + pm.moduleName + " for ITestFlightFailure interface");
                 ITestFlightFailure failureModule = pm as ITestFlightFailure;
                 if (failureModule != null)
                 {
-                    LogFormatted_DebugOnly("TestFlightCore: Added Failure Module " + pm.moduleName);
                     failureModules.Add(failureModule);
                 }
             }
@@ -342,7 +340,6 @@ namespace TestFlightCore
                 currentReliability = totalReliability * globalReliabilityModifier;
                 // Roll for failure
                 float roll = UnityEngine.Random.Range(0.0f,100.0f);
-                LogFormatted_DebugOnly("TestFlightCore: " + this.part.name + "(" + this.part.flightID + ") Reliability " + currentReliability + ", Failure Roll " + roll);
                 if (roll > currentReliability)
                 {
                     // Failure occurs.  Determine which failure module to trigger
@@ -353,9 +350,7 @@ namespace TestFlightCore
                     {
                         totalWeight += fm.GetFailureDetails().weight;
                     }
-                    LogFormatted_DebugOnly("TestFlightCore: Total Weight " + totalWeight);
                     chosenWeight = UnityEngine.Random.Range(1,totalWeight);
-                    LogFormatted_DebugOnly("TestFlightCore: Chosen Weight " + chosenWeight);
                     foreach(ITestFlightFailure fm in failureModules)
                     {
                         currentWeight += fm.GetFailureDetails().weight;

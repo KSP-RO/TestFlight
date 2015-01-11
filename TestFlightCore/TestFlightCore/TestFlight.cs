@@ -395,7 +395,6 @@ namespace TestFlightCore
                                 // Poll for flight data and part status
                                 if (currentUTC >= lastDataPoll + tfScenario.settings.minTimeBetweenDataPoll)
                                 {
-                                    LogFormatted_DebugOnly("TestFlightManager: Updating part " + part.partInfo.title);
                                     DoFlightUpdate(core, entry.Value);
                                     TestFlightData currentFlightData = DoDataUpdate(core, part);
 
@@ -558,7 +557,6 @@ namespace TestFlightCore
         public override void OnLoad(ConfigNode node)
         {
             base.OnLoad(node);
-            Debug.Log("TestFlightManagerScenario: OnLoad");
             if (settings != null)
             {
                 settings.Load();
@@ -580,7 +578,6 @@ namespace TestFlightCore
 
 		public override void OnSave(ConfigNode node)
 		{
-            Debug.Log("TestFlightManagerScenario: OnSave");
             base.OnSave(node);
             if (settings != null)
             {

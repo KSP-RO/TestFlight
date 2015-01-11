@@ -322,7 +322,6 @@ namespace TestFlightAPI
         {
             if (repairConfig == null && repairConfigString.Length > 0)
             {
-                Debug.Log("TestFlightFailureBase: Restoring from packed string");
                 repairConfig = RepairConfig.FromString(repairConfigString);
             }
             base.OnStart(state);
@@ -332,7 +331,6 @@ namespace TestFlightAPI
         {
             if (node.HasNode("REPAIR"))
             {
-                Debug.Log("TestFlightFailureBase: Loading REPAIR node");
                 repairConfig = new RepairConfig();
                 repairConfig.Load(node.GetNode("REPAIR"));
                 repairConfigString = repairConfig.ToString();
