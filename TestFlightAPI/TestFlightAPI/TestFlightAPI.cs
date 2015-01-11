@@ -194,9 +194,9 @@ namespace TestFlightAPI
         double GetBaseFailureRateForScope(String scope);
         // Get the momentary (IE current dynamic) failure rates (Can vary per reliability/failure modules)
         // These  methods will let you get a list of all momentary rates or you can get the best (lowest chance of failure)/worst (highest chance of failure) rates
-        double GetWorstMomentaryFailureRate();
-        double GetBestMomentaryFailureRate();
-        double GetAllMomentaryFailureRates();
+        Dictionary<String, double> GetWorstMomentaryFailureRate();
+        Dictionary<String, double> GetBestMomentaryFailureRate();
+        Dictionary<String, double> GetAllMomentaryFailureRates();
         Dictionary<String, double> GetWorstMomentaryFailureRateForScope(String scope);
         Dictionary<String, double> GetBestMomentaryFailureRateForScope(String scope);
         Dictionary<String, double> GetAllMomentaryFailureRatesForScope(String scope);

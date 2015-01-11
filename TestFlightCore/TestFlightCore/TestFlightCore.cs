@@ -77,7 +77,82 @@ namespace TestFlightCore
 
             return String.Format("{0}_{1}", situation.ToLower(), body.ToLower());
         }
-
+        // TODO
+        // Implement theses
+        // Get the base or static failure rate
+        public double GetBaseFailureRate()
+        {
+            return GetBaseFailureRateForScope(GetScope());
+        }
+        public double GetBaseFailureRateForScope(String scope)
+        {
+            return 0;
+        }
+        // Get the momentary (IE current dynamic) failure rates (Can vary per reliability/failure modules)
+        // These  methods will let you get a list of all momentary rates or you can get the best (lowest chance of failure)/worst (highest chance of failure) rates
+        public Dictionary<String, double> GetWorstMomentaryFailureRate()
+        {
+            return GetWorstMomentaryFailureRateForScope(GetScope());
+        }
+        public Dictionary<String, double> GetBestMomentaryFailureRate()
+        {
+            return GetBestMomentaryFailureRateForScope(GetScope());
+        }
+        public Dictionary<String, double> GetAllMomentaryFailureRates()
+        {
+            return GetAllMomentaryFailureRatesForScope(GetScope());
+        }
+        public Dictionary<String, double> GetWorstMomentaryFailureRateForScope(String scope)
+        {
+            Dictionary<String, double> failureRate = new Dictionary<string, double>();
+            failureRate.Add("TODO", 0);
+            return failureRate;
+        }
+        public Dictionary<String, double> GetBestMomentaryFailureRateForScope(String scope)
+        {
+            Dictionary<String, double> failureRate = new Dictionary<string, double>();
+            failureRate.Add("TODO", 0);
+            return failureRate;
+        }
+        public Dictionary<String, double> GetAllMomentaryFailureRatesForScope(String scope)
+        {
+            Dictionary<String, double> failureRate = new Dictionary<string, double>();
+            failureRate.Add("TODO", 0);
+            return failureRate;
+        }
+        // The base failure rate can be modified with a multipler that is applied during flight only
+        // Returns the total modified failure rate back to the caller for convenience
+        public double ModifyBaseFailureRate(double multiplier)
+        {
+            return ModifyBaseFailureRateForScope(GetScope(), multiplier);
+        }
+        public double ModifyBaseFailureRateForScope(String scope, double multiplier)
+        {
+            return 0;
+        }
+        // The momentary failure rate is tracked per Reliability/FailureTrigger module
+        // Returns the total modified failure rate back to the caller for convenience
+        public double ModifyModuleMomentaryFailureRate(String module, double multiplier)
+        {
+            return ModifyModuleMomentaryFailureRateForScope(module, GetScope(), multiplier);
+        }
+        public double ModifyModuleMomentaryFailureRateForScope(String module, String scope, double multiplier)
+        {
+            return 0;
+        }
+        // simply converts the failure rate into a MTBF string.  Convenience method
+        // Returned string will be of the format "123 units"
+        // units should be one of:
+        //  seconds, hours, days, months, years, flights, missions
+        public String FailureRateToMTBFString(double failureRate, String units)
+        {
+            return String.Format("{0:F2} {1}", FailureRateToMTBF(failureRate, units), units);
+        }
+        // Simply converts the failure rate to a MTBF number, without any string formatting
+        public double FailureRateToMTBF(double failureRate, String units)
+        {
+            return 1.0 / failureRate;
+        }
         // Get the FlightData or FlightTime for the part
         public double GetFlightData()
         {
@@ -110,6 +185,69 @@ namespace TestFlightCore
             {
                 return dataBody.flightTime;
             }
+        }
+        // Set the FlightData for FlightTime or the part - this is an absolute set and replaces the previous FlightData
+        public void SetFlightData(double data)
+        {
+            SetFlightDataForScope(data, GetScope());
+        }
+        public void SetFlightTime(double seconds)
+        {
+            SetFlightTimeForScope(seconds, GetScope());
+        }
+        public void SetFlightDataForScope(double data, String scope)
+        {
+        }
+        public void SetFlightTimeForScope(double seconds, String scope)
+        {
+        }
+        // Modify the FlightData or FlightTime for the part
+        // The given modifier is multiplied against the current FlightData unless additive is true
+        public double ModifyFlightData(double modifier)
+        {
+            return ModifyFlightDataForScope(modifier, GetScope(), false);
+        }
+        public double ModifyFlightTime(double modifier)
+        {
+            return ModifyFlightTimeForScope(modifier, GetScope(), false);
+        }
+        public double ModifyFlightData(double modifier, bool additive)
+        {
+            return ModifyFlightDataForScope(modifier, GetScope(), additive);
+        }
+        public double ModifyFlightTime(double modifier, bool additive)
+        {
+            return ModifyFlightTimeForScope(modifier, GetScope(), additive);
+        }
+        public double ModifyFlightDataForScope(double modifier, String scope)
+        {
+            return ModifyFlightDataForScope(modifier, scope, false);
+        }
+        public double ModifyFlightTimeForScope(double modifier, String scope)
+        {
+            return ModifyFlightTimeForScope(modifier, scope, false);
+        }
+        public double ModifyFlightDataForScope(double modifier, String scope, bool additive)
+        {
+            return 0;
+        }
+        public double ModifyFlightTimeForScope(double modifier, String scope, bool additive)
+        {
+            return 0;
+        }
+        // Cause a failure to occur, either a random failure or a specific one
+        // If fallbackToRandom is true, then if the specified failure can't be found or can't be triggered, a random failure will be triggered instead
+        public ITestFlightFailure TriggerFailure()
+        {
+            return null;
+        }
+        public ITestFlightFailure TriggerNamedFailure(String failureModuleName)
+        {
+            return TriggerNamedFailure(failureModuleName, false);
+        }
+        public ITestFlightFailure TriggerNamedFailure(String failureModuleName, bool fallbackToRandom)
+        {
+            return null;
         }
 
 
