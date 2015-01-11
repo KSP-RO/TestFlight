@@ -23,7 +23,7 @@
         <Command type="AfterBuild" command="cp -r /USers/john/Developer/KSP/0.90/TestFlightDEV/Dev/_DEV/GitHub/TestFlight/TestFlight /Users/john/Developer/KSP/0.90/TestFlightDEV/Dev/GameData/" />
       </CustomCommands>
     </CustomCommands>
-    <DebugType>none</DebugType>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -66,10 +66,10 @@
     <Compile Include="FrameworkExt\Extensions.cs" />
     <Compile Include="FrameworkExt\ExtensionsKSP.cs" />
     <Compile Include="FrameworkExt\MonoBehaviourWindowPlus.cs" />
-    <Compile Include="TestFlightWindow.cs" />
     <Compile Include="StylesAndSkins.cs" />
     <Compile Include="Resources.cs" />
     <Compile Include="Framework\PartModuleExtended.cs" />
+    <Compile Include="TestFlightWindow.cs" />
     <Compile Include="TestFlightHUD.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

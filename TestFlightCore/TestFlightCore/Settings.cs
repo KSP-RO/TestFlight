@@ -19,35 +19,90 @@ namespace TestFlightCore
         public Settings(String FilePath) : base(FilePath) {
         }
 
-        [Persistent]
-        public double minTimeBetweenDataPoll;
-        [Persistent]
-        public double minTimeBetweenFailurePoll;
-        [Persistent]
-        public bool processAllVessels;
-        [Persistent]
-        public double flightDataMultiplier;
-        [Persistent]
-        public double flightDataEngineerMultiplier;
-        [Persistent]
-        public double globalReliabilityModifier;
-        [Persistent]
-        public double masterStatusUpdateFrequency;
-        [Persistent] public bool displaySettingsWindow;
-        [Persistent] public int settingsPage;
-        [Persistent] public bool enableHUD;
-        [Persistent] public bool showFailedPartsOnlyInMSD;
-        [Persistent] public bool showFlightDataInMSD;
-        [Persistent] public bool showRestingReliabilityInMSD;
-        [Persistent] public bool showMomentaryReliabilityInMSD;
-        [Persistent] public bool showStatusTextInMSD;
-        [Persistent] public bool shortenPartNameInMSD;
-        [Persistent] public Rect mainWindowPosition;
-        [Persistent] public bool mainWindowLocked;
-        [Persistent] public int currentMSDSize;
-        [Persistent] public Vector2 currentMSDScrollPosition;
-        [Persistent] public bool flightHUDEnabled;
-        [Persistent] public Rect flightHUDPosition;
+
+        [Persistent] public bool debugLog = false;
+        [Persistent] public double minTimeBetweenDataPoll = 0.5;
+        [Persistent] public double minTimeBetweenFailurePoll = 60;
+        [Persistent] public bool processAllVessels = false;
+        [Persistent] public double flightDataMultiplier = 1.0;
+        [Persistent] public double flightDataEngineerMultiplier = 1.0;
+        [Persistent] public double globalReliabilityModifier = 1.0;
+        [Persistent] public double masterStatusUpdateFrequency = 10;
+        [Persistent] public bool displaySettingsWindow = false;
+        [Persistent] public int settingsPage = 0;
+        [Persistent] public bool enableHUD = false;
+        [Persistent] public bool showFailedPartsOnlyInMSD = false;
+        [Persistent] public bool showFlightDataInMSD = true;
+        [Persistent] public bool showRestingReliabilityInMSD = true;
+        [Persistent] public bool showMomentaryReliabilityInMSD = false;
+        [Persistent] public bool showStatusTextInMSD = true;
+        [Persistent] public bool shortenPartNameInMSD = false;
+        [Persistent] public bool mainWindowLocked = true;
+        [Persistent] public int currentMSDSize = 1;
+        [Persistent] public bool flightHUDEnabled = false;
+
+        // Unity/KSP can't store some more complex data types so we provide classes to convert
+        [Persistent] public PersistentRect mainWindowPositionStored = new PersistentRect();
+        public Rect mainWindowPosition = new Rect(0,0,0,0);
+        [Persistent] public PersistentVector2 currentMSDScrollPositionStored = new PersistentVector2();
+        public Vector2 currentMSDScrollPosition = new Vector2(0,0);
+        [Persistent] public PersistentRect flightHUDPositionStored = new PersistentRect();
+        public Rect flightHUDPosition = new Rect(100,50,0,0);
+
+        public override void OnDecodeFromConfigNode()
+        {
+            mainWindowPosition = mainWindowPositionStored.ToRect();
+            flightHUDPosition = flightHUDPositionStored.ToRect();
+            currentMSDScrollPosition = currentMSDScrollPositionStored.ToVector2();
+        }
+
+        public override void OnEncodeToConfigNode()
+        {
+            mainWindowPositionStored = mainWindowPositionStored.FromRect(mainWindowPosition);
+            flightHUDPositionStored = flightHUDPositionStored.FromRect(flightHUDPosition);
+            currentMSDScrollPositionStored = currentMSDScrollPositionStored.FromVector2(currentMSDScrollPosition);
+        }
+
+    }
+
+
+    public class PersistentVector2 : ConfigNodeStorage
+    {
+        [Persistent] public float x;
+        [Persistent] public float y;
+
+        public Vector2 ToVector2() 
+        {
+            return new Vector2(x, y);
+        }
+
+        public PersistentVector2 FromVector2(Vector2 vectorToStore)
+        {
+            this.x = vectorToStore.x;
+            this.y = vectorToStore.y;
+            return this;
+        }
+    }
+
+    public class PersistentRect : ConfigNodeStorage
+    {
+        [Persistent] public float x;
+        [Persistent] public float y;
+        [Persistent] public float width;
+        [Persistent] public float height;
+
+        public Rect ToRect()
+        { 
+            return new Rect(x, y, width, height); 
+        }
+        public PersistentRect FromRect(Rect rectToStore)
+        {
+            this.x = rectToStore.x;
+            this.y = rectToStore.y;
+            this.width = rectToStore.width;
+            this.height = rectToStore.height;
+            return this;
+        }
     }
 }
 

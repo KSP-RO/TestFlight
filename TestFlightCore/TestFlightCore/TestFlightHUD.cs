@@ -13,7 +13,6 @@ namespace TestFlightCore
     {
         private TestFlightManagerScenario tfScenario;
         private TestFlightWindow parentWindow;
-        private Settings settings;
         private int lastPartCount = 0;
 
         internal override void Start()
@@ -25,9 +24,7 @@ namespace TestFlightCore
         {
             LogFormatted_DebugOnly("TestFlightHUD Startup()");
             parentWindow = parent;
-            tfScenario = parent.tfScenario;
-            settings = parent.settings;
-            LogFormatted_DebugOnly("TestFlightHUD WindowRect " + settings.flightHUDPosition.xMin + "," + settings.flightHUDPosition.yMin);
+            tfScenario = TestFlightManagerScenario.Instance;
             WindowMoveEventsEnabled = true;
             onWindowMoveComplete += Window_OnWindowMoveComplete;
             return this;
@@ -48,7 +45,7 @@ namespace TestFlightCore
         internal override void OnGUIOnceOnly()
         {
             // Default position and size -- will get proper bounds calculated when needed
-            WindowRect = new Rect(settings.flightHUDPosition.xMin, settings.flightHUDPosition.yMin, 50f, 50f);
+            WindowRect = new Rect(tfScenario.settings.flightHUDPosition.xMin, tfScenario.settings.flightHUDPosition.yMin, 50f, 50f);
             DragEnabled = true;
             ClampToScreen = true;
             TooltipsEnabled = true;
@@ -63,13 +60,13 @@ namespace TestFlightCore
         internal void CalculateWindowBounds()
         {
             LogFormatted_DebugOnly("TestFlightHUD Calculating Window Bounds");
-            WindowRect = new Rect(settings.flightHUDPosition.xMin, settings.flightHUDPosition.yMin, 50f, 50f);
+            WindowRect = new Rect(tfScenario.settings.flightHUDPosition.xMin, tfScenario.settings.flightHUDPosition.yMin, 50f, 50f);
         }
 
         internal override void DrawWindow(Int32 id)
         {
             GUILayout.BeginVertical();
-            Dictionary<Guid, MasterStatusItem> masterStatus = tfScenario.GetMasterStatus();
+            Dictionary<Guid, MasterStatusItem> masterStatus = parentWindow.tfManager.GetMasterStatus();
 
             if (masterStatus == null || masterStatus.Count <= 0)
                 return;
@@ -86,12 +83,12 @@ namespace TestFlightCore
             foreach (PartStatus status in masterStatus[currentVessl].allPartsStatus)
             {
                 // We only show failed parts in Flight HUD
-                if (status.activeFailure == null)
+                if (status.activeFailure == null || status.acknowledged)
                     continue;
 
                 GUILayout.BeginHorizontal();
                 // Part Name
-                string tooltip = status.repairRequirements;
+                string tooltip = status.activeFailure.GetFailureDetails().failureTitle + "\n" + status.repairRequirements;
                 if (status.activeFailure.GetFailureDetails().severity == "minor")
                     GUILayout.Label(new GUIContent(String.Format("<color=#859900ff>{0}</color>", status.partName), tooltip), GUILayout.Width(200));
                 else if (status.activeFailure.GetFailureDetails().severity == "failure")
@@ -101,10 +98,18 @@ namespace TestFlightCore
                 GUILayout.Space(10);
                 if (status.activeFailure != null)
                 {
-                    if (GUILayout.Button("R", GUILayout.Width(38)))
+                    if (status.activeFailure.CanAttemptRepair())
+                    {
+                        if (GUILayout.Button("R", GUILayout.Width(38)))
+                        {
+                            // attempt repair
+                            bool repairSuccess = status.flightCore.AttemptRepair();
+                        }
+                    }
+                    if (GUILayout.Button("A", GUILayout.Width(38)))
                     {
                         // attempt repair
-                        bool repairSuccess = status.flightCore.AttemptRepair();
+                        status.flightCore.AcknowledgeFailure();
                     }
                 }
                 GUILayout.EndHorizontal();
@@ -116,8 +121,8 @@ namespace TestFlightCore
         void Window_OnWindowMoveComplete(MonoBehaviourWindow sender)
         {
             LogFormatted_DebugOnly("TestFlightHUD Saving window position");
-            settings.flightHUDPosition = WindowRect;
-            settings.Save();
+            tfScenario.settings.flightHUDPosition = WindowRect;
+            tfScenario.settings.Save();
         }
     }
 }

@@ -23,6 +23,7 @@ namespace TestFlightCore
         internal ITestFlightFailure activeFailure;
         internal bool highlightPart;
         internal string repairRequirements;
+        internal bool acknowledged;
     }
 
     internal struct MasterStatusItem
@@ -79,19 +80,16 @@ namespace TestFlightCore
 
         public List<TestFlightData> GetFlightData()
         {
-//            Debug.Log("PartFlightData: GetFlightData()");
             return flightData;
         }
 
         public string GetPartName()
         {
-//            Debug.Log("PartFlightData: GetPartName()");
             return partName;
         }
 
         public override string ToString()
         {
-//            Debug.Log("PartFlightData: ToString()");
             string baseString = partName + ":";
             foreach (TestFlightData data in flightData)
             {
@@ -104,7 +102,6 @@ namespace TestFlightCore
 
         public static PartFlightData FromString(string str)
         {
-//            Debug.Log("PartFlightData: FromString()");
             // String format is
             // partName:scope,data,0 scope,data scope,data,0 scope,data,0 
             PartFlightData newData = null;
@@ -148,8 +145,6 @@ namespace TestFlightCore
                     newData.scope = dataNode.GetValue("scope");
                     if (dataNode.HasValue("flightData"))
                         newData.flightData = float.Parse(dataNode.GetValue("flightData"));
-                    Debug.Log("SCOPE: " + newData.scope);
-                    Debug.Log("DATA: " + newData.flightData);
                     flightData.Add(newData);
                 }
             }
@@ -161,47 +156,24 @@ namespace TestFlightCore
             foreach (TestFlightData data in flightData)
             {
                 ConfigNode dataNode = node.AddNode("FLIGHTDATA");
-                Debug.Log("SCOPE: " + data.scope);
                 dataNode.AddValue("scope", data.scope);
-                Debug.Log("DATA: " + data.flightData);
                 dataNode.AddValue("flightData", data.flightData);
             }
         }
 
 
     }
+    [KSPAddon(KSPAddon.Startup.Flight, false)]
+    public class TestFlightManager : MonoBehaviourExtended
+    {
+        internal TestFlightManagerScenario tfScenario = null;
+        public static TestFlightManager Instance = null;
+        internal bool isReady = false;
 
-    [KSPAddon(KSPAddon.Startup.SpaceCentre, true)]
-	public class TestFlightManager : MonoBehaviour
-	{
-        public TestFlightManagerScenario tsm;
-
-        public void Start()
-        {
-            var game = HighLogic.CurrentGame;
-            ProtoScenarioModule psm = game.scenarios.Find(s => s.moduleName == typeof(TestFlightManagerScenario).Name);
-            if (psm == null)
-            {
-                GameScenes[] desiredScenes = new GameScenes[4] { GameScenes.EDITOR, GameScenes.FLIGHT, GameScenes.TRACKSTATION, GameScenes.SPACECENTER };
-                psm = game.AddProtoScenarioModule(typeof(TestFlightManagerScenario), desiredScenes);
-            }
-            psm.Load(ScenarioRunner.fetch);
-            tsm = game.scenarios.Select(s => s.moduleRef).OfType<TestFlightManagerScenario>().SingleOrDefault();
-        }
-    }
-
-
-	public class TestFlightManagerScenario : ScenarioModule
-	{
-        public List<PartFlightData> partsFlightData;
-        public List<String> partsPackedStrings;
         public Dictionary<Guid, double> knownVessels;
 
-        internal Settings settings = null;
         public double pollingInterval = 5.0f;
         public bool processInactiveVessels = true;
-
-//        private bool havePartsBeenInitialized = false;
 
         private Dictionary<Guid, MasterStatusItem> masterStatus = null;
 
@@ -210,78 +182,42 @@ namespace TestFlightCore
         double lastFailurePoll = 0.0;
         double lastMasterStatusUpdate = 0.0;
 
-        public override void OnAwake()
-		{
-            if (partsFlightData == null)
-            {
-                partsFlightData = new List<PartFlightData>();
-                if (partsPackedStrings != null)
-                {
-                    foreach (string packedString in partsPackedStrings)
-                    {
-                        Debug.Log(packedString);
-                        PartFlightData data = PartFlightData.FromString(packedString);
-                        partsFlightData.Add(data);
-                    }
-                }
-            }
-            if (partsPackedStrings == null)
-            {
-                partsPackedStrings = new List<string>();
-            }
-            if (settings == null)
-            {
-                settings = new Settings("../settings.cfg");
-            }
-            string assemblyPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            string filePath = System.IO.Path.Combine(assemblyPath, "../settings.cfg").Replace("\\","/");
-            Debug.Log("Settings stored in " + filePath);
-            if (!System.IO.File.Exists(filePath))
-            {
-                settings.flightDataEngineerMultiplier = 1.0;
-                settings.flightDataMultiplier = 1.0;
-                settings.globalReliabilityModifier = 1.0;
-                settings.minTimeBetweenDataPoll = 0.5;
-                settings.minTimeBetweenFailurePoll = 60;
-                settings.processAllVessels = false;
-                settings.masterStatusUpdateFrequency = 10;
-                settings.displaySettingsWindow = true;
 
-                settings.showFailedPartsOnlyInMSD = false;
-                settings.showFlightDataInMSD = true;
-                settings.showMomentaryReliabilityInMSD = false;
-                settings.showRestingReliabilityInMSD = true;
-                settings.showStatusTextInMSD = true;
-                settings.shortenPartNameInMSD = false;
-                settings.settingsPage = 0;
-                settings.mainWindowLocked = true;
-                settings.mainWindowPosition = new Rect(0, 0, 0, 0);
-                settings.currentMSDSize = 1;
+        internal override void Start()
+        {
+            base.Start();
+            StartCoroutine("ConnectToScenario");
+        }
 
-                settings.Save();
+        IEnumerator ConnectToScenario()
+        {
+            while (TestFlightManagerScenario.Instance == null)
+            {
+                yield return null;
             }
-            settings.Load();
-			base.OnAwake();
-		}
+
+            tfScenario = TestFlightManagerScenario.Instance;
+            while (!tfScenario.isReady)
+            {
+                yield return null;
+            }
+            Startup();
+        }
+
+        public void Startup()
+        {
+            isReady = true;
+            Instance = this;
+        }
 
         internal Dictionary<Guid, MasterStatusItem> GetMasterStatus()
         {
             return masterStatus;
         }
 
-        private PartFlightData GetFlightDataForPartName(string partName)
-        {
-            foreach (PartFlightData data in partsFlightData)
-            {
-                if (data.GetPartName() == partName)
-                    return data;
-            }
-            return null;
-        }
-
         private void InitializeParts(Vessel vessel)
         {
-            Debug.Log("TestFlightManagerScenario: Initializing parts for vessel " + vessel.GetName());
+            LogFormatted_DebugOnly("TestFlightManager: Initializing parts for vessel " + vessel.GetName());
             foreach (Part part in vessel.parts)
             {
                 foreach (PartModule pm in part.Modules)
@@ -289,7 +225,7 @@ namespace TestFlightCore
                     ITestFlightCore core = pm as ITestFlightCore;
                     if (core != null)
                     {
-                        PartFlightData partData = GetFlightDataForPartName(pm.part.name);
+                        PartFlightData partData = tfScenario.GetFlightDataForPartName(pm.part.name);
                         if (partData == null)
                         {
                             partData = new PartFlightData();
@@ -297,7 +233,7 @@ namespace TestFlightCore
 
                         if (partData != null)
                         {
-                            core.InitializeFlightData(partData.GetFlightData(), settings.globalReliabilityModifier);
+                            core.InitializeFlightData(partData.GetFlightData(), tfScenario.settings.globalReliabilityModifier);
                         }
                     }
                 }
@@ -314,20 +250,20 @@ namespace TestFlightCore
                 Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == entry.Key);
                 if (vessel == null)
                 {
-                    Debug.Log("TestFlightManagerScenario: Vessel no longer exists. Marking it for deletion.");
+                    LogFormatted_DebugOnly("TestFlightManager: Vessel no longer exists. Marking it for deletion.");
                     vesselsToDelete.Add(entry.Key);
                 }
                 else
                 {
                     if (vessel.vesselType == VesselType.Debris)
                     {
-                        Debug.Log("TestFlightManagerScenario: Vessel appears to be debris now. Marking it for deletion.");
+                        LogFormatted_DebugOnly("TestFlightManager: Vessel appears to be debris now. Marking it for deletion.");
                         vesselsToDelete.Add(entry.Key);
                     }
                 }
             }
             if (vesselsToDelete.Count > 0)
-                Debug.Log("TestFlightManagerScenario: Removing " + vesselsToDelete.Count() + " vessels from Master Status");
+                LogFormatted_DebugOnly("TestFlightManager: Removing " + vesselsToDelete.Count() + " vessels from Master Status");
             foreach (Guid id in vesselsToDelete)
             {
                 masterStatus.Remove(id);
@@ -343,12 +279,12 @@ namespace TestFlightCore
                     Part part = vessel.Parts.Find(p => p.flightID == partStatus.partID);
                     if (part == null)
                     {
-                        Debug.Log("TestFlightManagerScenario: Could not find part. " + partStatus.partName + "(" + partStatus.partID + ") Marking it for deletion.");
+                        LogFormatted_DebugOnly("TestFlightManager: Could not find part. " + partStatus.partName + "(" + partStatus.partID + ") Marking it for deletion.");
                         partsToDelete.Add(partStatus);
                     }
                 }
                 if (partsToDelete.Count > 0)
-                    Debug.Log("TestFlightManagerScenario: Deleting " + partsToDelete.Count() + " parts from vessel " + vessel.GetName());
+                    LogFormatted_DebugOnly("TestFlightManager: Deleting " + partsToDelete.Count() + " parts from vessel " + vessel.GetName());
                 foreach (PartStatus oldPartStatus in partsToDelete)
                 {
                     masterStatus[entry.Key].allPartsStatus.Remove(oldPartStatus);
@@ -376,7 +312,7 @@ namespace TestFlightCore
                 }
             }
             if (vesselsToDelete.Count() > 0)
-                Debug.Log("TestFlightManagerScenario: Deleting " + vesselsToDelete.Count() + " vessels from cached vessels");
+                LogFormatted_DebugOnly("TestFlightManager: Deleting " + vesselsToDelete.Count() + " vessels from cached vessels");
             foreach (Guid id in vesselsToDelete)
             {
                 knownVessels.Remove(id);
@@ -386,11 +322,11 @@ namespace TestFlightCore
             // doesn't consider a vessel launched, and does not start the mission clock, until the player activates the first stage.  This is fine except it
             // makes things like engine test stands impossible, so we instead cache the vessel the first time we see it and use that time as the missionStartTime
 
-            if (!settings.processAllVessels)
+            if (!tfScenario.settings.processAllVessels)
             {
                 if (FlightGlobals.ActiveVessel != null && !knownVessels.ContainsKey(FlightGlobals.ActiveVessel.id))
                 {
-                    Debug.Log("TestFlightManagerScenario: Adding new vessel " + FlightGlobals.ActiveVessel.GetName() + " with launch time " + Planetarium.GetUniversalTime());
+                    LogFormatted_DebugOnly("TestFlightManager: Adding new vessel " + FlightGlobals.ActiveVessel.GetName() + " with launch time " + Planetarium.GetUniversalTime());
                     knownVessels.Add(FlightGlobals.ActiveVessel.id, Planetarium.GetUniversalTime());
                     InitializeParts(FlightGlobals.ActiveVessel);
                 }
@@ -403,7 +339,7 @@ namespace TestFlightCore
                     {
                         if ( !knownVessels.ContainsKey(vessel.id) )
                         {
-                            Debug.Log("TestFlightManagerScenario: Adding new vessel " + vessel.GetName() + " with launch time " + Planetarium.GetUniversalTime());
+                            LogFormatted_DebugOnly("TestFlightManager: Adding new vessel " + vessel.GetName() + " with launch time " + Planetarium.GetUniversalTime());
                             knownVessels.Add(vessel.id, Planetarium.GetUniversalTime());
                             InitializeParts(vessel);
                         }
@@ -415,7 +351,7 @@ namespace TestFlightCore
         public void DoFlightUpdate(ITestFlightCore core, double launchTime)
         {
             // Tell the core to do a flight update
-            core.DoFlightUpdate(launchTime, settings.flightDataMultiplier, settings.flightDataEngineerMultiplier, settings.globalReliabilityModifier);
+            core.DoFlightUpdate(launchTime, tfScenario.settings.flightDataMultiplier, tfScenario.settings.flightDataEngineerMultiplier, tfScenario.settings.globalReliabilityModifier);
         }
 
         public TestFlightData DoDataUpdate(ITestFlightCore core, Part part)
@@ -426,18 +362,19 @@ namespace TestFlightCore
 
         public void DoFailureUpdate(ITestFlightCore core, double launchTime)
         {
-            core.DoFailureCheck(launchTime, settings.globalReliabilityModifier);
+            core.DoFailureCheck(launchTime, tfScenario.settings.globalReliabilityModifier);
         }
 
-		public void Update()
-		{
+        internal override void Update()
+        {
+
             if (masterStatus == null)
                 masterStatus = new Dictionary<Guid, MasterStatusItem>();
 
             currentUTC = Planetarium.GetUniversalTime();
             // ensure out vessel list is up to date
             CacheVessels();
-            if (currentUTC >= lastMasterStatusUpdate + settings.masterStatusUpdateFrequency)
+            if (currentUTC >= lastMasterStatusUpdate + tfScenario.settings.masterStatusUpdateFrequency)
             {
                 lastMasterStatusUpdate = currentUTC;
                 VerifyMasterStatus();
@@ -456,8 +393,9 @@ namespace TestFlightCore
                             if (core != null)
                             {
                                 // Poll for flight data and part status
-                                if (currentUTC >= lastDataPoll + settings.minTimeBetweenDataPoll)
+                                if (currentUTC >= lastDataPoll + tfScenario.settings.minTimeBetweenDataPoll)
                                 {
+                                    LogFormatted_DebugOnly("TestFlightManager: Updating part " + part.partInfo.title);
                                     DoFlightUpdate(core, entry.Value);
                                     TestFlightData currentFlightData = DoDataUpdate(core, part);
 
@@ -468,8 +406,9 @@ namespace TestFlightCore
                                     partStatus.flightData = currentFlightData.flightData;
                                     partStatus.flightTime = currentFlightData.flightTime;
                                     partStatus.partStatus = core.GetPartStatus();
-                                    partStatus.reliability = core.GetCurrentReliability(settings.globalReliabilityModifier);
+                                    partStatus.reliability = core.GetCurrentReliability(tfScenario.settings.globalReliabilityModifier);
                                     partStatus.repairRequirements = core.GetRequirementsTooltip();
+                                    partStatus.acknowledged = core.IsFailureAcknowledged();
                                     if (core.GetPartStatus() > 0)
                                     {
                                         partStatus.activeFailure = core.GetFailureModule();
@@ -498,7 +437,7 @@ namespace TestFlightCore
                                         {
                                             existingPartIndex = masterStatus[vessel.id].allPartsStatus.FindIndex(p => p.partID == part.flightID);
                                             masterStatus[vessel.id].allPartsStatus[existingPartIndex] = partStatus;
-                                            Debug.Log("[ERROR] TestFlightManagerScenario: Found " + numItems + " matching parts in Master Status Display!");
+                                            LogFormatted_DebugOnly("[ERROR] TestFlightManager: Found " + numItems + " matching parts in Master Status Display!");
                                         }
                                     }
                                     else
@@ -512,7 +451,7 @@ namespace TestFlightCore
                                         masterStatus.Add(vessel.id, masterStatusItem);
                                     }
 
-                                    PartFlightData data = GetFlightDataForPartName(part.name);
+                                    PartFlightData data = tfScenario.GetFlightDataForPartName(part.name);
                                     if (data != null)
                                     {
                                         data.AddFlightData(part.name, currentFlightData);
@@ -521,12 +460,11 @@ namespace TestFlightCore
                                     {
                                         data = new PartFlightData();
                                         data.AddFlightData(part.name, currentFlightData);
-                                        partsFlightData.Add(data);
-                                        partsPackedStrings.Add(data.ToString());
+                                        tfScenario.SetFlightDataForPartName(part.name, data);
                                     }
                                 }
                                 // Poll for failures
-                                if (currentUTC >= lastFailurePoll + settings.minTimeBetweenFailurePoll)
+                                if (currentUTC >= lastFailurePoll + tfScenario.settings.minTimeBetweenFailurePoll)
                                 {
                                     DoFailureUpdate(core, entry.Value);
                                 }
@@ -534,19 +472,97 @@ namespace TestFlightCore
                         }
                     }
                 }
-                if (currentUTC >= lastDataPoll + settings.minTimeBetweenDataPoll)
+                if (currentUTC >= lastDataPoll + tfScenario.settings.minTimeBetweenDataPoll)
                 {
                     lastDataPoll = currentUTC;
                 }
-                if (currentUTC >= lastFailurePoll + settings.minTimeBetweenFailurePoll)
+                if (currentUTC >= lastFailurePoll + tfScenario.settings.minTimeBetweenFailurePoll)
                 {
                     lastFailurePoll = currentUTC;
                 }
             }
         }
+    
+    }
+
+
+    [KSPScenario(ScenarioCreationOptions.AddToAllGames, 
+        new GameScenes[] 
+        { 
+            GameScenes.FLIGHT,
+            GameScenes.EDITOR
+        }
+    )]
+	public class TestFlightManagerScenario : ScenarioModule
+	{
+        internal Settings settings = null;
+        public static TestFlightManagerScenario Instance { get; private set; }
+        public bool isReady = false;
+
+        public List<PartFlightData> partsFlightData;
+        public List<String> partsPackedStrings;
+
+        public override void OnAwake()
+        {
+            Instance = this;
+            if (settings == null)
+            {
+                settings = new Settings("../settings.cfg");
+            }
+            settings.Load();
+            if (partsFlightData == null)
+            {
+                partsFlightData = new List<PartFlightData>();
+                if (partsPackedStrings != null)
+                {
+                    foreach (string packedString in partsPackedStrings)
+                    {
+                        Debug.Log(packedString);
+                        PartFlightData data = PartFlightData.FromString(packedString);
+                        partsFlightData.Add(data);
+                    }
+                }
+            }
+            if (partsPackedStrings == null)
+            {
+                partsPackedStrings = new List<string>();
+            }
+            base.OnAwake();
+        }
+
+        public void Start()
+        {
+            Debug.Log("Scenario Start");
+            isReady = true;
+        }
+
+        public PartFlightData GetFlightDataForPartName(string partName)
+        {
+            foreach (PartFlightData data in partsFlightData)
+            {
+                if (data.GetPartName() == partName)
+                    return data;
+            }
+            return null;
+        }
+
+        public void SetFlightDataForPartName(string partName, PartFlightData data)
+        {
+            int index = partsFlightData.FindIndex(pfd => pfd.GetPartName() == partName);
+            if (index == -1)
+                partsFlightData.Add(data);
+            else
+                partsFlightData[index] = data;
+        }
 
         public override void OnLoad(ConfigNode node)
         {
+            base.OnLoad(node);
+            Debug.Log("TestFlightManagerScenario: OnLoad");
+            if (settings != null)
+            {
+                settings.Load();
+            }
             if (node.HasNode("FLIGHTDATA_PART"))
             {
                 if (partsFlightData == null)
@@ -558,30 +574,23 @@ namespace TestFlightCore
                     partData.Load(partNode);
                     partsFlightData.Add(partData);
                     partsPackedStrings.Add(partData.ToString());
-                    Debug.Log(partData.ToString());
                 }
             }
         }
 
 		public override void OnSave(ConfigNode node)
 		{
-            if (HighLogic.LoadedSceneIsFlight)
+            Debug.Log("TestFlightManagerScenario: OnSave");
+            base.OnSave(node);
+            if (settings != null)
             {
-                foreach (PartFlightData partData in partsFlightData)
-                {
-                    ConfigNode partNode = node.AddNode("FLIGHTDATA_PART");
-                    partData.Save(partNode);
-                }
+                settings.Save();
             }
-            else
+            foreach (PartFlightData partData in partsFlightData)
             {
-                foreach (PartFlightData partData in partsFlightData)
-                {
-                    ConfigNode partNode = node.AddNode("FLIGHTDATA_PART");
-                    partData.Save(partNode);
-                }
+                ConfigNode partNode = node.AddNode("FLIGHTDATA_PART");
+                partData.Save(partNode);
             }
 		}
-
 	}
 }
