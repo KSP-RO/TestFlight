@@ -13,6 +13,29 @@ namespace TestFlightCore
     /// </summary>
     public class TestFlightCore : PartModuleExtended, ITestFlightCore
     {
+        // New API
+        [KSPField(isPersistant = true)]
+        public FlightDataConfig flightData;
+
+        private Dictionary<String, double> momentaryFailureRates;
+        private double baseFailureRate;
+        private FlightDataConfig baseFlightData;
+
+        public override void Update()
+        {
+            base.Update();
+
+            if (TestFlightManagerScenario.Instance.settings == null)
+                return;
+
+            double currentMET = this.vessel.missionTime;
+
+            DoFlightUpdate(this.vessel.launchTime, TestFlightManagerScenario.Instance.settings.flightDataMultiplier, TestFlightManagerScenario.Instance.settings.flightDataEngineerMultiplier, TestFlightManagerScenario.Instance.settings.globalReliabilityModifier);
+            DoFailureCheck(this.vessel.launchTime, TestFlightManagerScenario.Instance.settings.globalReliabilityModifier);
+        }
+
+
+
         private float lastFailureCheck = 0f;
         private float lastPolling = 0.0f;
         private TestFlightData currentFlightData;

@@ -36,7 +36,7 @@ namespace TestFlightAPI
         /// <returns>The data.</returns>
         /// <param name="bodyName">Body name.</param>
         /// <param name="situation">Situation.</param>
-        public float GetData(string scope)
+        public double GetData(string scope)
         {
             FlightDataBody bodyData = flightData.GetFlightData(scope);
             if (bodyData != null)
@@ -186,6 +186,10 @@ namespace TestFlightAPI
             lastRecordedMet = currentMet;
         }
 
+        public override void OnUpdate()
+        {
+            base.OnUpdate();
+        }
         public virtual void ModifyCurrentFlightData(float modifier)
         {
             currentData += modifier;
