@@ -219,7 +219,6 @@ namespace TestFlightAPI
 
         public override void OnSave(ConfigNode node)
         {
-            Debug.Log("TestFlightRecorder OnSave()");
             // Make sure our FlightData configs are up to date
             flightData.AddFlightData(currentScope, currentData, currentFlightTime);
             node.AddValue("isNewInstanceOfPart", isNewInstanceOfPart);
