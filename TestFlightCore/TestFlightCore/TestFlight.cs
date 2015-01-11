@@ -348,23 +348,6 @@ namespace TestFlightCore
             }
         }
 
-        public void DoFlightUpdate(ITestFlightCore core, double launchTime)
-        {
-            // Tell the core to do a flight update
-            core.DoFlightUpdate(launchTime, tfScenario.settings.flightDataMultiplier, tfScenario.settings.flightDataEngineerMultiplier, tfScenario.settings.globalReliabilityModifier);
-        }
-
-        public TestFlightData DoDataUpdate(ITestFlightCore core, Part part)
-        {
-            // Then grab its flight data
-            return core.GetCurrentFlightData();
-        }
-
-        public void DoFailureUpdate(ITestFlightCore core, double launchTime)
-        {
-            core.DoFailureCheck(launchTime, tfScenario.settings.globalReliabilityModifier);
-        }
-
         internal override void Update()
         {
 
@@ -393,10 +376,12 @@ namespace TestFlightCore
                             if (core != null)
                             {
                                 // Poll for flight data and part status
-                                if (currentUTC >= lastDataPoll + tfScenario.settings.minTimeBetweenDataPoll)
+                                if (currentUTC >= lastDataPoll + tfScenario.settings.masterStatusUpdateFrequency)
                                 {
-                                    DoFlightUpdate(core, entry.Value);
-                                    TestFlightData currentFlightData = DoDataUpdate(core, part);
+                                    TestFlightData currentFlightData = new TestFlightData();
+                                    currentFlightData.scope = core.GetScope();
+                                    currentFlightData.flightData = core.GetFlightData();
+                                    currentFlightData.flightTime = core.GetFlightTime();
 
                                     PartStatus partStatus = new PartStatus();
                                     partStatus.flightCore = core;
@@ -461,11 +446,6 @@ namespace TestFlightCore
                                         data.AddFlightData(part.name, currentFlightData);
                                         tfScenario.SetFlightDataForPartName(part.name, data);
                                     }
-                                }
-                                // Poll for failures
-                                if (currentUTC >= lastFailurePoll + tfScenario.settings.minTimeBetweenFailurePoll)
-                                {
-                                    DoFailureUpdate(core, entry.Value);
                                 }
                             }
                         }
