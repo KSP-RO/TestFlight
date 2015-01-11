@@ -13,6 +13,7 @@ namespace TestFlightCore
     public class TestFlightWindow : MonoBehaviourWindowPlus
     {
         internal TestFlightManagerScenario tfScenario;
+        internal TestFlightManager tfManager;
         private bool isReady = false;
         private ApplicationLauncherButton appLauncherButton;
         private TestFlightHUD hud;
@@ -38,6 +39,10 @@ namespace TestFlightCore
                 yield return null;
             }
 
+            while (TestFlightManager.Instance == null)
+            {
+                yield return null;
+            }
             tfScenario = TestFlightManagerScenario.Instance;
             while (!tfScenario.isReady)
             {
@@ -50,6 +55,7 @@ namespace TestFlightCore
         {
             tfScenario = TestFlightManagerScenario.Instance;
             tfScenario.settings.Load();
+            tfManager = TestFlightManager.Instance;
             LogFormatted_DebugOnly("Starting coroutine to add toolbar icon");
             StartCoroutine("AddToToolbar");
             TestFlight.Resources.LoadTextures();
@@ -75,7 +81,8 @@ namespace TestFlightCore
             List<string> views = new List<string>()
             {
                 "Visual Settings",
-                "Difficulty/Performance Settings"
+                "Difficulty/Performance Settings",
+                "Miscellaneous"
             };
             ddlSettingsPage = new DropDownList(views, this);
             ddlManager.AddDDL(ddlSettingsPage);
@@ -233,7 +240,7 @@ namespace TestFlightCore
         internal override void DrawWindow(Int32 id)
         {
             GUILayout.BeginVertical();
-            Dictionary<Guid, MasterStatusItem> masterStatus = tfScenario.GetMasterStatus();
+            Dictionary<Guid, MasterStatusItem> masterStatus = tfManager.GetMasterStatus();
             GUIContent settingsButton = new GUIContent(TestFlight.Resources.btnChevronDown, "Open Settings Panel");
             if (tfScenario.settings.displaySettingsWindow)
             {
@@ -549,6 +556,14 @@ namespace TestFlightCore
                             tfScenario.settings.Save();
                         }
                         GUILayout.Label(String.Format("{0,5:f2}", tfScenario.settings.globalReliabilityModifier), GUILayout.Width(75));
+                        GUILayout.EndHorizontal();
+                        break;
+                    case 2:
+                        GUILayout.BeginHorizontal();
+                        if (DrawToggle(ref tfScenario.settings.debugLog, "Eable Debugging", Styles.styleToggle))
+                        {
+                            tfScenario.settings.Save();
+                        }
                         GUILayout.EndHorizontal();
                         break;
                 }

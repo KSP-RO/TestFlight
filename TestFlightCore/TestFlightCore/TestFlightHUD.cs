@@ -66,7 +66,7 @@ namespace TestFlightCore
         internal override void DrawWindow(Int32 id)
         {
             GUILayout.BeginVertical();
-            Dictionary<Guid, MasterStatusItem> masterStatus = tfScenario.GetMasterStatus();
+            Dictionary<Guid, MasterStatusItem> masterStatus = parentWindow.tfManager.GetMasterStatus();
 
             if (masterStatus == null || masterStatus.Count <= 0)
                 return;
