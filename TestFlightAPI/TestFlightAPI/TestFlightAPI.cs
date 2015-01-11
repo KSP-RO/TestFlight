@@ -215,18 +215,26 @@ namespace TestFlightAPI
         String FailureRateToMTBF(double failureRate, String units);
         // Simply converts the failure rate to a MTBF number, without any string formatting
         double FailureRateToMTBF(double failureRate);
-        // Get the FlightData for the part
+        // Get the FlightData or FlightTime for the part
         double GetFlightData();
         double GetFlightDataForScope(String scope);
-        // Set the FlightData for the part - this is an absolute set and replaces the previous FlightData
+        double GetFlightTime();
+        double GetFlightTimeForScope(String scope);
+        // Set the FlightData for FlightTime or the part - this is an absolute set and replaces the previous FlightData
         void SetFlightData(double data);
+        void SetFlightTime(double seconds);
         void SetFlightDataForScope(double data, String scope);
-        // Modify the flight data for the part
+        void SetFlightTimeForScope(double seconds, String scope);
+        // Modify the FlightData or FlightTime for the part
         // The given modifier is multiplied against the current FlightData unless additive is true
         double ModifyFlightData(double modifier);
+        double ModifyFlightTime(double modifier);
         double ModifyFlightData(double modifier, bool additive);
+        double ModifyFlightTime(double modifier, bool additive);
         double ModifyFlightDataForScope(double modifier, String scope);
+        double ModifyFlightTimeForScope(double modifier, String scope);
         double ModifyFlightDataForScope(double modifier, String scope, bool additive);
+        double ModifyFlightTimeForScope(double modifier, String scope, bool additive);
         // Cause a failure to occur, either a random failure or a specific one
         // If fallbackToRandom is true, then if the specified failure can't be found or can't be triggered, a random failure will be triggered instead
         ITestFlightFailure TriggerFailure();
