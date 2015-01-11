@@ -176,6 +176,62 @@ namespace TestFlightAPI
         void AcknowledgeFailure();
 
         string GetRequirementsTooltip();
+
+
+
+
+        // NEW API
+        // Get a proper scope string for use in other parts of the API
+        String GetScope();
+        String GetScopeForSituation(String situation);
+        String GetScopeForSituation(Vessel.Situations situation);
+        String GetScopeForSituationAndBody(String situation, String body);
+        String GetScopeForSituationAndBody(String situation, CelestialBody body);
+        String GetScopeForSituationAndBody(Vessel.Situations situation, String body);
+        String GetScopeForSituationAndBody(Vessel.Situations situation, CelestialBody body);
+        // Get the base or static failure rate
+        double GetBaseFailureRate();
+        double GetBaseFailureRateForScope(String scope);
+        // Get the momentary (IE current dynamic) failure rates (Can vary per reliability/failure modules)
+        // These  methods will let you get a list of all momentary rates or you can get the best (lowest chance of failure)/worst (highest chance of failure) rates
+        double GetWorstMomentaryFailureRate();
+        double GetBestMomentaryFailureRate();
+        double GetAllMomentaryFailureRates();
+        Dictionary<String, double> GetWorstMomentaryFailureRateForScope(String scope);
+        Dictionary<String, double> GetBestMomentaryFailureRateForScope(String scope);
+        Dictionary<String, double> GetAllMomentaryFailureRatesForScope(String scope);
+        // The base failure rate can be modified with a multipler that is applied during flight only
+        // Returns the total modified failure rate back to the caller for convenience
+        double ModifyBaseFailureRate(double multiplier);
+        double ModifyBaseFailureRateForScope(String scope, double multiplier);
+        // The momentary failure rate is tracked per Reliability/FailureTrigger module
+        // Returns the total modified failure rate back to the caller for convenience
+        double ModifyModuleMomentaryFailureRate(String module, double multiplier);
+        double ModifyModuleMomentaryFailureRateForScope(String module, String scope, double multiplier);
+        // simply converts the failure rate into a MTBF string.  Convenience method
+        // Returned string will be of the format "123 units"
+        // units should be one of:
+        //  seconds, hours, days, months, years, flights, missions
+        String FailureRateToMTBF(double failureRate, String units);
+        // Simply converts the failure rate to a MTBF number, without any string formatting
+        double FailureRateToMTBF(double failureRate);
+        // Get the FlightData for the part
+        double GetFlightData();
+        double GetFlightDataForScope(String scope);
+        // Set the FlightData for the part - this is an absolute set and replaces the previous FlightData
+        void SetFlightData(double data);
+        void SetFlightDataForScope(double data, String scope);
+        // Modify the flight data for the part
+        // The given modifier is multiplied against the current FlightData unless additive is true
+        double ModifyFlightData(double modifier);
+        double ModifyFlightData(double modifier, bool additive);
+        double ModifyFlightDataForScope(double modifier, String scope);
+        double ModifyFlightDataForScope(double modifier, String scope, bool additive);
+        // Cause a failure to occur, either a random failure or a specific one
+        // If fallbackToRandom is true, then if the specified failure can't be found or can't be triggered, a random failure will be triggered instead
+        ITestFlightFailure TriggerFailure();
+        ITestFlightFailure TriggerNamedFailure(String failureModuleName);
+        ITestFlightFailure TriggerNamedFailure(String failureModuleName, bool fallbackToRandom);
     }
 }
 
