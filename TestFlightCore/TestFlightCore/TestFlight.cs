@@ -15,7 +15,7 @@ namespace TestFlightCore
         internal string partName;
         internal uint partID;
         internal int partStatus;
-        internal int flightTime;
+        internal double flightTime;
         internal double flightData;
         internal double reliability;
         internal double momentaryReliability;

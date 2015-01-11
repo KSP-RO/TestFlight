@@ -10,7 +10,7 @@ namespace TestFlightAPI
     public class FlightDataRecorderBase : PartModule, IFlightDataRecorder
     {
         private double currentData = 0.0f;
-        private int currentFlightTime = 0;
+        private double currentFlightTime = 0;
 		private string currentScope = "NONE";
 
         private double lastRecordedMet = 0;
@@ -59,7 +59,7 @@ namespace TestFlightAPI
         /// Gets the flight time for the current body and situation
         /// </summary>
         /// <returns>The current flight time.</returns>
-        public int GetCurrentFlightTime()
+        public double GetCurrentFlightTime()
         {
             return currentFlightTime;
         }

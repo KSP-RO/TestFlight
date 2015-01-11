@@ -16,6 +16,9 @@ namespace TestFlightCore
         // New API
         [KSPField(isPersistant = true)]
         public FlightDataConfig flightData;
+        [KSPField(isPersistant = true)]
+        public double deepSpaceThreshold = 10000000;
+
 
         private Dictionary<String, double> momentaryFailureRates;
         private double baseFailureRate;
@@ -48,6 +51,30 @@ namespace TestFlightCore
         }
         public String GetScopeForSituationAndBody(String situation, String body)
         {
+            // Determine if we are recording data in SPACE or ATMOSHPHERE
+            situation = situation.ToLower().Trim();
+            body = body.ToLower().Trim();
+            if (situation == "sub_orbital" || situation == "orbiting" || situation == "escaping" || situation == "docked")
+            {
+                if (this.vessel.altitude > deepSpaceThreshold)
+                {
+                    situation = "deep-space";
+                    body = "none";
+                }
+                else
+                {
+                    situation = "space";
+                }
+            }
+            else if (situation == "flying" || situation == "landed" || situation == "splashed" || situation == "prelaunch")
+            {
+                situation = "atmosphere";
+            }
+            else
+            {
+                situation = "default";
+            }
+
             return String.Format("{0}_{1}", situation.ToLower(), body.ToLower());
         }
 
@@ -68,11 +95,11 @@ namespace TestFlightCore
                 return dataBody.flightData;
             }
         }
-        public int GetFlightTime()
+        public double GetFlightTime()
         {
             return GetFlightTimeForScope(GetScope());
         }
-        public int GetFlightTimeForScope(String scope)
+        public double GetFlightTimeForScope(String scope)
         {
             FlightDataBody dataBody = flightData.GetFlightData(scope);
             if (dataBody == null)

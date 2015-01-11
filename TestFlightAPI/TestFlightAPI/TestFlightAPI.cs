@@ -12,7 +12,7 @@ namespace TestFlightAPI
         // The total accumulated flight data for the part
 		public double flightData;
         // The specific flight time, in seconds, of this part instance
-		public int flightTime;
+		public double flightTime;
 	}
 
 	public struct TestFlightFailureDetails
@@ -218,8 +218,8 @@ namespace TestFlightAPI
         // Get the FlightData or FlightTime for the part
         double GetFlightData();
         double GetFlightDataForScope(String scope);
-        int GetFlightTime();
-        int GetFlightTimeForScope(String scope);
+        double GetFlightTime();
+        double GetFlightTimeForScope(String scope);
         // Set the FlightData for FlightTime or the part - this is an absolute set and replaces the previous FlightData
         void SetFlightData(double data);
         void SetFlightTime(double seconds);
