@@ -14,7 +14,7 @@ namespace TestFlightAPI
         [KSPField(isPersistant = true)]
         public string scope;
         [KSPField(isPersistant = true)]
-        public float flightData;
+        public double flightData;
         [KSPField(isPersistant = true)]
         public int flightTime;
 
@@ -26,7 +26,7 @@ namespace TestFlightAPI
                 scope = "NONE";
 
             if (node.HasValue("flightData"))
-                flightData = float.Parse(node.GetValue("flightData"));
+                flightData = double.Parse(node.GetValue("flightData"));
             else
                 flightData = 0.0f;
 
@@ -61,7 +61,7 @@ namespace TestFlightAPI
             {
                 bodyData = new FlightDataBody();
                 bodyData.scope = sections[0];
-                bodyData.flightData = float.Parse(sections[1]);
+                bodyData.flightData = double.Parse(sections[1]);
                 bodyData.flightTime = int.Parse(sections[2]);
             }
 
@@ -79,7 +79,7 @@ namespace TestFlightAPI
         /// <param name="name">The requested ConfigNode</param>
         /// <param name="name">Name of the situation</param>
         /// <returns></returns>
-        public FlightDataBody GetFlightData(string scope)
+        public FlightDataBody GetFlightData(String scope)
         {
             if (dataBodies == null)
                 return null;
@@ -123,7 +123,6 @@ namespace TestFlightAPI
                 }
             }
         }
-
         public void Load(ConfigNode node)
         {
             if (node.HasNode("bodyData"))
