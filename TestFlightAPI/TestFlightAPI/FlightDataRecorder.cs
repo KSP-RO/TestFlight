@@ -189,6 +189,31 @@ namespace TestFlightAPI
         public override void OnUpdate()
         {
             base.OnUpdate();
+
+            ITestFlightCore core = null;
+            foreach (PartModule pm in this.part.Modules)
+            {
+                core = pm as ITestFlightCore;
+                if (core != null)
+                    break;
+            }
+            if (core == null)
+                return;
+
+            double currentMet = this.vessel.missionTime;
+            if (!IsRecordingFlightData())
+            {
+                lastRecordedMet = currentMet;
+                return;
+            }
+
+            string scope = core.GetScope();
+            // TODO
+            // The core needs to expose the main settings for data multipliers so we can use them here
+            // Need to calculate the FlightData multiplier as well as Engineer bonus
+            core.ModifyFlightDataForScope( (currentMet - lastRecordedMet) * flightDataMultiplier, scope, true);
+            core.ModifyFlightTimeForScope(currentMet - lastRecordedMet, scope, true);
+            lastRecordedMet = currentMet;
         }
         public virtual void ModifyCurrentFlightData(float modifier)
         {
