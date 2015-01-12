@@ -27,7 +27,7 @@ namespace TestFlightCore
         [Persistent] public double flightDataMultiplier = 1.0;
         [Persistent] public double flightDataEngineerMultiplier = 1.0;
         [Persistent] public double globalReliabilityModifier = 1.0;
-        [Persistent] public double masterStatusUpdateFrequency = 10;
+        [Persistent] public double masterStatusUpdateFrequency = 0.25;
         [Persistent] public bool displaySettingsWindow = false;
         [Persistent] public int settingsPage = 0;
         [Persistent] public bool enableHUD = false;
