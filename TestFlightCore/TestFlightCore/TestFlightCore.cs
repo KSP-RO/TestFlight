@@ -39,7 +39,7 @@ namespace TestFlightCore
         }
         public String GetScopeForSituationAndBody(String situation, CelestialBody body)
         {
-            return GetScopeForSituationAndBody(situation, body.ToString());
+            return GetScopeForSituationAndBody(situation, body.GetName());
         }
         public String GetScopeForSituationAndBody(Vessel.Situations situation, String body)
         {
@@ -47,7 +47,7 @@ namespace TestFlightCore
         }
         public String GetScopeForSituationAndBody(Vessel.Situations situation, CelestialBody body)
         {
-            return GetScopeForSituationAndBody(situation.ToString(), body.ToString());
+            return GetScopeForSituationAndBody(situation.ToString(), body.GetName());
         }
         public String GetScopeForSituationAndBody(String situation, String body)
         {
@@ -75,7 +75,7 @@ namespace TestFlightCore
                 situation = "default";
             }
 
-            return String.Format("{0}_{1}", situation.ToLower(), body.ToLower());
+            return String.Format("{0}_{1}", body.ToLower(), situation.ToLower());
         }
         // TODO
         // Implement theses
@@ -160,13 +160,16 @@ namespace TestFlightCore
         }
         public double GetFlightDataForScope(String scope)
         {
+            LogFormatted_DebugOnly("GetFlightDataForScope: scope=" + scope);
             FlightDataBody dataBody = flightData.GetFlightData(scope);
             if (dataBody == null)
             {
+                LogFormatted_DebugOnly("GetFlightDataForScope: Could not find data or this scope.  Returning 0");
                 return 0;
             }
             else
             {
+                LogFormatted_DebugOnly("GetFlightDataForScope: Returning " + dataBody.flightData);
                 return dataBody.flightData;
             }
         }
@@ -229,7 +232,33 @@ namespace TestFlightCore
         }
         public double ModifyFlightDataForScope(double modifier, String scope, bool additive)
         {
-            return 0;
+            if (flightData == null)
+            {
+                LogFormatted_DebugOnly("ModifyFlightData: Skipping update - flightData is null");
+                return 0;
+            }
+
+            FlightDataBody bodyData = flightData.GetFlightData(scope);
+            if (bodyData == null)
+            {
+                if (!additive)
+                    return 0;
+                LogFormatted_DebugOnly("ModifyFlightData: Adding new entry");
+                flightData.AddFlightData(scope, modifier, 0);
+                return modifier;
+            }
+
+            if (additive)
+            {
+                bodyData.flightData += modifier;
+            }
+            else
+            {
+                bodyData.flightData *= modifier;
+            }
+            LogFormatted_DebugOnly("ModifyFlightData: Updating entry for scope " + scope + " with data " + bodyData.flightData + " and time " + bodyData.flightTime);
+            flightData.AddFlightData(scope, bodyData.flightData, bodyData.flightTime);
+            return bodyData.flightData;
         }
         public double ModifyFlightTimeForScope(double modifier, String scope, bool additive)
         {
@@ -255,7 +284,7 @@ namespace TestFlightCore
         {
             base.Update();
 
-            if (TestFlightManagerScenario.Instance.settings == null)
+            if (TestFlightManagerScenario.Instance == null)
                 return;
 
             double currentMET = this.vessel.missionTime;
@@ -344,6 +373,11 @@ namespace TestFlightCore
 
         public override void OnStart(StartState state)
         {
+            if (baseFlightData == null)
+                baseFlightData = new FlightDataConfig();
+            if (flightData == null)
+                flightData = new FlightDataConfig();
+
             if (failureModules == null)
             {
                 failureModules = new List<ITestFlightFailure>();
@@ -461,6 +495,14 @@ namespace TestFlightCore
 
         public void InitializeFlightData(List<TestFlightData> allFlightData, double globalReliabilityModifier)
         {
+            baseFlightData = new FlightDataConfig();
+            flightData = new FlightDataConfig();
+            foreach (TestFlightData data in allFlightData)
+            {
+                baseFlightData.AddFlightData(data.scope, data.flightData, data.flightTime);
+                flightData.AddFlightData(data.scope, data.flightData, data.flightTime);
+            }
+
             initialFlightData = new List<TestFlightData>(allFlightData);
             double totalReliability = 0.0;
             string scope;
@@ -482,18 +524,18 @@ namespace TestFlightCore
                 if (reliabilityModule != null)
                 {
                     scope = String.Format("{0}_{1}", dataRecorder.GetDataBody(), dataRecorder.GetDataSituation());
-                    TestFlightData flightData;
+                    TestFlightData tfd;
                     if (initialFlightData == null)
                     {
-                        flightData = new TestFlightData();
-                        flightData.scope = scope;
-                        flightData.flightData = 0.0f;
+                        tfd = new TestFlightData();
+                        tfd.scope = scope;
+                        tfd.flightData = 0.0f;
                     }
                     else
                     {
-                        flightData = initialFlightData.Find(fd => fd.scope == scope);
+                        tfd = initialFlightData.Find(fd => fd.scope == scope);
                     }
-                    totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(flightData);
+                    totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(tfd);
                 }
             }
             currentReliability = totalReliability * globalReliabilityModifier;
