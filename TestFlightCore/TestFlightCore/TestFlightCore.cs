@@ -532,43 +532,43 @@ namespace TestFlightCore
             return tooltip;
         }
 
-        public virtual double GetCurrentReliability(double globalReliabilityModifier)
-        {
-            // Calculate reliability based on initial flight data, not current
-            double totalReliability = 0.0;
-            string scope;
-            IFlightDataRecorder dataRecorder = null;
-            foreach (PartModule pm in this.part.Modules)
-            {
-                IFlightDataRecorder fdr = pm as IFlightDataRecorder;
-                if (fdr != null)
-                {
-                    dataRecorder = fdr;
-                }
-            }
-            foreach (PartModule pm in this.part.Modules)
-            {
-                ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
-                if (reliabilityModule != null)
-                {
-                    scope = String.Format("{0}_{1}", dataRecorder.GetDataBody(), dataRecorder.GetDataSituation());
-                    TestFlightData flightData;
-                    if (initialFlightData == null)
-                    {
-                        flightData = new TestFlightData();
-                        flightData.scope = scope;
-                        flightData.flightData = 0.0f;
-                    }
-                    else
-                    {
-                        flightData = initialFlightData.Find(fd => fd.scope == scope);
-                    }
-                    totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(flightData);
-                }
-            }
-            currentReliability = totalReliability * globalReliabilityModifier;
-            return currentReliability;
-        }
+//        public virtual double GetCurrentReliability(double globalReliabilityModifier)
+//        {
+//            // Calculate reliability based on initial flight data, not current
+//            double totalReliability = 0.0;
+//            string scope;
+//            IFlightDataRecorder dataRecorder = null;
+//            foreach (PartModule pm in this.part.Modules)
+//            {
+//                IFlightDataRecorder fdr = pm as IFlightDataRecorder;
+//                if (fdr != null)
+//                {
+//                    dataRecorder = fdr;
+//                }
+//            }
+//            foreach (PartModule pm in this.part.Modules)
+//            {
+//                ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
+//                if (reliabilityModule != null)
+//                {
+//                    scope = String.Format("{0}_{1}", dataRecorder.GetDataBody(), dataRecorder.GetDataSituation());
+//                    TestFlightData flightData;
+//                    if (initialFlightData == null)
+//                    {
+//                        flightData = new TestFlightData();
+//                        flightData.scope = scope;
+//                        flightData.flightData = 0.0f;
+//                    }
+//                    else
+//                    {
+//                        flightData = initialFlightData.Find(fd => fd.scope == scope);
+//                    }
+//                    totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(flightData);
+//                }
+//            }
+//            currentReliability = totalReliability * globalReliabilityModifier;
+//            return currentReliability;
+//        }
 
         public void InitializeFlightData(List<TestFlightData> allFlightData, double globalReliabilityModifier)
         {
@@ -579,44 +579,46 @@ namespace TestFlightCore
                 baseFlightData.AddFlightData(data.scope, data.flightData, data.flightTime);
                 flightData.AddFlightData(data.scope, data.flightData, data.flightTime);
             }
-
-            initialFlightData = new List<TestFlightData>(allFlightData);
-            double totalReliability = 0.0;
-            string scope;
-            IFlightDataRecorder dataRecorder = null;
-            foreach (PartModule pm in this.part.Modules)
-            {
-                IFlightDataRecorder fdr = pm as IFlightDataRecorder;
-                if (fdr != null)
-                {
-                    dataRecorder = fdr;
-                    fdr.InitializeFlightData(allFlightData);
-                    currentFlightData = fdr.GetCurrentFlightData();
-                }
-            }
-            // Calculate reliability based on initial flight data, not current
-            foreach (PartModule pm in this.part.Modules)
-            {
-                ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
-                if (reliabilityModule != null)
-                {
-                    scope = String.Format("{0}_{1}", dataRecorder.GetDataBody(), dataRecorder.GetDataSituation());
-                    TestFlightData tfd;
-                    if (initialFlightData == null)
-                    {
-                        tfd = new TestFlightData();
-                        tfd.scope = scope;
-                        tfd.flightData = 0.0f;
-                    }
-                    else
-                    {
-                        tfd = initialFlightData.Find(fd => fd.scope == scope);
-                    }
-                    totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(tfd);
-                }
-            }
-            currentReliability = totalReliability * globalReliabilityModifier;
+            return;
         }
+
+//            initialFlightData = new List<TestFlightData>(allFlightData);
+//            double totalReliability = 0.0;
+//            string scope;
+//            IFlightDataRecorder dataRecorder = null;
+//            foreach (PartModule pm in this.part.Modules)
+//            {
+//                IFlightDataRecorder fdr = pm as IFlightDataRecorder;
+//                if (fdr != null)
+//                {
+//                    dataRecorder = fdr;
+//                    fdr.InitializeFlightData(allFlightData);
+//                    currentFlightData = fdr.GetCurrentFlightData();
+//                }
+//            }
+//            // Calculate reliability based on initial flight data, not current
+//            foreach (PartModule pm in this.part.Modules)
+//            {
+//                ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
+//                if (reliabilityModule != null)
+//                {
+//                    scope = String.Format("{0}_{1}", dataRecorder.GetDataBody(), dataRecorder.GetDataSituation());
+//                    TestFlightData tfd;
+//                    if (initialFlightData == null)
+//                    {
+//                        tfd = new TestFlightData();
+//                        tfd.scope = scope;
+//                        tfd.flightData = 0.0f;
+//                    }
+//                    else
+//                    {
+//                        tfd = initialFlightData.Find(fd => fd.scope == scope);
+//                    }
+//                    totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(tfd);
+//                }
+//            }
+//            currentReliability = totalReliability * globalReliabilityModifier;
+//        }
 
 
 //        public virtual void DoFlightUpdate(double missionStartTime, double flightDataMultiplier, double flightDataEngineerMultiplier, double globalReliabilityModifier)
