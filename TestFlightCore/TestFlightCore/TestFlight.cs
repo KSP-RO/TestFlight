@@ -243,6 +243,8 @@ namespace TestFlightCore
         // This method simply scans through the Master Status list every now and then and removes vessels and parts that no longer exist
         public void VerifyMasterStatus()
         {
+            if (!isReady)
+                return;
             // iterate through our cached vessels and delete ones that are no longer valid
             List<Guid> vesselsToDelete = new List<Guid>();
             foreach(var entry in masterStatus)
@@ -294,6 +296,8 @@ namespace TestFlightCore
 
         public void CacheVessels()
         {
+            if (!isReady)
+                return;
             // build a list of vessels to process based on setting
             if (knownVessels == null)
                 knownVessels = new Dictionary<Guid, double>();
@@ -350,6 +354,8 @@ namespace TestFlightCore
 
         internal override void Update()
         {
+            if (!isReady)
+                return;
 
             if (masterStatus == null)
                 masterStatus = new Dictionary<Guid, MasterStatusItem>();
@@ -362,6 +368,7 @@ namespace TestFlightCore
                 lastMasterStatusUpdate = currentUTC;
                 VerifyMasterStatus();
             }
+            LogFormatted_DebugOnly("TestFlightManager: MSD Update Frequency: " + tfScenario.settings.masterStatusUpdateFrequency);
             // process vessels
             foreach (var entry in knownVessels)
             {
