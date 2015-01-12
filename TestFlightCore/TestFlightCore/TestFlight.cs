@@ -397,7 +397,7 @@ namespace TestFlightCore
                                     partStatus.flightData = currentFlightData.flightData;
                                     partStatus.flightTime = currentFlightData.flightTime;
                                     partStatus.partStatus = core.GetPartStatus();
-                                    partStatus.reliability = core.GetCurrentReliability(tfScenario.settings.globalReliabilityModifier);
+                                    partStatus.reliability = core.GetBaseFailureRate();
                                     partStatus.repairRequirements = core.GetRequirementsTooltip();
                                     partStatus.acknowledged = core.IsFailureAcknowledged();
                                     if (core.GetPartStatus() > 0)

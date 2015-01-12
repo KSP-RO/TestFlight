@@ -49,7 +49,7 @@ namespace TestFlightAPI
             double engineerBonus = core.GetEngineerDataBonus(flightDataEngineerModifier);
             flightData *= engineerBonus;
 
-            if (IsRecordingFlightData)
+            if (IsRecordingFlightData())
                 core.ModifyFlightDataForScope(flightData, scope, true);
 
             core.ModifyFlightTimeForScope(currentMet - lastRecordedMet, scope, true);

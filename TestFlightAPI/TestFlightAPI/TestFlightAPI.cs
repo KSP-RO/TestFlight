@@ -44,57 +44,6 @@ namespace TestFlightAPI
 
 	public interface IFlightDataRecorder
 	{
-        /// <summary>
-        /// Called frequently by TestFlightCore to ask the module for the current flight data.
-        /// The module should only return the currently active scope's data, and should return the most up
-        /// to date data it has.
-        /// This method should only RETURN the current flight data, not calculate it.  Calculation
-        /// should be done in DoFlightUpdate()
-        /// </summary>
-        /// <returns>The current flight data.</returns>
-		TestFlightData GetCurrentFlightData();
-
-        /// <summary>
-        /// Initializes the flight data on a newly instanced part from the stored persistent flight data.
-        /// This data should only be accepted the first time ever.
-        /// </summary>
-        /// <param name="allFlightData">A list of all TestFlightData stored for the part, once for each known scope</param>
-        void InitializeFlightData(List<TestFlightData> allFlightData);
-
-        /// <summary>
-        /// Called to set what is considered "deep-space" altitude
-        /// </summary>
-        /// <param name="newThreshold">New threshold.</param>
-        void SetDeepSpaceThreshold(double newThreshold);
-
-        /// <summary>
-        /// Called frequently by TestFlightCore to let the DataRecorder do an update cycle to calulate the current flight data.
-        /// This is where the calculation of current data based on paremeters (such as elapsed MET) should occur.
-        /// Generally this will be called immediately prior to GetcurrentFlightData() so that the DataRecorder
-        /// can be up to date.
-        /// </summary>
-        /// <param name="missionStartTime">Mission start time in seconds.</param>
-        /// <param name="flightDataMultiplier">Global Flight data multiplier.  A user setting which should modify the internal collection rate.  Amount of collected data should be multiplied against this.  Base is 1.0 IE no modification.</param>
-        /// <param name="flightDataEngineerMultiplier">Flight data engineer multiplier.  A user setting mutiplier that makes the engineer bonus more or less.  1.0 is base.</param>
-        void DoFlightUpdate(double missionStartTime, double flightDataMultiplier, double flightDataEngineerMultiplier);
-
-        /// <summary>
-        /// Returns the current data situation, "atmosphere", "space", or "deep-space"
-        /// </summary>
-        /// <returns>The Situation of the current data scope</returns>
-        string GetDataSituation();
-
-        /// <summary>
-        /// Returns current SOI
-        /// </summary>
-        /// <returns>The current SOI for the data scope</returns>
-        string GetDataBody();
-
-        /// <summary>
-        /// Tell the Recorder to add or subtract an amount of FlightData
-        /// </summary>
-        /// <param name="modifier">Amount of flight data to add (positive) or subract (negative)</param>
-        void ModifyCurrentFlightData(float modifier);
 	}
 
 	public interface ITestFlightReliability
@@ -151,8 +100,6 @@ namespace TestFlightAPI
         int GetPartStatus();
 
         ITestFlightFailure GetFailureModule();
-
-        double GetCurrentReliability(double globalReliabilityModifier);
 
         void InitializeFlightData(List<TestFlightData> allFlightData, double globalReliabilityModifier);
 
