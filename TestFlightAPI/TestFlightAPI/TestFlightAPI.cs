@@ -144,8 +144,6 @@ namespace TestFlightAPI
     /// </summary>
     public interface ITestFlightCore
     {
-//        void PerformPreflight();
-
         /// <summary>
         /// 0 = OK, 1 = Minor Failure, 2 = Failure, 3 = Major Failure
         /// </summary>
@@ -155,16 +153,6 @@ namespace TestFlightAPI
         ITestFlightFailure GetFailureModule();
 
         double GetCurrentReliability(double globalReliabilityModifier);
-
-        /// <summary>
-        /// Does the failure check.
-        /// </summary>
-        /// <returns><c>true</c>, if part fails, <c>false</c> otherwise.</returns>
-        /// <param name="missionStartTime">Mission start time.</param>
-        /// <param name="globalReliabilityModifier">Global reliability modifier.</param>
-        bool DoFailureCheck(double missionStartTime, double globalReliabilityModifier);
-
-        void DoFlightUpdate(double missionStartTime, double flightDataMultiplier, double flightDataEngineerMultiplier, double globalReliabilityModifier);
 
         void InitializeFlightData(List<TestFlightData> allFlightData, double globalReliabilityModifier);
 

@@ -296,8 +296,40 @@ namespace TestFlightCore
         }
         // Cause a failure to occur, either a random failure or a specific one
         // If fallbackToRandom is true, then if the specified failure can't be found or can't be triggered, a random failure will be triggered instead
+        // Returns the triggered failure module, or null if none
         public ITestFlightFailure TriggerFailure()
         {
+            // Failure occurs.  Determine which failure module to trigger
+            int totalWeight = 0;
+            int currentWeight = 0;
+            int chosenWeight = 0;
+            List<ITestFlightFailure> failureModules;
+
+            failureModules = new List<ITestFlightFailure>();
+            foreach (PartModule pm in this.part.Modules)
+            {
+                ITestFlightFailure fm = pm as ITestFlightFailure;
+                if (fm != null)
+                    failureModules.Add(fm);
+            }
+
+            foreach(ITestFlightFailure fm in failureModules)
+            {
+                totalWeight += fm.GetFailureDetails().weight;
+            }
+            chosenWeight = UnityEngine.Random.Range(1,totalWeight);
+            foreach(ITestFlightFailure fm in failureModules)
+            {
+                currentWeight += fm.GetFailureDetails().weight;
+                if (currentWeight >= chosenWeight)
+                {
+                    // Trigger this module's failure
+                    PartModule pm = fm as PartModule;
+                    if (pm != null)
+                        return TriggerNamedFailure(pm.moduleName, false);
+                }
+            }
+
             return null;
         }
         public ITestFlightFailure TriggerNamedFailure(String failureModuleName)
@@ -306,6 +338,31 @@ namespace TestFlightCore
         }
         public ITestFlightFailure TriggerNamedFailure(String failureModuleName, bool fallbackToRandom)
         {
+            failureModuleName = failureModuleName.ToLower().Trim();
+
+            foreach(PartModule pm in this.part.Modules)
+            {
+                if (pm.moduleName.ToLower().Trim() == failureModuleName)
+                {
+                    ITestFlightFailure fm = pm as ITestFlightFailure;
+                    if (pm == null && fallbackToRandom)
+                        return TriggerFailure();
+                    else if (pm == null & !fallbackToRandom)
+                        return null;
+                    else
+                    {
+                        LogFormatted_DebugOnly("TestFlightCore: Triggering failure on " + pm.moduleName);
+                        activeFailure = fm;
+                        failureAcknowledged = false;
+                        fm.DoFailure();
+                        return fm;
+                    }
+                }
+            }
+
+            if (fallbackToRandom)
+                return TriggerFailure();
+
             return null;
         }
 
@@ -316,13 +373,6 @@ namespace TestFlightCore
 
             if (TestFlightManagerScenario.Instance == null)
                 return;
-
-            double currentMET = this.vessel.missionTime;
-
-            // TODO 
-            // Remove these old functions and implement new functionality
-            DoFlightUpdate(this.vessel.launchTime, TestFlightManagerScenario.Instance.settings.flightDataMultiplier, TestFlightManagerScenario.Instance.settings.flightDataEngineerMultiplier, TestFlightManagerScenario.Instance.settings.globalReliabilityModifier);
-            DoFailureCheck(this.vessel.launchTime, TestFlightManagerScenario.Instance.settings.globalReliabilityModifier);
         }
 
 
@@ -569,127 +619,127 @@ namespace TestFlightCore
         }
 
 
-        public virtual void DoFlightUpdate(double missionStartTime, double flightDataMultiplier, double flightDataEngineerMultiplier, double globalReliabilityModifier)
-        {
-            // Check to see if its time to poll
-            IFlightDataRecorder dataRecorder = null;
-            string scope;
-            float currentMet = (float)(Planetarium.GetUniversalTime() - missionStartTime);
-            if (currentMet > (lastPolling + pollingInterval) && currentMet > 10)
-            {
-                // Poll all compatible modules in this order:
-                // 1) FlightDataRecorder
-                // 2) TestFlightReliability
-                // 2A) Determine final computed reliability
-                // 3) Determine if failure poll should be done
-                // 3A) If yes, roll for failure check
-                // 3B) If failure occurs, roll to determine which failure module
-                foreach (PartModule pm in this.part.Modules)
-                {
-                    IFlightDataRecorder fdr = pm as IFlightDataRecorder;
-                    if (fdr != null)
-                    {
-                        dataRecorder = fdr;
-                        fdr.DoFlightUpdate(missionStartTime, flightDataMultiplier, flightDataEngineerMultiplier);
-                        currentFlightData = fdr.GetCurrentFlightData();
-                        break;
-                    }
-                }
-                // Calculate reliability based on initial flight data, not current
-                double totalReliability = 0.0;
-                foreach (PartModule pm in this.part.Modules)
-                {
-                    ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
-                    if (reliabilityModule != null)
-                    {
-                        scope = String.Format("{0}_{1}", dataRecorder.GetDataBody(), dataRecorder.GetDataSituation());
-                        TestFlightData flightData;
-                        if (initialFlightData == null)
-                        {
-                            flightData = new TestFlightData();
-                            flightData.scope = scope;
-                            flightData.flightData = 0.0f;
-                        }
-                        else
-                        {
-                            flightData = initialFlightData.Find(fd => fd.scope == scope);
-                        }
-                        totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(flightData);
-                    }
-                }
-                currentReliability = totalReliability * globalReliabilityModifier;
-                lastPolling = currentMet;
-            }
-        }
-
-        public virtual bool DoFailureCheck(double missionStartTime, double globalReliabilityModifier)
-        {
-            string scope;
-            IFlightDataRecorder dataRecorder = null;
-            float currentMet = (float)(Planetarium.GetUniversalTime() - missionStartTime);
-            if ( currentMet > (lastFailureCheck + failureCheckFrequency) && activeFailure == null && currentMet > 10)
-            {
-                lastFailureCheck = currentMet;
-                // Calculate reliability based on initial flight data, not current
-                double totalReliability = 0.0;
-                foreach (PartModule pm in this.part.Modules)
-                {
-                    IFlightDataRecorder fdr = pm as IFlightDataRecorder;
-                    if (fdr != null)
-                    {
-                        dataRecorder = fdr;
-                        break;
-                    }
-                }
-                foreach (PartModule pm in this.part.Modules)
-                {
-                    ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
-                    if (reliabilityModule != null)
-                    {
-                        scope = String.Format("{0}_{1}", dataRecorder.GetDataBody(), dataRecorder.GetDataSituation());
-                        TestFlightData flightData;
-                        if (initialFlightData == null)
-                        {
-                            flightData = new TestFlightData();
-                            flightData.scope = scope;
-                            flightData.flightData = 0.0f;
-                        }
-                        else
-                            flightData = initialFlightData.Find(fd => fd.scope == scope);
-                        totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(flightData);
-                    }
-                }
-                currentReliability = totalReliability * globalReliabilityModifier;
-                // Roll for failure
-                float roll = UnityEngine.Random.Range(0.0f,100.0f);
-                if (roll > currentReliability)
-                {
-                    // Failure occurs.  Determine which failure module to trigger
-                    int totalWeight = 0;
-                    int currentWeight = 0;
-                    int chosenWeight = 0;
-                    foreach(ITestFlightFailure fm in failureModules)
-                    {
-                        totalWeight += fm.GetFailureDetails().weight;
-                    }
-                    chosenWeight = UnityEngine.Random.Range(1,totalWeight);
-                    foreach(ITestFlightFailure fm in failureModules)
-                    {
-                        currentWeight += fm.GetFailureDetails().weight;
-                        if (currentWeight >= chosenWeight)
-                        {
-                            // Trigger this module's failure
-                            LogFormatted_DebugOnly("TestFlightCore: Triggering failure on " + fm);
-                            activeFailure = fm;
-                            failureAcknowledged = false;
-                            fm.DoFailure();
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
-        }
+//        public virtual void DoFlightUpdate(double missionStartTime, double flightDataMultiplier, double flightDataEngineerMultiplier, double globalReliabilityModifier)
+//        {
+//            // Check to see if its time to poll
+//            IFlightDataRecorder dataRecorder = null;
+//            string scope;
+//            float currentMet = (float)(Planetarium.GetUniversalTime() - missionStartTime);
+//            if (currentMet > (lastPolling + pollingInterval) && currentMet > 10)
+//            {
+//                // Poll all compatible modules in this order:
+//                // 1) FlightDataRecorder
+//                // 2) TestFlightReliability
+//                // 2A) Determine final computed reliability
+//                // 3) Determine if failure poll should be done
+//                // 3A) If yes, roll for failure check
+//                // 3B) If failure occurs, roll to determine which failure module
+//                foreach (PartModule pm in this.part.Modules)
+//                {
+//                    IFlightDataRecorder fdr = pm as IFlightDataRecorder;
+//                    if (fdr != null)
+//                    {
+//                        dataRecorder = fdr;
+//                        fdr.DoFlightUpdate(missionStartTime, flightDataMultiplier, flightDataEngineerMultiplier);
+//                        currentFlightData = fdr.GetCurrentFlightData();
+//                        break;
+//                    }
+//                }
+//                // Calculate reliability based on initial flight data, not current
+//                double totalReliability = 0.0;
+//                foreach (PartModule pm in this.part.Modules)
+//                {
+//                    ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
+//                    if (reliabilityModule != null)
+//                    {
+//                        scope = String.Format("{0}_{1}", dataRecorder.GetDataBody(), dataRecorder.GetDataSituation());
+//                        TestFlightData flightData;
+//                        if (initialFlightData == null)
+//                        {
+//                            flightData = new TestFlightData();
+//                            flightData.scope = scope;
+//                            flightData.flightData = 0.0f;
+//                        }
+//                        else
+//                        {
+//                            flightData = initialFlightData.Find(fd => fd.scope == scope);
+//                        }
+//                        totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(flightData);
+//                    }
+//                }
+//                currentReliability = totalReliability * globalReliabilityModifier;
+//                lastPolling = currentMet;
+//            }
+//        }
+//
+//        public virtual bool DoFailureCheck(double missionStartTime, double globalReliabilityModifier)
+//        {
+//            string scope;
+//            IFlightDataRecorder dataRecorder = null;
+//            float currentMet = (float)(Planetarium.GetUniversalTime() - missionStartTime);
+//            if ( currentMet > (lastFailureCheck + failureCheckFrequency) && activeFailure == null && currentMet > 10)
+//            {
+//                lastFailureCheck = currentMet;
+//                // Calculate reliability based on initial flight data, not current
+//                double totalReliability = 0.0;
+//                foreach (PartModule pm in this.part.Modules)
+//                {
+//                    IFlightDataRecorder fdr = pm as IFlightDataRecorder;
+//                    if (fdr != null)
+//                    {
+//                        dataRecorder = fdr;
+//                        break;
+//                    }
+//                }
+//                foreach (PartModule pm in this.part.Modules)
+//                {
+//                    ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
+//                    if (reliabilityModule != null)
+//                    {
+//                        scope = String.Format("{0}_{1}", dataRecorder.GetDataBody(), dataRecorder.GetDataSituation());
+//                        TestFlightData flightData;
+//                        if (initialFlightData == null)
+//                        {
+//                            flightData = new TestFlightData();
+//                            flightData.scope = scope;
+//                            flightData.flightData = 0.0f;
+//                        }
+//                        else
+//                            flightData = initialFlightData.Find(fd => fd.scope == scope);
+//                        totalReliability = totalReliability + reliabilityModule.GetCurrentReliability(flightData);
+//                    }
+//                }
+//                currentReliability = totalReliability * globalReliabilityModifier;
+//                // Roll for failure
+//                float roll = UnityEngine.Random.Range(0.0f,100.0f);
+//                if (roll > currentReliability)
+//                {
+//                    // Failure occurs.  Determine which failure module to trigger
+//                    int totalWeight = 0;
+//                    int currentWeight = 0;
+//                    int chosenWeight = 0;
+//                    foreach(ITestFlightFailure fm in failureModules)
+//                    {
+//                        totalWeight += fm.GetFailureDetails().weight;
+//                    }
+//                    chosenWeight = UnityEngine.Random.Range(1,totalWeight);
+//                    foreach(ITestFlightFailure fm in failureModules)
+//                    {
+//                        currentWeight += fm.GetFailureDetails().weight;
+//                        if (currentWeight >= chosenWeight)
+//                        {
+//                            // Trigger this module's failure
+//                            LogFormatted_DebugOnly("TestFlightCore: Triggering failure on " + fm);
+//                            activeFailure = fm;
+//                            failureAcknowledged = false;
+//                            fm.DoFailure();
+//                            return true;
+//                        }
+//                    }
+//                }
+//            }
+//            return false;
+//        }
     }
 }
 
