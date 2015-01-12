@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using UnityEngine;
 using KSPPluginFramework;
@@ -189,7 +190,9 @@ namespace TestFlightCore
                 return dataBody.flightTime;
             }
         }
-        // Set the FlightData for FlightTime or the part - this is an absolute set and replaces the previous FlightData
+        // Set the FlightData for FlightTime or the part - this is an absolute set and replaces the previous FlightData.
+        // This will NOT apply any global TestFlight modifiers!
+        // Be sure these are the methods you want to use.  99% of the time you want to use ModifyFlightData instead
         public void SetFlightData(double data)
         {
             SetFlightDataForScope(data, GetScope());
@@ -206,6 +209,7 @@ namespace TestFlightCore
         }
         // Modify the FlightData or FlightTime for the part
         // The given modifier is multiplied against the current FlightData unless additive is true
+        // Global TestFlight modifiers are applied here
         public double ModifyFlightData(double modifier)
         {
             return ModifyFlightDataForScope(modifier, GetScope(), false);
@@ -244,6 +248,7 @@ namespace TestFlightCore
                 if (!additive)
                     return 0;
                 LogFormatted_DebugOnly("ModifyFlightData: Adding new entry");
+                modifier = ApplyFlightDataMultiplier(modifier);
                 flightData.AddFlightData(scope, modifier, 0);
                 return modifier;
             }
@@ -256,9 +261,34 @@ namespace TestFlightCore
             {
                 bodyData.flightData *= modifier;
             }
+            bodyData.flightData = ApplyFlightDataMultiplier(bodyData.flightData);
             LogFormatted_DebugOnly("ModifyFlightData: Updating entry for scope " + scope + " with data " + bodyData.flightData + " and time " + bodyData.flightTime);
             flightData.AddFlightData(scope, bodyData.flightData, bodyData.flightTime);
             return bodyData.flightData;
+        }
+        public double GetEngineerDataBonus(double partEngineerBonus)
+        {
+            if (TestFlightManagerScenario.Instance == null)
+                return 1;
+            double globalFlightDataEngineerMultiplier = TestFlightManagerScenario.Instance.settings.flightDataEngineerMultiplier;
+
+            List<ProtoCrewMember> crew = this.part.vessel.GetVesselCrew().Where(c => c.experienceTrait.Title == "Engineer").ToList();
+            double totalEngineerBonus = 0;
+            foreach (ProtoCrewMember crewMember in crew)
+            {
+                int engineerLevel = crewMember.experienceLevel;
+                totalEngineerBonus = totalEngineerBonus + (partEngineerBonus * engineerLevel * globalFlightDataEngineerMultiplier);
+            }
+            double engineerModifier = 1.0 + totalEngineerBonus;
+
+            return engineerModifier;
+        }
+        internal double ApplyFlightDataMultiplier(double baseData)
+        {
+            if (TestFlightManagerScenario.Instance == null)
+                return baseData;
+
+            return baseData * TestFlightManagerScenario.Instance.settings.flightDataMultiplier;
         }
         public double ModifyFlightTimeForScope(double modifier, String scope, bool additive)
         {
@@ -289,6 +319,8 @@ namespace TestFlightCore
 
             double currentMET = this.vessel.missionTime;
 
+            // TODO 
+            // Remove these old functions and implement new functionality
             DoFlightUpdate(this.vessel.launchTime, TestFlightManagerScenario.Instance.settings.flightDataMultiplier, TestFlightManagerScenario.Instance.settings.flightDataEngineerMultiplier, TestFlightManagerScenario.Instance.settings.globalReliabilityModifier);
             DoFailureCheck(this.vessel.launchTime, TestFlightManagerScenario.Instance.settings.globalReliabilityModifier);
         }
@@ -392,11 +424,6 @@ namespace TestFlightCore
                 }
             }
             base.OnStart(state);
-        }
-
-        public virtual TestFlightData GetCurrentFlightData()
-        {
-            return currentFlightData;
         }
 
         public virtual int GetPartStatus()
@@ -662,10 +689,6 @@ namespace TestFlightCore
                 }
             }
             return false;
-        }
-
-        public override void OnUpdate()
-        {
         }
     }
 }

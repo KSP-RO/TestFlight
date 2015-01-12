@@ -154,8 +154,6 @@ namespace TestFlightAPI
 
         ITestFlightFailure GetFailureModule();
 
-        TestFlightData GetCurrentFlightData();
-
         double GetCurrentReliability(double globalReliabilityModifier);
 
         /// <summary>
@@ -235,6 +233,8 @@ namespace TestFlightAPI
         double ModifyFlightTimeForScope(double modifier, String scope);
         double ModifyFlightDataForScope(double modifier, String scope, bool additive);
         double ModifyFlightTimeForScope(double modifier, String scope, bool additive);
+        // Returns the total engineer bonus for the current vessel's current crew based on the given part's desired per engineer level bonus
+        double GetEngineerDataBonus(double partEngineerBonus);
         // Cause a failure to occur, either a random failure or a specific one
         // If fallbackToRandom is true, then if the specified failure can't be found or can't be triggered, a random failure will be triggered instead
         ITestFlightFailure TriggerFailure();
