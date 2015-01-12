@@ -376,10 +376,11 @@ namespace TestFlightCore
                             if (core != null)
                             {
                                 // Poll for flight data and part status
-                                if (currentUTC >= lastDataPoll + tfScenario.settings.masterStatusUpdateFrequency)
+                                if (true) //currentUTC >= lastDataPoll + tfScenario.settings.masterStatusUpdateFrequency
                                 {
                                     TestFlightData currentFlightData = new TestFlightData();
                                     currentFlightData.scope = core.GetScope();
+                                    LogFormatted_DebugOnly("Getting flight data for " + core.GetScope() + ": " + core.GetFlightData());
                                     currentFlightData.flightData = core.GetFlightData();
                                     currentFlightData.flightTime = core.GetFlightTime();
 
@@ -415,6 +416,7 @@ namespace TestFlightCore
                                         }
                                         else if (numItems == 0)
                                         {
+                                            LogFormatted_DebugOnly("Adding new part to MSD");
                                             masterStatus[vessel.id].allPartsStatus.Add(partStatus);
                                         }
                                         else
@@ -427,6 +429,7 @@ namespace TestFlightCore
                                     else
                                     {
                                         // Vessel is not in the Master Status so create a new entry for it and add this part
+                                        LogFormatted_DebugOnly("Adding new vessel and part to MSD");
                                         MasterStatusItem masterStatusItem = new MasterStatusItem();
                                         masterStatusItem.vesselID = vessel.id;
                                         masterStatusItem.vesselName = vessel.GetName();
