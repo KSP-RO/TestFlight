@@ -121,6 +121,14 @@ namespace TestFlightCore
             failureRate.Add("TODO", 0);
             return failureRate;
         }
+        public double GetMomentaryFailureRateForTrigger(String trigger)
+        {
+            return 0;
+        }
+        public double GetMomentaryFailureRateForTriggerForScope(String trigger, String scope)
+        {
+            return 0;
+        }
         // The base failure rate can be modified with a multipler that is applied during flight only
         // Returns the total modified failure rate back to the caller for convenience
         public double ModifyBaseFailureRate(double multiplier)
@@ -131,13 +139,13 @@ namespace TestFlightCore
         {
             return 0;
         }
-        // The momentary failure rate is tracked per Reliability/FailureTrigger module
+        // The momentary failure rate is tracked per named "trigger" which allows multiple Reliability or FailureTrigger modules to cooperate
         // Returns the total modified failure rate back to the caller for convenience
-        public double ModifyModuleMomentaryFailureRate(String module, double multiplier)
+        public double ModifyTriggerMomentaryFailureRate(String module, double multiplier)
         {
-            return ModifyModuleMomentaryFailureRateForScope(module, GetScope(), multiplier);
+            return ModifyTriggerMomentaryFailureRateForScope(module, GetScope(), multiplier);
         }
-        public double ModifyModuleMomentaryFailureRateForScope(String module, String scope, double multiplier)
+        public double ModifyTriggerMomentaryFailureRateForScope(String module, String scope, double multiplier)
         {
             return 0;
         }
@@ -147,11 +155,52 @@ namespace TestFlightCore
         //  seconds, hours, days, months, years, flights, missions
         public String FailureRateToMTBFString(double failureRate, String units)
         {
-            return String.Format("{0:F2} {1}", FailureRateToMTBF(failureRate, units), units);
+            return FailureRateToMTBFString(failureRate, units, false);
+        }
+        // Short version of MTBFString uses a single letter to denote (s)econds, (m)inutes, (h)ours, (d)ays, (y)ears
+        // The returned string will be of the format "12s" or ".2d"
+        public String FailureRateToMTBFString(double failureRate, String units, bool shortForm)
+        {
+            if (shortForm)
+            {
+                return String.Format("{0:F2}{1}", FailureRateToMTBF(failureRate, units), units.ToLower()[0]);
+            }
+            else
+            {
+                return String.Format("{0:F2} {1}", FailureRateToMTBF(failureRate, units), units.ToLower());
+            }
         }
         // Simply converts the failure rate to a MTBF number, without any string formatting
         public double FailureRateToMTBF(double failureRate, String units)
         {
+            double mtbfSeconds = 1.0 / failureRate;
+
+            units = units.ToLower().Trim();
+            switch (units)
+            {
+                case "seconds":
+                    return mtbfSeconds;
+                    break;
+                case "minutes":
+                    return mtbfSeconds / 60;
+                    break;
+                case "hours":
+                    return mtbfSeconds / 60 / 60;
+                    break;
+                case "days":
+                    return mtbfSeconds / 60 / 60 / 24;
+                    break;
+                case "months":
+                    return mtbfSeconds / 60 / 60 / 24 / 30;
+                    break;
+                case "years":
+                    return mtbfSeconds / 60 / 60 / 24 / 365;
+                    break;
+                default:
+                    return mtbfSeconds;
+                    break;
+            }
+
             return 1.0 / failureRate;
         }
         // Get the FlightData or FlightTime for the part

@@ -48,12 +48,14 @@ namespace TestFlightAPI
 
 	public interface ITestFlightReliability
 	{
-        /// <summary>
-        /// Gets the current reliability of the part as calculated based on the given flightData
-        /// </summary>
-        /// <returns>The current reliability.  Can be negative in order to reduce overall reliability from other Reliability modules.</returns>
-        /// <param name="flightData">Flight data on which to calculate reliability.</param>
-        float GetCurrentReliability(TestFlightData flightData);
+        // New API
+        // Get the base or static failure rate
+        double GetBaseFailureRate(double flightData);
+        double GetBaseFailureRateForScope(double flightData, String scope);
+        // Get the momentary (IE current dynamic) failure modifier
+        // The reliability module should only return its MODIFIER for the current time at the given scope (or current scope if not given).  The Core will calculate the final failure rate.
+        double GetMomentaryFailureModifier();
+        double GetMomentaryFailureModifierForScope(String scope);
 	}
 
 	public interface ITestFlightFailure
@@ -127,25 +129,32 @@ namespace TestFlightAPI
         double GetBaseFailureRateForScope(String scope);
         // Get the momentary (IE current dynamic) failure rates (Can vary per reliability/failure modules)
         // These  methods will let you get a list of all momentary rates or you can get the best (lowest chance of failure)/worst (highest chance of failure) rates
+        // Note that the return value is alwasy a dictionary.  The key is the name of the trigger, always in lowercase.  The value is the failure rate.
+        // The dictionary will be a single entry in the case of Worst/Best calls, and will be the length of total triggers in the case of askign for All momentary rates.
         Dictionary<String, double> GetWorstMomentaryFailureRate();
         Dictionary<String, double> GetBestMomentaryFailureRate();
         Dictionary<String, double> GetAllMomentaryFailureRates();
         Dictionary<String, double> GetWorstMomentaryFailureRateForScope(String scope);
         Dictionary<String, double> GetBestMomentaryFailureRateForScope(String scope);
         Dictionary<String, double> GetAllMomentaryFailureRatesForScope(String scope);
+        double GetMomentaryFailureRateForTrigger(String trigger);
+        double GetMomentaryFailureRateForTriggerForScope(String trigger, String scope);
         // The base failure rate can be modified with a multipler that is applied during flight only
         // Returns the total modified failure rate back to the caller for convenience
         double ModifyBaseFailureRate(double multiplier);
         double ModifyBaseFailureRateForScope(String scope, double multiplier);
-        // The momentary failure rate is tracked per Reliability/FailureTrigger module
+        // The momentary failure rate is tracked per named "trigger" which allows multiple Reliability or FailureTrigger modules to cooperate
         // Returns the total modified failure rate back to the caller for convenience
-        double ModifyModuleMomentaryFailureRate(String module, double multiplier);
-        double ModifyModuleMomentaryFailureRateForScope(String module, String scope, double multiplier);
+        double ModifyTriggerMomentaryFailureRate(String trigger, double multiplier);
+        double ModifyTriggerMomentaryFailureRateForScope(String trigger, String scope, double multiplier);
         // simply converts the failure rate into a MTBF string.  Convenience method
         // Returned string will be of the format "123 units"
         // units should be one of:
-        //  seconds, hours, days, months, years, flights, missions
+        //  seconds, hours, days, months, years
         String FailureRateToMTBFString(double failureRate, String units);
+        // Short version of MTBFString uses a single letter to denote (s)econds, (m)inutes, (h)ours, (d)ays, (y)ears
+        // So the returned string will be EF "12s" or ".2d"
+        String FailureRateToMTBFString(double failureRate, String units, bool shortForm);
         // Simply converts the failure rate to a MTBF number, without any string formatting
         double FailureRateToMTBF(double failureRate, String units);
         // Get the FlightData or FlightTime for the part
