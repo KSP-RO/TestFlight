@@ -349,16 +349,13 @@ namespace TestFlightCore
         }
         public double GetFlightDataForScope(String scope)
         {
-            LogFormatted_DebugOnly("GetFlightDataForScope: scope=" + scope);
             FlightDataBody dataBody = flightData.GetFlightData(scope);
             if (dataBody == null)
             {
-                LogFormatted_DebugOnly("GetFlightDataForScope: Could not find data or this scope.  Returning 0");
                 return 0;
             }
             else
             {
-                LogFormatted_DebugOnly("GetFlightDataForScope: Returning " + dataBody.flightData);
                 return dataBody.flightData;
             }
         }
@@ -428,7 +425,6 @@ namespace TestFlightCore
         {
             if (flightData == null)
             {
-                LogFormatted_DebugOnly("ModifyFlightData: Skipping update - flightData is null");
                 return 0;
             }
 
@@ -437,7 +433,6 @@ namespace TestFlightCore
             {
                 if (!additive)
                     return 0;
-                LogFormatted_DebugOnly("ModifyFlightData: Adding new entry");
                 modifier = ApplyFlightDataMultiplier(modifier);
                 flightData.AddFlightData(scope, modifier, 0);
                 return modifier;
@@ -452,7 +447,6 @@ namespace TestFlightCore
                 bodyData.flightData *= modifier;
             }
             bodyData.flightData = ApplyFlightDataMultiplier(bodyData.flightData);
-            LogFormatted_DebugOnly("ModifyFlightData: Updating entry for scope " + scope + " with data " + bodyData.flightData + " and time " + bodyData.flightTime);
             flightData.AddFlightData(scope, bodyData.flightData, bodyData.flightTime);
             return bodyData.flightData;
         }
@@ -550,7 +544,6 @@ namespace TestFlightCore
                         return null;
                     else
                     {
-                        LogFormatted_DebugOnly("TestFlightCore: Triggering failure on " + pm.moduleName);
                         activeFailure = fm;
                         failureAcknowledged = false;
                         fm.DoFailure();
@@ -625,7 +618,6 @@ namespace TestFlightCore
         {
             if (allFlightData == null)
             {
-                Debug.Log("TestFlightCore: allFlightData given was invalid!");
                 return;
             }
             baseFlightData = new FlightDataConfig();

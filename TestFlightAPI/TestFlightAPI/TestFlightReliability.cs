@@ -60,7 +60,7 @@ namespace TestFlightAPI
                 return 0;
 
             double reliability = curve.Evaluate((float)flightData);
-            Debug.Log(String.Format("TestFlightReliability: reliability is {0:F2) with {1:F2} data units", reliability, flightData));
+//            Debug.Log(String.Format("TestFlightReliability: reliability is {0:F2) with {1:F2} data units", reliability, flightData));
             return reliability;
         }
         // Get the momentary (IE current dynamic) failure modifier
@@ -170,11 +170,11 @@ namespace TestFlightAPI
             // S(t) = e^(-f*t)
 
             double survivalChance = Mathf.Pow(Mathf.Epsilon, (float)currentFailureRate * (float)operatingTime * -1f);
-            Debug.Log(String.Format("TestFlightReliability: Survival Chance at Time {0:F2} is {1:f4}", operatingTime, survivalChance));
+//            Debug.Log(String.Format("TestFlightReliability: Survival Chance at Time {0:F2} is {1:f4}", operatingTime, survivalChance));
             float failureRoll = UnityEngine.Random.Range(0f, 1.001f); // we allow for an extremely slim chance of a part failing right out of the game, but it should be damned rare
             if (failureRoll > survivalChance)
             {
-                Debug.Log(String.Format("TestFlightReliability: Part has failed with roll of {0:F4}", failureRoll));
+//                Debug.Log(String.Format("TestFlightReliability: Part has failed with roll of {0:F4}", failureRoll));
                 core.TriggerFailure();
             }
         }

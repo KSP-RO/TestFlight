@@ -368,7 +368,6 @@ namespace TestFlightCore
                 lastMasterStatusUpdate = currentUTC;
                 VerifyMasterStatus();
             }
-            LogFormatted_DebugOnly("TestFlightManager: MSD Update Frequency: " + tfScenario.settings.masterStatusUpdateFrequency);
             // process vessels
             foreach (var entry in knownVessels)
             {
