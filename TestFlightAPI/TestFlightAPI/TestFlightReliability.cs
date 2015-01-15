@@ -6,15 +6,18 @@ namespace TestFlightAPI
 {
     public class ReliabilityBodyConfig : IConfigNode
     {
-        [KSPField(isPersistant = true)]
         public string scope = "NONE";
-        [KSPField(isPersistant = true)]
         public FloatCurve reliabilityCurve;
 
         public void Load(ConfigNode node)
         {
             if (node.HasValue("scope"))
                 scope = node.GetValue("scope").ToLower();
+            if (node.HasNode("reliabilityCurve"))
+            {
+                reliabilityCurve = new FloatCurve();
+                reliabilityCurve.Load(node.GetNode("reliabilityCurve"));
+            }
         }
 
         public void Save(ConfigNode node)
@@ -25,8 +28,6 @@ namespace TestFlightAPI
         {
             string stringRepresentation = "";
 
-            stringRepresentation = scope;
-            stringRepresentation += "\n" + reliabilityCurve.ToString();
             return stringRepresentation;
         }
 
@@ -38,7 +39,8 @@ namespace TestFlightAPI
     public class TestFlightReliabilityBase : PartModule, ITestFlightReliability
     {
         private ITestFlightCore core = null;
-        public List<ReliabilityBodyConfig> reliabilityBodies;
+        public List<ReliabilityBodyConfig> reliabilityBodies = null;
+        double lastCheck = 0;
 
         // New API
         // Get the base or static failure rate for the given scope
@@ -55,10 +57,8 @@ namespace TestFlightAPI
                 return 0;
             FloatCurve curve = body.reliabilityCurve;
             if (curve == null)
-            {
-                Debug.Log("TestFlightReliability: reliabilityCurve is not valid!");
                 return 0;
-            }
+
             double reliability = curve.Evaluate((float)flightData);
             Debug.Log(String.Format("TestFlightReliability: reliability is {0:F2) with {1:F2} data units", reliability, flightData));
             return reliability;
@@ -75,27 +75,36 @@ namespace TestFlightAPI
         // INTERNAL methods
         private ReliabilityBodyConfig GetConfigForScope(String scope)
         {
+            if (reliabilityBodies == null)
+                return null;
             return reliabilityBodies.Find(s => s.scope == scope);
         }
 
         // PARTMODULE Implementation
-        public override void OnStart(StartState state)
+        public void Start()
         {
-            base.OnStart(state);
-
             foreach (PartModule pm in this.part.Modules)
             {
                 core = pm as ITestFlightCore;
                 if (core != null)
                     break;
             }
-            if (reliabilityBodies == null)
-                reliabilityBodies = new List<ReliabilityBodyConfig>();
 
+            if (reliabilityBodies == null)
+            {
+                Part prefab = this.part.partInfo.partPrefab;
+                foreach (PartModule pm in prefab.Modules)
+                {
+                    TestFlightReliabilityBase modulePrefab = pm as TestFlightReliabilityBase;
+                    if (modulePrefab != null)
+                    {
+                        reliabilityBodies = modulePrefab.reliabilityBodies;
+                    }
+                }
+            }
         }
         public override void OnLoad(ConfigNode node)
         {
-            Debug.Log("TestFlightReliability: OnLoad()");
             if (reliabilityBodies == null)
                 reliabilityBodies = new List<ReliabilityBodyConfig>();
             foreach (ConfigNode bodyNode in node.GetNodes("RELIABILITY_BODY"))
@@ -103,7 +112,6 @@ namespace TestFlightAPI
                 ReliabilityBodyConfig reliabilityBody = new ReliabilityBodyConfig();
                 reliabilityBody.Load(bodyNode);
                 reliabilityBodies.Add(reliabilityBody);
-                Debug.Log("TestFlightReliability: ReliabilityBody " + bodyNode.ToString());
             }
             base.OnLoad(node);
         }
@@ -121,12 +129,16 @@ namespace TestFlightAPI
 
             // TODO
             // This code is just placeholder as we migrate to the new system.  This reimplements the old failure check for now.
-            if (UnityEngine.Random.Range(0f, 100f) > core.GetBaseFailureRate())
+            double currentMET = this.vessel.missionTime;
+            if (currentMET > lastCheck + 30)
             {
-                core.TriggerFailure();
+                if (UnityEngine.Random.Range(0f, 100f) > core.GetBaseFailureRate())
+                {
+                    core.TriggerFailure();
+                }
+                lastCheck = currentMET;
             }
             return;
-
 
 
 
