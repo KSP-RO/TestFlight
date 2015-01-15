@@ -21,9 +21,16 @@ namespace TestFlightCore
         public double deepSpaceThreshold = 10000000;
 
 
-        private Dictionary<String, double> momentaryFailureRates;
-        private double baseFailureRate;
+        // Base Failure Rate is stored per Scope internally
+        private Dictionary<String, double> baseFailureRate;
+        // We store the base, or initial, flight data for calculation of Base Failure Rate
         private FlightDataConfig baseFlightData;
+        // Momentary Failure Rates are calculated based on modifiers.  Those modifiers
+        // are stored per SCOPE and per TRIGGER
+        // This is a little bit of an insane data structure, but it works, and it simplifies the code everywhere else
+        List<MomentaryFailureRate> momentaryFailureRates;
+        List<MomentaryFailureModifier> momentaryFailureModifiers;
+        double operatingTime;
 
         // Get a proper scope string for use in other parts of the API
         public String GetScope()
@@ -78,8 +85,6 @@ namespace TestFlightCore
 
             return String.Format("{0}_{1}", body.ToLower(), situation.ToLower());
         }
-        // TODO
-        // Implement theses
         // Get the base or static failure rate
         public double GetBaseFailureRate()
         {
@@ -87,67 +92,210 @@ namespace TestFlightCore
         }
         public double GetBaseFailureRateForScope(String scope)
         {
-            return 0;
+            // Since the Base Failure Rate does not change during the lifetime of a part
+            // we cache that data internally so as to not have to call the Reliability module
+            // constantly.  Therefore here we are returning what we have if we have it,
+            // or else getting it from the Reliability module and caching that for next time.
+            scope = scope.ToLower().Trim();
+            if (baseFailureRate.ContainsKey(scope))
+                return baseFailureRate[scope];
+            else
+            {
+                double totalBFR = 0;
+                double data = 0;
+                FlightDataBody body = baseFlightData.GetFlightData(scope);
+                if (body != null)
+                    data = body.flightData;
+                foreach (PartModule pm in this.part.Modules)
+                {
+                    ITestFlightReliability rm = pm as ITestFlightReliability;
+                    if (rm != null)
+                    {
+                        totalBFR += rm.GetBaseFailureRateForScope(data, scope);
+                    }
+                }
+                baseFailureRate.Add(scope, totalBFR);
+                return totalBFR;
+            }
+
         }
         // Get the momentary (IE current dynamic) failure rates (Can vary per reliability/failure modules)
         // These  methods will let you get a list of all momentary rates or you can get the best (lowest chance of failure)/worst (highest chance of failure) rates
-        public Dictionary<String, double> GetWorstMomentaryFailureRate()
+        public MomentaryFailureRate GetWorstMomentaryFailureRate()
         {
             return GetWorstMomentaryFailureRateForScope(GetScope());
         }
-        public Dictionary<String, double> GetBestMomentaryFailureRate()
+        public MomentaryFailureRate GetBestMomentaryFailureRate()
         {
             return GetBestMomentaryFailureRateForScope(GetScope());
         }
-        public Dictionary<String, double> GetAllMomentaryFailureRates()
+        public List<MomentaryFailureRate> GetAllMomentaryFailureRates()
         {
             return GetAllMomentaryFailureRatesForScope(GetScope());
         }
-        public Dictionary<String, double> GetWorstMomentaryFailureRateForScope(String scope)
+        public MomentaryFailureRate GetWorstMomentaryFailureRateForScope(String scope)
         {
-            Dictionary<String, double> failureRate = new Dictionary<string, double>();
-            failureRate.Add("TODO", 0);
-            return failureRate;
+            scope = scope.ToLower().Trim();
+            MomentaryFailureRate worstMFR;
+
+            worstMFR = new MomentaryFailureRate();
+            worstMFR.valid = false;
+            worstMFR.failureRate = 0;
+
+            foreach (MomentaryFailureRate mfr in momentaryFailureRates)
+            {
+                if (mfr.scope == scope && mfr.failureRate > worstMFR.failureRate)
+                {
+                    worstMFR = mfr;
+                }
+            }
+
+            return worstMFR;
         }
-        public Dictionary<String, double> GetBestMomentaryFailureRateForScope(String scope)
+        public MomentaryFailureRate GetBestMomentaryFailureRateForScope(String scope)
         {
-            Dictionary<String, double> failureRate = new Dictionary<string, double>();
-            failureRate.Add("TODO", 0);
-            return failureRate;
+            scope = scope.ToLower().Trim();
+            MomentaryFailureRate bestMFR;
+
+            bestMFR = new MomentaryFailureRate();
+            bestMFR.valid = false;
+            bestMFR.failureRate = Double.MaxValue;
+
+            foreach (MomentaryFailureRate mfr in momentaryFailureRates)
+            {
+                if (mfr.scope == scope && mfr.failureRate < bestMFR.failureRate)
+                {
+                    bestMFR = mfr;
+                }
+            }
+
+            return bestMFR;
         }
-        public Dictionary<String, double> GetAllMomentaryFailureRatesForScope(String scope)
+        public List<MomentaryFailureRate> GetAllMomentaryFailureRatesForScope(String scope)
         {
-            Dictionary<String, double> failureRate = new Dictionary<string, double>();
-            failureRate.Add("TODO", 0);
-            return failureRate;
+            scope = scope.ToLower().Trim();
+
+            List<MomentaryFailureRate> mfrList = new List<MomentaryFailureRate>();
+
+            foreach (MomentaryFailureRate mfr in momentaryFailureRates)
+            {
+                if (mfr.scope == scope)
+                {
+                    mfrList.Add(mfr);
+                }
+            }
+
+            return mfrList;
         }
         public double GetMomentaryFailureRateForTrigger(String trigger)
         {
-            return 0;
+            return GetMomentaryFailureRateForTriggerForScope(trigger, GetScope());
         }
         public double GetMomentaryFailureRateForTriggerForScope(String trigger, String scope)
         {
-            return 0;
-        }
-        // The base failure rate can be modified with a multipler that is applied during flight only
-        // Returns the total modified failure rate back to the caller for convenience
-        public double ModifyBaseFailureRate(double multiplier)
-        {
-            return ModifyBaseFailureRateForScope(GetScope(), multiplier);
-        }
-        public double ModifyBaseFailureRateForScope(String scope, double multiplier)
-        {
-            return 0;
+            return GetMomentaryFailureRate(trigger, scope).failureRate;
         }
         // The momentary failure rate is tracked per named "trigger" which allows multiple Reliability or FailureTrigger modules to cooperate
         // Returns the total modified failure rate back to the caller for convenience
-        public double ModifyTriggerMomentaryFailureRate(String module, double multiplier)
+        // IMPORTANT: For performance reasons a module should only set its Momentary Modifier WHEN IT CHANGES.  The core will cache the value.
+        // Setting the same value multiple times will only force the core to recalculate the Momentary Rate over and over
+        internal MomentaryFailureModifier GetMomentaryFailureModifier(String trigger, String owner, String scope)
         {
-            return ModifyTriggerMomentaryFailureRateForScope(module, GetScope(), multiplier);
+            scope = scope.ToLower().Trim();
+            trigger = scope.ToLower().Trim();
+            String ownerName = owner.ToLower().Trim();
+
+            foreach (MomentaryFailureModifier mfMod in momentaryFailureModifiers)
+            {
+                if (mfMod.scope == scope && mfMod.owner == ownerName && mfMod.triggerName == trigger)
+                {
+                    return mfMod;
+                }
+            }
+
+            return new MomentaryFailureModifier();
         }
-        public double ModifyTriggerMomentaryFailureRateForScope(String module, String scope, double multiplier)
+        internal MomentaryFailureRate GetMomentaryFailureRate(String trigger, String scope)
         {
-            return 0;
+            scope = scope.ToLower().Trim();
+            trigger = scope.ToLower().Trim();
+
+            foreach (MomentaryFailureRate mfRate in momentaryFailureRates)
+            {
+                if (mfRate.scope == scope && mfRate.triggerName == trigger)
+                {
+                    return mfRate;
+                }
+            }
+
+            return new MomentaryFailureRate();
+        }
+
+        public double SetTriggerMomentaryFailureModifier(String trigger, double multiplier, PartModule owner)
+        {
+            return SetTriggerMomentaryFailureModifierForScope(trigger, multiplier, owner, GetScope());
+        }
+        public double SetTriggerMomentaryFailureModifierForScope(String trigger, double multiplier, PartModule owner, String scope)
+        {
+            // store the trigger, recalculate the final rate, and cache that as well
+            scope = scope.ToLower().Trim();
+            trigger = scope.ToLower().Trim();
+            MomentaryFailureModifier mfm;
+            String ownerName = owner.moduleName.ToLower();
+            double totalModifier = 1;
+            double mfr = 0;
+
+            mfm = GetMomentaryFailureModifier(trigger, ownerName, scope);
+            if (mfm.valid)
+            {
+                // recalculate new rate and cache everything
+                mfm.modifier = multiplier;
+                return CalculateMomentaryFailureRate(trigger, scope);
+            }
+            else
+            {
+                // If didn't find a proper match in our existing list, add a new one
+                mfm.valid = true;
+                mfm.scope = scope;
+                mfm.owner = ownerName;
+                mfm.modifier = multiplier;
+                mfm.triggerName = trigger;
+                momentaryFailureModifiers.Add(mfm);
+                // recalculate new rate
+                return CalculateMomentaryFailureRate(trigger, scope);
+            }
+        }
+        internal double CalculateMomentaryFailureRate(String trigger, String scope)
+        {
+            scope = scope.ToLower().Trim();
+            trigger = trigger.ToLower().Trim();
+            double baseFailureRate = GetBaseFailureRateForScope(scope);
+            double totalModifiers = 1;
+
+            foreach (MomentaryFailureModifier mfm in momentaryFailureModifiers)
+            {
+                if (mfm.scope == scope && mfm.triggerName == trigger)
+                {
+                    totalModifiers *= mfm.modifier;
+                }
+            }
+
+            double momentaryRate = baseFailureRate * totalModifiers;
+            // Cache this value internally
+            MomentaryFailureRate mfr = GetMomentaryFailureRate(trigger, scope);
+            if (mfr.valid)
+            {
+                mfr.failureRate = momentaryRate;
+            }
+            else
+            {
+                mfr.valid = true;
+                mfr.scope = scope;
+                mfr.triggerName = trigger;
+                mfr.failureRate = momentaryRate;
+                momentaryFailureRates.Add(mfr);
+            }
+            return momentaryRate;
         }
         // simply converts the failure rate into a MTBF string.  Convenience method
         // Returned string will be of the format "123 units"
@@ -180,28 +328,19 @@ namespace TestFlightCore
             {
                 case "seconds":
                     return mtbfSeconds;
-                    break;
                 case "minutes":
                     return mtbfSeconds / 60;
-                    break;
                 case "hours":
                     return mtbfSeconds / 60 / 60;
-                    break;
                 case "days":
                     return mtbfSeconds / 60 / 60 / 24;
-                    break;
                 case "months":
                     return mtbfSeconds / 60 / 60 / 24 / 30;
-                    break;
                 case "years":
                     return mtbfSeconds / 60 / 60 / 24 / 365;
-                    break;
                 default:
                     return mtbfSeconds;
-                    break;
             }
-
-            return 1.0 / failureRate;
         }
         // Get the FlightData or FlightTime for the part
         public double GetFlightData()
@@ -250,9 +389,11 @@ namespace TestFlightCore
         {
             SetFlightTimeForScope(seconds, GetScope());
         }
+        // TODO
         public void SetFlightDataForScope(double data, String scope)
         {
         }
+        // TODO
         public void SetFlightTimeForScope(double seconds, String scope)
         {
         }
@@ -339,6 +480,7 @@ namespace TestFlightCore
 
             return baseData * TestFlightManagerScenario.Instance.settings.flightDataMultiplier;
         }
+        // TODO
         public double ModifyFlightTimeForScope(double modifier, String scope, bool additive)
         {
             return 0;
@@ -348,6 +490,10 @@ namespace TestFlightCore
         // Returns the triggered failure module, or null if none
         public ITestFlightFailure TriggerFailure()
         {
+            // We won't trigger a failure if we are already failed
+            if (activeFailure != null)
+                return null;
+
             // Failure occurs.  Determine which failure module to trigger
             int totalWeight = 0;
             int currentWeight = 0;
@@ -387,6 +533,10 @@ namespace TestFlightCore
         }
         public ITestFlightFailure TriggerNamedFailure(String failureModuleName, bool fallbackToRandom)
         {
+            // We won't trigger a failure if we are already failed
+            if (activeFailure != null)
+                return null;
+
             failureModuleName = failureModuleName.ToLower().Trim();
 
             foreach(PartModule pm in this.part.Modules)
@@ -404,6 +554,7 @@ namespace TestFlightCore
                         activeFailure = fm;
                         failureAcknowledged = false;
                         fm.DoFailure();
+                        operatingTime = -1;
                         return fm;
                     }
                 }
@@ -414,8 +565,17 @@ namespace TestFlightCore
 
             return null;
         }
+        // Returns the Operational Time or the time, in MET, since the last time the part was fully functional. 
+        // If a part is currently in a failure state, return will be -1 and the part should not fail again
+        // This counts from mission start time until a failure, at which point it is reset to the time the
+        // failure is repaired.  It is important to understand this is NOT the total flight time of the part.
+        public double GetOperatingTime()
+        {
+            return operatingTime;
+        }
 
 
+        // PARTMODULE functions
         public override void Update()
         {
             base.Update();
@@ -423,6 +583,46 @@ namespace TestFlightCore
             if (TestFlightManagerScenario.Instance == null)
                 return;
         }
+
+        public override void OnStart(StartState state)
+        {
+            if (baseFlightData == null)
+                baseFlightData = new FlightDataConfig();
+            if (flightData == null)
+                flightData = new FlightDataConfig();
+
+            if (baseFailureRate == null)
+                baseFailureRate = new Dictionary<string, double>();
+
+            if (momentaryFailureRates == null)
+                momentaryFailureRates = new List<MomentaryFailureRate>();
+
+            if (momentaryFailureModifiers == null)
+                momentaryFailureModifiers = new List<MomentaryFailureModifier>();
+
+            operatingTime = 0;
+
+
+
+            if (failureModules == null)
+            {
+                failureModules = new List<ITestFlightFailure>();
+            }
+            failureModules.Clear();
+            foreach(PartModule pm in this.part.Modules)
+            {
+                ITestFlightFailure failureModule = pm as ITestFlightFailure;
+                if (failureModule != null)
+                {
+                    failureModules.Add(failureModule);
+                }
+            }
+            base.OnStart(state);
+        }
+
+
+
+
 
 
 
@@ -452,6 +652,7 @@ namespace TestFlightCore
                 {
                     activeFailure = null;
                     failureAcknowledged = false;
+                    operatingTime = 0;
                     return true;
                 }
             }
@@ -500,29 +701,6 @@ namespace TestFlightCore
         public override void OnAwake()
         {
             base.OnAwake();
-        }
-
-        public override void OnStart(StartState state)
-        {
-            if (baseFlightData == null)
-                baseFlightData = new FlightDataConfig();
-            if (flightData == null)
-                flightData = new FlightDataConfig();
-
-            if (failureModules == null)
-            {
-                failureModules = new List<ITestFlightFailure>();
-            }
-            failureModules.Clear();
-            foreach(PartModule pm in this.part.Modules)
-            {
-                ITestFlightFailure failureModule = pm as ITestFlightFailure;
-                if (failureModule != null)
-                {
-                    failureModules.Add(failureModule);
-                }
-            }
-            base.OnStart(state);
         }
 
         public virtual int GetPartStatus()

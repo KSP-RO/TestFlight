@@ -42,6 +42,27 @@ namespace TestFlightAPI
         public float repairBonus;
     }
 
+    public struct MomentaryFailureModifier
+    {
+        public String scope;
+        public String owner;
+        public String triggerName;
+        public double modifier;
+        // ALWAYS check if valid == true before using the data in this structure!  
+        // If valid is false, then the data is empty because a valid data set could not be located
+        public bool valid;
+    }
+
+    public struct MomentaryFailureRate
+    {
+        public String scope;
+        public String triggerName;
+        public double failureRate;
+        // ALWAYS check if valid == true before using the data in this structure!  
+        // If valid is false, then the data is empty because a valid data set could not be located
+        public bool valid;
+    }
+
 	public interface IFlightDataRecorder
 	{
 	}
@@ -49,12 +70,25 @@ namespace TestFlightAPI
 	public interface ITestFlightReliability
 	{
         // New API
-        // Get the base or static failure rate
-        double GetBaseFailureRate(double flightData);
+        // Get the base or static failure rate for the given scope
+        // !! IMPORTANT: Only ONE Reliability module may return a Base Failure Rate.  Additional modules can exist only to supply Momentary rates
+        // If this Reliability module's purpose is to supply Momentary Fialure Rates, then it MUST return 0 when asked for the Base Failure Rate
+        // If it dosn't, then the Base Failure Rate of the part will not be correct.
+        /// <summary>
+        /// Gets the Base Failure Rate (BFR) for the given scope.
+        /// </summary>
+        /// <returns>The base failure rate for scope.  0 if this module only implements Momentary Failure Rates</returns>
+        /// <param name="flightData">The flight data that failure rate should be calculated on.</param>
+        /// <param name="scope">Scope.</param>
         double GetBaseFailureRateForScope(double flightData, String scope);
+
         // Get the momentary (IE current dynamic) failure modifier
         // The reliability module should only return its MODIFIER for the current time at the given scope (or current scope if not given).  The Core will calculate the final failure rate.
-        double GetMomentaryFailureModifier();
+        // !! IF NOT USED THEN THE MODULE MUST RETURN A VALUE OF 1 SO AS TO NOT MODIFY THE RATE !!
+        /// <summary>
+        /// Gets the Momentary Failure Rate (MFR) modifier for the given scope.
+        /// </summary>
+        /// <returns>The momentary failure modifier. 1 if this module does not implement MFR</returns>
         double GetMomentaryFailureModifierForScope(String scope);
 	}
 
@@ -131,22 +165,18 @@ namespace TestFlightAPI
         // These  methods will let you get a list of all momentary rates or you can get the best (lowest chance of failure)/worst (highest chance of failure) rates
         // Note that the return value is alwasy a dictionary.  The key is the name of the trigger, always in lowercase.  The value is the failure rate.
         // The dictionary will be a single entry in the case of Worst/Best calls, and will be the length of total triggers in the case of askign for All momentary rates.
-        Dictionary<String, double> GetWorstMomentaryFailureRate();
-        Dictionary<String, double> GetBestMomentaryFailureRate();
-        Dictionary<String, double> GetAllMomentaryFailureRates();
-        Dictionary<String, double> GetWorstMomentaryFailureRateForScope(String scope);
-        Dictionary<String, double> GetBestMomentaryFailureRateForScope(String scope);
-        Dictionary<String, double> GetAllMomentaryFailureRatesForScope(String scope);
+        MomentaryFailureRate GetWorstMomentaryFailureRate();
+        MomentaryFailureRate GetBestMomentaryFailureRate();
+        List<MomentaryFailureRate> GetAllMomentaryFailureRates();
+        MomentaryFailureRate GetWorstMomentaryFailureRateForScope(String scope);
+        MomentaryFailureRate GetBestMomentaryFailureRateForScope(String scope);
+        List<MomentaryFailureRate> GetAllMomentaryFailureRatesForScope(String scope);
         double GetMomentaryFailureRateForTrigger(String trigger);
         double GetMomentaryFailureRateForTriggerForScope(String trigger, String scope);
-        // The base failure rate can be modified with a multipler that is applied during flight only
-        // Returns the total modified failure rate back to the caller for convenience
-        double ModifyBaseFailureRate(double multiplier);
-        double ModifyBaseFailureRateForScope(String scope, double multiplier);
         // The momentary failure rate is tracked per named "trigger" which allows multiple Reliability or FailureTrigger modules to cooperate
         // Returns the total modified failure rate back to the caller for convenience
-        double ModifyTriggerMomentaryFailureRate(String trigger, double multiplier);
-        double ModifyTriggerMomentaryFailureRateForScope(String trigger, String scope, double multiplier);
+        double SetTriggerMomentaryFailureModifier(String trigger, double multiplier, PartModule owner);
+        double SetTriggerMomentaryFailureModifierForScope(String trigger, double multiplier, PartModule owner, String scope);
         // simply converts the failure rate into a MTBF string.  Convenience method
         // Returned string will be of the format "123 units"
         // units should be one of:
@@ -162,7 +192,9 @@ namespace TestFlightAPI
         double GetFlightDataForScope(String scope);
         double GetFlightTime();
         double GetFlightTimeForScope(String scope);
-        // Set the FlightData for FlightTime or the part - this is an absolute set and replaces the previous FlightData
+        // Set the FlightData for FlightTime or the part - this is an absolute set and replaces the previous FlightData/Time
+        // This is generally NOT recommended.  Use ModifyFlightData instead so that the Core can ensure your modifications cooperate with others
+        // These functions are currently NOT implemented!
         void SetFlightData(double data);
         void SetFlightTime(double seconds);
         void SetFlightDataForScope(double data, String scope);
@@ -184,6 +216,11 @@ namespace TestFlightAPI
         ITestFlightFailure TriggerFailure();
         ITestFlightFailure TriggerNamedFailure(String failureModuleName);
         ITestFlightFailure TriggerNamedFailure(String failureModuleName, bool fallbackToRandom);
+        // Returns the Operational Time or the time, in MET, since the last time the part was fully functional. 
+        // If a part is currently in a failure state, return will be -1 and the part should not fail again
+        // This counts from mission start time until a failure, at which point it is reset to the time the
+        // failure is repaired.  It is important to understand this is NOT the total flight time of the part.
+        double GetOperatingTime();
     }
 }
 

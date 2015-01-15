@@ -37,6 +37,9 @@ namespace TestFlightAPI
         {
             base.OnUpdate();
 
+            if (core == null)
+                return;
+
             double currentMet = this.vessel.missionTime;
             if (!IsRecordingFlightData())
             {
