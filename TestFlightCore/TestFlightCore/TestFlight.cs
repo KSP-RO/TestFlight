@@ -231,7 +231,7 @@ namespace TestFlightCore
                             partData = new PartFlightData();
                         }
 
-                        if (partData != null)
+                        if (partData != null && partData.GetFlightData() != null)
                         {
                             core.InitializeFlightData(partData.GetFlightData(), tfScenario.settings.globalReliabilityModifier);
                         }

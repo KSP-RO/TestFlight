@@ -621,6 +621,22 @@ namespace TestFlightCore
         }
 
 
+        public void InitializeFlightData(List<TestFlightData> allFlightData, double globalReliabilityModifier)
+        {
+            if (allFlightData == null)
+            {
+                Debug.Log("TestFlightCore: allFlightData given was invalid!");
+                return;
+            }
+            baseFlightData = new FlightDataConfig();
+            flightData = new FlightDataConfig();
+            foreach (TestFlightData data in allFlightData)
+            {
+                baseFlightData.AddFlightData(data.scope, data.flightData, data.flightTime);
+                flightData.AddFlightData(data.scope, data.flightData, data.flightTime);
+            }
+            return;
+        }
 
 
 
@@ -797,17 +813,6 @@ namespace TestFlightCore
 //            return currentReliability;
 //        }
 
-        public void InitializeFlightData(List<TestFlightData> allFlightData, double globalReliabilityModifier)
-        {
-            baseFlightData = new FlightDataConfig();
-            flightData = new FlightDataConfig();
-            foreach (TestFlightData data in allFlightData)
-            {
-                baseFlightData.AddFlightData(data.scope, data.flightData, data.flightTime);
-                flightData.AddFlightData(data.scope, data.flightData, data.flightTime);
-            }
-            return;
-        }
 
 //            initialFlightData = new List<TestFlightData>(allFlightData);
 //            double totalReliability = 0.0;
