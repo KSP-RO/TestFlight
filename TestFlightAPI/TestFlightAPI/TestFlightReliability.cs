@@ -25,26 +25,10 @@ namespace TestFlightAPI
         {
             string stringRepresentation = "";
 
-//            stringRepresentation = String.Format("{0},{1:F2},{2:F2}", scope, minReliability, maxReliability);
             stringRepresentation = scope;
             stringRepresentation += "\n" + reliabilityCurve.ToString();
             return stringRepresentation;
         }
-
-//        public static ReliabilityBodyConfig FromString(string s)
-//        {
-//            ReliabilityBodyConfig bodyConfig = null;
-//            string[] sections = s.Split(new char[1] { ',' });
-//            if (sections.Length == 3)
-//            {
-//                bodyConfig = new ReliabilityBodyConfig();
-//                bodyConfig.scope = sections[0].ToLower();
-//                bodyConfig.minReliability = float.Parse(sections[1]);
-//                bodyConfig.maxReliability = float.Parse(sections[2]);
-//            }
-//
-//            return bodyConfig;
-//        }
 
     }
 
@@ -182,68 +166,6 @@ namespace TestFlightAPI
                 core.TriggerFailure();
             }
         }
-
-
-//        [KSPField(isPersistant = true)]
-//        public float reliabilityFactor = 3;
-//        [KSPField(isPersistant = true)]
-//        public float reliabilityMultiplier = 2;
-//
-//        public List<string> reliabilityBodiesPackedString;
-
-//        public ReliabilityBodyConfig GetReliabilityBody(string scope)
-//        {
-//            return reliabilityBodies.Find(s => s.scope == scope);
-//        }
-//
-//        public float GetCurrentReliability(TestFlightData flightData)
-//        {
-//            // Get the flight data for the currently active body and situation
-//            double currentFlightData = flightData.flightData;
-//            // Determine current situation
-//            string scope = flightData.scope;
-//            // Determine raw reliability
-//            float rawReliability = (float)Math.Sqrt(currentFlightData * reliabilityMultiplier);
-//            //float rawReliability = (float)Math.Pow(currentFlightData * reliabilityMultiplier, 1.0 / reliabilityFactor);
-//            // Now adjust if needed based on situation
-//            ReliabilityBodyConfig body = GetReliabilityBody(scope);
-//            if (body != null)
-//            {
-//                if (rawReliability < body.minReliability)
-//                    return body.minReliability;
-//                if (rawReliability > body.maxReliability)
-//                    return body.maxReliability;
-//                return rawReliability;
-//            }
-//            return rawReliability;
-//        }
-//
-//        public override void OnAwake()
-//        {
-//            if (reliabilityBodies == null)
-//                reliabilityBodies = new List<ReliabilityBodyConfig>();
-//            if (reliabilityBodiesPackedString == null)
-//                reliabilityBodiesPackedString = new List<string>();
-//        }
-
-//        public override void OnStart(StartState state)
-//        {
-//            // when starting we need to re-load our data from the packed strings
-//            // because for some reason KSP/Unity will dump the more complex datastructures from memory
-//            if (reliabilityBodies == null || reliabilityBodies.Count == 0)
-//            {
-//                foreach (string packedString in reliabilityBodiesPackedString)
-//                {
-//                    ReliabilityBodyConfig reliabilityBody = ReliabilityBodyConfig.FromString(packedString);
-//                    reliabilityBodies.Add(reliabilityBody);
-//                }
-//            }
-//            else
-//            {
-//                Debug.Log("TestFlightReliabilityBase: " + reliabilityBodies.Count + " bodies in memory");
-//            }
-//        }
-
     }
 }
 
