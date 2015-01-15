@@ -400,14 +400,7 @@ namespace TestFlightCore
                                     partStatus.reliability = core.GetBaseFailureRate();
                                     partStatus.repairRequirements = core.GetRequirementsTooltip();
                                     partStatus.acknowledged = core.IsFailureAcknowledged();
-                                    if (core.GetPartStatus() > 0)
-                                    {
-                                        partStatus.activeFailure = core.GetFailureModule();
-                                    }
-                                    else
-                                    {
-                                        partStatus.activeFailure = null;
-                                    }
+                                    partStatus.activeFailure = core.GetFailureModule();
 
                                     // Update or Add part status in Master Status
                                     if (masterStatus.ContainsKey(vessel.id))
