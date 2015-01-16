@@ -71,6 +71,7 @@
     <Compile Include="Framework\PartModuleExtended.cs" />
     <Compile Include="TestFlightWindow.cs" />
     <Compile Include="TestFlightHUD.cs" />
+    <Compile Include="TestFlightEditor.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
