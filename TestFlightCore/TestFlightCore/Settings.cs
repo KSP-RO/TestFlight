@@ -40,12 +40,16 @@ namespace TestFlightCore
         [Persistent] public bool mainWindowLocked = true;
         [Persistent] public int currentMSDSize = 1;
         [Persistent] public bool flightHUDEnabled = false;
+        [Persistent] public bool editorShowGraph = false;
+        [Persistent] public bool editorShowOnDemand = true;
 
         // Unity/KSP can't store some more complex data types so we provide classes to convert
         [Persistent] public PersistentRect mainWindowPositionStored = new PersistentRect();
         public Rect mainWindowPosition = new Rect(0,0,0,0);
         [Persistent] public PersistentVector2 currentMSDScrollPositionStored = new PersistentVector2();
         public Vector2 currentMSDScrollPosition = new Vector2(0,0);
+        [Persistent] public PersistentVector2 currentEditorScrollPositionStored = new PersistentVector2();
+        public Vector2 currentEditorScrollPosition = new Vector2(0,0);
         [Persistent] public PersistentRect flightHUDPositionStored = new PersistentRect();
         public Rect flightHUDPosition = new Rect(100,50,0,0);
 
@@ -54,6 +58,7 @@ namespace TestFlightCore
             mainWindowPosition = mainWindowPositionStored.ToRect();
             flightHUDPosition = flightHUDPositionStored.ToRect();
             currentMSDScrollPosition = currentMSDScrollPositionStored.ToVector2();
+            currentEditorScrollPosition = currentEditorScrollPositionStored.ToVector2();
         }
 
         public override void OnEncodeToConfigNode()
@@ -61,6 +66,7 @@ namespace TestFlightCore
             mainWindowPositionStored = mainWindowPositionStored.FromRect(mainWindowPosition);
             flightHUDPositionStored = flightHUDPositionStored.FromRect(flightHUDPosition);
             currentMSDScrollPositionStored = currentMSDScrollPositionStored.FromVector2(currentMSDScrollPosition);
+            currentEditorScrollPositionStored = currentEditorScrollPositionStored.FromVector2(currentMSDScrollPosition);
         }
 
     }
