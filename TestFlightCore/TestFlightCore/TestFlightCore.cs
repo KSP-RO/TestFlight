@@ -367,7 +367,6 @@ namespace TestFlightCore
         // Simply converts the failure rate to a MTBF number, without any string formatting
         public double FailureRateToMTBF(double failureRate, TestFlightUtil.MTBFUnits units)
         {
-            double mfr = 0;
             failureRate = Mathf.Max((float)failureRate, (float)TestFlightUtil.MIN_FAILURE_RATE);
             double mtbfSeconds = 1.0 / failureRate;
 

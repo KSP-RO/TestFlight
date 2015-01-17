@@ -1,7 +1,13 @@
 ﻿using System;
 using System.Reflection;
+using System.Linq;
+using System.Collections;
+using System.Collections.Generic;
+
 using UnityEngine;
 using KSPPluginFramework;
+
+using TestFlightAPI;
 
 namespace TestFlightCore
 {
@@ -13,18 +19,48 @@ namespace TestFlightCore
         internal bool showGraph = true;
         internal Rect WindowRect;
         internal bool Visible;
+        internal TestFlightManagerScenario tfScenario = null;
+        internal bool isReady = false;
 
         internal override void Start()
         {
             LogFormatted_DebugOnly("TestFlightEditor: Initializing Editor Hook");
             EditorPartList.Instance.iconPrefab.gameObject.AddComponent<TestFlightEditorHook>();
             Instance = this;
-            WindowRect = new Rect(Screen.width - 350, Screen.height - 550, 300, 500);
+            StartCoroutine("ConnectToScenario");
+        }
+
+        IEnumerator ConnectToScenario()
+        {
+            while (TestFlightManagerScenario.Instance == null)
+            {
+                yield return null;
+            }
+
+            tfScenario = TestFlightManagerScenario.Instance;
+            while (!tfScenario.isReady)
+            {
+                yield return null;
+            }
+            Startup();
+        }
+
+        internal void Startup()
+        {
+            CalculateWindowBounds();
+            isReady = true;
+        }
+
+        internal void CalculateWindowBounds()
+        {
+            if (showGraph)
+                WindowRect = new Rect(Screen.width - 550, Screen.height - 550, 500, 500);
+            else
+                WindowRect = new Rect(Screen.width - 550, Screen.height - 300, 500, 250);
         }
 
         internal override void OnGUIOnceOnly()
         {
-            base.OnGUIOnceOnly();
             Styles.InitStyles();
             Styles.InitSkins();
             SkinsLibrary.SetCurrent("SolarizedDark");
@@ -32,12 +68,53 @@ namespace TestFlightCore
         internal override void OnGUIEvery()
         {
             base.OnGUIEvery();
+            if (!isReady)
+                return;
 
             if (Visible)
             {
+                ITestFlightCore core = null;
                 GUILayout.BeginArea(WindowRect, SkinsLibrary.CurrentSkin.GetStyle("HUD"));
                 GUILayout.BeginVertical();
                 GUILayout.Label(String.Format("Selected Part: {0}", selectedPart.name));
+                tfScenario.settings.editorShowGraph = DrawToggle(ref tfScenario.settings.editorShowGraph, "Show Reliability Graph", Styles.styleToggle);
+                tfScenario.settings.editorShowOnDemand = DrawToggle(ref tfScenario.settings.editorShowOnDemand, "Show Window on Demand", Styles.styleToggle);
+
+                tfScenario.settings.currentEditorScrollPosition = GUILayout.BeginScrollView(tfScenario.settings.currentEditorScrollPosition);
+                PartFlightData partData = tfScenario.GetFlightDataForPartName(selectedPart.name);
+                if (partData != null)
+                {
+                    foreach (PartModule pm in selectedPart.Modules)
+                    {
+                        core = pm as ITestFlightCore;
+                        if (core != null)
+                        {
+                            break;
+                        }
+                    }
+                    if (core != null)
+                    {
+                        List<TestFlightData> flightData = partData.GetFlightData();
+                        core.InitializeFlightData(flightData, 1.0);
+                        foreach (TestFlightData data in flightData)
+                        {
+                            GUILayout.BeginHorizontal();
+                            double failureRate = core.GetBaseFailureRateForScope(data.scope);
+                            String mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
+                            // 10 characters for body max plus 10 characters for situation plus underscore = 21 characters needed for longest scope string
+                            GUILayout.Label(data.scope, GUILayout.Width(150));
+                            GUILayout.Label(String.Format("{0,-7:F2}<b>du</b>", data.flightData), GUILayout.Width(75));
+                            GUILayout.Label(String.Format("{0,-5:F2} MTBF", mtbfString), GUILayout.Width(150));
+                            GUILayout.EndHorizontal();
+                        }
+                    }
+                }
+                else
+                {
+                    GUILayout.Label("No flight data has been recorded for this part.");
+                }
+                GUILayout.EndScrollView();
+
                 GUILayout.Space(250);
                 GUILayout.EndVertical();
                 Vector2 startPoint = new Vector2(5, 200);
@@ -46,6 +123,23 @@ namespace TestFlightCore
                 Drawing.DrawLine(startPoint, endPoint, lineColor, 5f);
                 GUILayout.EndArea();
             }
+        }
+        internal static Boolean DrawToggle(ref Boolean blnVar, String ButtonText, GUIStyle style, params GUILayoutOption[] options)
+        {
+            Boolean blnOld = blnVar;
+            blnVar = GUILayout.Toggle(blnVar, ButtonText, style, options);
+
+            return DrawResultChanged(blnOld, blnVar, "Toggle");
+        }
+        private static Boolean DrawResultChanged<T>(T Original, T New, String Message) 
+        {
+            if (Original.Equals(New)) {
+                return false;
+            } else {
+                LogFormatted_DebugOnly("{0} Changed. {1}->{2}", Message, Original.ToString(), New.ToString());
+                return true;
+            }
+
         }
     }
     // MEGA thanks to xxEvilReeperxx for pointing me in the right direction on this!
@@ -70,7 +164,6 @@ namespace TestFlightCore
                     if (!mouseFlag)
                     {
                         mouseFlag = true;
-                        LogFormatted_DebugOnly("User moused over " + selectedPart.partPrefab.name);
                         TestFlightEditorWindow.Instance.selectedPart = selectedPart.partPrefab;
                         TestFlightEditorWindow.Instance.Visible = true;
                     }
