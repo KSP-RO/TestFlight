@@ -124,7 +124,7 @@ namespace TestFlightCore
                         totalBFR += rm.GetBaseFailureRateForScope(data, scope);
                     }
                 }
-                totalBFR = Mathf.Max(totalBFR, TestFlightUtil.MIN_FAILURE_RATE);
+                totalBFR = Mathf.Max((float)totalBFR, (float)TestFlightUtil.MIN_FAILURE_RATE);
                 baseFailureRate.Add(scope, totalBFR);
                 return totalBFR;
             }
@@ -327,23 +327,23 @@ namespace TestFlightCore
         }
         public String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, bool shortForm, int maximum)
         {
-            int currentUnit = TestFlightUtil.MTBFUnits.SECONDS;
-            double mtbf = FailureRateToMTBF(failureRate, currentUnit);
+            int currentUnit = (int)TestFlightUtil.MTBFUnits.SECONDS;
+            double mtbf = FailureRateToMTBF(failureRate, (TestFlightUtil.MTBFUnits)currentUnit);
             while (mtbf > maximum)
             {
                 currentUnit++;
-                mtbf = FailureRateToMTBF(failureRate, currentUnit);
-                if (currentUnit == TestFlightUtil.MTBFUnits.INVALID)
+                mtbf = FailureRateToMTBF(failureRate, (TestFlightUtil.MTBFUnits)currentUnit);
+                if ((TestFlightUtil.MTBFUnits)currentUnit == TestFlightUtil.MTBFUnits.INVALID)
                     break;
             }
 
             if (shortForm)
             {
-                return String.Format("{0:F2}{1}", mtbf, UnitStringForMTBFUnit(currentUnit)[0]);
+                return String.Format("{0:F2}{1}", mtbf, UnitStringForMTBFUnit((TestFlightUtil.MTBFUnits)currentUnit)[0]);
             }
             else
             {
-                return String.Format("{0:F2} {1}", mtbf, UnitStringForMTBFUnit(currentUnit));
+                return String.Format("{0:F2} {1}", mtbf, UnitStringForMTBFUnit((TestFlightUtil.MTBFUnits)currentUnit));
             }
         }
         internal String UnitStringForMTBFUnit(TestFlightUtil.MTBFUnits units)
@@ -361,14 +361,14 @@ namespace TestFlightCore
                 case TestFlightUtil.MTBFUnits.YEARS:
                     return "years";
                 default:
-                    return "invalid"
+                    return "invalid";
             }
         }
         // Simply converts the failure rate to a MTBF number, without any string formatting
         public double FailureRateToMTBF(double failureRate, TestFlightUtil.MTBFUnits units)
         {
             double mfr = 0;
-            failureRate = Mathf.Max(failureRate, TestFlightUtil.MIN_FAILURE_RATE);
+            failureRate = Mathf.Max((float)failureRate, (float)TestFlightUtil.MIN_FAILURE_RATE);
             double mtbfSeconds = 1.0 / failureRate;
 
             switch (units)
