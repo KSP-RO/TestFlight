@@ -3,6 +3,20 @@ using System.Collections.Generic;
 
 namespace TestFlightAPI
 {
+    public class TestFlightUtil
+    {
+        public const double MIN_FAILURE_RATE = 0.000001;
+        public enum MTBFUnits
+        {
+            SECONDS,
+            MINUTES,
+            HOURS,
+            DAYS,
+            YEARS,
+            INVALID
+        };
+    }
+
 	public struct TestFlightData
 	{
         // Scope is a combination of the current SOI and the Situation, always lowercase.
@@ -178,15 +192,19 @@ namespace TestFlightAPI
         double SetTriggerMomentaryFailureModifier(String trigger, double multiplier, PartModule owner);
         double SetTriggerMomentaryFailureModifierForScope(String trigger, double multiplier, PartModule owner, String scope);
         // simply converts the failure rate into a MTBF string.  Convenience method
-        // Returned string will be of the format "123 units"
-        // units should be one of:
-        //  seconds, hours, days, months, years
-        String FailureRateToMTBFString(double failureRate, String units);
+        // Returned string will be of the format "123.00 units"
+        // Optionally specify a maximum size for MTBF.  If the given units would return an MTBF larger than maximu, it will 
+        // automaticly be converted into progressively higher units until the returned value is <= maximum
+        String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units);
+        String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, int maximum);
         // Short version of MTBFString uses a single letter to denote (s)econds, (m)inutes, (h)ours, (d)ays, (y)ears
-        // So the returned string will be EF "12s" or ".2d"
-        String FailureRateToMTBFString(double failureRate, String units, bool shortForm);
+        // So the returned string will be EF "12.00s" or "0.20d"
+        // Optionally specify a maximum size for MTBF.  If the given units would return an MTBF larger than maximu, it will 
+        // automaticly be converted into progressively higher units until the returned value is <= maximum
+        String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, bool shortForm);
+        String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, bool shortForm, int maximum);
         // Simply converts the failure rate to a MTBF number, without any string formatting
-        double FailureRateToMTBF(double failureRate, String units);
+        double FailureRateToMTBF(double failureRate, TestFlightUtil.MTBFUnits units);
         // Get the FlightData or FlightTime for the part
         double GetFlightData();
         double GetFlightDataForScope(String scope);

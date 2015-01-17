@@ -97,6 +97,16 @@ namespace TestFlightCore
             // constantly.  Therefore here we are returning what we have if we have it,
             // or else getting it from the Reliability module and caching that for next time.
             scope = scope.ToLower().Trim();
+            if (baseFailureRate == null)
+            {
+                LogFormatted_DebugOnly("BaseFailureRate data is invalid");
+                return TestFlightUtil.MIN_FAILURE_RATE;
+            }
+            if (baseFlightData == null)
+            {
+                LogFormatted_DebugOnly("baseFlightData is invalid");
+                return TestFlightUtil.MIN_FAILURE_RATE;
+            }
             if (baseFailureRate.ContainsKey(scope))
                 return baseFailureRate[scope];
             else
@@ -114,6 +124,7 @@ namespace TestFlightCore
                         totalBFR += rm.GetBaseFailureRateForScope(data, scope);
                     }
                 }
+                totalBFR = Mathf.Max(totalBFR, TestFlightUtil.MIN_FAILURE_RATE);
                 baseFailureRate.Add(scope, totalBFR);
                 return totalBFR;
             }
@@ -140,7 +151,7 @@ namespace TestFlightCore
 
             worstMFR = new MomentaryFailureRate();
             worstMFR.valid = false;
-            worstMFR.failureRate = 0;
+            worstMFR.failureRate = TestFlightUtil.MIN_FAILURE_RATE;
 
             foreach (MomentaryFailureRate mfr in momentaryFailureRates)
             {
@@ -243,7 +254,6 @@ namespace TestFlightCore
             MomentaryFailureModifier mfm;
             String ownerName = owner.moduleName.ToLower();
             double totalModifier = 1;
-            double mfr = 0;
 
             mfm = GetMomentaryFailureModifier(trigger, ownerName, scope);
             if (mfm.valid)
@@ -300,43 +310,78 @@ namespace TestFlightCore
         // simply converts the failure rate into a MTBF string.  Convenience method
         // Returned string will be of the format "123 units"
         // units should be one of:
-        //  seconds, hours, days, months, years, flights, missions
-        public String FailureRateToMTBFString(double failureRate, String units)
+        //  seconds, hours, days, years, 
+        public String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units)
         {
-            return FailureRateToMTBFString(failureRate, units, false);
+            return FailureRateToMTBFString(failureRate, units, false, int.MaxValue);
+        }
+        public String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, int maximum)
+        {
+            return FailureRateToMTBFString(failureRate, units, false, maximum);
         }
         // Short version of MTBFString uses a single letter to denote (s)econds, (m)inutes, (h)ours, (d)ays, (y)ears
-        // The returned string will be of the format "12s" or ".2d"
-        public String FailureRateToMTBFString(double failureRate, String units, bool shortForm)
+        // The returned string will be of the format "12.00s" or "0.20d"
+        public String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, bool shortForm)
         {
+            return FailureRateToMTBFString(failureRate, units, shortForm, int.MaxValue);
+        }
+        public String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, bool shortForm, int maximum)
+        {
+            int currentUnit = TestFlightUtil.MTBFUnits.SECONDS;
+            double mtbf = FailureRateToMTBF(failureRate, currentUnit);
+            while (mtbf > maximum)
+            {
+                currentUnit++;
+                mtbf = FailureRateToMTBF(failureRate, currentUnit);
+                if (currentUnit == TestFlightUtil.MTBFUnits.INVALID)
+                    break;
+            }
+
             if (shortForm)
             {
-                return String.Format("{0:F2}{1}", FailureRateToMTBF(failureRate, units), units.ToLower()[0]);
+                return String.Format("{0:F2}{1}", mtbf, UnitStringForMTBFUnit(currentUnit)[0]);
             }
             else
             {
-                return String.Format("{0:F2} {1}", FailureRateToMTBF(failureRate, units), units.ToLower());
+                return String.Format("{0:F2} {1}", mtbf, UnitStringForMTBFUnit(currentUnit));
+            }
+        }
+        internal String UnitStringForMTBFUnit(TestFlightUtil.MTBFUnits units)
+        {
+            switch (units)
+            {
+                case TestFlightUtil.MTBFUnits.SECONDS:
+                    return "seconds";
+                case TestFlightUtil.MTBFUnits.MINUTES:
+                    return "minutes";
+                case TestFlightUtil.MTBFUnits.HOURS:
+                    return "hours";
+                case TestFlightUtil.MTBFUnits.DAYS:
+                    return "days";
+                case TestFlightUtil.MTBFUnits.YEARS:
+                    return "years";
+                default:
+                    return "invalid"
             }
         }
         // Simply converts the failure rate to a MTBF number, without any string formatting
-        public double FailureRateToMTBF(double failureRate, String units)
+        public double FailureRateToMTBF(double failureRate, TestFlightUtil.MTBFUnits units)
         {
+            double mfr = 0;
+            failureRate = Mathf.Max(failureRate, TestFlightUtil.MIN_FAILURE_RATE);
             double mtbfSeconds = 1.0 / failureRate;
 
-            units = units.ToLower().Trim();
             switch (units)
             {
-                case "seconds":
+                case TestFlightUtil.MTBFUnits.SECONDS:
                     return mtbfSeconds;
-                case "minutes":
+                case TestFlightUtil.MTBFUnits.MINUTES:
                     return mtbfSeconds / 60;
-                case "hours":
+                case TestFlightUtil.MTBFUnits.HOURS:
                     return mtbfSeconds / 60 / 60;
-                case "days":
+                case TestFlightUtil.MTBFUnits.DAYS:
                     return mtbfSeconds / 60 / 60 / 24;
-                case "months":
-                    return mtbfSeconds / 60 / 60 / 24 / 30;
-                case "years":
+                case TestFlightUtil.MTBFUnits.YEARS:
                     return mtbfSeconds / 60 / 60 / 24 / 365;
                 default:
                     return mtbfSeconds;
@@ -349,6 +394,11 @@ namespace TestFlightCore
         }
         public double GetFlightDataForScope(String scope)
         {
+            if (flightData == null)
+            {
+                LogFormatted_DebugOnly("FlightData is invalid");
+                return 0;
+            }
             FlightDataBody dataBody = flightData.GetFlightData(scope);
             if (dataBody == null)
             {
@@ -577,8 +627,9 @@ namespace TestFlightCore
                 return;
         }
 
-        public override void OnStart(StartState state)
+        public override void OnAwake()
         {
+            LogFormatted_DebugOnly("TestFlightCore: OnAwake");
             if (baseFlightData == null)
                 baseFlightData = new FlightDataConfig();
             if (flightData == null)
@@ -594,25 +645,8 @@ namespace TestFlightCore
                 momentaryFailureModifiers = new List<MomentaryFailureModifier>();
 
             operatingTime = 0;
-
-
-
-            if (failureModules == null)
-            {
-                failureModules = new List<ITestFlightFailure>();
-            }
-            failureModules.Clear();
-            foreach(PartModule pm in this.part.Modules)
-            {
-                ITestFlightFailure failureModule = pm as ITestFlightFailure;
-                if (failureModule != null)
-                {
-                    failureModules.Add(failureModule);
-                }
-            }
-            base.OnStart(state);
+            LogFormatted_DebugOnly("TestFlightCore: OnWake:DONE");
         }
-
 
         public void InitializeFlightData(List<TestFlightData> allFlightData, double globalReliabilityModifier)
         {
@@ -704,11 +738,6 @@ namespace TestFlightCore
                 this.part.SetHighlightColor(XKCDColors.HighlighterGreen);
                 Destroy(this.part.FindModelTransform("model").gameObject.GetComponent(typeof(HighlightingSystem.Highlighter)));
             }
-        }
-
-        public override void OnAwake()
-        {
-            base.OnAwake();
         }
 
         public virtual int GetPartStatus()
