@@ -85,6 +85,29 @@ namespace TestFlightCore
 
             return String.Format("{0}_{1}", body.ToLower(), situation.ToLower());
         }
+        public String PrettyStringForScope(String scope)
+        {
+            string body;
+            string situation;
+            string[] split = scope.Split(new char[] { '_' });
+
+            // fall out if we have unexpected input
+            if (split.Length != 2)
+                return scope;
+
+            body = split[0].Substring(0,1).ToUpper() + split[0].Substring(1).ToLower();
+            situation = split[1].Substring(0,1).ToUpper() + split[1].Substring(1).ToLower();
+
+            // Try to get the alias for this body if at all possible
+            if (TestFlightManagerScenario.Instance != null)
+            {
+                if (TestFlightManagerScenario.Instance.bodySettings.bodyAliases.ContainsKey(body.ToLower()))
+                    body = TestFlightManagerScenario.Instance.bodySettings.bodyAliases[body.ToLower()];
+            }
+
+            return body + " " + situation;
+        }
+
         // Get the base or static failure rate
         public double GetBaseFailureRate()
         {
@@ -97,6 +120,7 @@ namespace TestFlightCore
             // constantly.  Therefore here we are returning what we have if we have it,
             // or else getting it from the Reliability module and caching that for next time.
             scope = scope.ToLower().Trim();
+            LogFormatted_DebugOnly(String.Format("TestFlightCore: GetBaseFailureRateForScope({0})",scope));
             if (baseFailureRate == null)
             {
                 LogFormatted_DebugOnly("BaseFailureRate data is invalid");
@@ -108,9 +132,13 @@ namespace TestFlightCore
                 return TestFlightUtil.MIN_FAILURE_RATE;
             }
             if (baseFailureRate.ContainsKey(scope))
+            {
+                LogFormatted_DebugOnly("TestFlightCore: Returning cached Base Failure Rate");
                 return baseFailureRate[scope];
+            }
             else
             {
+                LogFormatted_DebugOnly("TestFlightCore: Calculating Base Failure Rate from Reliability modules");
                 double totalBFR = 0;
                 double data = 0;
                 FlightDataBody body = baseFlightData.GetFlightData(scope);
@@ -129,6 +157,27 @@ namespace TestFlightCore
                 return totalBFR;
             }
 
+        }
+        // Get the Reliability Curve for the part
+        public FloatCurve GetBaseReliabilityCurve()
+        {
+            return GetBaseReliabilityCurveForScope(GetScope());
+        }
+        public FloatCurve GetBaseReliabilityCurveForScope(String scope)
+        {
+            scope = scope.ToLower().Trim();
+            FloatCurve curve;
+            foreach (PartModule pm in this.part.Modules)
+            {
+                ITestFlightReliability rm = pm as ITestFlightReliability;
+                if (rm != null)
+                {
+                    curve = rm.GetReliabilityCurveForScope(scope);
+                    if (curve != null)
+                        return curve;
+                }
+            }
+            return null;
         }
         // Get the momentary (IE current dynamic) failure rates (Can vary per reliability/failure modules)
         // These  methods will let you get a list of all momentary rates or you can get the best (lowest chance of failure)/worst (highest chance of failure) rates
@@ -516,6 +565,8 @@ namespace TestFlightCore
 
             return engineerModifier;
         }
+        // TODO
+        // apply bodyconfig multiplier here
         internal double ApplyFlightDataMultiplier(double baseData)
         {
             if (TestFlightManagerScenario.Instance == null)
