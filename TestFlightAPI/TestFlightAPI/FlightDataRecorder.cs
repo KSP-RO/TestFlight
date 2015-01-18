@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,6 +11,8 @@ namespace TestFlightAPI
     public class FlightDataRecorderBase : PartModule, IFlightDataRecorder
     {
         private double lastRecordedMet = 0;
+        private bool isReady = false;
+        private ITestFlightCore core = null;
         #region KSPFields
         [KSPField(isPersistant = true)]
         public float flightDataMultiplier = 10.0f;
@@ -17,7 +20,6 @@ namespace TestFlightAPI
         public float flightDataEngineerModifier = 0.25f;
         #endregion
 
-        private ITestFlightCore core = null;
 
 
         public override void OnStart(StartState state)
@@ -31,11 +33,21 @@ namespace TestFlightAPI
                     break;
             }
 
+            if (core == null)
+            {
+                StartCoroutine("GetCore");
+            }
+            else
+                isReady = true;
+
         }
 
         public override void OnUpdate()
         {
             base.OnUpdate();
+
+            if (!isReady)
+                return;
 
             if (core == null)
                 return;
@@ -60,9 +72,32 @@ namespace TestFlightAPI
             lastRecordedMet = currentMet;
         }
 
+        IEnumerator GetCore()
+        {
+            while (core == null)
+            {
+                foreach (PartModule pm in this.part.Modules)
+                {
+                    core = pm as ITestFlightCore;
+                    if (core != null)
+                    {
+                        Debug.Log("Found Code");
+                        break;
+                    }
+                }
+                Debug.Log("Yielding");
+                yield return null;
+            }
+            if (this.part.started)
+                isReady = true;
+        }
+
         public virtual bool IsRecordingFlightData()
         {
             bool isRecording = true;
+
+            if (!isReady)
+                return false;
 
             if (!isEnabled)
                 return false;
