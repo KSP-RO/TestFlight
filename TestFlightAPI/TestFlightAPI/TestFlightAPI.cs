@@ -104,6 +104,13 @@ namespace TestFlightAPI
         /// </summary>
         /// <returns>The momentary failure modifier. 1 if this module does not implement MFR</returns>
         double GetMomentaryFailureModifierForScope(String scope);
+
+        /// <summary>
+        /// Gets the reliability curve for the given scope.
+        /// </summary>
+        /// <returns>The reliability curve for scope.  MUST return null if the reliability module does not handle Base Failure Rate</returns>
+        /// <param name="scope">Scope.</param>
+        FloatCurve GetReliabilityCurveForScope(String scope);
 	}
 
 	public interface ITestFlightFailure
@@ -172,9 +179,13 @@ namespace TestFlightAPI
         String GetScopeForSituationAndBody(String situation, CelestialBody body);
         String GetScopeForSituationAndBody(Vessel.Situations situation, String body);
         String GetScopeForSituationAndBody(Vessel.Situations situation, CelestialBody body);
+        String PrettyStringForScope(String scope);
         // Get the base or static failure rate
         double GetBaseFailureRate();
         double GetBaseFailureRateForScope(String scope);
+        // Get the Reliability Curve for the part
+        FloatCurve GetBaseReliabilityCurve();
+        FloatCurve GetBaseReliabilityCurveForScope(String scope);
         // Get the momentary (IE current dynamic) failure rates (Can vary per reliability/failure modules)
         // These  methods will let you get a list of all momentary rates or you can get the best (lowest chance of failure)/worst (highest chance of failure) rates
         // Note that the return value is alwasy a dictionary.  The key is the name of the trigger, always in lowercase.  The value is the failure rate.

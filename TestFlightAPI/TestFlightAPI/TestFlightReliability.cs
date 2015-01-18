@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 
 namespace TestFlightAPI
@@ -41,6 +42,7 @@ namespace TestFlightAPI
         private ITestFlightCore core = null;
         public List<ReliabilityBodyConfig> reliabilityBodies = null;
         double lastCheck = 0;
+        protected bool isReady = false;
 
         // New API
         // Get the base or static failure rate for the given scope
@@ -49,18 +51,29 @@ namespace TestFlightAPI
         // If it dosn't, then the Base Failure Rate of the part will not be correct.
         public double GetBaseFailureRateForScope(double flightData, String scope)
         {
+            Debug.Log(String.Format("TestFlightReliabilityBase: GetBaseFailureRateForScope({0:F2}, {1})", flightData, scope));
             if (core == null)
+            {
+                Debug.Log(String.Format("TestFlightReliabilityBase: core is invalid"));
                 return 0;
+            }
 
             ReliabilityBodyConfig body = GetConfigForScope(scope);
             if (body == null)
+            {
+                Debug.Log(String.Format("TestFlightReliabilityBase: No bodyConfig found"));
                 return 0;
+            }
+
             FloatCurve curve = body.reliabilityCurve;
             if (curve == null)
+            {
+                Debug.Log(String.Format("TestFlightReliabilityBase: reliabilityCurve is invalid"));
                 return 0;
+            }
 
             double reliability = curve.Evaluate((float)flightData);
-//            Debug.Log(String.Format("TestFlightReliability: reliability is {0:F2) with {1:F2} data units", reliability, flightData));
+            Debug.Log(String.Format("TestFlightReliability: reliability is {0:F2} with {1:F2} data units", reliability, flightData));
             return reliability;
         }
         // Get the momentary (IE current dynamic) failure modifier
@@ -71,18 +84,53 @@ namespace TestFlightAPI
             // We don't have a momemntary modifier so we return 1, since its a multipler
             return 1;
         }
+        public FloatCurve GetReliabilityCurveForScope(String scope)
+        {
+            if (core == null)
+                return null;
+            ReliabilityBodyConfig body = GetConfigForScope(scope);
+            if (body == null)
+                return null;
+            FloatCurve curve = body.reliabilityCurve;
+            return curve;
+        }
+
 
         // INTERNAL methods
         private ReliabilityBodyConfig GetConfigForScope(String scope)
         {
             if (reliabilityBodies == null)
+            {
+                Debug.Log(String.Format("TestFlightReliabilityBase: reliabilityBodies is invalid"));
                 return null;
+            }
             return reliabilityBodies.Find(s => s.scope == scope);
         }
 
-        // PARTMODULE Implementation
-        public void Start()
+        IEnumerator GetCore()
         {
+            while (core == null)
+            {
+                foreach (PartModule pm in this.part.Modules)
+                {
+                    core = pm as ITestFlightCore;
+                    if (core != null)
+                    {
+                        Debug.Log("Found Code");
+                        break;
+                    }
+                }
+                Debug.Log("Yielding");
+                yield return null;
+            }
+            if (this.part.started)
+                isReady = true;
+        }
+
+        // PARTMODULE Implementation
+        public override void OnAwake()
+        {
+            Debug.Log("TestFlightReliabilityBase: Start");
             foreach (PartModule pm in this.part.Modules)
             {
                 core = pm as ITestFlightCore;
@@ -90,18 +138,29 @@ namespace TestFlightAPI
                     break;
             }
 
-            if (reliabilityBodies == null)
+            if (core == null)
             {
-                Part prefab = this.part.partInfo.partPrefab;
-                foreach (PartModule pm in prefab.Modules)
+                Debug.Log("Starting CoRoutine to find core module");
+                StartCoroutine("GetCore");
+            }
+
+            Part prefab = this.part.partInfo.partPrefab;
+            foreach (PartModule pm in prefab.Modules)
+            {
+                TestFlightReliabilityBase modulePrefab = pm as TestFlightReliabilityBase;
+                if (modulePrefab != null)
                 {
-                    TestFlightReliabilityBase modulePrefab = pm as TestFlightReliabilityBase;
-                    if (modulePrefab != null)
-                    {
-                        reliabilityBodies = modulePrefab.reliabilityBodies;
-                    }
+                    Debug.Log("TestFlightReliabilityBase: Reloading data from Prefab");
+                    reliabilityBodies = modulePrefab.reliabilityBodies;
                 }
             }
+            Debug.Log("TestFlightReliabilityBase: Start:DONE");
+        }
+
+        public override void OnStart(StartState state)
+        {
+            base.OnStart(state);
+            isReady = true;
         }
         public override void OnLoad(ConfigNode node)
         {
@@ -124,7 +183,7 @@ namespace TestFlightAPI
             if (core == null)
                 return;
 
-            if (!isEnabled)
+            if (!isReady)
                 return;
 
             // TODO
@@ -158,9 +217,9 @@ namespace TestFlightAPI
             else
                 currentFailureRate = baseFailureRate;
 
-            double mtbf = core.FailureRateToMTBF(currentFailureRate, "seconds");
-            if (operatingTime > mtbf)
-                operatingTime = mtbf;
+//            double mtbf = core.FailureRateToMTBF(currentFailureRate, "seconds");
+//            if (operatingTime > mtbf)
+//                operatingTime = mtbf;
 
             // Given we have been operating for a given number of seconds, calculate our chance of survival to that time based on currentFailureRate
             // This is *not* an exact science, as the real calculations are much more complex than this, plus technically the momentary rate for
