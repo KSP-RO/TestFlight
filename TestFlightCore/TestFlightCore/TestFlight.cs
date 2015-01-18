@@ -474,6 +474,7 @@ namespace TestFlightCore
 	public class TestFlightManagerScenario : ScenarioModule
 	{
         internal Settings settings = null;
+        internal BodySettings bodySettings = null;
         public static TestFlightManagerScenario Instance { get; private set; }
         public bool isReady = false;
 
@@ -484,10 +485,38 @@ namespace TestFlightCore
         {
             Instance = this;
             if (settings == null)
-            {
                 settings = new Settings("../settings.cfg");
+            if (bodySettings == null)
+                bodySettings = new BodySettings("../settings_bodies.cfg");
+
+            if (settings.FileExists)
+                settings.Load();
+            else
+                settings.Save();
+
+            if (bodySettings.FileExists)
+                bodySettings.Load();
+            else
+            {
+                bodySettings.bodyAliases.Add("moho", "Moho");
+                bodySettings.bodyAliases.Add("eve", "Eve");
+                bodySettings.bodyAliases.Add("gilly", "Gilly");
+                bodySettings.bodyAliases.Add("kerbin", "Kerbin");
+                bodySettings.bodyAliases.Add("mun", "Mun");
+                bodySettings.bodyAliases.Add("minmus", "Minmus");
+                bodySettings.bodyAliases.Add("duna", "Duna");
+                bodySettings.bodyAliases.Add("ike", "Ike");
+                bodySettings.bodyAliases.Add("dres", "Dres");
+                bodySettings.bodyAliases.Add("jool", "Jool");
+                bodySettings.bodyAliases.Add("laythe", "Laythe");
+                bodySettings.bodyAliases.Add("vall", "Vall");
+                bodySettings.bodyAliases.Add("tylo", "Tylo");
+                bodySettings.bodyAliases.Add("bop", "Bop");
+                bodySettings.bodyAliases.Add("pol", "Pol");
+                bodySettings.bodyAliases.Add("eeloo", "Eeloo");
+                bodySettings.Save();
             }
-            settings.Load();
+
             if (partsFlightData == null)
             {
                 partsFlightData = new List<PartFlightData>();
@@ -540,6 +569,8 @@ namespace TestFlightCore
             {
                 settings.Load();
             }
+            if (bodySettings != null)
+                bodySettings.Load();
             if (node.HasNode("FLIGHTDATA_PART"))
             {
                 if (partsFlightData == null)
@@ -562,6 +593,8 @@ namespace TestFlightCore
             {
                 settings.Save();
             }
+            if (bodySettings != null)
+                bodySettings.Save();
             foreach (PartFlightData partData in partsFlightData)
             {
                 ConfigNode partNode = node.AddNode("FLIGHTDATA_PART");
