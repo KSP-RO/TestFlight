@@ -29,7 +29,7 @@ namespace TestFlightCore
         [Persistent] public bool showStatusTextInMSD = true;
         [Persistent] public bool shortenPartNameInMSD = false;
         [Persistent] public bool mainWindowLocked = true;
-        [Persistent] public bool edtiorWindowLocked = true;
+        [Persistent] public bool editorWindowLocked = true;
         [Persistent] public int currentMSDSize = 1;
         [Persistent] public bool flightHUDEnabled = false;
         [Persistent] public bool editorShowGraph = false;
@@ -45,11 +45,12 @@ namespace TestFlightCore
         [Persistent] public PersistentRect flightHUDPositionStored = new PersistentRect();
         public Rect flightHUDPosition = new Rect(100,50,0,0);
         [Persistent] public PersistentRect editorWindowPositionStored = new PersistentRect();
-        public Rect editorWindowPosition = new Rect(0,0,0,0);
+        public Rect editorWindowPosition = new Rect(250,100,0,0);
 
         public override void OnDecodeFromConfigNode()
         {
             mainWindowPosition = mainWindowPositionStored.ToRect();
+            editorWindowPosition = editorWindowPositionStored.ToRect();
             flightHUDPosition = flightHUDPositionStored.ToRect();
             currentMSDScrollPosition = currentMSDScrollPositionStored.ToVector2();
             currentEditorScrollPosition = currentEditorScrollPositionStored.ToVector2();
@@ -58,6 +59,7 @@ namespace TestFlightCore
         public override void OnEncodeToConfigNode()
         {
             mainWindowPositionStored = mainWindowPositionStored.FromRect(mainWindowPosition);
+            editorWindowPositionStored = editorWindowPositionStored.FromRect(editorWindowPosition);
             flightHUDPositionStored = flightHUDPositionStored.FromRect(flightHUDPosition);
             currentMSDScrollPositionStored = currentMSDScrollPositionStored.FromVector2(currentMSDScrollPosition);
             currentEditorScrollPositionStored = currentEditorScrollPositionStored.FromVector2(currentMSDScrollPosition);
