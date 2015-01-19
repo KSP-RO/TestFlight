@@ -679,7 +679,12 @@ namespace TestFlightCore
 
         public override void OnAwake()
         {
-            LogFormatted_DebugOnly("TestFlightCore: OnAwake");
+            String partName;
+            if (this.part != null)
+                partName = this.part.name;
+            else
+                partName = "unknown";
+            LogFormatted_DebugOnly("TestFlightCore: OnAwake(" + partName + ")");
             if (baseFlightData == null)
                 baseFlightData = new FlightDataConfig();
             if (flightData == null)
@@ -695,7 +700,7 @@ namespace TestFlightCore
                 momentaryFailureModifiers = new List<MomentaryFailureModifier>();
 
             operatingTime = 0;
-            LogFormatted_DebugOnly("TestFlightCore: OnWake:DONE");
+            LogFormatted_DebugOnly("TestFlightCore: OnWake(" + partName + "):DONE");
         }
 
         public void InitializeFlightData(List<TestFlightData> allFlightData, double globalReliabilityModifier)
