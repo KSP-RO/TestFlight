@@ -674,17 +674,20 @@ namespace TestFlightCore
         {
             base.Update();
 
-            if (TestFlightManagerScenario.Instance == null)
-                return;
+            if (HighLogic.LoadedSceneIsFlight)
+            {
+                if (TestFlightManagerScenario.Instance == null)
+                    return;
 
-            if (operatingTime < 0)
-                return;
+                if (operatingTime < 0)
+                    return;
 
-            double currentMET = this.vessel.missionTime;
+                double currentMET = this.vessel.missionTime;
 
-            operatingTime += currentMET - lastMET;
+                operatingTime += currentMET - lastMET;
 
-            lastMET = currentMET;
+                lastMET = currentMET;
+            }
         }
 
         public override void OnAwake()
