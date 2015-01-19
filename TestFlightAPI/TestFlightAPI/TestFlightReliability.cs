@@ -317,7 +317,7 @@ namespace TestFlightAPI
 
             // NEW RELIABILITY CODE
             double operatingTime = core.GetOperatingTime();
-            Debug.Log(String.Format("TestFlightReliability: Operating Time = {0:F2}", operatingTime));
+//            Debug.Log(String.Format("TestFlightReliability: Operating Time = {0:F2}", operatingTime));
             if (operatingTime < lastCheck + 1f)
                 return;
 
@@ -342,11 +342,12 @@ namespace TestFlightAPI
             // S() is survival chance, f is currentFailureRate
             // S(t) = e^(-f*t)
 
-            double survivalChance = Mathf.Pow(Mathf.Epsilon, (float)currentFailureRate * (float)operatingTime * -1f);
-            Debug.Log(String.Format("TestFlightReliability: Survival Chance at Time {0:F2} is {1:f4}", operatingTime, survivalChance));
+            double survivalChance = Mathf.Pow(Mathf.Exp(1), (float)currentFailureRate * (float)operatingTime * -1f);
+//            Debug.Log(String.Format("TestFlightReliability: Survival Chance at Time {0:F2} is {1:f4} -- {2:f4}^({3:f4}*{0:f2}*-1.0)", (float)operatingTime, survivalChance, Mathf.Exp(1), (float)currentFailureRate));
             float failureRoll = UnityEngine.Random.Range(0f, 1f);
             if (failureRoll > survivalChance)
             {
+                Debug.Log(String.Format("TestFlightReliability: Survival Chance at Time {0:F2} is {1:f4} -- {2:f4}^({3:f4}*{0:f2}*-1.0)", (float)operatingTime, survivalChance, Mathf.Exp(1), (float)currentFailureRate));
                 Debug.Log(String.Format("TestFlightReliability: Part has failed with roll of {0:F4}", failureRoll));
                 core.TriggerFailure();
             }
