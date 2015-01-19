@@ -330,7 +330,7 @@ namespace TestFlightCore
                     // Resting Reliability
                     if (tfScenario.settings.showRestingReliabilityInMSD)
                     {
-                        GUILayout.Label(String.Format("{0,-5:F2}<b>%R</b>", status.reliability), GUILayout.Width(75));
+                        GUILayout.Label(String.Format("{0,-5:F2} <b>MTBF</b>", status.reliability), GUILayout.Width(75));
                         GUILayout.Space(10);
                     }
                     // Momentary Reliability

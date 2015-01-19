@@ -9,6 +9,7 @@ namespace TestFlightAPI
     {
         public string scope = "NONE";
         public FloatCurve reliabilityCurve;
+        private double lastCheck = 0;
 
         public void Load(ConfigNode node)
         {
@@ -50,29 +51,27 @@ namespace TestFlightAPI
         // If this Reliability module's purpose is to supply Momentary Fialure Rates, then it MUST return 0 when asked for the Base Failure Rate
         // If it dosn't, then the Base Failure Rate of the part will not be correct.
         //
-        // TODO
-        // All these 100's need to be changed to 0's once the new system is in place
         public double GetBaseFailureRateForScope(double flightData, String scope)
         {
             Debug.Log(String.Format("TestFlightReliabilityBase: GetBaseFailureRateForScope({0:F2}, {1})", flightData, scope));
             if (core == null)
             {
                 Debug.Log(String.Format("TestFlightReliabilityBase: core is invalid"));
-                return 100;
+                return 0;
             }
 
             ReliabilityBodyConfig body = GetConfigForScope(scope);
             if (body == null)
             {
                 Debug.Log(String.Format("TestFlightReliabilityBase: No bodyConfig found"));
-                return 100;
+                return 0;
             }
 
             FloatCurve curve = body.reliabilityCurve;
             if (curve == null)
             {
                 Debug.Log(String.Format("TestFlightReliabilityBase: reliabilityCurve is invalid"));
-                return 100;
+                return 0;
             }
 
             double reliability = curve.Evaluate((float)flightData);
@@ -316,28 +315,13 @@ namespace TestFlightAPI
             if (!isReady)
                 return;
 
-            // TODO
-            // This code is just placeholder as we migrate to the new system.  This reimplements the old failure check for now.
-            double currentMET = this.vessel.missionTime;
-            if (currentMET > lastCheck + 30)
-            {
-                if (UnityEngine.Random.Range(0f, 100f) > core.GetBaseFailureRate())
-                {
-                    core.TriggerFailure();
-                }
-                lastCheck = currentMET;
-            }
-            return;
-
-
-
-
-
-
             // NEW RELIABILITY CODE
-            // Not implemented yet!
-            // TODO
             double operatingTime = core.GetOperatingTime();
+            Debug.Log(String.Format("TestFlightReliability: Operating Time = {0:F2}", operatingTime));
+            if (operatingTime < lastCheck + 1f)
+                return;
+
+            lastCheck = operatingTime;
             double baseFailureRate = core.GetBaseFailureRate();
             MomentaryFailureRate momentaryFailureRate = core.GetWorstMomentaryFailureRate();
             double currentFailureRate;
@@ -347,9 +331,9 @@ namespace TestFlightAPI
             else
                 currentFailureRate = baseFailureRate;
 
-//            double mtbf = core.FailureRateToMTBF(currentFailureRate, "seconds");
-//            if (operatingTime > mtbf)
-//                operatingTime = mtbf;
+            double mtbf = core.FailureRateToMTBF(currentFailureRate, TestFlightUtil.MTBFUnits.SECONDS);
+            if (operatingTime > mtbf)
+                operatingTime = mtbf;
 
             // Given we have been operating for a given number of seconds, calculate our chance of survival to that time based on currentFailureRate
             // This is *not* an exact science, as the real calculations are much more complex than this, plus technically the momentary rate for
@@ -359,11 +343,11 @@ namespace TestFlightAPI
             // S(t) = e^(-f*t)
 
             double survivalChance = Mathf.Pow(Mathf.Epsilon, (float)currentFailureRate * (float)operatingTime * -1f);
-//            Debug.Log(String.Format("TestFlightReliability: Survival Chance at Time {0:F2} is {1:f4}", operatingTime, survivalChance));
-            float failureRoll = UnityEngine.Random.Range(0f, 1.001f); // we allow for an extremely slim chance of a part failing right out of the game, but it should be damned rare
+            Debug.Log(String.Format("TestFlightReliability: Survival Chance at Time {0:F2} is {1:f4}", operatingTime, survivalChance));
+            float failureRoll = UnityEngine.Random.Range(0f, 1f);
             if (failureRoll > survivalChance)
             {
-//                Debug.Log(String.Format("TestFlightReliability: Part has failed with roll of {0:F4}", failureRoll));
+                Debug.Log(String.Format("TestFlightReliability: Part has failed with roll of {0:F4}", failureRoll));
                 core.TriggerFailure();
             }
         }

@@ -281,9 +281,7 @@ namespace TestFlightCore
                         // 10 characters for body max plus 10 characters for situation plus underscore = 21 characters needed for longest scope string
                         GUILayout.Label(core.PrettyStringForScope(data.scope), GUILayout.Width(125));
                         GUILayout.Label(String.Format("{0,-7:F2}<b>du</b>", data.flightData), GUILayout.Width(75));
-                        //TODO this needs to change to be MTBF once the new system goes in
-                        //                                GUILayout.Label(String.Format("{0,-5:F2} MTBF", mtbfString), GUILayout.Width(125));
-                        GUILayout.Label(String.Format("{0,-5:F2}<b>%R</b>", failureRate), GUILayout.Width(125));
+                        GUILayout.Label(String.Format("{0,-5:F2} MTBF", mtbfString), GUILayout.Width(125));
                         GUILayout.EndHorizontal();
                     }
                 }

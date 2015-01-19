@@ -31,6 +31,7 @@ namespace TestFlightCore
         List<MomentaryFailureRate> momentaryFailureRates;
         List<MomentaryFailureModifier> momentaryFailureModifiers;
         double operatingTime;
+        double lastMET;
 
         // Get a proper scope string for use in other parts of the API
         public String GetScope()
@@ -675,6 +676,11 @@ namespace TestFlightCore
 
             if (TestFlightManagerScenario.Instance == null)
                 return;
+            double currentMET = this.vessel.missionTime;
+
+            operatingTime += currentMET - lastMET;
+
+            lastMET = currentMET;
         }
 
         public override void OnAwake()
