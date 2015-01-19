@@ -676,6 +676,10 @@ namespace TestFlightCore
 
             if (TestFlightManagerScenario.Instance == null)
                 return;
+
+            if (operatingTime < 0)
+                return;
+
             double currentMET = this.vessel.missionTime;
 
             operatingTime += currentMET - lastMET;
