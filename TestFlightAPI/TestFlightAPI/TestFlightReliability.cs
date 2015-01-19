@@ -49,27 +49,30 @@ namespace TestFlightAPI
         // !! IMPORTANT: Only ONE Reliability module may return a Base Failure Rate.  Additional modules can exist only to supply Momentary rates
         // If this Reliability module's purpose is to supply Momentary Fialure Rates, then it MUST return 0 when asked for the Base Failure Rate
         // If it dosn't, then the Base Failure Rate of the part will not be correct.
+        //
+        // TODO
+        // All these 100's need to be changed to 0's once the new system is in place
         public double GetBaseFailureRateForScope(double flightData, String scope)
         {
             Debug.Log(String.Format("TestFlightReliabilityBase: GetBaseFailureRateForScope({0:F2}, {1})", flightData, scope));
             if (core == null)
             {
                 Debug.Log(String.Format("TestFlightReliabilityBase: core is invalid"));
-                return 0;
+                return 100;
             }
 
             ReliabilityBodyConfig body = GetConfigForScope(scope);
             if (body == null)
             {
                 Debug.Log(String.Format("TestFlightReliabilityBase: No bodyConfig found"));
-                return 0;
+                return 100;
             }
 
             FloatCurve curve = body.reliabilityCurve;
             if (curve == null)
             {
                 Debug.Log(String.Format("TestFlightReliabilityBase: reliabilityCurve is invalid"));
-                return 0;
+                return 100;
             }
 
             double reliability = curve.Evaluate((float)flightData);
