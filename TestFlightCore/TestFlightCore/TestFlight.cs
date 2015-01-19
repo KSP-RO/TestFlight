@@ -17,13 +17,14 @@ namespace TestFlightCore
         internal int partStatus;
         internal double flightTime;
         internal double flightData;
-        internal double reliability;
-        internal double momentaryReliability;
+        internal double baseFailureRate;
+        internal double momentaryFailureRate;
         internal ITestFlightCore flightCore;
         internal ITestFlightFailure activeFailure;
         internal bool highlightPart;
         internal string repairRequirements;
         internal bool acknowledged;
+        internal String mtbfString;
     }
 
     internal struct MasterStatusItem
@@ -396,10 +397,11 @@ namespace TestFlightCore
                                     partStatus.flightData = currentFlightData.flightData;
                                     partStatus.flightTime = currentFlightData.flightTime;
                                     partStatus.partStatus = core.GetPartStatus();
-                                    partStatus.reliability = core.GetBaseFailureRate();
+                                    partStatus.baseFailureRate = core.GetBaseFailureRate();
                                     partStatus.repairRequirements = core.GetRequirementsTooltip();
                                     partStatus.acknowledged = core.IsFailureAcknowledged();
                                     partStatus.activeFailure = core.GetFailureModule();
+                                    partStatus.mtbfString = core.FailureRateToMTBFString(partStatus.baseFailureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
 
                                     // Update or Add part status in Master Status
                                     if (masterStatus.ContainsKey(vessel.id))
