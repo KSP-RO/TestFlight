@@ -54,6 +54,10 @@ namespace TestFlightCore
         internal static GUIStyle styleTextCriticalSolarizedDark;
         internal static GUIStyle styleTooltipSolarizedDark;
         internal static GUIStyle styleTooltipRequirementsSolarizedDark;
+        // Editor Panels
+        internal static GUIStyle styleEditorPanel;
+        internal static GUIStyle styleEditorTitle;
+        internal static GUIStyle styleEditorText;
 
         // Solarized Light Styles
 
@@ -260,6 +264,23 @@ namespace TestFlightCore
             styleSeparatorH.fixedHeight = 2;
 
             #endregion
+
+            #region Editor Styles
+            styleEditorPanel = new GUIStyle();
+            styleEditorPanel.normal.background = CreateColorPixel(new Color32(0,0,0,128));
+            styleEditorPanel.padding = new RectOffset(5, 5, 3, 3);
+
+            styleEditorTitle = new GUIStyle();
+            styleEditorTitle.normal.textColor = Color.yellow;
+            styleEditorTitle.fontSize = 11;
+            styleEditorTitle.fontStyle = FontStyle.Bold;
+
+            styleEditorText = new GUIStyle();
+            styleEditorText.normal.textColor = Color.white;
+            styleEditorText.fontSize = 11;
+            styleEditorText.fontStyle = FontStyle.Normal;
+            styleEditorText.richText = true;
+            #endregion
         }
         #endregion
 
@@ -322,26 +343,6 @@ namespace TestFlightCore
             SkinsLibrary.AddStyle("Unity", "WarningText", textStyleWarning);
             SkinsLibrary.AddStyle("Unity", "CriticalText", textStyleCritical);
 
-
-            ////Now a Unity Style one with KSP buttons
-            GUISkin UnityWKSPButtons = SkinsLibrary.CopySkin("Unity");
-            UnityWKSPButtons.button = DefKSP.button;
-            UnityWKSPButtons.toggle = DefKSP.toggle;
-            SkinsLibrary.AddSkin("UnityWKSPButtons", UnityWKSPButtons);
-
-            //Adjust Default Skins
-            SkinsLibrary.List["UnityWKSPButtons"].button = new GUIStyle(styleButton);
-            SkinsLibrary.List["UnityWKSPButtons"].label = new GUIStyle(styleText);
-
-            //Add Styles once skin is added
-            SkinsLibrary.AddStyle("UnityWKSPButtons", styleTooltipUnity);
-            SkinsLibrary.AddStyle("UnityWKSPButtons", styleButton);
-            SkinsLibrary.AddStyle("UnityWKSPButtons", styleButtonMain);
-            SkinsLibrary.AddStyle("UnityWKSPButtons", styleButtonSettings);
-            SkinsLibrary.AddStyle("UnityWKSPButtons", "DropDownButton", styleDropDownButton);
-            SkinsLibrary.AddStyle("UnityWKSPButtons", "DropDownListBox", styleDropDownListBox);
-            SkinsLibrary.AddStyle("UnityWKSPButtons", "DropDownListItem", styleDropDownListItem);
-
             // Solarized Dark theme
             // http://ethanschoonover.com/solarized
             GUISkin solarizedDarkSkin = SkinsLibrary.CopySkin("Unity");
@@ -350,6 +351,13 @@ namespace TestFlightCore
             SkinsLibrary.AddSkin("SolarizedDark", solarizedDarkSkin);
             SkinsLibrary.AddStyle("SolarizedDark", "HUD", stylePanelSolarizedDarkHUD);
             SkinsLibrary.AddStyle("SolarizedDark", "Tooltip", styleTooltipRequirementsSolarizedDark);
+
+            // Editor window is based on Kerbal Engineer's editor window to provide a more harmonious looks (because *I* use KER)
+            GUISkin testFlightEditor = SkinsLibrary.CopySkin("Unity");
+            testFlightEditor.window = styleEditorPanel;
+            testFlightEditor.label.fontSize = 11;
+            testFlightEditor.label = styleEditorText;
+            SkinsLibrary.AddSkin("TestFlightEditor", testFlightEditor);
         }
 
         /// <summary>
