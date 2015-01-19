@@ -12,18 +12,54 @@ using TestFlightAPI;
 namespace TestFlightCore
 {
     [KSPAddon(KSPAddon.Startup.EditorAny, false)]
-    public class TestFlightEditorWindow : MonoBehaviourExtended
+    public class TestFlightEditorWindow : MonoBehaviourWindowPlus
     {
         internal static TestFlightEditorWindow Instance;
-        internal Part selectedPart;
-        internal bool showGraph = true;
-        internal Rect WindowRect;
-        internal bool Visible;
+        private bool locked = false;
+        private Part _selectedPart;
+        internal Part selectedPart
+        {
+            set
+            {
+                if (!locked)
+                {
+                    this._selectedPart = value;
+                    CalculateWindowBounds();
+                }
+            }
+            get
+            {
+                return this._selectedPart;
+            }
+        }
         internal TestFlightManagerScenario tfScenario = null;
         internal bool isReady = false;
         private ApplicationLauncherButton appLauncherButton;
         bool stickyWindow = false;
 
+        public void LockPart(Part partToLock)
+        {
+            if (!locked)
+            {
+                locked = true;
+                selectedPart = partToLock;
+                return;
+            }
+
+            if (partToLock == selectedPart)
+                locked = false;
+            else
+            {
+                locked = false;
+                selectedPart = partToLock;
+                locked = true;
+            }
+        }
+
+        public void UnlockPart()
+        {
+            locked = false;
+        }
 
         internal override void Start()
         {
@@ -51,13 +87,70 @@ namespace TestFlightCore
         internal void Startup()
         {
             CalculateWindowBounds();
+            DragEnabled = !tfScenario.settings.editorWindowLocked;
+            WindowMoveEventsEnabled = true;
+            ClampToScreen = true;
+            TooltipsEnabled = true;
+            TooltipMouseOffset = new Vector2d(10, 10);
+            TooltipStatic = true;
+            WindowCaption = "";
             StartCoroutine("AddToToolbar");
+            onWindowMoveComplete += EditorWindow_OnWindowMoveComplete;
             isReady = true;
         }
 
+        internal ITestFlightCore GetCore()
+        {
+            if (selectedPart == null)
+                return null;
+
+            ITestFlightCore core = null;
+            foreach (PartModule pm in selectedPart.Modules)
+            {
+                core = pm as ITestFlightCore;
+                if (core != null)
+                {
+                    return core;
+                }
+            }
+            return null;
+        }
         internal void CalculateWindowBounds()
         {
-            WindowRect = new Rect(Screen.width - 575, Screen.height - 250, 350, 200);
+            if (appLauncherButton == null)
+                return;
+            if (tfScenario == null)
+                return;
+
+            float windowWidth = 350f;
+            float left = Screen.width - windowWidth - 75f;
+            float windowHeight = 50f;
+
+            float numItems = 0;
+            ITestFlightCore core = GetCore();
+            if (core != null)
+            {
+                List<TestFlightData> flightData = null;
+                PartFlightData partData = tfScenario.GetFlightDataForPartName(selectedPart.name);
+                if (partData == null)
+                    numItems = 0;
+                else
+                {
+                    flightData = partData.GetFlightData();
+                    if (flightData != null)
+                        numItems = flightData.Count;
+                }
+            }
+
+            windowHeight += numItems * 20f;
+            float top = Screen.height - windowHeight - 60f;
+
+            if (!tfScenario.settings.editorWindowLocked)
+            {
+                left = tfScenario.settings.editorWindowPosition.xMin;
+                top = tfScenario.settings.editorWindowPosition.yMin;
+            }
+            WindowRect = new Rect(left, top, windowWidth, windowHeight);
         }
 
         IEnumerator AddToToolbar()
@@ -129,102 +222,98 @@ namespace TestFlightCore
         {
             Styles.InitStyles();
             Styles.InitSkins();
-            SkinsLibrary.SetCurrent("SolarizedDark");
+            SkinsLibrary.SetCurrent("TestFlightEditor");
+        }
+        internal override void DrawWindow(int id)
+        {
+            if (!isReady)
+                return;
+
+            if (selectedPart == null)
+            {
+                GUILayout.BeginVertical();
+                GUILayout.Label("Select a part to display its details", Styles.styleEditorTitle);
+                GUILayout.Label("MouseOver part in bin to quickview", Styles.styleEditorText);
+                GUILayout.Label("RightClick part in bin to lock window", Styles.styleEditorText);
+                GUILayout.EndVertical();
+                if (DrawToggle(ref tfScenario.settings.editorWindowLocked, "Lock Window", Styles.styleToggle))
+                {
+                    if (tfScenario.settings.editorWindowLocked)
+                    {
+                        CalculateWindowBounds();
+                        tfScenario.settings.editorWindowPosition = WindowRect;
+                        DragEnabled = false;
+                    }
+                    else
+                    {
+                        DragEnabled = true;
+                    }
+                    tfScenario.settings.Save();
+                }
+                return;
+            }
+
+            ITestFlightCore core = null;
+            GUILayout.BeginVertical();
+            GUILayout.Label(String.Format("Selected Part: {0}", selectedPart.name), Styles.styleEditorTitle);
+
+            tfScenario.settings.currentEditorScrollPosition = GUILayout.BeginScrollView(tfScenario.settings.currentEditorScrollPosition);
+            PartFlightData partData = tfScenario.GetFlightDataForPartName(selectedPart.name);
+            if (partData != null)
+            {
+                foreach (PartModule pm in selectedPart.Modules)
+                {
+                    core = pm as ITestFlightCore;
+                    if (core != null)
+                    {
+                        break;
+                    }
+                }
+                if (core != null)
+                {
+                    List<TestFlightData> flightData = partData.GetFlightData();
+                    core.InitializeFlightData(flightData, 1.0);
+                    foreach (TestFlightData data in flightData)
+                    {
+                        GUILayout.BeginHorizontal();
+                        double failureRate = core.GetBaseFailureRateForScope(data.scope);
+                        String mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
+                        // 10 characters for body max plus 10 characters for situation plus underscore = 21 characters needed for longest scope string
+                        GUILayout.Label(core.PrettyStringForScope(data.scope), GUILayout.Width(125));
+                        GUILayout.Label(String.Format("{0,-7:F2}<b>du</b>", data.flightData), GUILayout.Width(75));
+                        //TODO this needs to change to be MTBF once the new system goes in
+                        //                                GUILayout.Label(String.Format("{0,-5:F2} MTBF", mtbfString), GUILayout.Width(125));
+                        GUILayout.Label(String.Format("{0,-5:F2}<b>%R</b>", failureRate), GUILayout.Width(125));
+                        GUILayout.EndHorizontal();
+                    }
+                }
+            }
+            GUILayout.EndScrollView();
+            if (DrawToggle(ref tfScenario.settings.editorWindowLocked, "Lock Window", Styles.styleToggle))
+            {
+                if (tfScenario.settings.editorWindowLocked)
+                {
+                    CalculateWindowBounds();
+                    tfScenario.settings.editorWindowPosition = WindowRect;
+                    DragEnabled = false;
+                }
+                else
+                {
+                    DragEnabled = true;
+                }
+                tfScenario.settings.Save();
+            }
+            GUILayout.EndVertical();
+        }
+        void EditorWindow_OnWindowMoveComplete(MonoBehaviourWindow sender)
+        {
+            LogFormatted_DebugOnly("Saving editor window position");
+            tfScenario.settings.editorWindowPosition = WindowRect;
+            tfScenario.settings.Save();
         }
         internal override void OnGUIEvery()
         {
             base.OnGUIEvery();
-            if (!isReady)
-                return;
-
-            if (Visible)
-            {
-                ITestFlightCore core = null;
-                GUILayout.BeginArea(WindowRect, SkinsLibrary.CurrentSkin.GetStyle("HUD"));
-                if (selectedPart != null)
-                {
-                    GUILayout.BeginVertical();
-                    GUILayout.Label(String.Format("Selected Part: {0}", selectedPart.name));
-
-                    tfScenario.settings.currentEditorScrollPosition = GUILayout.BeginScrollView(tfScenario.settings.currentEditorScrollPosition);
-                    PartFlightData partData = tfScenario.GetFlightDataForPartName(selectedPart.name);
-                    if (partData != null)
-                    {
-                        foreach (PartModule pm in selectedPart.Modules)
-                        {
-                            core = pm as ITestFlightCore;
-                            if (core != null)
-                            {
-                                break;
-                            }
-                        }
-                        if (core != null && showGraph)
-                        {
-                            List<TestFlightData> flightData = partData.GetFlightData();
-                            core.InitializeFlightData(flightData, 1.0);
-                            foreach (TestFlightData data in flightData)
-                            {
-                                GUILayout.BeginHorizontal();
-                                double failureRate = core.GetBaseFailureRateForScope(data.scope);
-                                String mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
-                                // 10 characters for body max plus 10 characters for situation plus underscore = 21 characters needed for longest scope string
-                                GUILayout.Label(core.PrettyStringForScope(data.scope), GUILayout.Width(125));
-                                GUILayout.Label(String.Format("{0,-7:F2}<b>du</b>", data.flightData), GUILayout.Width(75));
-                                //TODO this needs to change to be MTBF once the new system goes in
-//                                GUILayout.Label(String.Format("{0,-5:F2} MTBF", mtbfString), GUILayout.Width(125));
-                                GUILayout.Label(String.Format("{0,-5:F2}<b>%R</b>", failureRate), GUILayout.Width(125));
-                                FloatCurve curve = null;
-                                curve = core.GetBaseReliabilityCurveForScope(data.scope);
-                                if (curve != null)
-                                {
-                                    if (GUILayout.Button("G", GUILayout.Width(38)))
-                                    {
-                                        // Display graph for scope
-                                        Vector2 startPoint = new Vector2(5, 200);
-                                        Vector2 endPoint = new Vector2(100, 500);
-                                        Color lineColor = XKCDColors.Yellow;
-                                        float start = curve.minTime;
-                                        float end = curve.maxTime;
-                                        // fit the curve
-                                        Drawing.DrawLine(startPoint, endPoint, lineColor, 5f);
-                                    }
-                                }
-                                GUILayout.EndHorizontal();
-                            }
-                        }
-                    }
-                    else
-                    {
-                        GUILayout.Label("No flight data has been recorded for this part.");
-                    }
-                    GUILayout.EndScrollView();
-                    GUILayout.EndVertical();
-                }
-                else
-                {
-                    GUILayout.BeginVertical();
-                    GUILayout.Label("This window will show accumulated flight data and failure rate details for a part when you mouse over it in the parts bin.");
-                    GUILayout.EndVertical();
-                }
-                GUILayout.EndArea();
-            }
-        }
-        internal static Boolean DrawToggle(ref Boolean blnVar, String ButtonText, GUIStyle style, params GUILayoutOption[] options)
-        {
-            Boolean blnOld = blnVar;
-            blnVar = GUILayout.Toggle(blnVar, ButtonText, style, options);
-
-            return DrawResultChanged(blnOld, blnVar, "Toggle");
-        }
-        private static Boolean DrawResultChanged<T>(T Original, T New, String Message) 
-        {
-            if (Original.Equals(New)) {
-                return false;
-            } else {
-                LogFormatted_DebugOnly("{0} Changed. {1}->{2}", Message, Original.ToString(), New.ToString());
-                return true;
-            }
-
         }
     }
     // MEGA thanks to xxEvilReeperxx for pointing me in the right direction on this!
@@ -249,12 +338,18 @@ namespace TestFlightCore
                     if (Input.GetMouseButtonDown(0))
                     {
                         // Left button press
-                        Debug.Log("LEFT");
+                        // If the player left clicks then we assume they are placing a part (We don't bother to figure out if its valid or not)
+                        // so we unlock our window
+                        TestFlightEditorWindow.Instance.UnlockPart();
                     }
                     else if (Input.GetMouseButtonDown(1))
                     {
                         // Right button press
-                        Debug.Log("RIGHT");
+                        // On a right click we have one of three things to do
+                        // 1. If the window is unlocked, lock it on the current item
+                        // 2. If the window is curently locked, and this is the same item it was locked on, unlock it
+                        // 3. If the window is currently locked and this is a different item, lock it to that one instead
+                        TestFlightEditorWindow.Instance.LockPart(selectedPart.partPrefab);
                     }
                     break;
                 case POINTER_INFO.INPUT_EVENT.MOVE:
