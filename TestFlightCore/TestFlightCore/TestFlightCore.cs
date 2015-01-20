@@ -539,13 +539,13 @@ namespace TestFlightCore
 
             if (additive)
             {
+                modifier = ApplyFlightDataMultiplier(modifier);
                 bodyData.flightData += modifier;
             }
             else
             {
                 bodyData.flightData *= modifier;
             }
-            bodyData.flightData = ApplyFlightDataMultiplier(bodyData.flightData);
             flightData.AddFlightData(scope, bodyData.flightData, bodyData.flightTime);
             return bodyData.flightData;
         }
