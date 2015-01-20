@@ -132,7 +132,7 @@ namespace TestFlightCore
 
             styleTooltipStyle = new GUIStyle();
             styleTooltipStyle.name = "Tooltip";
-            styleTooltipStyle.fontSize = 12;
+            styleTooltipStyle.fontSize = 11;
             styleTooltipStyle.normal.textColor = new Color32(207, 207, 207, 255);
             styleTooltipStyle.stretchHeight = true;
             styleTooltipStyle.wordWrap = true;
@@ -198,14 +198,14 @@ namespace TestFlightCore
 
             #region Common Styles
             styleText = new GUIStyle(SkinsLibrary.DefUnitySkin.label);
-            styleText.fontSize = 12;
+            styleText.fontSize = 11;
             styleText.alignment = TextAnchor.MiddleLeft;
             styleText.normal.textColor = new Color(207, 207, 207);
             styleText.wordWrap = false;
             styleText.richText = true;
 
             styleTextSolarizedDark = new GUIStyle(styleText);
-            styleTextSolarizedDark.fontSize = 12;
+            styleTextSolarizedDark.fontSize = 11;
             styleTextSolarizedDark.normal.textColor = new Color(131, 148, 150);
 
             styleTextGreen = new GUIStyle(styleText);
@@ -228,19 +228,19 @@ namespace TestFlightCore
             textStyleSafe.normal.textColor = new Color32(133, 153, 0, 255);        
 
             styleTextSafeSolarizedDark = new GUIStyle(textStyleSafe);
-            styleTextSafeSolarizedDark.fontSize = 12;
+            styleTextSafeSolarizedDark.fontSize = 11;
 
             textStyleWarning = new GUIStyle(styleText);
             textStyleWarning.normal.textColor = new Color32(203, 75, 22, 255);        
 
             styleTextWarningSolarizedDark = new GUIStyle(textStyleWarning);
-            styleTextWarningSolarizedDark.fontSize = 12;
+            styleTextWarningSolarizedDark.fontSize = 11;
 
             textStyleCritical = new GUIStyle(styleText);
             textStyleCritical.normal.textColor = new Color32(220, 50, 47, 255);        
 
             styleTextCriticalSolarizedDark = new GUIStyle(textStyleCritical);
-            styleTextCriticalSolarizedDark.fontSize = 12;
+            styleTextCriticalSolarizedDark.fontSize = 11;
 
             styleToggle = new GUIStyle(HighLogic.Skin.toggle);
             styleToggle.normal.textColor = new Color(207, 207, 207);
@@ -347,7 +347,7 @@ namespace TestFlightCore
             // http://ethanschoonover.com/solarized
             GUISkin solarizedDarkSkin = SkinsLibrary.CopySkin("Unity");
             solarizedDarkSkin.window = stylePanelSolarizedDark;
-            solarizedDarkSkin.label.fontSize = 12;
+            solarizedDarkSkin.label.fontSize = 11;
             SkinsLibrary.AddSkin("SolarizedDark", solarizedDarkSkin);
             SkinsLibrary.AddStyle("SolarizedDark", "HUD", stylePanelSolarizedDarkHUD);
             SkinsLibrary.AddStyle("SolarizedDark", "Tooltip", styleTooltipRequirementsSolarizedDark);

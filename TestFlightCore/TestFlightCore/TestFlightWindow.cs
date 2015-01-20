@@ -126,15 +126,15 @@ namespace TestFlightCore
                 windowWidth -= 100f;
             if (!tfScenario.settings.showFlightDataInMSD)
                 windowWidth -= 75f;
-            if (!tfScenario.settings.showMomentaryReliabilityInMSD)
+            if (!tfScenario.settings.showFailureRateInMSD)
                 windowWidth -= 75f;
-            if (!tfScenario.settings.showRestingReliabilityInMSD)
-                windowWidth -= 75f;
+            if (!tfScenario.settings.showMTBFStringInMSD)
+                windowWidth -= 150f;
             if (!tfScenario.settings.showStatusTextInMSD)
                 windowWidth -= 100f;
 
             float left = Screen.width - windowWidth;
-            float windowHeight = 50f;;
+            float windowHeight = 10f;;
             float top = 40f;
 
             if (tfScenario.settings.currentMSDSize == 0)
@@ -328,13 +328,13 @@ namespace TestFlightCore
                         GUILayout.Space(10);
                     }
                     // Resting Reliability
-                    if (tfScenario.settings.showRestingReliabilityInMSD)
+                    if (tfScenario.settings.showMTBFStringInMSD)
                     {
-                        GUILayout.Label(String.Format("{0,-15} <b>MTBF</b>", status.mtbfString), GUILayout.Width(75));
+                        GUILayout.Label(String.Format("{0} <b>MTBF</b>", status.mtbfString), GUILayout.Width(140));
                         GUILayout.Space(10);
                     }
                     // Momentary Reliability
-                    if (tfScenario.settings.showMomentaryReliabilityInMSD)
+                    if (tfScenario.settings.showFailureRateInMSD)
                     {
                         GUILayout.Label(String.Format("{0,-5:F2}<b>%M</b>", status.momentaryFailureRate), GUILayout.Width(75));
                         GUILayout.Space(10);
@@ -413,7 +413,7 @@ namespace TestFlightCore
                         GUILayout.EndHorizontal();
 
                         GUILayout.BeginHorizontal();
-                        if (DrawToggle(ref tfScenario.settings.showFlightDataInMSD, "Flight Data", Styles.styleToggle))
+                        if (DrawToggle(ref tfScenario.settings.showFlightDataInMSD, "Show Flight Data", Styles.styleToggle))
                         {
                             tfScenario.settings.Save();
                             CalculateWindowBounds();
@@ -421,7 +421,7 @@ namespace TestFlightCore
                         GUILayout.EndHorizontal();
 
                         GUILayout.BeginHorizontal();
-                        if (DrawToggle(ref tfScenario.settings.showRestingReliabilityInMSD, "Resting Reliability", Styles.styleToggle))
+                        if (DrawToggle(ref tfScenario.settings.showMTBFStringInMSD, "Show MTBF", Styles.styleToggle))
                         {
                             tfScenario.settings.Save();
                             CalculateWindowBounds();
@@ -429,7 +429,7 @@ namespace TestFlightCore
                         GUILayout.EndHorizontal();
 
                         GUILayout.BeginHorizontal();
-                        if (DrawToggle(ref tfScenario.settings.showMomentaryReliabilityInMSD, "Momentary Reliability", Styles.styleToggle))
+                        if (DrawToggle(ref tfScenario.settings.showFailureRateInMSD, "Show Failure Rate", Styles.styleToggle))
                         {
                             tfScenario.settings.Save();
                             CalculateWindowBounds();
@@ -437,7 +437,7 @@ namespace TestFlightCore
                         GUILayout.EndHorizontal();
 
                         GUILayout.BeginHorizontal();
-                        if (DrawToggle(ref tfScenario.settings.showStatusTextInMSD, "Part Status Text", Styles.styleToggle))
+                        if (DrawToggle(ref tfScenario.settings.showStatusTextInMSD, "Show Part Status Text", Styles.styleToggle))
                         {
                             tfScenario.settings.Save();
                             CalculateWindowBounds();
@@ -500,24 +500,11 @@ namespace TestFlightCore
                             "Increase this if you find it affecting performance"),
                             GUILayout.Width(200)
                         );
-                        if (DrawHorizontalSlider(ref tfScenario.settings.minTimeBetweenDataPoll, 0, 10, GUILayout.Width(150)))
+                        if (DrawHorizontalSlider(ref tfScenario.settings.minTimeBetweenDataPoll, 0, 1, GUILayout.Width(150)))
                         {
                             tfScenario.settings.Save();
                         }
                         GUILayout.Label(String.Format("{0,5:f2}", tfScenario.settings.minTimeBetweenDataPoll), GUILayout.Width(75));
-                        GUILayout.EndHorizontal();
-
-                        GUILayout.BeginHorizontal();
-                        GUILayout.Label(new GUIContent("Minimum Time Between Failure Checks", 
-                            "Define the minimum time in seconds that the system will check all parts to see if any have failed.\n" +
-                            "Consider this a difficulty slider of sorts, as the more often checks are done, the more often you can run into failures"),
-                            GUILayout.Width(200)
-                        );
-                        if (DrawHorizontalSlider(ref tfScenario.settings.minTimeBetweenFailurePoll, 15, 120, GUILayout.Width(150)))
-                        {
-                            tfScenario.settings.Save();
-                        }
-                        GUILayout.Label(String.Format("{0,5:f2}", tfScenario.settings.minTimeBetweenFailurePoll), GUILayout.Width(75));
                         GUILayout.EndHorizontal();
 
                         GUILayout.BeginHorizontal();
@@ -546,17 +533,6 @@ namespace TestFlightCore
                         GUILayout.Label(String.Format("{0,5:f2}", tfScenario.settings.flightDataEngineerMultiplier), GUILayout.Width(75));
                         GUILayout.EndHorizontal();
 
-                        GUILayout.BeginHorizontal();
-                        GUILayout.Label(new GUIContent("Global Reliability Modifier", "Overall difficulty slider\n"+ 
-                            "Straight modifier added to the final reliability calculation for a part."),
-                            GUILayout.Width(200)
-                        );
-                        if (DrawHorizontalSlider(ref tfScenario.settings.globalReliabilityModifier, -25, 25, GUILayout.Width(150)))
-                        {
-                            tfScenario.settings.Save();
-                        }
-                        GUILayout.Label(String.Format("{0,5:f2}", tfScenario.settings.globalReliabilityModifier), GUILayout.Width(75));
-                        GUILayout.EndHorizontal();
                         break;
                     case 2:
                         GUILayout.BeginHorizontal();
