@@ -330,13 +330,13 @@ namespace TestFlightCore
                     // Resting Reliability
                     if (tfScenario.settings.showMTBFStringInMSD)
                     {
-                        GUILayout.Label(String.Format("{0} <b>MTBF</b>", status.mtbfString), GUILayout.Width(140));
+                        GUILayout.Label(String.Format("{0} <b>MTBF</b>", status.mtbfString), GUILayout.Width(130));
                         GUILayout.Space(10);
                     }
                     // Momentary Reliability
                     if (tfScenario.settings.showFailureRateInMSD)
                     {
-                        GUILayout.Label(String.Format("{0:F6}", status.momentaryFailureRate), GUILayout.Width(75));
+                        GUILayout.Label(String.Format("{0:F6}", status.momentaryFailureRate), GUILayout.Width(60));
                         GUILayout.Space(10);
                     }
                     // Part Status Text

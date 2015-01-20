@@ -405,7 +405,7 @@ namespace TestFlightCore
                                     partStatus.repairRequirements = core.GetRequirementsTooltip();
                                     partStatus.acknowledged = core.IsFailureAcknowledged();
                                     partStatus.activeFailure = core.GetFailureModule();
-                                    partStatus.mtbfString = core.FailureRateToMTBFString(partStatus.baseFailureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
+                                    partStatus.mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
 
                                     // Update or Add part status in Master Status
                                     if (masterStatus.ContainsKey(vessel.id))
