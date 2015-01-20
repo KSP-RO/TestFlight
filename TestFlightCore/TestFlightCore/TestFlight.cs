@@ -397,7 +397,11 @@ namespace TestFlightCore
                                     partStatus.flightData = currentFlightData.flightData;
                                     partStatus.flightTime = currentFlightData.flightTime;
                                     partStatus.partStatus = core.GetPartStatus();
-                                    partStatus.baseFailureRate = core.GetBaseFailureRate();
+                                    double failureRate = core.GetBaseFailureRate();
+                                    MomentaryFailureRate momentaryFailureRate = core.GetWorstMomentaryFailureRate();
+                                    if (momentaryFailureRate.valid && momentaryFailureRate.failureRate < failureRate)
+                                        failureRate = momentaryFailureRate.failureRate;
+                                    partStatus.momentaryFailureRate = failureRate;
                                     partStatus.repairRequirements = core.GetRequirementsTooltip();
                                     partStatus.acknowledged = core.IsFailureAcknowledged();
                                     partStatus.activeFailure = core.GetFailureModule();

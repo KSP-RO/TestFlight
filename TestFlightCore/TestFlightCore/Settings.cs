@@ -24,8 +24,8 @@ namespace TestFlightCore
         [Persistent] public bool enableHUD = false;
         [Persistent] public bool showFailedPartsOnlyInMSD = false;
         [Persistent] public bool showFlightDataInMSD = true;
-        [Persistent] public bool showRestingReliabilityInMSD = true;
-        [Persistent] public bool showMomentaryReliabilityInMSD = false;
+        [Persistent] public bool showMTBFStringInMSD = true;
+        [Persistent] public bool showFailureRateInMSD = false;
         [Persistent] public bool showStatusTextInMSD = true;
         [Persistent] public bool shortenPartNameInMSD = false;
         [Persistent] public bool mainWindowLocked = true;

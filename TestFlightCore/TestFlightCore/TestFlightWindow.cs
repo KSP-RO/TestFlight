@@ -336,7 +336,7 @@ namespace TestFlightCore
                     // Momentary Reliability
                     if (tfScenario.settings.showFailureRateInMSD)
                     {
-                        GUILayout.Label(String.Format("{0,-5:F2}<b>%M</b>", status.momentaryFailureRate), GUILayout.Width(75));
+                        GUILayout.Label(String.Format("{0:F6}", status.momentaryFailureRate), GUILayout.Width(75));
                         GUILayout.Space(10);
                     }
                     // Part Status Text
