@@ -231,7 +231,7 @@ namespace TestFlightAPI
                 }
             }
 
-
+            UnityEngine.Random.seed = (int)Time.time;
             Debug.Log("TestFlightReliabilityBase: Start(" + partName + "):DONE");
         }
 
@@ -318,7 +318,7 @@ namespace TestFlightAPI
             // NEW RELIABILITY CODE
             double operatingTime = core.GetOperatingTime();
 //            Debug.Log(String.Format("TestFlightReliability: Operating Time = {0:F2}", operatingTime));
-            if (operatingTime < lastCheck + 1f)
+            if (operatingTime < lastCheck + 5f)
                 return;
 
             lastCheck = operatingTime;
@@ -342,13 +342,13 @@ namespace TestFlightAPI
             // S() is survival chance, f is currentFailureRate
             // S(t) = e^(-f*t)
 
-            double survivalChance = Mathf.Pow(Mathf.Exp(1), (float)currentFailureRate * (float)operatingTime * -1f);
+            double survivalChance = Mathf.Pow(Mathf.Exp(1), (float)currentFailureRate * (float)operatingTime * -0.693f);
 //            Debug.Log(String.Format("TestFlightReliability: Survival Chance at Time {0:F2} is {1:f4} -- {2:f4}^({3:f4}*{0:f2}*-1.0)", (float)operatingTime, survivalChance, Mathf.Exp(1), (float)currentFailureRate));
-            float failureRoll = UnityEngine.Random.Range(0f, 1f);
+            float failureRoll = Mathf.Min(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f));
             if (failureRoll > survivalChance)
             {
-                Debug.Log(String.Format("TestFlightReliability: Survival Chance at Time {0:F2} is {1:f4} -- {2:f4}^({3:f4}*{0:f2}*-1.0)", (float)operatingTime, survivalChance, Mathf.Exp(1), (float)currentFailureRate));
-                Debug.Log(String.Format("TestFlightReliability: Part has failed with roll of {0:F4}", failureRoll));
+//                Debug.Log(String.Format("TestFlightReliability: Survival Chance at Time {0:F2} is {1:f4} -- {2:f4}^({3:f4}*{0:f2}*-1.0)", (float)operatingTime, survivalChance, Mathf.Exp(1), (float)currentFailureRate));
+                Debug.Log(String.Format("TestFlightReliability: Part has failed after {1:F1} secodns of operation at MET T+{2:F2} seconds with roll of {0:F4}", failureRoll, operatingTime, this.vessel.missionTime));
                 core.TriggerFailure();
             }
         }
