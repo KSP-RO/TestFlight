@@ -57,25 +57,25 @@ namespace TestFlightAPI
             if (core == null)
             {
                 Debug.Log(String.Format("TestFlightReliabilityBase: core is invalid"));
-                return 0;
+                return TestFlightUtil.MIN_FAILURE_RATE;
             }
 
             ReliabilityBodyConfig body = GetConfigForScope(scope);
             if (body == null)
             {
                 Debug.Log(String.Format("TestFlightReliabilityBase: No bodyConfig found"));
-                return 0;
+                return TestFlightUtil.MIN_FAILURE_RATE;
             }
 
             FloatCurve curve = body.reliabilityCurve;
             if (curve == null)
             {
                 Debug.Log(String.Format("TestFlightReliabilityBase: reliabilityCurve is invalid"));
-                return 0;
+                return TestFlightUtil.MIN_FAILURE_RATE;
             }
 
             double reliability = curve.Evaluate((float)flightData);
-            Debug.Log(String.Format("TestFlightReliability: reliability is {0:F2} with {1:F2} data units", reliability, flightData));
+            Debug.Log(String.Format("TestFlightReliability: reliability is {0:F6} with {1:F6} data units", reliability, flightData));
             return reliability;
         }
         // Get the momentary (IE current dynamic) failure modifier
