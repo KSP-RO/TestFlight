@@ -139,10 +139,23 @@ namespace TestFlightAPI
         bool CanAttemptRepair();
 
         /// <summary>
+        /// Gets the seconds until repair is complete
+        /// </summary>
+        /// <returns>The seconds until repair is complete, <c>0</c> if repair is complete, and <c>-1</c> if something changed the inteerupt the repairs and reapir has stopped with the part still broken.</returns>
+        double GetSecondsUntilRepair();
+
+        /// <summary>
 		/// Trigger a repair ATTEMPT of the module's failure.  It is the module's responsability to take care of any consumable resources, data transmission, etc required to perform the repair
 		/// </summary>
-		/// <returns>Should return true if the failure was repaired, false otherwise</returns>
-        bool AttemptRepair();
+        /// <returns>The seconds until repair is complete, <c>0</c> if repair is completed instantly, and <c>-1</c> if repair failed and the part is still broken.</returns>
+        double AttemptRepair();
+
+        /// <summary>
+        /// Forces the repair.  This should instantly repair the part, regardless of whether or not a normal repair can be done.  IOW if at all possible the failure should fixed after this call.
+        /// This is made available as an API method to allow things like failure simulations.
+        /// </summary>
+        /// <returns><c>true</c>, if failure was repaired, <c>false</c> otherwise.</returns>
+        bool ForceRepair();
 	}
 
     /// <summary>
@@ -161,7 +174,8 @@ namespace TestFlightAPI
         void InitializeFlightData(List<TestFlightData> allFlightData, double globalReliabilityModifier);
 
         void HighlightPart(bool doHighlight);
-        bool AttemptRepair();
+        double AttemptRepair();
+        double GetRepairTime();
         bool IsFailureAcknowledged();
         void AcknowledgeFailure();
 

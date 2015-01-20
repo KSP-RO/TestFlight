@@ -25,6 +25,7 @@ namespace TestFlightCore
         internal string repairRequirements;
         internal bool acknowledged;
         internal String mtbfString;
+        internal double timeToRepair;
     }
 
     internal struct MasterStatusItem
@@ -397,6 +398,7 @@ namespace TestFlightCore
                                     partStatus.flightData = currentFlightData.flightData;
                                     partStatus.flightTime = currentFlightData.flightTime;
                                     partStatus.partStatus = core.GetPartStatus();
+                                    partStatus.timeToRepair = core.GetRepairTime();
                                     double failureRate = core.GetBaseFailureRate();
 //                                    MomentaryFailureRate momentaryFailureRate = core.GetWorstMomentaryFailureRate();
 //                                    if (momentaryFailureRate.valid && momentaryFailureRate.failureRate < failureRate)

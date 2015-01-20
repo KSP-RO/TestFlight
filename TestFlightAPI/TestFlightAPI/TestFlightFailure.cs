@@ -297,22 +297,48 @@ namespace TestFlightAPI
         /// Trigger a repair ATTEMPT of the module's failure.  It is the module's responsability to take care of any consumable resources, data transmission, etc required to perform the repair
         /// </summary>
         /// <returns>Should return true if the failure was repaired, false otherwise</returns>
-        public virtual bool AttemptRepair()
+        public virtual double AttemptRepair()
         {
             if (repairConfig == null)
-                return false;
+                return -1;
 
             if (!CanAttemptRepair())
-                return false;
+                return -1;
 
             float repairChance = repairConfig.repairChance;
             repairChance += GetOptionalRepairBonus();
             if (UnityEngine.Random.Range(0f, 100f) <= repairChance)
-                return true;
-            return false;
+                return DoRepair();
+            return -1;
         }
 
-        
+        /// <summary>
+        /// Forces the repair.  This should instantly repair the part, regardless of whether or not a normal repair can be done.  IOW if at all possible the failure should fixed after this call.
+        /// This is made available as an API method to allow things like failure simulations.
+        /// </summary>
+        /// <returns><c>true</c>, if failure was repaired, <c>false</c> otherwise.</returns>
+        public virtual bool ForceRepair()
+        {
+            if (DoRepair() == 0)
+                return true;
+            else
+                return false;
+        }
+
+        public virtual double DoRepair()
+        {
+            return 0;
+        }
+
+        /// <summary>
+        /// Gets the seconds until repair is complete
+        /// </summary>
+        /// <returns>The seconds until repair is complete, <c>0</c> if repair is complete, and <c>-1</c> if something changed the inteerupt the repairs and reapir has stopped with the part still broken.</returns>
+        public double GetSecondsUntilRepair()
+        {
+            return 0;
+        }
+
         public override void OnAwake()
         {
             base.OnAwake();

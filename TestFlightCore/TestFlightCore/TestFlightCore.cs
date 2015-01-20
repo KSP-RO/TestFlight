@@ -739,23 +739,33 @@ namespace TestFlightCore
         private ITestFlightFailure activeFailure = null;
         private bool failureAcknowledged = false;
 
-        public bool AttemptRepair()
+        public double GetRepairTime()
         {
             if (activeFailure == null)
-                return true;
+                return 0;
+            else
+                return activeFailure.GetSecondsUntilRepair();
+        }
+
+        public double AttemptRepair()
+        {
+            if (activeFailure == null)
+                return 0;
 
             if (activeFailure.CanAttemptRepair())
             {
-                bool isRepaired = activeFailure.AttemptRepair();
-                if (isRepaired)
+                double repairStatus = activeFailure.AttemptRepair();
+                if (repairStatus == 0)
                 {
                     activeFailure = null;
                     failureAcknowledged = false;
                     operatingTime = 0;
-                    return true;
+                    return 0;
                 }
+                else
+                    return repairStatus;
             }
-            return false;
+            return -1;
         }
 
         public void AcknowledgeFailure()

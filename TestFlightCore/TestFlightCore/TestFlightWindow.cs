@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
@@ -346,21 +347,31 @@ namespace TestFlightCore
                             partDisplay = String.Format("<color=#859900ff>{0,-30}</color>", "OK");
                         else
                         {
-                            if (status.activeFailure.GetFailureDetails().severity == "major")
-                                partDisplay = String.Format("<color=#dc322fff>{0,-30}</color>", status.activeFailure.GetFailureDetails().failureTitle);
+                            if (status.timeToRepair > 0)
+                            {
+                                if (status.activeFailure.GetFailureDetails().severity == "major")
+                                    partDisplay = String.Format("<color=#dc322fff>{0,-30}</color>", GetColonFormattedTime(status.timeToRepair));
+                                else
+                                    partDisplay = String.Format("<color=#b58900ff>{0,-30}</color>", GetColonFormattedTime(status.timeToRepair));
+                            }
                             else
-                                partDisplay = String.Format("<color=#b58900ff>{0,-30}</color>", status.activeFailure.GetFailureDetails().failureTitle);
+                            {
+                                if (status.activeFailure.GetFailureDetails().severity == "major")
+                                    partDisplay = String.Format("<color=#dc322fff>{0,-30}</color>", status.activeFailure.GetFailureDetails().failureTitle);
+                                else
+                                    partDisplay = String.Format("<color=#b58900ff>{0,-30}</color>", status.activeFailure.GetFailureDetails().failureTitle);
+                            }
                         }
                         GUILayout.Label(partDisplay, GUILayout.Width(100));
                     }
                     if (status.activeFailure != null)
                     {
-                        if (status.activeFailure.CanAttemptRepair())
+                        if (status.activeFailure.CanAttemptRepair() && status.timeToRepair == -1)
                         {
                             if (GUILayout.Button("R", GUILayout.Width(38)))
                             {
                                 // attempt repair
-                                bool repairSuccess = status.flightCore.AttemptRepair();
+                                status.flightCore.AttemptRepair();
                             }
                         }
                         if (GUILayout.Button("A", GUILayout.Width(38)))
@@ -551,6 +562,36 @@ namespace TestFlightCore
             {
                 CalculateWindowBounds();
                 tfScenario.settings.Save();
+            }
+        }
+
+        // nicked from magico13's Kerbal Construction Time mod
+        // Hope he doesn't mind!  Just seemed silly to reimplement the wheel here
+        public static string GetColonFormattedTime(double time)
+        {
+            if (time > 0)
+            {
+                StringBuilder formatedTime = new StringBuilder();
+                if (GameSettings.KERBIN_TIME)
+                {
+                    formatedTime.AppendFormat("{0,2:00}<b>:</b>", Math.Floor(time / 21600));
+                    time = time % 21600;
+                }
+                else
+                {
+                    formatedTime.AppendFormat("{0,2:00}<b>:</b>", Math.Floor(time / 86400));
+                    time = time % 86400;
+                }
+                formatedTime.AppendFormat("{0,2:00}<b>:</b>", Math.Floor(time / 3600));
+                time = time % 3600;
+                formatedTime.AppendFormat("{0,2:00}<b>:</b>", Math.Floor(time / 60));
+                time = time % 60;
+                formatedTime.AppendFormat("{0,2:00}", time);
+                return formatedTime.ToString();
+            }
+            else
+            {
+                return "00<b>:</b>00<b>:</b>00<b>:</b>00";
             }
         }
 
