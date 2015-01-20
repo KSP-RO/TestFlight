@@ -163,7 +163,7 @@ namespace TestFlightCore
             styleDropDownListBox.border = new RectOffset(3, 3, 3, 3);
 
             styleDropDownListBoxUnity = new GUIStyle();
-            styleDropDownListBoxUnity.normal.background = TestFlight.Resources.texBoxUnity;
+            styleDropDownListBoxUnity.normal.background = CreateColorPixel(new Color32(0,0,0,255));
             //Extra border to prevent bleed of color - actual border is only 1 pixel wide
             styleDropDownListBoxUnity.border = new RectOffset(3, 3, 3, 3);
 
@@ -351,6 +351,9 @@ namespace TestFlightCore
             SkinsLibrary.AddSkin("SolarizedDark", solarizedDarkSkin);
             SkinsLibrary.AddStyle("SolarizedDark", "HUD", stylePanelSolarizedDarkHUD);
             SkinsLibrary.AddStyle("SolarizedDark", "Tooltip", styleTooltipRequirementsSolarizedDark);
+            SkinsLibrary.AddStyle("SolarizedDark", "DropDownButton", styleDropDownButtonUnity);
+            SkinsLibrary.AddStyle("SolarizedDark", "DropDownListBox", styleDropDownListBoxUnity);
+            SkinsLibrary.AddStyle("SolarizedDark", "DropDownListItem", styleDropDownListItem);
 
             // Editor window is based on Kerbal Engineer's editor window to provide a more harmonious looks (because *I* use KER)
             GUISkin testFlightEditor = SkinsLibrary.CopySkin("Unity");

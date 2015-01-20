@@ -402,6 +402,8 @@ namespace TestFlightCore
                     GUILayout.EndVertical();
                     return;
                 }
+                ddlSettingsPage.styleListBox = Styles.styleDropDownListBoxUnity;
+                ddlSettingsPage.styleListBlocker = Styles.styleDropDownListBoxUnity;
                 ddlSettingsPage.DrawButton();
 
                 switch (tfScenario.settings.settingsPage)
