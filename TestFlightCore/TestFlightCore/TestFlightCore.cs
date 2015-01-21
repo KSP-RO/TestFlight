@@ -553,7 +553,7 @@ namespace TestFlightCore
         {
             if (TestFlightManagerScenario.Instance == null)
                 return 1;
-            double globalFlightDataEngineerMultiplier = TestFlightManagerScenario.Instance.settings.flightDataEngineerMultiplier;
+            double globalFlightDataEngineerMultiplier = TestFlightManagerScenario.Instance.userSettings.flightDataEngineerMultiplier;
 
             List<ProtoCrewMember> crew = this.part.vessel.GetVesselCrew().Where(c => c.experienceTrait.Title == "Engineer").ToList();
             double totalEngineerBonus = 0;
@@ -573,7 +573,7 @@ namespace TestFlightCore
             if (TestFlightManagerScenario.Instance == null)
                 return baseData;
 
-            return baseData * TestFlightManagerScenario.Instance.settings.flightDataMultiplier;
+            return baseData * TestFlightManagerScenario.Instance.userSettings.flightDataMultiplier;
         }
         // TODO
         public double ModifyFlightTimeForScope(double modifier, String scope, bool additive)

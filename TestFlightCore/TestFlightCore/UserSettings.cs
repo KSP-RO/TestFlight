@@ -5,9 +5,9 @@ using KSPPluginFramework;
 
 namespace TestFlightCore
 {
-    public class Settings : ConfigNodeStorage
+    public class UserSettings : ConfigNodeStorage
     {
-        public Settings(String FilePath) : base(FilePath) {
+        public UserSettings(String FilePath) : base(FilePath) {
         }
 
 

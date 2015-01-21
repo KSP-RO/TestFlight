@@ -235,7 +235,7 @@ namespace TestFlightCore
 
                         if (partData != null && partData.GetFlightData() != null)
                         {
-                            core.InitializeFlightData(partData.GetFlightData(), tfScenario.settings.globalReliabilityModifier);
+                            core.InitializeFlightData(partData.GetFlightData(), tfScenario.userSettings.globalReliabilityModifier);
                         }
                     }
                 }
@@ -328,7 +328,7 @@ namespace TestFlightCore
             // doesn't consider a vessel launched, and does not start the mission clock, until the player activates the first stage.  This is fine except it
             // makes things like engine test stands impossible, so we instead cache the vessel the first time we see it and use that time as the missionStartTime
 
-            if (!tfScenario.settings.processAllVessels)
+            if (!tfScenario.userSettings.processAllVessels)
             {
                 if (FlightGlobals.ActiveVessel != null && !knownVessels.ContainsKey(FlightGlobals.ActiveVessel.id))
                 {
@@ -365,7 +365,7 @@ namespace TestFlightCore
             currentUTC = Planetarium.GetUniversalTime();
             // ensure out vessel list is up to date
             CacheVessels();
-            if (currentUTC >= lastMasterStatusUpdate + tfScenario.settings.masterStatusUpdateFrequency)
+            if (currentUTC >= lastMasterStatusUpdate + tfScenario.userSettings.masterStatusUpdateFrequency)
             {
                 lastMasterStatusUpdate = currentUTC;
                 VerifyMasterStatus();
@@ -384,7 +384,7 @@ namespace TestFlightCore
                             if (core != null)
                             {
                                 // Poll for flight data and part status
-                                if (currentUTC >= lastDataPoll + tfScenario.settings.masterStatusUpdateFrequency)
+                                if (currentUTC >= lastDataPoll + tfScenario.userSettings.masterStatusUpdateFrequency)
                                 {
                                     TestFlightData currentFlightData = new TestFlightData();
                                     currentFlightData.scope = core.GetScope();
@@ -458,11 +458,11 @@ namespace TestFlightCore
                         }
                     }
                 }
-                if (currentUTC >= lastDataPoll + tfScenario.settings.minTimeBetweenDataPoll)
+                if (currentUTC >= lastDataPoll + tfScenario.userSettings.minTimeBetweenDataPoll)
                 {
                     lastDataPoll = currentUTC;
                 }
-                if (currentUTC >= lastFailurePoll + tfScenario.settings.minTimeBetweenFailurePoll)
+                if (currentUTC >= lastFailurePoll + tfScenario.userSettings.minTimeBetweenFailurePoll)
                 {
                     lastFailurePoll = currentUTC;
                 }
@@ -481,7 +481,7 @@ namespace TestFlightCore
     )]
 	public class TestFlightManagerScenario : ScenarioModule
 	{
-        internal Settings settings = null;
+        internal UserSettings userSettings = null;
         internal BodySettings bodySettings = null;
         public static TestFlightManagerScenario Instance { get; private set; }
         public bool isReady = false;
@@ -492,15 +492,15 @@ namespace TestFlightCore
         public override void OnAwake()
         {
             Instance = this;
-            if (settings == null)
-                settings = new Settings("../settings.cfg");
+            if (userSettings == null)
+                userSettings = new UserSettings("../settings.cfg");
             if (bodySettings == null)
                 bodySettings = new BodySettings("../settings_bodies.cfg");
 
-            if (settings.FileExists)
-                settings.Load();
+            if (userSettings.FileExists)
+                userSettings.Load();
             else
-                settings.Save();
+                userSettings.Save();
 
             if (bodySettings.FileExists)
                 bodySettings.Load();
@@ -573,9 +573,9 @@ namespace TestFlightCore
         public override void OnLoad(ConfigNode node)
         {
             base.OnLoad(node);
-            if (settings != null)
+            if (userSettings != null)
             {
-                settings.Load();
+                userSettings.Load();
             }
             if (bodySettings != null)
                 bodySettings.Load();
@@ -597,9 +597,9 @@ namespace TestFlightCore
 		public override void OnSave(ConfigNode node)
 		{
             base.OnSave(node);
-            if (settings != null)
+            if (userSettings != null)
             {
-                settings.Save();
+                userSettings.Save();
             }
             if (bodySettings != null)
                 bodySettings.Save();

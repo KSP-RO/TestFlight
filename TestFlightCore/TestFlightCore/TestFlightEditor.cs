@@ -87,7 +87,7 @@ namespace TestFlightCore
         internal void Startup()
         {
             CalculateWindowBounds();
-            DragEnabled = !tfScenario.settings.editorWindowLocked;
+            DragEnabled = !tfScenario.userSettings.editorWindowLocked;
             WindowMoveEventsEnabled = true;
             ClampToScreen = true;
             TooltipsEnabled = true;
@@ -145,10 +145,10 @@ namespace TestFlightCore
             windowHeight += numItems * 20f;
             float top = Screen.height - windowHeight - 60f;
 
-            if (!tfScenario.settings.editorWindowLocked)
+            if (!tfScenario.userSettings.editorWindowLocked)
             {
-                left = tfScenario.settings.editorWindowPosition.xMin;
-                top = tfScenario.settings.editorWindowPosition.yMin;
+                left = tfScenario.userSettings.editorWindowPosition.xMin;
+                top = tfScenario.userSettings.editorWindowPosition.yMin;
             }
             WindowRect = new Rect(left, top, windowWidth, windowHeight);
         }
@@ -236,19 +236,19 @@ namespace TestFlightCore
                 GUILayout.Label("MouseOver part in bin to quickview", Styles.styleEditorText);
                 GUILayout.Label("RightClick part in bin to lock window", Styles.styleEditorText);
                 GUILayout.EndVertical();
-                if (DrawToggle(ref tfScenario.settings.editorWindowLocked, "Lock Window", Styles.styleToggle))
+                if (DrawToggle(ref tfScenario.userSettings.editorWindowLocked, "Lock Window", Styles.styleToggle))
                 {
-                    if (tfScenario.settings.editorWindowLocked)
+                    if (tfScenario.userSettings.editorWindowLocked)
                     {
                         CalculateWindowBounds();
-                        tfScenario.settings.editorWindowPosition = WindowRect;
+                        tfScenario.userSettings.editorWindowPosition = WindowRect;
                         DragEnabled = false;
                     }
                     else
                     {
                         DragEnabled = true;
                     }
-                    tfScenario.settings.Save();
+                    tfScenario.userSettings.Save();
                 }
                 return;
             }
@@ -257,7 +257,7 @@ namespace TestFlightCore
             GUILayout.BeginVertical();
             GUILayout.Label(String.Format("Selected Part: {0}", selectedPart.name), Styles.styleEditorTitle);
 
-            tfScenario.settings.currentEditorScrollPosition = GUILayout.BeginScrollView(tfScenario.settings.currentEditorScrollPosition);
+            tfScenario.userSettings.currentEditorScrollPosition = GUILayout.BeginScrollView(tfScenario.userSettings.currentEditorScrollPosition);
             PartFlightData partData = tfScenario.GetFlightDataForPartName(selectedPart.name);
             if (partData != null)
             {
@@ -287,27 +287,27 @@ namespace TestFlightCore
                 }
             }
             GUILayout.EndScrollView();
-            if (DrawToggle(ref tfScenario.settings.editorWindowLocked, "Lock Window", Styles.styleToggle))
+            if (DrawToggle(ref tfScenario.userSettings.editorWindowLocked, "Lock Window", Styles.styleToggle))
             {
-                if (tfScenario.settings.editorWindowLocked)
+                if (tfScenario.userSettings.editorWindowLocked)
                 {
                     CalculateWindowBounds();
-                    tfScenario.settings.editorWindowPosition = WindowRect;
+                    tfScenario.userSettings.editorWindowPosition = WindowRect;
                     DragEnabled = false;
                 }
                 else
                 {
                     DragEnabled = true;
                 }
-                tfScenario.settings.Save();
+                tfScenario.userSettings.Save();
             }
             GUILayout.EndVertical();
         }
         void EditorWindow_OnWindowMoveComplete(MonoBehaviourWindow sender)
         {
             LogFormatted_DebugOnly("Saving editor window position");
-            tfScenario.settings.editorWindowPosition = WindowRect;
-            tfScenario.settings.Save();
+            tfScenario.userSettings.editorWindowPosition = WindowRect;
+            tfScenario.userSettings.Save();
         }
         internal override void OnGUIEvery()
         {

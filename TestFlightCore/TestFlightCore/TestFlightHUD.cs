@@ -46,7 +46,7 @@ namespace TestFlightCore
         internal override void OnGUIOnceOnly()
         {
             // Default position and size -- will get proper bounds calculated when needed
-            WindowRect = new Rect(tfScenario.settings.flightHUDPosition.xMin, tfScenario.settings.flightHUDPosition.yMin, 50f, 50f);
+            WindowRect = new Rect(tfScenario.userSettings.flightHUDPosition.xMin, tfScenario.userSettings.flightHUDPosition.yMin, 50f, 50f);
             DragEnabled = true;
             ClampToScreen = true;
             TooltipsEnabled = true;
@@ -61,7 +61,7 @@ namespace TestFlightCore
         internal void CalculateWindowBounds()
         {
             LogFormatted_DebugOnly("TestFlightHUD Calculating Window Bounds");
-            WindowRect = new Rect(tfScenario.settings.flightHUDPosition.xMin, tfScenario.settings.flightHUDPosition.yMin, 50f, 50f);
+            WindowRect = new Rect(tfScenario.userSettings.flightHUDPosition.xMin, tfScenario.userSettings.flightHUDPosition.yMin, 50f, 50f);
         }
 
         internal override void DrawWindow(Int32 id)
@@ -154,8 +154,8 @@ namespace TestFlightCore
         void Window_OnWindowMoveComplete(MonoBehaviourWindow sender)
         {
             LogFormatted_DebugOnly("TestFlightHUD Saving window position");
-            tfScenario.settings.flightHUDPosition = WindowRect;
-            tfScenario.settings.Save();
+            tfScenario.userSettings.flightHUDPosition = WindowRect;
+            tfScenario.userSettings.Save();
         }
     }
 }
