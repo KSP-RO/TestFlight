@@ -6,9 +6,9 @@ namespace TestFlightAPI
     public class TestFlightUtil
     {
         public const double MIN_FAILURE_RATE = 0.000001;
-        public enum MTBFUnits
+        public enum MTBFUnits : int
         {
-            SECONDS,
+            SECONDS = 0,
             MINUTES,
             HOURS,
             DAYS,
