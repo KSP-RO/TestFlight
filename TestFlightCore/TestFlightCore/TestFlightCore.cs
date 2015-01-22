@@ -659,6 +659,20 @@ namespace TestFlightCore
 
             return null;
         }
+        // Returns a list of all available failures on the part
+        public List<String> GetAvailableFailures()
+        {
+            List<String> failureModules;
+            failureModules = new List<String>();
+            foreach (PartModule pm in this.part.Modules)
+            {
+                ITestFlightFailure fm = pm as ITestFlightFailure;
+                if (fm != null)
+                    failureModules.Add(pm.moduleName);
+            }
+
+            return failureModules;
+        }
         // Returns the Operational Time or the time, in MET, since the last time the part was fully functional. 
         // If a part is currently in a failure state, return will be -1 and the part should not fail again
         // This counts from mission start time until a failure, at which point it is reset to the time the

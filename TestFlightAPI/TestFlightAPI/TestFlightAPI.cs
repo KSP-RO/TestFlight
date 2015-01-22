@@ -259,6 +259,8 @@ namespace TestFlightAPI
         ITestFlightFailure TriggerFailure();
         ITestFlightFailure TriggerNamedFailure(String failureModuleName);
         ITestFlightFailure TriggerNamedFailure(String failureModuleName, bool fallbackToRandom);
+        // Returns a list of all available failures on the part
+        List<String> GetAvailableFailures();
         // Returns the Operational Time or the time, in MET, since the last time the part was fully functional. 
         // If a part is currently in a failure state, return will be -1 and the part should not fail again
         // This counts from mission start time until a failure, at which point it is reset to the time the
