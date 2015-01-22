@@ -436,6 +436,22 @@ namespace TestFlightCore
                 return null;
             return core.GetAvailableFailures();
         }
+        public static void EnableFailure(Part part, String failureModuleName)
+        {
+            ITestFlightCore core = TestFlightInterface.GetCore(part);
+            if (core == null)
+                return;
+
+            core.EnableFailure(failureModuleName);
+        }
+        public static void DisableFailure(Part part, String failureModuleName)
+        {
+            ITestFlightCore core = TestFlightInterface.GetCore(part);
+            if (core == null)
+                return;
+
+            core.DisableFailure(failureModuleName);
+        }
         // Returns the Operational Time or the time, in MET, since the last time the part was fully functional. 
         // If a part is currently in a failure state, return will be -1 and the part should not fail again
         // This counts from mission start time until a failure, at which point it is reset to the time the
