@@ -30,6 +30,7 @@ namespace TestFlightCore
         // This is a little bit of an insane data structure, but it works, and it simplifies the code everywhere else
         List<MomentaryFailureRate> momentaryFailureRates;
         List<MomentaryFailureModifier> momentaryFailureModifiers;
+        List<String> disabledFailures;
         double operatingTime;
         double lastMET;
 
@@ -599,7 +600,7 @@ namespace TestFlightCore
             foreach (PartModule pm in this.part.Modules)
             {
                 ITestFlightFailure fm = pm as ITestFlightFailure;
-                if (fm != null)
+                if (fm != null && !disabledFailures.Contains(pm.moduleName))
                     failureModules.Add(fm);
             }
 
@@ -633,6 +634,14 @@ namespace TestFlightCore
                 return null;
 
             failureModuleName = failureModuleName.ToLower().Trim();
+
+            if (disabledFailures.Contains(failureModuleName))
+            {
+                if (fallbackToRandom)
+                    return TriggerFailure();
+                else
+                    return null;
+            }
 
             foreach(PartModule pm in this.part.Modules)
             {
@@ -672,6 +681,19 @@ namespace TestFlightCore
             }
 
             return failureModules;
+        }
+        // Enable a failure so it can be triggered (this is the default state)
+        public void EnableFailure(String failureModuleName)
+        {
+            failureModuleName = failureModuleName.ToLower().Trim();
+            disabledFailures.Remove(failureModuleName);
+        }
+        // Disable a failure so it can not be triggered
+        public void DisableFailure(String failureModuleName)
+        {
+            failureModuleName = failureModuleName.ToLower().Trim();
+            if (!disabledFailures.Contains(failureModuleName))
+                disabledFailures.Add(failureModuleName);
         }
         // Returns the Operational Time or the time, in MET, since the last time the part was fully functional. 
         // If a part is currently in a failure state, return will be -1 and the part should not fail again
