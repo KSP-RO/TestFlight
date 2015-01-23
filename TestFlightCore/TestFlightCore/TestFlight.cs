@@ -400,9 +400,9 @@ namespace TestFlightCore
                                     partStatus.partStatus = core.GetPartStatus();
                                     partStatus.timeToRepair = core.GetRepairTime();
                                     double failureRate = core.GetBaseFailureRate();
-//                                    MomentaryFailureRate momentaryFailureRate = core.GetWorstMomentaryFailureRate();
-//                                    if (momentaryFailureRate.valid && momentaryFailureRate.failureRate < failureRate)
-//                                        failureRate = momentaryFailureRate.failureRate;
+                                    MomentaryFailureRate momentaryFailureRate = core.GetWorstMomentaryFailureRate();
+                                    if (momentaryFailureRate.valid && momentaryFailureRate.failureRate > failureRate)
+                                        failureRate = momentaryFailureRate.failureRate;
                                     partStatus.momentaryFailureRate = failureRate;
                                     partStatus.repairRequirements = core.GetRequirementsTooltip();
                                     partStatus.acknowledged = core.IsFailureAcknowledged();
