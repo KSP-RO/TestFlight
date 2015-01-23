@@ -802,6 +802,22 @@ namespace TestFlightCore
             }
             return -1;
         }
+        public double ForceRepair()
+        {
+            if (activeFailure == null)
+                return 0;
+
+            double repairStatus = activeFailure.ForceRepair();
+            if (repairStatus == 0)
+            {
+                activeFailure = null;
+                failureAcknowledged = false;
+                operatingTime = 0;
+                return 0;
+            }
+            else
+                return repairStatus;
+        }
 
         public void AcknowledgeFailure()
         {

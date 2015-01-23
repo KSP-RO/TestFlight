@@ -166,6 +166,12 @@ namespace TestFlightAPI
 
         void HighlightPart(bool doHighlight);
         double AttemptRepair();
+        /// <summary>
+        /// Forces the repair to be instantly complete, even if the conditions for repair are not met
+        /// </summary>
+        /// <returns>Time for repairs to finish, <c>0</c> if repair is instantly completed, and <c>-1</c> if repair failed</returns>
+        double ForceRepair();
+
         double GetRepairTime();
         bool IsFailureAcknowledged();
         void AcknowledgeFailure();

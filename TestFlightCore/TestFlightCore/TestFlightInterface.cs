@@ -464,8 +464,17 @@ namespace TestFlightCore
 
             return core.GetOperatingTime();
         }
+        public static double ForceRepair(Part part)
+        {
+            ITestFlightCore core = TestFlightInterface.GetCore(part);
+            if (core == null)
+                return -1;
+
+            return core.ForceRepair();
+        }
 
 
+        // INTERNAL methods
         private static ITestFlightCore GetCore(Part corePart)
         {
             if (corePart == null || corePart.Modules == null)
