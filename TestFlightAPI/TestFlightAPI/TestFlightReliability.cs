@@ -319,7 +319,7 @@ namespace TestFlightAPI
             MomentaryFailureRate momentaryFailureRate = core.GetWorstMomentaryFailureRate();
             double currentFailureRate;
 
-            if (momentaryFailureRate.valid)
+            if (momentaryFailureRate.valid && momentaryFailureRate.failureRate > baseFailureRate)
                 currentFailureRate = momentaryFailureRate.failureRate;
             else
                 currentFailureRate = baseFailureRate;
