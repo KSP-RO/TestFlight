@@ -472,6 +472,14 @@ namespace TestFlightCore
 
             return core.ForceRepair();
         }
+        public static double AttemptRepair(Part part)
+        {
+            ITestFlightCore core = TestFlightInterface.GetCore(part);
+            if (core == null)
+                return -1;
+
+            return core.AttemptRepair();
+        }
 
 
         // INTERNAL methods

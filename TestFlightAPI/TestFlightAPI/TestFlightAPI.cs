@@ -165,12 +165,6 @@ namespace TestFlightAPI
         void InitializeFlightData(List<TestFlightData> allFlightData, double globalReliabilityModifier);
 
         void HighlightPart(bool doHighlight);
-        double AttemptRepair();
-        /// <summary>
-        /// Forces the repair to be instantly complete, even if the conditions for repair are not met
-        /// </summary>
-        /// <returns>Time for repairs to finish, <c>0</c> if repair is instantly completed, and <c>-1</c> if repair failed</returns>
-        double ForceRepair();
 
         double GetRepairTime();
         bool IsFailureAcknowledged();
@@ -267,6 +261,16 @@ namespace TestFlightAPI
         // This counts from mission start time until a failure, at which point it is reset to the time the
         // failure is repaired.  It is important to understand this is NOT the total flight time of the part.
         double GetOperatingTime();
+        /// <summary>
+        /// Attempt to repair the part's current failure.  The repair conditions must be met before repair will be attempted.
+        /// </summary>
+        /// <returns>The amount of seconds until repair is complete, <c>0</c> if repair is completed instantly, or <c>-1</c> if rrepair failed.</returns>
+        double AttemptRepair();
+        /// <summary>
+        /// Forces the repair to be instantly complete, even if the conditions for repair are not met
+        /// </summary>
+        /// <returns>Time for repairs to finish, <c>0</c> if repair is instantly completed, and <c>-1</c> if repair failed</returns>
+        double ForceRepair();
     }
 }
 
