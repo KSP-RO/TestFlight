@@ -634,14 +634,6 @@ namespace TestFlightCore
 
             failureModuleName = failureModuleName.ToLower().Trim();
 
-            if (disabledFailures.Contains(failureModuleName))
-            {
-                if (fallbackToRandom)
-                    return TriggerFailure();
-                else
-                    return null;
-            }
-
             foreach(PartModule pm in this.part.Modules)
             {
                 if (pm.moduleName.ToLower().Trim() == failureModuleName)
