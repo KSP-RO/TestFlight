@@ -96,15 +96,6 @@ namespace TestFlightAPI
         /// <param name="scope">Scope.</param>
         double GetBaseFailureRateForScope(double flightData, String scope);
 
-        // Get the momentary (IE current dynamic) failure modifier
-        // The reliability module should only return its MODIFIER for the current time at the given scope (or current scope if not given).  The Core will calculate the final failure rate.
-        // !! IF NOT USED THEN THE MODULE MUST RETURN A VALUE OF 1 SO AS TO NOT MODIFY THE RATE !!
-        /// <summary>
-        /// Gets the Momentary Failure Rate (MFR) modifier for the given scope.
-        /// </summary>
-        /// <returns>The momentary failure modifier. 1 if this module does not implement MFR</returns>
-        double GetMomentaryFailureModifierForScope(String scope);
-
         /// <summary>
         /// Gets the reliability curve for the given scope.
         /// </summary>

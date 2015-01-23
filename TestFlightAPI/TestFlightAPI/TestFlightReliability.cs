@@ -78,14 +78,7 @@ namespace TestFlightAPI
             Debug.Log(String.Format("TestFlightReliability: reliability is {0:F6} with {1:F6} data units", reliability, flightData));
             return reliability;
         }
-        // Get the momentary (IE current dynamic) failure modifier
-        // The reliability module should only return its MODIFIER for the current time at the given scope (or current scope if not given).  The Core will calculate the final failure rate.
-        // !! IF NOT USED THEN THE MODULE MUST RETURN A VALUE OF 1 SO AS TO NOT MODIFY THE RATE !!
-        public double GetMomentaryFailureModifierForScope(String scope)
-        {
-            // We don't have a momemntary modifier so we return 1, since its a multipler
-            return 1;
-        }
+
         public FloatCurve GetReliabilityCurveForScope(String scope)
         {
             if (core == null)

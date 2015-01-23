@@ -27,7 +27,6 @@ namespace TestFlightCore
         private FlightDataConfig baseFlightData;
         // Momentary Failure Rates are calculated based on modifiers.  Those modifiers
         // are stored per SCOPE and per TRIGGER
-        // This is a little bit of an insane data structure, but it works, and it simplifies the code everywhere else
         List<MomentaryFailureRate> momentaryFailureRates;
         List<MomentaryFailureModifier> momentaryFailureModifiers;
         List<String> disabledFailures;
