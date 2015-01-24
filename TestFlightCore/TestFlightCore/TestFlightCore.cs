@@ -27,11 +27,12 @@ namespace TestFlightCore
         private FlightDataConfig baseFlightData;
         // Momentary Failure Rates are calculated based on modifiers.  Those modifiers
         // are stored per SCOPE and per TRIGGER
-        List<MomentaryFailureRate> momentaryFailureRates;
-        List<MomentaryFailureModifier> momentaryFailureModifiers;
-        List<String> disabledFailures;
-        double operatingTime;
-        double lastMET;
+        private List<MomentaryFailureRate> momentaryFailureRates;
+        private List<MomentaryFailureModifier> momentaryFailureModifiers;
+        private List<String> disabledFailures;
+        private double operatingTime;
+        private double lastMET;
+        private double missionStartTime;
 
         // Get a proper scope string for use in other parts of the API
         public String GetScope()
@@ -743,7 +744,7 @@ namespace TestFlightCore
             LogFormatted_DebugOnly("TestFlightCore: OnWake(" + partName + "):DONE");
         }
 
-        public void InitializeFlightData(List<TestFlightData> allFlightData, double globalReliabilityModifier)
+        public void InitializeFlightData(List<TestFlightData> allFlightData, double startTime)
         {
             if (allFlightData == null)
             {
@@ -756,6 +757,7 @@ namespace TestFlightCore
                 baseFlightData.AddFlightData(data.scope, data.flightData, data.flightTime);
                 flightData.AddFlightData(data.scope, data.flightData, data.flightTime);
             }
+            missionStartTime = startTime;
             return;
         }
 

@@ -220,6 +220,14 @@ namespace TestFlightCore
         private void InitializeParts(Vessel vessel)
         {
             LogFormatted_DebugOnly("TestFlightManager: Initializing parts for vessel " + vessel.GetName());
+
+            // Launch time is equal to current UT unless we have already chached this vessel's launch time
+            double launchTime = Planetarium.GetUniversalTime();
+            if (knownVessels.ContainsKey(vessel.id))
+            {
+                launchTime = knownVessels[vessel.id];
+            }
+
             foreach (Part part in vessel.parts)
             {
                 foreach (PartModule pm in part.Modules)
@@ -235,7 +243,7 @@ namespace TestFlightCore
 
                         if (partData != null && partData.GetFlightData() != null)
                         {
-                            core.InitializeFlightData(partData.GetFlightData(), tfScenario.userSettings.globalReliabilityModifier);
+                            core.InitializeFlightData(partData.GetFlightData(), launchTime);
                         }
                     }
                 }

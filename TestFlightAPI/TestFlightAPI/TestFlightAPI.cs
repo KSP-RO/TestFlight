@@ -168,7 +168,7 @@ namespace TestFlightAPI
 
         ITestFlightFailure GetFailureModule();
 
-        void InitializeFlightData(List<TestFlightData> allFlightData, double globalReliabilityModifier);
+        void InitializeFlightData(List<TestFlightData> allFlightData, double startTime);
 
         void HighlightPart(bool doHighlight);
 
