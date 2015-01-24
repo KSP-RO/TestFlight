@@ -92,9 +92,17 @@ namespace TestFlightAPI
                 isReady = true;
         }
 
+        public virtual bool IsPartOperating()
+        {
+            return true;
+        }
+
         public virtual bool IsRecordingFlightData()
         {
             bool isRecording = true;
+
+            if (!IsPartOperating())
+                return false;
 
             if (!isReady)
                 return false;

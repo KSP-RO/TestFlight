@@ -79,6 +79,12 @@ namespace TestFlightAPI
 
 	public interface IFlightDataRecorder
 	{
+        /// <summary>
+        /// Returns whether or not the part is considered to be operating or running.  IE is an engine actually turned on and thrusting?  Is a command pod supplied with electricity and operating?
+        /// The point of this is to distinguish between the life time of a part and the operating time of a part, which might be smaller than its total lifetime.
+        /// </summary>
+        /// <returns><c>true</c> if this instance is part operating; otherwise, <c>false</c>.</returns>
+        bool IsPartOperating();
 	}
 
 	public interface ITestFlightReliability
