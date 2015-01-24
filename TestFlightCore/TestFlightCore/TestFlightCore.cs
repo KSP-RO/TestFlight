@@ -710,7 +710,7 @@ namespace TestFlightCore
                 if (operatingTime < 0)
                     return;
 
-                double currentMET = this.vessel.missionTime;
+                double currentMET = Planetarium.GetUniversalTime() - missionStartTime;
 
                 operatingTime += currentMET - lastMET;
 
