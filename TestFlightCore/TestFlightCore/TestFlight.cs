@@ -243,7 +243,7 @@ namespace TestFlightCore
 
                         if (partData != null && partData.GetFlightData() != null)
                         {
-                            core.InitializeFlightData(partData.GetFlightData(), launchTime);
+                            core.InitializeFlightData(partData.GetFlightData());
                         }
                     }
                 }

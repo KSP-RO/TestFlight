@@ -272,7 +272,7 @@ namespace TestFlightCore
                 if (core != null)
                 {
                     List<TestFlightData> flightData = partData.GetFlightData();
-                    core.InitializeFlightData(flightData, 1.0);
+                    core.InitializeFlightData(flightData);
                     foreach (TestFlightData data in flightData)
                     {
                         GUILayout.BeginHorizontal();

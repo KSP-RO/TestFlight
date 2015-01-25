@@ -33,6 +33,8 @@ namespace TestFlightCore
         private double operatingTime;
         private double lastMET;
         private double missionStartTime;
+        private int highestStage = 0;
+        private bool firstStaged;
 
         // Get a proper scope string for use in other parts of the API
         public String GetScope()
@@ -122,25 +124,25 @@ namespace TestFlightCore
             // constantly.  Therefore here we are returning what we have if we have it,
             // or else getting it from the Reliability module and caching that for next time.
             scope = scope.ToLower().Trim();
-            LogFormatted_DebugOnly(String.Format("TestFlightCore: GetBaseFailureRateForScope({0})",scope));
+//            LogFormatted_DebugOnly(String.Format("TestFlightCore: GetBaseFailureRateForScope({0})",scope));
             if (baseFailureRate == null)
             {
-                LogFormatted_DebugOnly("BaseFailureRate data is invalid");
+//                LogFormatted_DebugOnly("BaseFailureRate data is invalid");
                 return TestFlightUtil.MIN_FAILURE_RATE;
             }
             if (baseFlightData == null)
             {
-                LogFormatted_DebugOnly("baseFlightData is invalid");
+//                LogFormatted_DebugOnly("baseFlightData is invalid");
                 return TestFlightUtil.MIN_FAILURE_RATE;
             }
             if (baseFailureRate.ContainsKey(scope))
             {
-                LogFormatted_DebugOnly("TestFlightCore: Returning cached Base Failure Rate");
+//                LogFormatted_DebugOnly("TestFlightCore: Returning cached Base Failure Rate");
                 return baseFailureRate[scope];
             }
             else
             {
-                LogFormatted_DebugOnly("TestFlightCore: Calculating Base Failure Rate from Reliability modules");
+//                LogFormatted_DebugOnly("TestFlightCore: Calculating Base Failure Rate from Reliability modules");
                 double totalBFR = 0;
                 double data = 0;
                 FlightDataBody body = baseFlightData.GetFlightData(scope);
@@ -697,13 +699,25 @@ namespace TestFlightCore
         }
 
 
+        public void OnStageActivate(int stage)
+        {
+            GameEvents.onStageActivate.Remove(OnStageActivate);
+            firstStaged = true;
+            missionStartTime = Planetarium.GetUniversalTime();
+            LogFormatted_DebugOnly("TestFlightCore: First stage activated");
+        }
+
         // PARTMODULE functions
         public override void Update()
         {
             base.Update();
 
+            if (!firstStaged)
+                return;
+
             if (HighLogic.LoadedSceneIsFlight)
             {
+
                 if (TestFlightManagerScenario.Instance == null)
                     return;
 
@@ -715,6 +729,22 @@ namespace TestFlightCore
                 operatingTime += currentMET - lastMET;
 
                 lastMET = currentMET;
+            }
+        }
+
+        public override void Start()
+        {
+            if (HighLogic.LoadedSceneIsFlight)
+            {
+                if (this.vessel.situation == Vessel.Situations.PRELAUNCH)
+                {
+                    GameEvents.onStageActivate.Add(OnStageActivate);
+                    firstStaged = false;
+                }
+                else
+                    firstStaged = true;
+                operatingTime = 0;
+                lastMET = 0;
             }
         }
 
@@ -740,11 +770,14 @@ namespace TestFlightCore
             if (momentaryFailureModifiers == null)
                 momentaryFailureModifiers = new List<MomentaryFailureModifier>();
 
+            if (disabledFailures == null)
+                disabledFailures = new List<string>();
+
             operatingTime = 0;
             LogFormatted_DebugOnly("TestFlightCore: OnWake(" + partName + "):DONE");
         }
 
-        public void InitializeFlightData(List<TestFlightData> allFlightData, double startTime)
+        public void InitializeFlightData(List<TestFlightData> allFlightData)
         {
             if (allFlightData == null)
             {
@@ -757,7 +790,7 @@ namespace TestFlightCore
                 baseFlightData.AddFlightData(data.scope, data.flightData, data.flightTime);
                 flightData.AddFlightData(data.scope, data.flightData, data.flightTime);
             }
-            missionStartTime = startTime;
+            missionStartTime = 0;
             return;
         }
 
