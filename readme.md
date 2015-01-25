@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/jwvanderbeck/TestFlight.png?label=ready&title=Ready)](https://waffle.io/jwvanderbeck/TestFlight)
 #TestFlight
 ###A configurable, extensible, parts research and reliability system for Kerbal Space Program (KSP).
 
