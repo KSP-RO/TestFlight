@@ -317,12 +317,9 @@ namespace TestFlightAPI
         /// This is made available as an API method to allow things like failure simulations.
         /// </summary>
         /// <returns><c>true</c>, if failure was repaired, <c>false</c> otherwise.</returns>
-        public virtual bool ForceRepair()
+        public virtual double ForceRepair()
         {
-            if (DoRepair() == 0)
-                return true;
-            else
-                return false;
+            return DoRepair();
         }
 
         public virtual double DoRepair()

@@ -151,8 +151,8 @@ namespace TestFlightAPI
         /// Forces the repair.  This should instantly repair the part, regardless of whether or not a normal repair can be done.  IOW if at all possible the failure should fixed after this call.
         /// This is made available as an API method to allow things like failure simulations.
         /// </summary>
-        /// <returns><c>true</c>, if failure was repaired, <c>false</c> otherwise.</returns>
-        bool ForceRepair();
+        /// <returns>The seconds until repair is complete, <c>0</c> if repair is completed instantly, and <c>-1</c> if repair failed and the part is still broken.</returns>
+        double ForceRepair();
 	}
 
     /// <summary>
@@ -168,7 +168,7 @@ namespace TestFlightAPI
 
         ITestFlightFailure GetFailureModule();
 
-        void InitializeFlightData(List<TestFlightData> allFlightData, double startTime);
+        void InitializeFlightData(List<TestFlightData> allFlightData);
 
         void HighlightPart(bool doHighlight);
 
