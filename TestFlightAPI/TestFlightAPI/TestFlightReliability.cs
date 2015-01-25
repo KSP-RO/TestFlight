@@ -40,9 +40,9 @@ namespace TestFlightAPI
     /// </summary>
     public class TestFlightReliabilityBase : PartModule, ITestFlightReliability
     {
-        private ITestFlightCore core = null;
-        public List<ReliabilityBodyConfig> reliabilityBodies = null;
-        double lastCheck = 0;
+        protected ITestFlightCore core = null;
+        protected List<ReliabilityBodyConfig> reliabilityBodies = null;
+        protected double lastCheck = 0;
         protected bool isReady = false;
 
         // New API
