@@ -706,6 +706,22 @@ namespace TestFlightCore
             missionStartTime = Planetarium.GetUniversalTime();
             LogFormatted_DebugOnly("TestFlightCore: First stage activated");
         }
+        /// <summary>
+        /// Determines whether the part is considered operating or not.
+        /// </summary>
+        public bool IsPartOperating()
+        {
+            if (activeFailure != null)
+                return false;
+            foreach (PartModule pm in this.part.Modules)
+            {
+                IFlightDataRecorder dr = pm as IFlightDataRecorder;
+                if (dr != null)
+                    return dr.IsPartOperating();
+            }
+
+            return false;
+        }
 
         // PARTMODULE functions
         public override void Update()

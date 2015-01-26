@@ -277,6 +277,10 @@ namespace TestFlightAPI
         /// </summary>
         /// <returns>Time for repairs to finish, <c>0</c> if repair is instantly completed, and <c>-1</c> if repair failed</returns>
         double ForceRepair();
+        /// <summary>
+        /// Determines whether the part is considered operating or not.
+        /// </summary>
+        bool IsPartOperating();
     }
 }
 
