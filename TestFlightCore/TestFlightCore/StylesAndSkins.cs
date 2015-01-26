@@ -54,6 +54,10 @@ namespace TestFlightCore
         internal static GUIStyle styleTextCriticalSolarizedDark;
         internal static GUIStyle styleTooltipSolarizedDark;
         internal static GUIStyle styleTooltipRequirementsSolarizedDark;
+        // Editor Panels
+        internal static GUIStyle styleEditorPanel;
+        internal static GUIStyle styleEditorTitle;
+        internal static GUIStyle styleEditorText;
 
         // Solarized Light Styles
 
@@ -128,7 +132,7 @@ namespace TestFlightCore
 
             styleTooltipStyle = new GUIStyle();
             styleTooltipStyle.name = "Tooltip";
-            styleTooltipStyle.fontSize = 12;
+            styleTooltipStyle.fontSize = 11;
             styleTooltipStyle.normal.textColor = new Color32(207, 207, 207, 255);
             styleTooltipStyle.stretchHeight = true;
             styleTooltipStyle.wordWrap = true;
@@ -159,7 +163,7 @@ namespace TestFlightCore
             styleDropDownListBox.border = new RectOffset(3, 3, 3, 3);
 
             styleDropDownListBoxUnity = new GUIStyle();
-            styleDropDownListBoxUnity.normal.background = TestFlight.Resources.texBoxUnity;
+            styleDropDownListBoxUnity.normal.background = CreateColorPixel(new Color32(0,0,0,255));
             //Extra border to prevent bleed of color - actual border is only 1 pixel wide
             styleDropDownListBoxUnity.border = new RectOffset(3, 3, 3, 3);
 
@@ -194,14 +198,14 @@ namespace TestFlightCore
 
             #region Common Styles
             styleText = new GUIStyle(SkinsLibrary.DefUnitySkin.label);
-            styleText.fontSize = 12;
+            styleText.fontSize = 11;
             styleText.alignment = TextAnchor.MiddleLeft;
             styleText.normal.textColor = new Color(207, 207, 207);
             styleText.wordWrap = false;
             styleText.richText = true;
 
             styleTextSolarizedDark = new GUIStyle(styleText);
-            styleTextSolarizedDark.fontSize = 12;
+            styleTextSolarizedDark.fontSize = 11;
             styleTextSolarizedDark.normal.textColor = new Color(131, 148, 150);
 
             styleTextGreen = new GUIStyle(styleText);
@@ -224,19 +228,19 @@ namespace TestFlightCore
             textStyleSafe.normal.textColor = new Color32(133, 153, 0, 255);        
 
             styleTextSafeSolarizedDark = new GUIStyle(textStyleSafe);
-            styleTextSafeSolarizedDark.fontSize = 12;
+            styleTextSafeSolarizedDark.fontSize = 11;
 
             textStyleWarning = new GUIStyle(styleText);
             textStyleWarning.normal.textColor = new Color32(203, 75, 22, 255);        
 
             styleTextWarningSolarizedDark = new GUIStyle(textStyleWarning);
-            styleTextWarningSolarizedDark.fontSize = 12;
+            styleTextWarningSolarizedDark.fontSize = 11;
 
             textStyleCritical = new GUIStyle(styleText);
             textStyleCritical.normal.textColor = new Color32(220, 50, 47, 255);        
 
             styleTextCriticalSolarizedDark = new GUIStyle(textStyleCritical);
-            styleTextCriticalSolarizedDark.fontSize = 12;
+            styleTextCriticalSolarizedDark.fontSize = 11;
 
             styleToggle = new GUIStyle(HighLogic.Skin.toggle);
             styleToggle.normal.textColor = new Color(207, 207, 207);
@@ -259,6 +263,23 @@ namespace TestFlightCore
             styleSeparatorH.border = new RectOffset(6, 6, 0, 0);
             styleSeparatorH.fixedHeight = 2;
 
+            #endregion
+
+            #region Editor Styles
+            styleEditorPanel = new GUIStyle();
+            styleEditorPanel.normal.background = CreateColorPixel(new Color32(0,0,0,128));
+            styleEditorPanel.padding = new RectOffset(5, 5, 3, 3);
+
+            styleEditorTitle = new GUIStyle();
+            styleEditorTitle.normal.textColor = Color.yellow;
+            styleEditorTitle.fontSize = 11;
+            styleEditorTitle.fontStyle = FontStyle.Bold;
+
+            styleEditorText = new GUIStyle();
+            styleEditorText.normal.textColor = Color.white;
+            styleEditorText.fontSize = 11;
+            styleEditorText.fontStyle = FontStyle.Normal;
+            styleEditorText.richText = true;
             #endregion
         }
         #endregion
@@ -322,34 +343,24 @@ namespace TestFlightCore
             SkinsLibrary.AddStyle("Unity", "WarningText", textStyleWarning);
             SkinsLibrary.AddStyle("Unity", "CriticalText", textStyleCritical);
 
-
-            ////Now a Unity Style one with KSP buttons
-            GUISkin UnityWKSPButtons = SkinsLibrary.CopySkin("Unity");
-            UnityWKSPButtons.button = DefKSP.button;
-            UnityWKSPButtons.toggle = DefKSP.toggle;
-            SkinsLibrary.AddSkin("UnityWKSPButtons", UnityWKSPButtons);
-
-            //Adjust Default Skins
-            SkinsLibrary.List["UnityWKSPButtons"].button = new GUIStyle(styleButton);
-            SkinsLibrary.List["UnityWKSPButtons"].label = new GUIStyle(styleText);
-
-            //Add Styles once skin is added
-            SkinsLibrary.AddStyle("UnityWKSPButtons", styleTooltipUnity);
-            SkinsLibrary.AddStyle("UnityWKSPButtons", styleButton);
-            SkinsLibrary.AddStyle("UnityWKSPButtons", styleButtonMain);
-            SkinsLibrary.AddStyle("UnityWKSPButtons", styleButtonSettings);
-            SkinsLibrary.AddStyle("UnityWKSPButtons", "DropDownButton", styleDropDownButton);
-            SkinsLibrary.AddStyle("UnityWKSPButtons", "DropDownListBox", styleDropDownListBox);
-            SkinsLibrary.AddStyle("UnityWKSPButtons", "DropDownListItem", styleDropDownListItem);
-
             // Solarized Dark theme
             // http://ethanschoonover.com/solarized
             GUISkin solarizedDarkSkin = SkinsLibrary.CopySkin("Unity");
             solarizedDarkSkin.window = stylePanelSolarizedDark;
-            solarizedDarkSkin.label.fontSize = 12;
+            solarizedDarkSkin.label.fontSize = 11;
             SkinsLibrary.AddSkin("SolarizedDark", solarizedDarkSkin);
             SkinsLibrary.AddStyle("SolarizedDark", "HUD", stylePanelSolarizedDarkHUD);
             SkinsLibrary.AddStyle("SolarizedDark", "Tooltip", styleTooltipRequirementsSolarizedDark);
+            SkinsLibrary.AddStyle("SolarizedDark", "DropDownButton", styleDropDownButtonUnity);
+            SkinsLibrary.AddStyle("SolarizedDark", "DropDownListBox", styleDropDownListBoxUnity);
+            SkinsLibrary.AddStyle("SolarizedDark", "DropDownListItem", styleDropDownListItem);
+
+            // Editor window is based on Kerbal Engineer's editor window to provide a more harmonious looks (because *I* use KER)
+            GUISkin testFlightEditor = SkinsLibrary.CopySkin("Unity");
+            testFlightEditor.window = styleEditorPanel;
+            testFlightEditor.label.fontSize = 11;
+            testFlightEditor.label = styleEditorText;
+            SkinsLibrary.AddSkin("TestFlightEditor", testFlightEditor);
         }
 
         /// <summary>

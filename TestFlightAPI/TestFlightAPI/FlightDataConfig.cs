@@ -14,9 +14,9 @@ namespace TestFlightAPI
         [KSPField(isPersistant = true)]
         public string scope;
         [KSPField(isPersistant = true)]
-        public float flightData;
+        public double flightData;
         [KSPField(isPersistant = true)]
-        public int flightTime;
+        public double flightTime;
 
         public void Load(ConfigNode node)
         {
@@ -26,12 +26,12 @@ namespace TestFlightAPI
                 scope = "NONE";
 
             if (node.HasValue("flightData"))
-                flightData = float.Parse(node.GetValue("flightData"));
+                flightData = double.Parse(node.GetValue("flightData"));
             else
                 flightData = 0.0f;
 
             if (node.HasValue("flightTime"))
-                flightTime = int.Parse(node.GetValue("flightTime"));
+                flightTime = double.Parse(node.GetValue("flightTime"));
             else
                 flightTime = 0;
         }
@@ -47,7 +47,7 @@ namespace TestFlightAPI
         {
             string stringRepresentation = "";
 
-            stringRepresentation = String.Format("{0},{1:F4},{2:D}", scope, flightData, flightTime);
+            stringRepresentation = String.Format("{0},{1:F4},{2:F4}", scope, flightData, flightTime);
 
             return stringRepresentation;
         }
@@ -61,8 +61,8 @@ namespace TestFlightAPI
             {
                 bodyData = new FlightDataBody();
                 bodyData.scope = sections[0];
-                bodyData.flightData = float.Parse(sections[1]);
-                bodyData.flightTime = int.Parse(sections[2]);
+                bodyData.flightData = double.Parse(sections[1]);
+                bodyData.flightTime = double.Parse(sections[2]);
             }
 
             return bodyData;
@@ -79,7 +79,7 @@ namespace TestFlightAPI
         /// <param name="name">The requested ConfigNode</param>
         /// <param name="name">Name of the situation</param>
         /// <returns></returns>
-        public FlightDataBody GetFlightData(string scope)
+        public FlightDataBody GetFlightData(String scope)
         {
             if (dataBodies == null)
                 return null;
@@ -93,7 +93,7 @@ namespace TestFlightAPI
         /// <param name="scope">Scope.</param>
         /// <param name="flightData">Flight data.</param>
         /// <param name="flightTime">Flight time.</param>
-        public void AddFlightData(string scope, float flightData, int flightTime)
+        public void AddFlightData(string scope, double flightData, double flightTime)
         {
             if (dataBodies == null)
             {
@@ -123,7 +123,6 @@ namespace TestFlightAPI
                 }
             }
         }
-
         public void Load(ConfigNode node)
         {
             if (node.HasNode("bodyData"))

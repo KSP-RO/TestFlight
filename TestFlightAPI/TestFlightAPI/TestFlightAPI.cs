@@ -3,6 +3,20 @@ using System.Collections.Generic;
 
 namespace TestFlightAPI
 {
+    public class TestFlightUtil
+    {
+        public const double MIN_FAILURE_RATE = 0.000001;
+        public enum MTBFUnits : int
+        {
+            SECONDS = 0,
+            MINUTES,
+            HOURS,
+            DAYS,
+            YEARS,
+            INVALID
+        };
+    }
+
 	public struct TestFlightData
 	{
         // Scope is a combination of the current SOI and the Situation, always lowercase.
@@ -10,9 +24,9 @@ namespace TestFlightAPI
         // The one exception is "deep-space" which applies regardless of the SOI if you are deep enough into space
 		public string scope;
         // The total accumulated flight data for the part
-		public float flightData;
+		public double flightData;
         // The specific flight time, in seconds, of this part instance
-		public int flightTime;
+		public double flightTime;
 	}
 
 	public struct TestFlightFailureDetails
@@ -42,69 +56,58 @@ namespace TestFlightAPI
         public float repairBonus;
     }
 
+    public struct MomentaryFailureModifier
+    {
+        public String scope;
+        public String owner;
+        public String triggerName;
+        public double modifier;
+        // ALWAYS check if valid == true before using the data in this structure!  
+        // If valid is false, then the data is empty because a valid data set could not be located
+        public bool valid;
+    }
+
+    public struct MomentaryFailureRate
+    {
+        public String scope;
+        public String triggerName;
+        public double failureRate;
+        // ALWAYS check if valid == true before using the data in this structure!  
+        // If valid is false, then the data is empty because a valid data set could not be located
+        public bool valid;
+    }
+
 	public interface IFlightDataRecorder
 	{
         /// <summary>
-        /// Called frequently by TestFlightCore to ask the module for the current flight data.
-        /// The module should only return the currently active scope's data, and should return the most up
-        /// to date data it has.
-        /// This method should only RETURN the current flight data, not calculate it.  Calculation
-        /// should be done in DoFlightUpdate()
+        /// Returns whether or not the part is considered to be operating or running.  IE is an engine actually turned on and thrusting?  Is a command pod supplied with electricity and operating?
+        /// The point of this is to distinguish between the life time of a part and the operating time of a part, which might be smaller than its total lifetime.
         /// </summary>
-        /// <returns>The current flight data.</returns>
-		TestFlightData GetCurrentFlightData();
-
-        /// <summary>
-        /// Initializes the flight data on a newly instanced part from the stored persistent flight data.
-        /// This data should only be accepted the first time ever.
-        /// </summary>
-        /// <param name="allFlightData">A list of all TestFlightData stored for the part, once for each known scope</param>
-        void InitializeFlightData(List<TestFlightData> allFlightData);
-
-        /// <summary>
-        /// Called to set what is considered "deep-space" altitude
-        /// </summary>
-        /// <param name="newThreshold">New threshold.</param>
-        void SetDeepSpaceThreshold(double newThreshold);
-
-        /// <summary>
-        /// Called frequently by TestFlightCore to let the DataRecorder do an update cycle to calulate the current flight data.
-        /// This is where the calculation of current data based on paremeters (such as elapsed MET) should occur.
-        /// Generally this will be called immediately prior to GetcurrentFlightData() so that the DataRecorder
-        /// can be up to date.
-        /// </summary>
-        /// <param name="missionStartTime">Mission start time in seconds.</param>
-        /// <param name="flightDataMultiplier">Global Flight data multiplier.  A user setting which should modify the internal collection rate.  Amount of collected data should be multiplied against this.  Base is 1.0 IE no modification.</param>
-        /// <param name="flightDataEngineerMultiplier">Flight data engineer multiplier.  A user setting mutiplier that makes the engineer bonus more or less.  1.0 is base.</param>
-        void DoFlightUpdate(double missionStartTime, double flightDataMultiplier, double flightDataEngineerMultiplier);
-
-        /// <summary>
-        /// Returns the current data situation, "atmosphere", "space", or "deep-space"
-        /// </summary>
-        /// <returns>The Situation of the current data scope</returns>
-        string GetDataSituation();
-
-        /// <summary>
-        /// Returns current SOI
-        /// </summary>
-        /// <returns>The current SOI for the data scope</returns>
-        string GetDataBody();
-
-        /// <summary>
-        /// Tell the Recorder to add or subtract an amount of FlightData
-        /// </summary>
-        /// <param name="modifier">Amount of flight data to add (positive) or subract (negative)</param>
-        void ModifyCurrentFlightData(float modifier);
+        /// <returns><c>true</c> if this instance is part operating; otherwise, <c>false</c>.</returns>
+        bool IsPartOperating();
 	}
 
 	public interface ITestFlightReliability
 	{
+        // New API
+        // Get the base or static failure rate for the given scope
+        // !! IMPORTANT: Only ONE Reliability module may return a Base Failure Rate.  Additional modules can exist only to supply Momentary rates
+        // If this Reliability module's purpose is to supply Momentary Fialure Rates, then it MUST return 0 when asked for the Base Failure Rate
+        // If it dosn't, then the Base Failure Rate of the part will not be correct.
         /// <summary>
-        /// Gets the current reliability of the part as calculated based on the given flightData
+        /// Gets the Base Failure Rate (BFR) for the given scope.
         /// </summary>
-        /// <returns>The current reliability.  Can be negative in order to reduce overall reliability from other Reliability modules.</returns>
-        /// <param name="flightData">Flight data on which to calculate reliability.</param>
-        float GetCurrentReliability(TestFlightData flightData);
+        /// <returns>The base failure rate for scope.  0 if this module only implements Momentary Failure Rates</returns>
+        /// <param name="flightData">The flight data that failure rate should be calculated on.</param>
+        /// <param name="scope">Scope.</param>
+        double GetBaseFailureRateForScope(double flightData, String scope);
+
+        /// <summary>
+        /// Gets the reliability curve for the given scope.
+        /// </summary>
+        /// <returns>The reliability curve for scope.  MUST return null if the reliability module does not handle Base Failure Rate</returns>
+        /// <param name="scope">Scope.</param>
+        FloatCurve GetReliabilityCurveForScope(String scope);
 	}
 
 	public interface ITestFlightFailure
@@ -133,10 +136,23 @@ namespace TestFlightAPI
         bool CanAttemptRepair();
 
         /// <summary>
+        /// Gets the seconds until repair is complete
+        /// </summary>
+        /// <returns>The seconds until repair is complete, <c>0</c> if repair is complete, and <c>-1</c> if something changed the inteerupt the repairs and reapir has stopped with the part still broken.</returns>
+        double GetSecondsUntilRepair();
+
+        /// <summary>
 		/// Trigger a repair ATTEMPT of the module's failure.  It is the module's responsability to take care of any consumable resources, data transmission, etc required to perform the repair
 		/// </summary>
-		/// <returns>Should return true if the failure was repaired, false otherwise</returns>
-        bool AttemptRepair();
+        /// <returns>The seconds until repair is complete, <c>0</c> if repair is completed instantly, and <c>-1</c> if repair failed and the part is still broken.</returns>
+        double AttemptRepair();
+
+        /// <summary>
+        /// Forces the repair.  This should instantly repair the part, regardless of whether or not a normal repair can be done.  IOW if at all possible the failure should fixed after this call.
+        /// This is made available as an API method to allow things like failure simulations.
+        /// </summary>
+        /// <returns>The seconds until repair is complete, <c>0</c> if repair is completed instantly, and <c>-1</c> if repair failed and the part is still broken.</returns>
+        double ForceRepair();
 	}
 
     /// <summary>
@@ -144,8 +160,6 @@ namespace TestFlightAPI
     /// </summary>
     public interface ITestFlightCore
     {
-//        void PerformPreflight();
-
         /// <summary>
         /// 0 = OK, 1 = Minor Failure, 2 = Failure, 3 = Major Failure
         /// </summary>
@@ -154,28 +168,122 @@ namespace TestFlightAPI
 
         ITestFlightFailure GetFailureModule();
 
-        TestFlightData GetCurrentFlightData();
-
-        double GetCurrentReliability(double globalReliabilityModifier);
-
-        /// <summary>
-        /// Does the failure check.
-        /// </summary>
-        /// <returns><c>true</c>, if part fails, <c>false</c> otherwise.</returns>
-        /// <param name="missionStartTime">Mission start time.</param>
-        /// <param name="globalReliabilityModifier">Global reliability modifier.</param>
-        bool DoFailureCheck(double missionStartTime, double globalReliabilityModifier);
-
-        void DoFlightUpdate(double missionStartTime, double flightDataMultiplier, double flightDataEngineerMultiplier, double globalReliabilityModifier);
-
-        void InitializeFlightData(List<TestFlightData> allFlightData, double globalReliabilityModifier);
+        void InitializeFlightData(List<TestFlightData> allFlightData);
 
         void HighlightPart(bool doHighlight);
-        bool AttemptRepair();
+
+        double GetRepairTime();
         bool IsFailureAcknowledged();
         void AcknowledgeFailure();
 
         string GetRequirementsTooltip();
+
+
+
+
+        // NEW API
+        // Get a proper scope string for use in other parts of the API
+        String GetScope();
+        String GetScopeForSituation(String situation);
+        String GetScopeForSituation(Vessel.Situations situation);
+        String GetScopeForSituationAndBody(String situation, String body);
+        String GetScopeForSituationAndBody(String situation, CelestialBody body);
+        String GetScopeForSituationAndBody(Vessel.Situations situation, String body);
+        String GetScopeForSituationAndBody(Vessel.Situations situation, CelestialBody body);
+        String PrettyStringForScope(String scope);
+        // Get the base or static failure rate
+        double GetBaseFailureRate();
+        double GetBaseFailureRateForScope(String scope);
+        // Get the Reliability Curve for the part
+        FloatCurve GetBaseReliabilityCurve();
+        FloatCurve GetBaseReliabilityCurveForScope(String scope);
+        // Get the momentary (IE current dynamic) failure rates (Can vary per reliability/failure modules)
+        // These  methods will let you get a list of all momentary rates or you can get the best (lowest chance of failure)/worst (highest chance of failure) rates
+        // Note that the return value is alwasy a dictionary.  The key is the name of the trigger, always in lowercase.  The value is the failure rate.
+        // The dictionary will be a single entry in the case of Worst/Best calls, and will be the length of total triggers in the case of askign for All momentary rates.
+        MomentaryFailureRate GetWorstMomentaryFailureRate();
+        MomentaryFailureRate GetBestMomentaryFailureRate();
+        List<MomentaryFailureRate> GetAllMomentaryFailureRates();
+        MomentaryFailureRate GetWorstMomentaryFailureRateForScope(String scope);
+        MomentaryFailureRate GetBestMomentaryFailureRateForScope(String scope);
+        List<MomentaryFailureRate> GetAllMomentaryFailureRatesForScope(String scope);
+        double GetMomentaryFailureRateForTrigger(String trigger);
+        double GetMomentaryFailureRateForTriggerForScope(String trigger, String scope);
+        // The momentary failure rate is tracked per named "trigger" which allows multiple Reliability or FailureTrigger modules to cooperate
+        // Returns the total modified failure rate back to the caller for convenience
+        double SetTriggerMomentaryFailureModifier(String trigger, double multiplier, PartModule owner);
+        double SetTriggerMomentaryFailureModifierForScope(String trigger, double multiplier, PartModule owner, String scope);
+        // simply converts the failure rate into a MTBF string.  Convenience method
+        // Returned string will be of the format "123.00 units"
+        // Optionally specify a maximum size for MTBF.  If the given units would return an MTBF larger than maximu, it will 
+        // automaticly be converted into progressively higher units until the returned value is <= maximum
+        String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units);
+        String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, int maximum);
+        // Short version of MTBFString uses a single letter to denote (s)econds, (m)inutes, (h)ours, (d)ays, (y)ears
+        // So the returned string will be EF "12.00s" or "0.20d"
+        // Optionally specify a maximum size for MTBF.  If the given units would return an MTBF larger than maximu, it will 
+        // automaticly be converted into progressively higher units until the returned value is <= maximum
+        String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, bool shortForm);
+        String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, bool shortForm, int maximum);
+        // Simply converts the failure rate to a MTBF number, without any string formatting
+        double FailureRateToMTBF(double failureRate, TestFlightUtil.MTBFUnits units);
+        // Get the FlightData or FlightTime for the part
+        double GetFlightData();
+        double GetFlightDataForScope(String scope);
+        double GetFlightTime();
+        double GetFlightTimeForScope(String scope);
+        // Methods to restrict the amount of data accumulated.  Useful for KCT or other "Simulation" mods to use
+        double SetDataRateLimit(double limit);
+        double SetDataCap(double cap);
+        // Set the FlightData for FlightTime or the part - this is an absolute set and replaces the previous FlightData/Time
+        // This is generally NOT recommended.  Use ModifyFlightData instead so that the Core can ensure your modifications cooperate with others
+        // These functions are currently NOT implemented!
+        void SetFlightData(double data);
+        void SetFlightTime(double seconds);
+        void SetFlightDataForScope(double data, String scope);
+        void SetFlightTimeForScope(double seconds, String scope);
+        // Modify the FlightData or FlightTime for the part
+        // The given modifier is multiplied against the current FlightData unless additive is true
+        double ModifyFlightData(double modifier);
+        double ModifyFlightTime(double modifier);
+        double ModifyFlightData(double modifier, bool additive);
+        double ModifyFlightTime(double modifier, bool additive);
+        double ModifyFlightDataForScope(double modifier, String scope);
+        double ModifyFlightTimeForScope(double modifier, String scope);
+        double ModifyFlightDataForScope(double modifier, String scope, bool additive);
+        double ModifyFlightTimeForScope(double modifier, String scope, bool additive);
+        // Returns the total engineer bonus for the current vessel's current crew based on the given part's desired per engineer level bonus
+        double GetEngineerDataBonus(double partEngineerBonus);
+        // Cause a failure to occur, either a random failure or a specific one
+        // If fallbackToRandom is true, then if the specified failure can't be found or can't be triggered, a random failure will be triggered instead
+        ITestFlightFailure TriggerFailure();
+        ITestFlightFailure TriggerNamedFailure(String failureModuleName);
+        ITestFlightFailure TriggerNamedFailure(String failureModuleName, bool fallbackToRandom);
+        // Returns a list of all available failures on the part
+        List<String> GetAvailableFailures();
+        // Enable a failure so it can be triggered (this is the default state)
+        void EnableFailure(String failureModuleName);
+        // Disable a failure so it can not be triggered
+        void DisableFailure(String failureModuleName);
+        // Returns the Operational Time or the time, in MET, since the last time the part was fully functional. 
+        // If a part is currently in a failure state, return will be -1 and the part should not fail again
+        // This counts from mission start time until a failure, at which point it is reset to the time the
+        // failure is repaired.  It is important to understand this is NOT the total flight time of the part.
+        double GetOperatingTime();
+        /// <summary>
+        /// Attempt to repair the part's current failure.  The repair conditions must be met before repair will be attempted.
+        /// </summary>
+        /// <returns>The amount of seconds until repair is complete, <c>0</c> if repair is completed instantly, or <c>-1</c> if rrepair failed.</returns>
+        double AttemptRepair();
+        /// <summary>
+        /// Forces the repair to be instantly complete, even if the conditions for repair are not met
+        /// </summary>
+        /// <returns>Time for repairs to finish, <c>0</c> if repair is instantly completed, and <c>-1</c> if repair failed</returns>
+        double ForceRepair();
+        /// <summary>
+        /// Determines whether the part is considered operating or not.
+        /// </summary>
+        bool IsPartOperating();
     }
 }
 

@@ -15,15 +15,17 @@ namespace TestFlightCore
         internal string partName;
         internal uint partID;
         internal int partStatus;
-        internal int flightTime;
+        internal double flightTime;
         internal double flightData;
-        internal double reliability;
-        internal double momentaryReliability;
+        internal double baseFailureRate;
+        internal double momentaryFailureRate;
         internal ITestFlightCore flightCore;
         internal ITestFlightFailure activeFailure;
         internal bool highlightPart;
         internal string repairRequirements;
         internal bool acknowledged;
+        internal String mtbfString;
+        internal double timeToRepair;
     }
 
     internal struct MasterStatusItem
@@ -218,6 +220,14 @@ namespace TestFlightCore
         private void InitializeParts(Vessel vessel)
         {
             LogFormatted_DebugOnly("TestFlightManager: Initializing parts for vessel " + vessel.GetName());
+
+            // Launch time is equal to current UT unless we have already chached this vessel's launch time
+            double launchTime = Planetarium.GetUniversalTime();
+            if (knownVessels.ContainsKey(vessel.id))
+            {
+                launchTime = knownVessels[vessel.id];
+            }
+
             foreach (Part part in vessel.parts)
             {
                 foreach (PartModule pm in part.Modules)
@@ -231,9 +241,9 @@ namespace TestFlightCore
                             partData = new PartFlightData();
                         }
 
-                        if (partData != null)
+                        if (partData != null && partData.GetFlightData() != null)
                         {
-                            core.InitializeFlightData(partData.GetFlightData(), tfScenario.settings.globalReliabilityModifier);
+                            core.InitializeFlightData(partData.GetFlightData());
                         }
                     }
                 }
@@ -243,6 +253,8 @@ namespace TestFlightCore
         // This method simply scans through the Master Status list every now and then and removes vessels and parts that no longer exist
         public void VerifyMasterStatus()
         {
+            if (!isReady)
+                return;
             // iterate through our cached vessels and delete ones that are no longer valid
             List<Guid> vesselsToDelete = new List<Guid>();
             foreach(var entry in masterStatus)
@@ -294,6 +306,8 @@ namespace TestFlightCore
 
         public void CacheVessels()
         {
+            if (!isReady)
+                return;
             // build a list of vessels to process based on setting
             if (knownVessels == null)
                 knownVessels = new Dictionary<Guid, double>();
@@ -322,7 +336,7 @@ namespace TestFlightCore
             // doesn't consider a vessel launched, and does not start the mission clock, until the player activates the first stage.  This is fine except it
             // makes things like engine test stands impossible, so we instead cache the vessel the first time we see it and use that time as the missionStartTime
 
-            if (!tfScenario.settings.processAllVessels)
+            if (!tfScenario.userSettings.processAllVessels)
             {
                 if (FlightGlobals.ActiveVessel != null && !knownVessels.ContainsKey(FlightGlobals.ActiveVessel.id))
                 {
@@ -348,25 +362,10 @@ namespace TestFlightCore
             }
         }
 
-        public void DoFlightUpdate(ITestFlightCore core, double launchTime)
-        {
-            // Tell the core to do a flight update
-            core.DoFlightUpdate(launchTime, tfScenario.settings.flightDataMultiplier, tfScenario.settings.flightDataEngineerMultiplier, tfScenario.settings.globalReliabilityModifier);
-        }
-
-        public TestFlightData DoDataUpdate(ITestFlightCore core, Part part)
-        {
-            // Then grab its flight data
-            return core.GetCurrentFlightData();
-        }
-
-        public void DoFailureUpdate(ITestFlightCore core, double launchTime)
-        {
-            core.DoFailureCheck(launchTime, tfScenario.settings.globalReliabilityModifier);
-        }
-
         internal override void Update()
         {
+            if (!isReady)
+                return;
 
             if (masterStatus == null)
                 masterStatus = new Dictionary<Guid, MasterStatusItem>();
@@ -374,7 +373,7 @@ namespace TestFlightCore
             currentUTC = Planetarium.GetUniversalTime();
             // ensure out vessel list is up to date
             CacheVessels();
-            if (currentUTC >= lastMasterStatusUpdate + tfScenario.settings.masterStatusUpdateFrequency)
+            if (currentUTC >= lastMasterStatusUpdate + tfScenario.userSettings.masterStatusUpdateFrequency)
             {
                 lastMasterStatusUpdate = currentUTC;
                 VerifyMasterStatus();
@@ -393,10 +392,12 @@ namespace TestFlightCore
                             if (core != null)
                             {
                                 // Poll for flight data and part status
-                                if (currentUTC >= lastDataPoll + tfScenario.settings.minTimeBetweenDataPoll)
+                                if (currentUTC >= lastDataPoll + tfScenario.userSettings.masterStatusUpdateFrequency)
                                 {
-                                    DoFlightUpdate(core, entry.Value);
-                                    TestFlightData currentFlightData = DoDataUpdate(core, part);
+                                    TestFlightData currentFlightData = new TestFlightData();
+                                    currentFlightData.scope = core.GetScope();
+                                    currentFlightData.flightData = core.GetFlightData();
+                                    currentFlightData.flightTime = core.GetFlightTime();
 
                                     PartStatus partStatus = new PartStatus();
                                     partStatus.flightCore = core;
@@ -405,17 +406,16 @@ namespace TestFlightCore
                                     partStatus.flightData = currentFlightData.flightData;
                                     partStatus.flightTime = currentFlightData.flightTime;
                                     partStatus.partStatus = core.GetPartStatus();
-                                    partStatus.reliability = core.GetCurrentReliability(tfScenario.settings.globalReliabilityModifier);
+                                    partStatus.timeToRepair = core.GetRepairTime();
+                                    double failureRate = core.GetBaseFailureRate();
+                                    MomentaryFailureRate momentaryFailureRate = core.GetWorstMomentaryFailureRate();
+                                    if (momentaryFailureRate.valid && momentaryFailureRate.failureRate > failureRate)
+                                        failureRate = momentaryFailureRate.failureRate;
+                                    partStatus.momentaryFailureRate = failureRate;
                                     partStatus.repairRequirements = core.GetRequirementsTooltip();
                                     partStatus.acknowledged = core.IsFailureAcknowledged();
-                                    if (core.GetPartStatus() > 0)
-                                    {
-                                        partStatus.activeFailure = core.GetFailureModule();
-                                    }
-                                    else
-                                    {
-                                        partStatus.activeFailure = null;
-                                    }
+                                    partStatus.activeFailure = core.GetFailureModule();
+                                    partStatus.mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
 
                                     // Update or Add part status in Master Status
                                     if (masterStatus.ContainsKey(vessel.id))
@@ -462,20 +462,15 @@ namespace TestFlightCore
                                         tfScenario.SetFlightDataForPartName(part.name, data);
                                     }
                                 }
-                                // Poll for failures
-                                if (currentUTC >= lastFailurePoll + tfScenario.settings.minTimeBetweenFailurePoll)
-                                {
-                                    DoFailureUpdate(core, entry.Value);
-                                }
                             }
                         }
                     }
                 }
-                if (currentUTC >= lastDataPoll + tfScenario.settings.minTimeBetweenDataPoll)
+                if (currentUTC >= lastDataPoll + tfScenario.userSettings.minTimeBetweenDataPoll)
                 {
                     lastDataPoll = currentUTC;
                 }
-                if (currentUTC >= lastFailurePoll + tfScenario.settings.minTimeBetweenFailurePoll)
+                if (currentUTC >= lastFailurePoll + tfScenario.userSettings.minTimeBetweenFailurePoll)
                 {
                     lastFailurePoll = currentUTC;
                 }
@@ -494,7 +489,8 @@ namespace TestFlightCore
     )]
 	public class TestFlightManagerScenario : ScenarioModule
 	{
-        internal Settings settings = null;
+        internal UserSettings userSettings = null;
+        internal BodySettings bodySettings = null;
         public static TestFlightManagerScenario Instance { get; private set; }
         public bool isReady = false;
 
@@ -504,11 +500,39 @@ namespace TestFlightCore
         public override void OnAwake()
         {
             Instance = this;
-            if (settings == null)
+            if (userSettings == null)
+                userSettings = new UserSettings("../settings.cfg");
+            if (bodySettings == null)
+                bodySettings = new BodySettings("../settings_bodies.cfg");
+
+            if (userSettings.FileExists)
+                userSettings.Load();
+            else
+                userSettings.Save();
+
+            if (bodySettings.FileExists)
+                bodySettings.Load();
+            else
             {
-                settings = new Settings("../settings.cfg");
+                bodySettings.bodyAliases.Add("moho", "Moho");
+                bodySettings.bodyAliases.Add("eve", "Eve");
+                bodySettings.bodyAliases.Add("gilly", "Gilly");
+                bodySettings.bodyAliases.Add("kerbin", "Kerbin");
+                bodySettings.bodyAliases.Add("mun", "Mun");
+                bodySettings.bodyAliases.Add("minmus", "Minmus");
+                bodySettings.bodyAliases.Add("duna", "Duna");
+                bodySettings.bodyAliases.Add("ike", "Ike");
+                bodySettings.bodyAliases.Add("dres", "Dres");
+                bodySettings.bodyAliases.Add("jool", "Jool");
+                bodySettings.bodyAliases.Add("laythe", "Laythe");
+                bodySettings.bodyAliases.Add("vall", "Vall");
+                bodySettings.bodyAliases.Add("tylo", "Tylo");
+                bodySettings.bodyAliases.Add("bop", "Bop");
+                bodySettings.bodyAliases.Add("pol", "Pol");
+                bodySettings.bodyAliases.Add("eeloo", "Eeloo");
+                bodySettings.Save();
             }
-            settings.Load();
+
             if (partsFlightData == null)
             {
                 partsFlightData = new List<PartFlightData>();
@@ -557,10 +581,12 @@ namespace TestFlightCore
         public override void OnLoad(ConfigNode node)
         {
             base.OnLoad(node);
-            if (settings != null)
+            if (userSettings != null)
             {
-                settings.Load();
+                userSettings.Load();
             }
+            if (bodySettings != null)
+                bodySettings.Load();
             if (node.HasNode("FLIGHTDATA_PART"))
             {
                 if (partsFlightData == null)
@@ -579,10 +605,12 @@ namespace TestFlightCore
 		public override void OnSave(ConfigNode node)
 		{
             base.OnSave(node);
-            if (settings != null)
+            if (userSettings != null)
             {
-                settings.Save();
+                userSettings.Save();
             }
+            if (bodySettings != null)
+                bodySettings.Save();
             foreach (PartFlightData partData in partsFlightData)
             {
                 ConfigNode partNode = node.AddNode("FLIGHTDATA_PART");

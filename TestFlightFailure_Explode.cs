@@ -29,13 +29,9 @@ namespace TestFlight
             return false;
         }
 
-        /// <summary>
-        /// Trigger a repair ATTEMPT of the module's failure.  It is the module's responsability to take care of any consumable resources, data transmission, etc required to perform the repair
-        /// </summary>
-        /// <returns>Should return true if the failure was repaired, false otherwise</returns>
-        public override bool AttemptRepair()
+        public override double DoRepair()
         {
-            return false;
+            return -1;
         }
     }
 }
