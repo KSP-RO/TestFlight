@@ -266,7 +266,7 @@ namespace TestFlightCore
         internal MomentaryFailureModifier GetMomentaryFailureModifier(String trigger, String owner, String scope)
         {
             scope = scope.ToLower().Trim();
-            trigger = scope.ToLower().Trim();
+            trigger = trigger.ToLower().Trim();
             String ownerName = owner.ToLower().Trim();
 
             foreach (MomentaryFailureModifier mfMod in momentaryFailureModifiers)
@@ -282,7 +282,7 @@ namespace TestFlightCore
         internal MomentaryFailureRate GetMomentaryFailureRate(String trigger, String scope)
         {
             scope = scope.ToLower().Trim();
-            trigger = scope.ToLower().Trim();
+            trigger = trigger.ToLower().Trim();
 
             foreach (MomentaryFailureRate mfRate in momentaryFailureRates)
             {
@@ -303,16 +303,17 @@ namespace TestFlightCore
         {
             // store the trigger, recalculate the final rate, and cache that as well
             scope = scope.ToLower().Trim();
-            trigger = scope.ToLower().Trim();
+            trigger = trigger.ToLower().Trim();
             MomentaryFailureModifier mfm;
             String ownerName = owner.moduleName.ToLower();
-            double totalModifier = 1;
 
             mfm = GetMomentaryFailureModifier(trigger, ownerName, scope);
             if (mfm.valid)
             {
                 // recalculate new rate and cache everything
+                momentaryFailureModifiers.Remove(mfm);
                 mfm.modifier = multiplier;
+                momentaryFailureModifiers.Add(mfm);
                 return CalculateMomentaryFailureRate(trigger, scope);
             }
             else
@@ -342,13 +343,14 @@ namespace TestFlightCore
                     totalModifiers *= mfm.modifier;
                 }
             }
-
             double momentaryRate = baseFailureRate * totalModifiers;
             // Cache this value internally
             MomentaryFailureRate mfr = GetMomentaryFailureRate(trigger, scope);
             if (mfr.valid)
             {
+                momentaryFailureRates.Remove(mfr);
                 mfr.failureRate = momentaryRate;
+                momentaryFailureRates.Add(mfr);
             }
             else
             {
