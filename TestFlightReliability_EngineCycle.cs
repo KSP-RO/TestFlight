@@ -2,21 +2,30 @@
 using System.Linq;
 using System.Collections.Generic;
 
+using UnityEngine;
+
 using TestFlightAPI;
 
 namespace TestFlight
 {
     public class TestFlightReliability_EngineCycle : TestFlightReliabilityBase
     {
-        [KSPField(isPersistant = true)]
         public FloatCurve cycle;
-
         private bool engineOperating = false;
         private double engineStartTime = 0;
 //        private ITestFlightCore core = null;
         public override void OnStart(StartState state)
         {
             base.OnStart(state);
+            Part prefab = this.part.partInfo.partPrefab;
+            foreach (PartModule pm in prefab.Modules)
+            {
+                TestFlightReliability_EngineCycle modulePrefab = pm as TestFlightReliability_EngineCycle;
+                if (modulePrefab != null)
+                {
+                    cycle = modulePrefab.cycle;
+                }
+            }
         }
         public override void OnUpdate()
         {
@@ -50,6 +59,17 @@ namespace TestFlight
             // failure checks which is already handled by the main Reliabilty module that should 
             // already be on the part (This PartModule should be added in addition to the normal reliability module)
             // base.OnUpdate();
+        }
+        public override void OnLoad(ConfigNode node)
+        {
+            base.OnLoad(node);
+            if (node.HasNode("cycle"))
+            {
+                cycle = new FloatCurve();
+                cycle.Load(node.GetNode("cycle"));
+            }
+            else
+                cycle = null;
         }
     }
 }

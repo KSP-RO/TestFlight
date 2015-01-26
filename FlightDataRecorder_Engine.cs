@@ -18,7 +18,7 @@ namespace TestFlight
             base.OnAwake();
         }
 
-        public override bool IsRecordingFlightData()
+        public override bool IsPartOperating()
         {
             bool isRecording = true;
 
@@ -49,6 +49,11 @@ namespace TestFlight
             }
 
             return isRecording;
+        }
+
+        public override bool IsRecordingFlightData()
+        {
+            return IsPartOperating();
         }
     }
 }
