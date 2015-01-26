@@ -22,6 +22,9 @@ namespace TestFlight
         {
             if (core == null)
                 return;
+            if (cycle == null)
+                return;
+
             if (!engineOperating)
             {
                 if (core.IsPartOperating())
