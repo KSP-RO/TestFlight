@@ -112,7 +112,6 @@
   <ItemGroup>
     <None Include="TestFlight\Resources.cfg" />
     <None Include="TestFlight\Squad_Engines.cfg" />
-    <None Include="TestFlight\Parts\KRCS block\part.cfg" />
     <None Include="TestFlight\Squad_FuelTanks.cfg" />
   </ItemGroup>
 </Project>
