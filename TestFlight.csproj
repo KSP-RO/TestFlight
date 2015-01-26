@@ -11,7 +11,7 @@
     <AssemblyName>TestFlight</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <ReleaseVersion>0.2.1</ReleaseVersion>
+    <ReleaseVersion>0.4.0</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -22,7 +22,7 @@
     <WarningLevel>4</WarningLevel>
     <CustomCommands>
       <CustomCommands>
-        <Command type="AfterBuild" command="cp ${TargetFile} ${TargetDir}/../../../../../GameData/TestFlight/Plugins" />
+        <Command type="AfterBuild" command="cp ${TargetFile} ${TargetDir}/../../GameData/TestFlight/Plugins" />
       </CustomCommands>
     </CustomCommands>
   </PropertyGroup>
@@ -109,9 +109,4 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
-  <ItemGroup>
-    <None Include="TestFlight\Resources.cfg" />
-    <None Include="TestFlight\Squad_Engines.cfg" />
-    <None Include="TestFlight\Squad_FuelTanks.cfg" />
-  </ItemGroup>
 </Project>

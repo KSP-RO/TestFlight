@@ -8,7 +8,7 @@
     <RootNamespace>TestFlightCore</RootNamespace>
     <AssemblyName>TestFlightCore</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <ReleaseVersion>0.2.1</ReleaseVersion>
+    <ReleaseVersion>0.4.0</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Optimize>False</Optimize>
@@ -19,8 +19,8 @@
     <ConsolePause>False</ConsolePause>
     <CustomCommands>
       <CustomCommands>
-        <Command type="AfterBuild" command="cp ${TargetFile} ${TargetDir}/../../../../../../../GameData/TestFlight/Plugins" />
-        <Command type="AfterBuild" command="cp -r /USers/john/Developer/KSP/0.90/TestFlightDEV/Dev/_DEV/GitHub/TestFlight/TestFlight /Users/john/Developer/KSP/0.90/TestFlightDEV/Dev/GameData/" />
+        <Command type="AfterBuild" command="cp ${TargetFile} ${TargetDir}/../../../../GameData/TestFlight/Plugins" />
+        <Command type="AfterBuild" command="cp -r /USers/john/Developer/KSP/0.90/TestFlightDEV/Dev/_DEV/GitHub/TestFlight/GameData /Users/john/Developer/KSP/0.90/TestFlightDEV/Dev/" />
       </CustomCommands>
     </CustomCommands>
     <DebugSymbols>true</DebugSymbols>
