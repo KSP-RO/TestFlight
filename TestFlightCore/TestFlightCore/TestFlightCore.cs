@@ -36,6 +36,10 @@ namespace TestFlightCore
         private int highestStage = 0;
         private bool firstStaged;
 
+        // These were created for KCT integration but might have other uses
+        private double dataRateLimiter = 1.0;
+        private double dataCap = double.MaxValue;
+
         // Get a proper scope string for use in other parts of the API
         public String GetScope()
         {
@@ -479,6 +483,19 @@ namespace TestFlightCore
                 return dataBody.flightTime;
             }
         }
+        // Methods to restrict the amount of data accumulated.  Useful for KCT or other "Simulation" mods to use
+        public double SetDataRateLimit(double limit)
+        {
+            double oldRate = dataRateLimiter;
+            dataRateLimiter = limit;
+            return oldRate;
+        }
+        public double SetDataCap(double cap)
+        {
+            double oldCap = dataCap;
+            dataCap = cap;
+            return oldCap;
+        }
         // Set the FlightData for FlightTime or the part - this is an absolute set and replaces the previous FlightData.
         // This will NOT apply any global TestFlight modifiers!
         // Be sure these are the methods you want to use.  99% of the time you want to use ModifyFlightData instead
@@ -538,6 +555,10 @@ namespace TestFlightCore
                 if (!additive)
                     return 0;
                 modifier = ApplyFlightDataMultiplier(modifier);
+
+                if (modifier >= dataCap)
+                    modifier = dataCap;
+
                 flightData.AddFlightData(scope, modifier, 0);
                 return modifier;
             }
@@ -551,6 +572,10 @@ namespace TestFlightCore
             {
                 bodyData.flightData *= modifier;
             }
+
+            if (bodyData.flightData >= dataCap)
+                bodyData.flightData = dataCap;
+
             flightData.AddFlightData(scope, bodyData.flightData, bodyData.flightTime);
             return bodyData.flightData;
         }
@@ -575,6 +600,8 @@ namespace TestFlightCore
         // apply bodyconfig multiplier here
         internal double ApplyFlightDataMultiplier(double baseData)
         {
+            baseData *= dataRateLimiter;
+
             if (TestFlightManagerScenario.Instance == null)
                 return baseData;
 

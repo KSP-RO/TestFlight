@@ -232,6 +232,9 @@ namespace TestFlightAPI
         double GetFlightDataForScope(String scope);
         double GetFlightTime();
         double GetFlightTimeForScope(String scope);
+        // Methods to restrict the amount of data accumulated.  Useful for KCT or other "Simulation" mods to use
+        double SetDataRateLimit(double limit);
+        double SetDataCap(double cap);
         // Set the FlightData for FlightTime or the part - this is an absolute set and replaces the previous FlightData/Time
         // This is generally NOT recommended.  Use ModifyFlightData instead so that the Core can ensure your modifications cooperate with others
         // These functions are currently NOT implemented!

@@ -341,6 +341,22 @@ namespace TestFlightCore
 
             return core.GetFlightTimeForScope(scope);
         }
+        public static double SetDataRateLimit(Part part, double limit)
+        {
+            ITestFlightCore core = TestFlightInterface.GetCore(part);
+            if (core == null)
+                return 1;
+
+            return core.SetDataRateLimit(limit);
+        }
+        public static double SetDataCap(Part part, double cap)
+        {
+            ITestFlightCore core = TestFlightInterface.GetCore(part);
+            if (core == null)
+                return double.MaxValue;
+
+            return core.SetDataCap(cap);
+        }
         // Set the FlightData for FlightTime or the part - this is an absolute set and replaces the previous FlightData/Time
         // This is generally NOT recommended.  Use ModifyFlightData instead so that the Core can ensure your modifications cooperate with others
         // These functions are currently NOT implemented!
