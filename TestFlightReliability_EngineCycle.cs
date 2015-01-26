@@ -22,11 +22,23 @@ namespace TestFlight
         {
             if (core == null)
                 return;
-
+            if (!engineOperating)
+            {
+                if (core.IsPartOperating())
+                {
+                    engineStartTime = Planetarium.GetUniversalTime();
+                    engineOperating = true;
+                }
+            }
             // We apply a momentary modifier based on engine cycle
             // This makes the failure rate for the engine higher in the first few seconds after it starts
             if (engineOperating)
             {
+                if (!core.IsPartOperating())
+                {
+                    engineOperating = false;
+                    return;
+                }
                 double engineOperatingTime = Planetarium.GetUniversalTime() - engineStartTime;
                 float penalty = cycle.Evaluate((float)engineOperatingTime);
                 core.SetTriggerMomentaryFailureModifier("", penalty, this);
