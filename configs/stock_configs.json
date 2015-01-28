@@ -15,6 +15,39 @@
 				"key = 7519.115 0.008904761 0 0",
 				"key = 10000 0.006047619 -1.521722E-06 -1.521722E-06"
 			]
+		},
+		"SolidEngineStandard" :
+		{
+			"default" : 
+			[
+				"key = 0 0.005",
+				"key = 800 0.005",
+				"key = 5000 0.0001"
+			],
+			"kerbin_atmosphere" :
+			[
+				"key = 0 0.005",
+				"key = 3494.97 0.002238095 0 0",
+				"key = 9969.819 0.001476191 -1.521722E-06 -1.521722E-06"
+			]
+		},
+		"RCSEngineStandard" :
+		{
+			"default" : 
+			[
+				"key = 0 0.002",
+				"key = 800 0.0015",
+				"key = 5000 0.0001"
+			]
+		},
+		"StandardPropellantTank" :
+		{
+			"default" : 
+			[
+				"key = 0 0.002",
+				"key = 800 0.0015",
+				"key = 5000 0.0001"
+			]
 		}
 	},
 	"RepairConfigs" :
@@ -71,6 +104,42 @@
 			"failureTitle" : "Explosion!",
 			"failureType" : "mechanical",
 			"severity" : "major"
+		},
+		"ResourceLeak_LiquidFuel" :
+		{
+			"failureTitle" : "Liquid Fuel Leaking",
+			"failureType" : "mechanical",
+			"severity" : "failure",
+			"resourceToLeak" : "LiquidFuel",
+			"initialAmount" : 10,
+			"perSecondAmount" : 1
+		},
+		"ResourceLeak_Oxidizer" :
+		{
+			"failureTitle" : "Oxidizer Leaking",
+			"failureType" : "mechanical",
+			"severity" : "failure",
+			"resourceToLeak" : "Oxidizer",
+			"initialAmount" : 10,
+			"perSecondAmount" : 1
+		},
+		"ResourceLeak_MonoPropellant" :
+		{
+			"failureTitle" : "MonoPropellant Leaking",
+			"failureType" : "mechanical",
+			"severity" : "failure",
+			"resourceToLeak" : "MonoPropellant",
+			"initialAmount" : 1,
+			"perSecondAmount" : 0.1
+		},
+		"ResourceLeak_Random" :
+		{
+			"failureTitle" : "Tank is leaking",
+			"failureType" : "mechanical",
+			"severity" : "failure",
+			"resourceToLeak" : "random",
+			"initialAmount" : 5,
+			"perSecondAmount" : 1
 		}
 	},
 	"TestFlightConfigs" :
@@ -122,6 +191,77 @@
 				"FAILURE_DEF" : "Explode",
 				"weight" : 2
 			}
+		},
+		"SolidEnginesBase" :
+		{
+			"FlightDataRecorder_Engine" : 
+			{
+				"flightDataMultiplier" : 10,
+				"flightDataEngineerModifier" : 0.25
+			},
+			"TestFlightReliability" :
+			{
+				"CURVE_DEF" : "SolidEngineStandard"
+			},
+			"TestFlightFailure_ShutdownEngine" :
+			{
+				"FAILURE_DEF" : "ShutdownEngine",
+				"weight" : 4,
+				"REPAIR_DEF" : "EasySoftware"
+			},
+			"TestFlightFailure_LockGimbal" :
+			{
+				"FAILURE_DEF" : "LockGimbal",
+				"weight" : 8,
+				"REPAIR_DEF" : "MediumHydraulic"
+			},
+			"TestFlightFailure_Explode" :
+			{
+				"FAILURE_DEF" : "Explode",
+				"weight" : 2
+			}
+		},
+		"RCSEnginesBase" :
+		{
+			"FlightDataRecorder_Engine" : 
+			{
+				"flightDataMultiplier" : 12,
+				"flightDataEngineerModifier" : 0.25
+			},
+			"TestFlightReliability" :
+			{
+				"CURVE_DEF" : "RCSEngineStandard"
+			},
+			"TestFlightFailure_ReducedMaxThrust" :
+			{
+				"FAILURE_DEF" : "ReducedMaxThrust",
+				"weight" : 32,
+				"REPAIR_DEF" : "EasyMechanical"
+			},
+			"TestFlightFailure_ShutdownEngine" :
+			{
+				"FAILURE_DEF" : "ShutdownEngine",
+				"weight" : 4,
+				"REPAIR_DEF" : "EasySoftware"
+			}
+		},
+		"StandardResourceTank" :
+		{
+			"FlightDataRecorder_Resources" : 
+			{
+				"flightDataMultiplier" : 5,
+				"flightDataEngineerModifier" : 0.1
+			},
+			"TestFlightReliability" :
+			{
+				"CURVE_DEF" : "RCSEngineStandard"
+			},
+			"TestFlightFailure_ResourceLeak" :
+			{
+				"FAILURE_DEF" : "ResourceLeak_Random",
+				"weight" : 32,
+				"REPAIR_DEF" : "EasyMechanical"
+			}
 		}
 	},
 	"PartConfigs" : 
@@ -133,6 +273,33 @@
 				"@PART[*]:HAS[@MODULE[ModuleEngines]:HAS[@PROPELLANT[LiquidFuel]]]:FINAL"
 			],
 			"config" : "LiquidEnginesBase"
+		},
+		"SolidEnginesAll" : 
+		{
+			"patterns" : 
+			[
+				"@PART[*]:HAS[@MODULE[ModuleEngines],@RESOURCE[SolidFuel]]:FINAL"
+			],
+			"config" : "LiquidEnginesBase"
+		},
+		"RCSEnginesAll" :
+		{
+			"patterns" :
+			[
+				"@PART[*]:HAS[@MODULE[ModuleEngines]:HAS[@PROPELLANT[MonoPropellant]]]:FINAL"
+			],
+			"config" : "RCSEnginesBase"
+		},
+		"ResourceTank" :
+		{
+			"patterns" :
+			[
+				"@PART[*]:HAS[@RESOURCE[LiquidFuel],@RESOURCE[Oxidizer],!MODULE[ModuleCommand]]:FINAL",
+				"@PART[*]:HAS[@RESOURCE[LiquidFuel,!RESOURCE[Oxidizer]],!MODULE[ModuleCommand]]:FINAL",
+				"@PART[*]:HAS[@RESOURCE[MonoPropellant],!MODULE[ModuleCommand]]:FOR[TestFlight]:FINAL",
+				"@PART[*]:HAS[@RESOURCE[XenonGas],!MODULE[ModuleCommand]]:FOR[TestFlight]:FINAL"
+			],
+			"config" : "StandardResourceTank"
 		}
 	}
 }
