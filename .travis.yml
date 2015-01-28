@@ -7,3 +7,4 @@ python:
 script:  
   - cd configs
   - python compileConfigs.py
+  - mv *.cfg ../GameData/TestFlight/
