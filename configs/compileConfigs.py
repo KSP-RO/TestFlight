@@ -1,6 +1,6 @@
 # This utility script compiles TestFlight configurations into final proper ModuleManager config files
 
-import os, argparse, sys, json
+import os, argparse, sys, json, glob
 
 ALL_BODIES = [
 	"sun",
@@ -82,7 +82,7 @@ def compile(pattern, config):
 	configDef = rawJson["TestFlightConfigs"][config]
 	for moduleName in configDef:
 		moduleConfig = configDef[moduleName]
-		node += "\n\tMODULE\n\t{\n\t\tname = " + moduleName + "\n\t}"
+		node += "\n\tMODULE\n\t{\n\t\tname = " + moduleName
 		for key in moduleConfig:
 			if key == "CURVE_DEF":
 				node += compileCurveDef(moduleConfig[key])
@@ -99,35 +99,46 @@ def compile(pattern, config):
 					node += "\n\t\t}"
 				else:
 					node += "\n\t\t{} = {}".format(key, moduleConfig[key])
+		node += "\n\t}"
 	node += "\n}"
 	return node
 
 
 HELP_DESC = "Compiles a given TestFlight config.json to standard ModuleManager.cfg"
-parser = DefaultHelpParser(description=HELP_DESC)
-parser.add_argument('config', metavar='file', type=str, nargs=1,
-                   help='config.json file to compile')
+# parser = DefaultHelpParser(description=HELP_DESC)
+# parser.add_argument('config', metavar='file', type=str, nargs=1,
+#                    help='config.json file to compile')
 
-args = parser.parse_args()
+# args = parser.parse_args()
 
-print args
+# print args
 
-if not args.config or len(args.config) < 1:
-    print "ERROR: No configuration file specified.  Configuration file must be specified."
-    sys.exit(2)
+# if not args.config or len(args.config) < 1:
+#     print "ERROR: No configuration file specified.  Configuration file must be specified."
+#     sys.exit(2)
 
-rawJson = loadJSON(args.config[0])
+configs = glob.glob("*.json")
 
-# Init scopes
-for body in ALL_BODIES:
-	for situation in ALL_SITUATIONS:
-		ALL_SCOPES.append(body + "_" + situation)
+for jsonFile in configs:
+	print "PROCESSING " + jsonFile
+	rawJson = loadJSON(jsonFile)
 
-# Process each defined part config
-for partConfig in rawJson["PartConfigs"].values():
-	config = partConfig["config"]
-	patterns = partConfig["patterns"]
-	for pattern in patterns:
-		print compile(pattern, config)
+	# Init scopes
+	for body in ALL_BODIES:
+		for situation in ALL_SITUATIONS:
+			ALL_SCOPES.append(body + "_" + situation)
+
+	# Process each defined part config
+	finalConfig = ""
+	for partConfig in rawJson["PartConfigs"].values():
+		config = partConfig["config"]
+		patterns = partConfig["patterns"]
+		for pattern in patterns:
+			finalConfig += compile(pattern, config)
+
+	baseName = os.path.splitext(jsonFile)[0]
+	with open(baseName + ".cfg", "w") as cfgFile:
+		cfgFile.write(finalConfig)
+
 
 
