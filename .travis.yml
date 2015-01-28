@@ -1,10 +1,18 @@
 language: python
 python:
-  - "2.7"
-# command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-#install: PLEASE CHANGE ME
-# command to run tests, e.g. python setup.py test
-script:  
-  - cd configs
-  - python compileConfigs.py
-  - mv *.cfg ../GameData/TestFlight/
+- '2.7'
+script:
+- make clean
+- make release
+deploy:
+  provider: releases
+  api_key:
+    secure: LRM8ZzPgJUALKL7/ls9RvqmFoksE+Gq7+ud+l5ha+by7ptb1FWRXEjIWoELC8ieFioAi2aXKcYASKnwkIqmcwkH556mK+E4xaohdqN1jndVYxbe/Dle+cHO0G6vRjQWPJdp17sLlKKBfrt0p+JblqVf5tS3GoR5MVMeZp5/xThY=
+  file: TestFlight*.zip
+  on:
+    repo: jwvanderbeck/TestFlight
+    tags: true
+    all_branches: true
+notifications:
+  irc:
+    - "irc.esper.net#TestFlight"
