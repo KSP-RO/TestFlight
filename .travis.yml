@@ -17,6 +17,7 @@ deploy:
     all_branches: true
 notifications:
   irc:
-    - "irc.esper.net#TestFlight"
-  skip_join: true
-  use_notice: true
+    channels:
+      - "irc.esper.net#TestFlight"
+    skip_join: true
+    use_notice: true
