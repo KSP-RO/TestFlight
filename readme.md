@@ -6,8 +6,8 @@ Build Status
 
 Issue Status
 
-* **In Progress** [![Stories in In Progress](https://badge.waffle.io/jwvanderbeck/TestFlight.png?label=ready&title=In%20Progress)](https://waffle.io/jwvanderbeck/TestFlight)
-* **Ready to Start** [![Stories in Ready](https://badge.waffle.io/jwvanderbeck/TestFlight.png?label=ready&title=Ready)](https://waffle.io/jwvanderbeck/TestFlight)
+* [![Stories in In Progress](https://badge.waffle.io/jwvanderbeck/TestFlight.png?label=ready&title=In%20Progress)](https://waffle.io/jwvanderbeck/TestFlight)
+* [![Stories in Ready](https://badge.waffle.io/jwvanderbeck/TestFlight.png?label=ready&title=Ready)](https://waffle.io/jwvanderbeck/TestFlight)
 
 #TestFlight
 ###A configurable, extensible, parts research and reliability system for Kerbal Space Program (KSP).
