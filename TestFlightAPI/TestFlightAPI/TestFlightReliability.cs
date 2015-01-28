@@ -9,7 +9,6 @@ namespace TestFlightAPI
     {
         public string scope = "NONE";
         public FloatCurve reliabilityCurve;
-        private double lastCheck = 0;
 
         public void Load(ConfigNode node)
         {
@@ -44,6 +43,7 @@ namespace TestFlightAPI
         protected List<ReliabilityBodyConfig> reliabilityBodies = null;
         protected double lastCheck = 0;
         protected bool isReady = false;
+        protected double lastReliability = 1.0;
 
         // New API
         // Get the base or static failure rate for the given scope
@@ -311,7 +311,7 @@ namespace TestFlightAPI
             // NEW RELIABILITY CODE
             double operatingTime = core.GetOperatingTime();
 //            Debug.Log(String.Format("TestFlightReliability: Operating Time = {0:F2}", operatingTime));
-            if (operatingTime < lastCheck + 5f)
+            if (operatingTime < lastCheck + 1f)
                 return;
 
             lastCheck = operatingTime;
@@ -335,8 +335,11 @@ namespace TestFlightAPI
             // S() is survival chance, f is currentFailureRate
             // S(t) = e^(-f*t)
 
-            double survivalChance = Mathf.Pow(Mathf.Exp(1), (float)currentFailureRate * (float)operatingTime * -0.693f);
-//            Debug.Log(String.Format("TestFlightReliability: Survival Chance at Time {0:F2} is {1:f4} -- {2:f4}^({3:f4}*{0:f2}*-1.0)", (float)operatingTime, survivalChance, Mathf.Exp(1), (float)currentFailureRate));
+            double reliability = Mathf.Exp((float)-currentFailureRate * (float)operatingTime);
+//            double survivalChance = Mathf.Pow(Mathf.Exp(1), (float)currentFailureRate * (float)operatingTime * -0.693f);
+            double survivalChance = reliability / lastReliability;
+            lastReliability = reliability;
+            Debug.Log(String.Format("TestFlightReliability: Survival Chance at Time {0:F2} is {1:f4}", (float)operatingTime, survivalChance));
             float failureRoll = Mathf.Min(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f));
             if (failureRoll > survivalChance)
             {
