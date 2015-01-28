@@ -1,10 +1,13 @@
-Current build status of Master
+Project Status
+--------------
+Build Status
+ 
+ * **master** [![Build Status Master](https://travis-ci.org/jwvanderbeck/TestFlight.svg?branch=master)](https://travis-ci.org/jwvanderbeck/TestFlight) 
 
-* [![Build Status](https://travis-ci.org/jwvanderbeck/TestFlight.svg?branch=master)](https://travis-ci.org/jwvanderbeck/TestFlight) 
+Issue Status
 
-Number of issues ready to be worked
-
-* [![Stories in Ready](https://badge.waffle.io/jwvanderbeck/TestFlight.png?label=ready&title=Ready)](https://waffle.io/jwvanderbeck/TestFlight)
+* **In Progress** [![Stories in In Progress](https://badge.waffle.io/jwvanderbeck/TestFlight.png?label=ready&title=In%20Progress)](https://waffle.io/jwvanderbeck/TestFlight)
+* **Ready to Start** [![Stories in Ready](https://badge.waffle.io/jwvanderbeck/TestFlight.png?label=ready&title=Ready)](https://waffle.io/jwvanderbeck/TestFlight)
 
 #TestFlight
 ###A configurable, extensible, parts research and reliability system for Kerbal Space Program (KSP).
