@@ -2,7 +2,7 @@ Current build status of Master
 
 * [![Build Status](https://travis-ci.org/jwvanderbeck/TestFlight.svg?branch=master)](https://travis-ci.org/jwvanderbeck/TestFlight) 
 
-Number of issues ready to be worker.disconnect()
+Number of issues ready to be worked
 
 * [![Stories in Ready](https://badge.waffle.io/jwvanderbeck/TestFlight.png?label=ready&title=Ready)](https://waffle.io/jwvanderbeck/TestFlight)
 
