@@ -5,5 +5,5 @@ python:
 #install: PLEASE CHANGE ME
 # command to run tests, e.g. python setup.py test
 script:  
-    - cd configs
-    - python compileConfigs.py
+  - cd configs
+  - python compileConfigs.py
