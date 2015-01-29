@@ -184,6 +184,19 @@ namespace TestFlightCore
         double lastFailurePoll = 0.0;
         double lastMasterStatusUpdate = 0.0;
 
+        public string GetPartName(Part part)
+        {
+            string configuration;
+
+            if (part.Modules.Contains("ModuleEngineConfigs"))
+            {
+                configuration = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
+            }
+            else
+                configuration = "";
+
+            return part.name + "_" + configuration;
+        }
 
         internal override void Start()
         {
@@ -242,7 +255,7 @@ namespace TestFlightCore
                     ITestFlightCore core = pm as ITestFlightCore;
                     if (core != null && core.Configuration == configuration)
                     {
-                        PartFlightData partData = tfScenario.GetFlightDataForPartName(pm.part.name);
+                        PartFlightData partData = tfScenario.GetFlightDataForPartName(GetPartName(pm.part));
                         if (partData == null)
                         {
                             partData = new PartFlightData();
@@ -464,7 +477,7 @@ namespace TestFlightCore
                                         masterStatus.Add(vessel.id, masterStatusItem);
                                     }
 
-                                    PartFlightData data = tfScenario.GetFlightDataForPartName(part.name);
+                                    PartFlightData data = tfScenario.GetFlightDataForPartName(GetPartName(part));
                                     if (data != null)
                                     {
                                         data.AddFlightData(part.name, currentFlightData);
@@ -472,8 +485,8 @@ namespace TestFlightCore
                                     else
                                     {
                                         data = new PartFlightData();
-                                        data.AddFlightData(part.name, currentFlightData);
-                                        tfScenario.SetFlightDataForPartName(part.name, data);
+                                        data.AddFlightData(GetPartName(part), currentFlightData);
+                                        tfScenario.SetFlightDataForPartName(GetPartName(part), data);
                                     }
                                 }
                             }
