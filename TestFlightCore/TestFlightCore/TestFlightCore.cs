@@ -19,6 +19,9 @@ namespace TestFlightCore
         public FlightDataConfig flightData;
         [KSPField(isPersistant = true)]
         public double deepSpaceThreshold = 10000000;
+        [KSPField(isPersistant=true)]
+        public string configuration = "";
+
 
 
         // Base Failure Rate is stored per Scope internally
@@ -39,6 +42,12 @@ namespace TestFlightCore
         // These were created for KCT integration but might have other uses
         private double dataRateLimiter = 1.0;
         private double dataCap = double.MaxValue;
+
+        public string Configuration
+        {
+            get { return configuration; }
+            set { configuration = value; }
+        }
 
         // Get a proper scope string for use in other parts of the API
         public String GetScope()
@@ -155,7 +164,7 @@ namespace TestFlightCore
                 foreach (PartModule pm in this.part.Modules)
                 {
                     ITestFlightReliability rm = pm as ITestFlightReliability;
-                    if (rm != null)
+                    if (rm != null && rm.Configuration == configuration)
                     {
                         totalBFR += rm.GetBaseFailureRateForScope(data, scope);
                     }
@@ -178,7 +187,7 @@ namespace TestFlightCore
             foreach (PartModule pm in this.part.Modules)
             {
                 ITestFlightReliability rm = pm as ITestFlightReliability;
-                if (rm != null)
+                if (rm != null && rm.Configuration == configuration)
                 {
                     curve = rm.GetReliabilityCurveForScope(scope);
                     if (curve != null)
@@ -631,7 +640,7 @@ namespace TestFlightCore
             foreach (PartModule pm in this.part.Modules)
             {
                 ITestFlightFailure fm = pm as ITestFlightFailure;
-                if (fm != null && !disabledFailures.Contains(pm.moduleName))
+                if (fm != null && !disabledFailures.Contains(pm.moduleName) && fm.Configuration == configuration)
                     failureModules.Add(fm);
             }
 
@@ -666,14 +675,25 @@ namespace TestFlightCore
 
             failureModuleName = failureModuleName.ToLower().Trim();
 
-            foreach(PartModule pm in this.part.Modules)
+            List<ITestFlightFailure> failureModules;
+
+            failureModules = new List<ITestFlightFailure>();
+            foreach (PartModule pm in this.part.Modules)
             {
+                ITestFlightFailure fm = pm as ITestFlightFailure;
+                if (fm != null && !disabledFailures.Contains(pm.moduleName) && fm.Configuration == configuration)
+                    failureModules.Add(fm);
+            }
+
+            foreach(ITestFlightFailure fm in failureModules)
+            {
+                PartModule pm = fm as PartModule;
                 if (pm.moduleName.ToLower().Trim() == failureModuleName)
                 {
-                    ITestFlightFailure fm = pm as ITestFlightFailure;
-                    if (pm == null && fallbackToRandom)
+//                    ITestFlightFailure fm = fm as ITestFlightFailure;
+                    if (fm == null && fallbackToRandom)
                         return TriggerFailure();
-                    else if (pm == null & !fallbackToRandom)
+                    else if (fm == null & !fallbackToRandom)
                         return null;
                     else
                     {
@@ -699,7 +719,7 @@ namespace TestFlightCore
             foreach (PartModule pm in this.part.Modules)
             {
                 ITestFlightFailure fm = pm as ITestFlightFailure;
-                if (fm != null)
+                if (fm != null && fm.Configuration == configuration)
                     failureModules.Add(pm.moduleName);
             }
 
@@ -745,7 +765,7 @@ namespace TestFlightCore
             foreach (PartModule pm in this.part.Modules)
             {
                 IFlightDataRecorder dr = pm as IFlightDataRecorder;
-                if (dr != null)
+                if (dr != null && dr.Configuration == configuration)
                     return dr.IsPartOperating();
             }
 

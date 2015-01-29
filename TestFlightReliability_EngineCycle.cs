@@ -21,7 +21,7 @@ namespace TestFlight
             foreach (PartModule pm in prefab.Modules)
             {
                 TestFlightReliability_EngineCycle modulePrefab = pm as TestFlightReliability_EngineCycle;
-                if (modulePrefab != null)
+                if (modulePrefab != null && modulePrefab.Configuration == configuration)
                 {
                     cycle = modulePrefab.cycle;
                 }

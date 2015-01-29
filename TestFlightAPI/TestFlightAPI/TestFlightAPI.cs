@@ -79,6 +79,11 @@ namespace TestFlightAPI
 
 	public interface IFlightDataRecorder
 	{
+        string Configuration
+        {
+            get;
+            set;
+        }
         /// <summary>
         /// Returns whether or not the part is considered to be operating or running.  IE is an engine actually turned on and thrusting?  Is a command pod supplied with electricity and operating?
         /// The point of this is to distinguish between the life time of a part and the operating time of a part, which might be smaller than its total lifetime.
@@ -89,6 +94,11 @@ namespace TestFlightAPI
 
 	public interface ITestFlightReliability
 	{
+        string Configuration
+        {
+            get;
+            set;
+        }
         // New API
         // Get the base or static failure rate for the given scope
         // !! IMPORTANT: Only ONE Reliability module may return a Base Failure Rate.  Additional modules can exist only to supply Momentary rates
@@ -112,6 +122,11 @@ namespace TestFlightAPI
 
 	public interface ITestFlightFailure
 	{
+        string Configuration
+        {
+            get;
+            set;
+        }
         /// <summary>
         /// Gets the details of the failure encapsulated by this module.  In most cases you can let the base class take care of this unless oyu need to do somethign special
         /// </summary>
@@ -160,6 +175,11 @@ namespace TestFlightAPI
     /// </summary>
     public interface ITestFlightCore
     {
+        string Configuration
+        {
+            get;
+            set;
+        }
         /// <summary>
         /// 0 = OK, 1 = Minor Failure, 2 = Failure, 3 = Major Failure
         /// </summary>

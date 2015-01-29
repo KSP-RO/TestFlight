@@ -45,6 +45,15 @@ namespace TestFlightAPI
         protected bool isReady = false;
         protected double lastReliability = 1.0;
 
+        [KSPField(isPersistant=true)]
+        public string configuration = "";
+
+        public string Configuration
+        {
+            get { return configuration; }
+            set { configuration = value; }
+        }
+
         // New API
         // Get the base or static failure rate for the given scope
         // !! IMPORTANT: Only ONE Reliability module may return a Base Failure Rate.  Additional modules can exist only to supply Momentary rates
@@ -118,7 +127,7 @@ namespace TestFlightAPI
             foreach (PartModule pm in prefab.Modules)
             {
                 TestFlightReliabilityBase modulePrefab = pm as TestFlightReliabilityBase;
-                if (modulePrefab != null)
+                if (modulePrefab != null && modulePrefab.Configuration == configuration)
                 {
                     Debug.Log("TestFlightReliabilityBase: Reloading data from Prefab");
                     reliabilityBodies = modulePrefab.reliabilityBodies;
@@ -131,7 +140,7 @@ namespace TestFlightAPI
                 foreach (PartModule pm in this.part.Modules)
                 {
                     core = pm as ITestFlightCore;
-                    if (core != null)
+                    if (core != null && core.Configuration == configuration)
                     {
                         Debug.Log("TestFlightReliabilityBase: Attaching to core");
                         break;
@@ -163,7 +172,7 @@ namespace TestFlightAPI
             foreach (PartModule pm in this.part.Modules)
             {
                 core = pm as ITestFlightCore;
-                if (core != null)
+                if (core != null && core.Configuration == configuration)
                     break;
             }
 
@@ -183,7 +192,7 @@ namespace TestFlightAPI
             foreach (PartModule pm in prefab.Modules)
             {
                 TestFlightReliabilityBase modulePrefab = pm as TestFlightReliabilityBase;
-                if (modulePrefab != null)
+                if (modulePrefab != null && modulePrefab.Configuration == configuration)
                 {
                     Debug.Log("TestFlightReliabilityBase: Reloading data from Prefab");
                     reliabilityBodies = modulePrefab.reliabilityBodies;
@@ -211,7 +220,7 @@ namespace TestFlightAPI
             foreach (PartModule pm in prefab.Modules)
             {
                 TestFlightReliabilityBase modulePrefab = pm as TestFlightReliabilityBase;
-                if (modulePrefab != null)
+                if (modulePrefab != null && modulePrefab.Configuration == configuration)
                 {
                     Debug.Log("TestFlightReliabilityBase: Reloading data from Prefab");
                     reliabilityBodies = modulePrefab.reliabilityBodies;
@@ -243,7 +252,7 @@ namespace TestFlightAPI
             foreach (PartModule pm in prefab.Modules)
             {
                 TestFlightReliabilityBase modulePrefab = pm as TestFlightReliabilityBase;
-                if (modulePrefab != null)
+                if (modulePrefab != null && modulePrefab.Configuration == configuration)
                 {
                     Debug.Log("TestFlightReliabilityBase: Reloading data from Prefab");
                     reliabilityBodies = modulePrefab.reliabilityBodies;
@@ -281,7 +290,7 @@ namespace TestFlightAPI
                 foreach (PartModule pm in prefab.Modules)
                 {
                     TestFlightReliabilityBase modulePrefab = pm as TestFlightReliabilityBase;
-                    if (modulePrefab != null)
+                    if (modulePrefab != null && modulePrefab.Configuration == configuration)
                     {
                         Debug.Log("TestFlightReliabilityBase: Reloading data from Prefab");
                         reliabilityBodies = modulePrefab.reliabilityBodies;

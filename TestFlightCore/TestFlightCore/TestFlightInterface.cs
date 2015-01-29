@@ -501,16 +501,23 @@ namespace TestFlightCore
         // INTERNAL methods
         private static ITestFlightCore GetCore(Part corePart)
         {
+            string configuration = "";
             if (corePart == null || corePart.Modules == null)
                 return null;
 
+            if (corePart.Modules.Contains("ModuleEngineConfigs"))
+            {
+                configuration = (string)(corePart.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(corePart.Modules["ModuleEngineConfigs"]));
+            }
             foreach (PartModule pm in corePart.Modules)
             {
                 ITestFlightCore core = pm as ITestFlightCore;
                 if (core != null)
-                    return core;
+                {
+                    if (core.Configuration == configuration)
+                        return core;
+                }
             }
-
             return null;
         }
     }

@@ -132,8 +132,16 @@ namespace TestFlightAPI
         public int weight;
         [KSPField(isPersistant = true)]
         public string failureTitle = "Failure";
+        [KSPField(isPersistant=true)]
+        public string configuration = "";
 
         public string repairConfigString;
+
+        public string Configuration
+        {
+            get { return configuration; }
+            set { configuration = value; }
+        }
 
 
         public RepairConfig repairConfig;

@@ -18,9 +18,27 @@ namespace TestFlightAPI
         public float flightDataMultiplier = 10.0f;
         [KSPField(isPersistant = true)]
         public float flightDataEngineerModifier = 0.25f;
+        [KSPField(isPersistant=true)]
+        public string configuration = "";
         #endregion
 
-
+        public string Configuration
+        {
+            get { return configuration; }
+            set { configuration = value; }
+        }
+        public bool IsCurrentEngineConfiguration()
+        {
+            if (this.part.Modules.Contains("ModuleEngineConfigs"))
+            {
+                string currentConfig = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
+                return currentConfig.Equals(configuration);
+            }
+            else
+            {
+                return configuration.Equals("");
+            }
+        }
 
         public override void OnStart(StartState state)
         {
@@ -29,7 +47,7 @@ namespace TestFlightAPI
             foreach (PartModule pm in this.part.Modules)
             {
                 core = pm as ITestFlightCore;
-                if (core != null)
+                if (core != null && core.Configuration == configuration)
                     break;
             }
 
@@ -40,11 +58,16 @@ namespace TestFlightAPI
             else
                 isReady = true;
 
+            if (!IsCurrentEngineConfiguration())
+                isReady = false;
         }
 
         public override void OnUpdate()
         {
             base.OnUpdate();
+
+            if (!IsCurrentEngineConfiguration())
+                return;
 
             if (!isReady)
                 return;
@@ -79,7 +102,7 @@ namespace TestFlightAPI
                 foreach (PartModule pm in this.part.Modules)
                 {
                     core = pm as ITestFlightCore;
-                    if (core != null)
+                    if (core != null && core.Configuration == configuration)
                     {
                         Debug.Log("Found Code");
                         break;
@@ -90,6 +113,8 @@ namespace TestFlightAPI
             }
             if (this.part.started)
                 isReady = true;
+            if (!IsCurrentEngineConfiguration())
+                isReady = false;
         }
 
         public virtual bool IsPartOperating()
@@ -100,6 +125,9 @@ namespace TestFlightAPI
         public virtual bool IsRecordingFlightData()
         {
             bool isRecording = true;
+
+            if (!IsCurrentEngineConfiguration())
+                return false;
 
             if (!IsPartOperating())
                 return false;

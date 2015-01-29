@@ -227,13 +227,20 @@ namespace TestFlightCore
             {
                 launchTime = knownVessels[vessel.id];
             }
-
+            string configuration = "";
             foreach (Part part in vessel.parts)
             {
+                if (part.Modules.Contains("ModuleEngineConfigs"))
+                {
+                    configuration = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
+                }
+                else
+                    configuration = "";
+
                 foreach (PartModule pm in part.Modules)
                 {
                     ITestFlightCore core = pm as ITestFlightCore;
-                    if (core != null)
+                    if (core != null && core.Configuration == configuration)
                     {
                         PartFlightData partData = tfScenario.GetFlightDataForPartName(pm.part.name);
                         if (partData == null)
@@ -379,6 +386,7 @@ namespace TestFlightCore
                 VerifyMasterStatus();
             }
             // process vessels
+            string configuration = "";
             foreach (var entry in knownVessels)
             {
                 Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == entry.Key);
@@ -386,10 +394,16 @@ namespace TestFlightCore
                 {
                     foreach(Part part in vessel.parts)
                     {
+                        if (part.Modules.Contains("ModuleEngineConfigs"))
+                        {
+                            configuration = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
+                        }
+                        else
+                            configuration = "";
                         foreach (PartModule pm in part.Modules)
                         {
                             ITestFlightCore core = pm as ITestFlightCore;
-                            if (core != null)
+                            if (core != null && core.Configuration == configuration)
                             {
                                 // Poll for flight data and part status
                                 if (currentUTC >= lastDataPoll + tfScenario.userSettings.masterStatusUpdateFrequency)
