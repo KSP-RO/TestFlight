@@ -75,7 +75,7 @@ namespace TestFlightAPI
             if (core == null)
                 return;
 
-            double currentMet = this.vessel.missionTime;
+            double currentMet = core.GetOperatingTime();
             if (!IsRecordingFlightData())
             {
                 lastRecordedMet = currentMet;
