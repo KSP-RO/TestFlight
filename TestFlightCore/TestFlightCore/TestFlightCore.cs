@@ -180,7 +180,7 @@ namespace TestFlightCore
                 if (reliabilityModules == null)
                     return TestFlightUtil.MIN_FAILURE_RATE;
 
-                foreach (ITestFlightReliability rm in this.part.Modules)
+                foreach (ITestFlightReliability rm in reliabilityModules)
                 {
                     totalBFR += rm.GetBaseFailureRateForScope(data, scope);
                 }
@@ -204,7 +204,7 @@ namespace TestFlightCore
             if (reliabilityModules == null)
                 return null;
 
-            foreach (ITestFlightReliability rm in this.part.Modules)
+            foreach (ITestFlightReliability rm in reliabilityModules)
             {
                 curve = rm.GetReliabilityCurveForScope(scope);
                 if (curve != null)
