@@ -175,13 +175,14 @@ namespace TestFlightCore
                 FlightDataBody body = baseFlightData.GetFlightData(scope);
                 if (body != null)
                     data = body.flightData;
-                foreach (PartModule pm in this.part.Modules)
+
+                List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part);
+                if (reliabilityModules == null)
+                    return TestFlightUtil.MIN_FAILURE_RATE;
+
+                foreach (ITestFlightReliability rm in this.part.Modules)
                 {
-                    ITestFlightReliability rm = pm as ITestFlightReliability;
-                    if (rm != null && rm.Configuration == configuration)
-                    {
-                        totalBFR += rm.GetBaseFailureRateForScope(data, scope);
-                    }
+                    totalBFR += rm.GetBaseFailureRateForScope(data, scope);
                 }
                 totalBFR = Mathf.Max((float)totalBFR, (float)TestFlightUtil.MIN_FAILURE_RATE);
                 baseFailureRate.Add(scope, totalBFR);
@@ -198,16 +199,18 @@ namespace TestFlightCore
         {
             scope = scope.ToLower().Trim();
             FloatCurve curve;
-            foreach (PartModule pm in this.part.Modules)
+
+            List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part);
+            if (reliabilityModules == null)
+                return null;
+
+            foreach (ITestFlightReliability rm in this.part.Modules)
             {
-                ITestFlightReliability rm = pm as ITestFlightReliability;
-                if (rm != null && rm.Configuration == configuration)
-                {
-                    curve = rm.GetReliabilityCurveForScope(scope);
-                    if (curve != null)
-                        return curve;
-                }
+                curve = rm.GetReliabilityCurveForScope(scope);
+                if (curve != null)
+                    return curve;
             }
+
             return null;
         }
         // Get the momentary (IE current dynamic) failure rates (Can vary per reliability/failure modules)
@@ -651,13 +654,7 @@ namespace TestFlightCore
             int chosenWeight = 0;
             List<ITestFlightFailure> failureModules;
 
-            failureModules = new List<ITestFlightFailure>();
-            foreach (PartModule pm in this.part.Modules)
-            {
-                ITestFlightFailure fm = pm as ITestFlightFailure;
-                if (fm != null && !disabledFailures.Contains(pm.moduleName) && fm.Configuration == configuration)
-                    failureModules.Add(fm);
-            }
+            failureModules = new List<ITestFlightFailure>() = TestFlightUtil.GetFailureModules();
 
             foreach(ITestFlightFailure fm in failureModules)
             {
@@ -692,20 +689,13 @@ namespace TestFlightCore
 
             List<ITestFlightFailure> failureModules;
 
-            failureModules = new List<ITestFlightFailure>();
-            foreach (PartModule pm in this.part.Modules)
-            {
-                ITestFlightFailure fm = pm as ITestFlightFailure;
-                if (fm != null && !disabledFailures.Contains(pm.moduleName) && fm.Configuration == configuration)
-                    failureModules.Add(fm);
-            }
+            failureModules = new List<ITestFlightFailure>() = TestFlightUtil.GetFailureModules();
 
             foreach(ITestFlightFailure fm in failureModules)
             {
                 PartModule pm = fm as PartModule;
                 if (pm.moduleName.ToLower().Trim() == failureModuleName)
                 {
-//                    ITestFlightFailure fm = fm as ITestFlightFailure;
                     if (fm == null && fallbackToRandom)
                         return TriggerFailure();
                     else if (fm == null & !fallbackToRandom)
@@ -729,13 +719,14 @@ namespace TestFlightCore
         // Returns a list of all available failures on the part
         public List<String> GetAvailableFailures()
         {
-            List<String> failureModules;
-            failureModules = new List<String>();
-            foreach (PartModule pm in this.part.Modules)
+            List<String> failureModulesString = new List<string>();
+            List<ITestFlightFailure> failureModules;
+            failureModules = new List<ITestFlightFailure>() = TestFlightUtil.GetFailureModules();
+
+            foreach (ITestFlightFailure fm in this.part.Modules)
             {
-                ITestFlightFailure fm = pm as ITestFlightFailure;
-                if (fm != null && fm.Configuration == configuration)
-                    failureModules.Add(pm.moduleName);
+                PartModule pm = fm as PartModule;
+                failureModulesString.Add(pm.moduleName);
             }
 
             return failureModules;
@@ -777,14 +768,12 @@ namespace TestFlightCore
         {
             if (activeFailure != null)
                 return false;
-            foreach (PartModule pm in this.part.Modules)
-            {
-                IFlightDataRecorder dr = pm as IFlightDataRecorder;
-                if (dr != null && dr.Configuration == configuration)
-                    return dr.IsPartOperating();
-            }
 
-            return false;
+            IFlightDataRecorder dr = TestFlightUtil.GetDataRecorder(this.part);
+            if (dr == null)
+                return false;
+
+            return dr.IsPartOperating();
         }
 
         // PARTMODULE functions
