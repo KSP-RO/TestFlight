@@ -57,6 +57,7 @@
     <Compile Include="FlightDataRecorder.cs" />
     <Compile Include="TestFlightReliability.cs" />
     <Compile Include="TestFlightFailure.cs" />
+    <Compile Include="EngineModuleWrapper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using UnityEngine;
+
 namespace TestFlightAPI
 {
     public class TestFlightUtil
@@ -363,6 +365,8 @@ namespace TestFlightAPI
         // Get the FlightData or FlightTime for the part
         double GetFlightData();
         double GetFlightDataForScope(String scope);
+        double GetInitialFlightData();
+        double GetInitialFlightDataforScope(String scope);
         double GetFlightTime();
         double GetFlightTimeForScope(String scope);
         // Methods to restrict the amount of data accumulated.  Useful for KCT or other "Simulation" mods to use

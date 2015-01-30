@@ -494,6 +494,21 @@ namespace TestFlightCore
                 return dataBody.flightData;
             }
         }
+        public double GetInitialFlightData()
+        {
+            return GetInitialFlightDataforScope(GetScope());
+        }
+        public double GetInitialFlightDataforScope(String scope)
+        {
+            if (baseFlightData == null)
+                return 0;
+
+            FlightDataBody dataBody = baseFlightData.GetFlightData(scope);
+            if (dataBody == null)
+                return 0;
+            else
+                return dataBody.flightData;
+        }
         public double GetFlightTime()
         {
             return GetFlightTimeForScope(GetScope());
@@ -654,7 +669,7 @@ namespace TestFlightCore
             int chosenWeight = 0;
             List<ITestFlightFailure> failureModules;
 
-            failureModules = new List<ITestFlightFailure>() = TestFlightUtil.GetFailureModules();
+            failureModules = TestFlightUtil.GetFailureModules(this.part);
 
             foreach(ITestFlightFailure fm in failureModules)
             {
@@ -689,7 +704,7 @@ namespace TestFlightCore
 
             List<ITestFlightFailure> failureModules;
 
-            failureModules = new List<ITestFlightFailure>() = TestFlightUtil.GetFailureModules();
+            failureModules = TestFlightUtil.GetFailureModules(this.part);
 
             foreach(ITestFlightFailure fm in failureModules)
             {
@@ -721,15 +736,15 @@ namespace TestFlightCore
         {
             List<String> failureModulesString = new List<string>();
             List<ITestFlightFailure> failureModules;
-            failureModules = new List<ITestFlightFailure>() = TestFlightUtil.GetFailureModules();
+            failureModules = TestFlightUtil.GetFailureModules(this.part);
 
-            foreach (ITestFlightFailure fm in this.part.Modules)
+            foreach (ITestFlightFailure fm in failureModules)
             {
                 PartModule pm = fm as PartModule;
                 failureModulesString.Add(pm.moduleName);
             }
 
-            return failureModules;
+            return failureModulesString;
         }
         // Enable a failure so it can be triggered (this is the default state)
         public void EnableFailure(String failureModuleName)
