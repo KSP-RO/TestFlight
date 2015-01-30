@@ -15,8 +15,8 @@ Stock
 -----
 [![Build Status Master](https://travis-ci.org/jwvanderbeck/TestFlight.svg?branch=master)](https://travis-ci.org/jwvanderbeck/TestFlight)
 
-Latest Release: (v0.4.0 Alpha Stock)[https://github.com/jwvanderbeck/TestFlight/releases/tag/v0.4.0]    
-Forum Thread: http://forum.kerbalspaceprogram.com/threads/88187-0-90-TestFlight-0-4-0-28JAN15-A-configurable-extensible-parts-research-reliability-system    
+Latest Release: [v0.4.0 Alpha Stock](https://github.com/jwvanderbeck/TestFlight/releases/tag/v0.4.0)    
+Forum Thread: [KSP Add Ons Development Thread](http://forum.kerbalspaceprogram.com/threads/88187)    
 GitHub: https://github.com/jwvanderbeck/TestFlight    
 Bug Reports & Feature Requests: https://github.com/jwvanderbeck/TestFlight/issues    
 Waffle Status Board: https://waffle.io/jwvanderbeck/TestFlight
@@ -41,7 +41,7 @@ Realism Overhaul
 [![Build Status RealismOverhaul](https://travis-ci.org/jwvanderbeck/TestFlight.svg?branch=RealismOverhaul)](https://travis-ci.org/jwvanderbeck/TestFlight) 
 
 Latest Release: None    
-Forum Thread: http://forum.kerbalspaceprogram.com/threads/88187-0-90-TestFlight-0-4-0-28JAN15-A-configurable-extensible-parts-research-reliability-system    
+Forum Thread: [KSP Add Ons Development Thread](http://forum.kerbalspaceprogram.com/threads/88187)    
 GitHub: https://github.com/jwvanderbeck/TestFlight/RealismOverhaul    
 Bug Reports & Feature Requests: https://github.com/jwvanderbeck/TestFlight/issues    
 Waffle Status Board: https://waffle.io/jwvanderbeck/TestFlight
