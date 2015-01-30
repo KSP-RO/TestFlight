@@ -62,6 +62,9 @@ public class EngineModuleWrapper : ScriptableObject
         }
         set
         {
+            if (engineType == EngineModuleType.UNKNOWN)
+                return;
+
             if (engineType == EngineModuleType.ENGINE)
                 engine.allowShutdown = value;
             else
@@ -83,6 +86,9 @@ public class EngineModuleWrapper : ScriptableObject
         }
         set
         {
+            if (engineType == EngineModuleType.UNKNOWN)
+                return;
+
             if (engineType == EngineModuleType.ENGINE)
                 engine.throttleLocked = value;
             else
@@ -104,6 +110,9 @@ public class EngineModuleWrapper : ScriptableObject
         }
         set
         {
+            if (engineType == EngineModuleType.UNKNOWN)
+                return;
+
             if (engineType == EngineModuleType.ENGINE)
                 engine.maxThrust = value;
             else
@@ -125,6 +134,9 @@ public class EngineModuleWrapper : ScriptableObject
         }
         set
         {
+            if (engineType == EngineModuleType.UNKNOWN)
+                return;
+
             if (engineType == EngineModuleType.ENGINE)
                 engine.flameout = value;
             else
@@ -146,6 +158,9 @@ public class EngineModuleWrapper : ScriptableObject
         }
         set
         {
+            if (engineType == EngineModuleType.UNKNOWN)
+                return;
+
             if (engineType == EngineModuleType.ENGINE)
                 engine.enabled = value;
             else
