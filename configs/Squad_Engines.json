@@ -1,0 +1,205 @@
+{
+	"ReliabilityDefinitions" : 
+	{
+		"HighReliability" :
+		{
+			"default" : 
+			[
+				"key = 0 0.005",
+				"key = 1000 0.0025",
+				"key = 10000 0.0001"
+			]
+		},
+		"WAC-Corporal" :
+		{
+			"default" : 
+			[
+				"key = 0 0.3",
+				"key = 1000 0.2",
+				"key = 10000 0.05"
+			]
+		},
+		"Aerobee-Hi" :
+		{
+			"default" : 
+			[
+				"key = 0 0.35",
+				"key = 1000 0.3",
+				"key = 10000 0.08"
+			]
+		},
+		"Aerobee-150" :
+		{
+			"default" : 
+			[
+				"key = 0 0.1",
+				"key = 1000 0.05",
+				"key = 10000 0.03"
+			]
+		}
+	},
+	"RepairConfigs" :
+	{
+		"EasySoftware" :
+		{
+			"canBeRepairedByRemote" : true,
+			"canBeRepairedInFlight" : true,
+			"canBeRepairedOnSplashed" : true,
+			"dataScale" : 1,
+			"dataSize" : 1,
+			"repairChance" : 75
+		},
+		"MediumHydraulic" :
+		{
+			"canBeRepairedByRemote" : false,
+			"canBeRepairedInFlight" : false,
+			"canBeRepairedOnSplashed" : false,
+			"repairChance" : 50,
+			"replacementPart" : "HydraulicGizmo",
+			"replacementPartOptional" : true,
+			"replacementPartBonus" : 0.10
+		},
+		"EasyMechanical" :
+		{
+			"canBeRepairedByRemote" : false,
+			"canBeRepairedInFlight" : false,
+			"canBeRepairedOnSplashed" : false,
+			"repairChance" : 75
+		}
+	},
+	"FailureConfigs" :
+	{
+		"ShutdownEngine" :
+		{
+			"failureTitle" : "Engine Shutdown",
+			"failureType" : "software",
+			"severity" : "failure"
+		},
+		"LockGimbal" :
+		{
+			"failureTitle" : "Gimbal Failure",
+			"failureType" : "mechanical",
+			"severity" : "failure"
+		},
+		"ReducedMaxThrust" : 
+		{
+			"failureTitle" : "Loss of Thrust",
+			"failureType" : "mechanical",
+			"severity" : "failure"
+		},
+		"Explode" :
+		{
+			"failureTitle" : "Explosion!",
+			"failureType" : "mechanical",
+			"severity" : "major"
+		},
+		"ResourceLeak_LiquidFuel" :
+		{
+			"failureTitle" : "Liquid Fuel Leaking",
+			"failureType" : "mechanical",
+			"severity" : "failure",
+			"resourceToLeak" : "LiquidFuel",
+			"initialAmount" : 10,
+			"perSecondAmount" : 1
+		},
+		"ResourceLeak_Oxidizer" :
+		{
+			"failureTitle" : "Oxidizer Leaking",
+			"failureType" : "mechanical",
+			"severity" : "failure",
+			"resourceToLeak" : "Oxidizer",
+			"initialAmount" : 10,
+			"perSecondAmount" : 1
+		},
+		"ResourceLeak_MonoPropellant" :
+		{
+			"failureTitle" : "MonoPropellant Leaking",
+			"failureType" : "mechanical",
+			"severity" : "failure",
+			"resourceToLeak" : "MonoPropellant",
+			"initialAmount" : 1,
+			"perSecondAmount" : 0.1
+		},
+		"ResourceLeak_Random" :
+		{
+			"failureTitle" : "Tank is leaking",
+			"failureType" : "mechanical",
+			"severity" : "failure",
+			"resourceToLeak" : "random",
+			"initialAmount" : 5,
+			"perSecondAmount" : 1
+		}
+	},
+	"TestFlightConfigs" :
+	{
+		"WAC-Corporal" : 
+		{
+			"TestFlightCore" :
+			{
+				"configuration" : "WAC-Corporal"
+			},
+			"FlightDataRecorder_Engine" : 
+			{
+				"flightDataMultiplier" : 10,
+				"flightDataEngineerModifier" : 0.25,
+				"configuration" : "WAC-Corporal"
+			},
+			"TestFlightReliability" :
+			{
+				"CURVE_DEF" : "WAC-Corporal",
+				"configuration" : "WAC-Corporal"
+			},
+			"TestFlightReliability_EngineCycle" : 
+			{
+				"configuration" : "WAC-Corporal",
+				"cycle" : 
+				{
+					"type" : "FloatCurve",
+					"keys" :
+					[
+						"key = 0 10",
+						"key = 5 1"
+					]
+				},
+				"CURVE_DEF" : "WAC-Corporal"
+			},
+			"TestFlightFailure_ShutdownEngine" :
+			{
+				"configuration" : "WAC-Corporal",
+				"FAILURE_DEF" : "ShutdownEngine",
+				"weight" : 4,
+				"REPAIR_DEF" : "EasySoftware"
+			},
+			"TestFlightFailure_LockGimbal" :
+			{
+				"configuration" : "WAC-Corporal",
+				"FAILURE_DEF" : "LockGimbal",
+				"weight" : 8,
+				"REPAIR_DEF" : "MediumHydraulic"
+			},
+			"TestFlightFailure_ReducedMaxThrust" :
+			{
+				"configuration" : "WAC-Corporal",
+				"FAILURE_DEF" : "ReducedMaxThrust",
+				"weight" : 32,
+				"REPAIR_DEF" : "EasyMechanical"
+			},
+			"TestFlightFailure_Explode" :
+			{
+				"configuration" : "WAC-Corporal",
+				"FAILURE_DEF" : "Explode",
+				"weight" : 2
+			}
+		}
+	},
+	"PartConfigs" : 
+	{
+		"WAC-Corporal" : 
+		{
+			"patterns" : 
+			[
+				"@PART[microEngine]:AFTER[RealismOverhaul]"
+			],
+			"config" : "WAC-Corporal"
+		}
+}
