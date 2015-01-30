@@ -285,7 +285,7 @@ namespace TestFlightAPI
             lastReliability = reliability;
             Debug.Log(String.Format("TestFlightReliability: Survival Chance at Time {0:F2} is {1:f4}", (float)operatingTime, survivalChance));
 //            float failureRoll = Mathf.Min(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f));
-            float failureRoll = UnityEngine.Random.value;
+            float failureRoll = UnityEngine.Random.Range(0f, 1f);
             if (failureRoll > survivalChance)
             {
 //                Debug.Log(String.Format("TestFlightReliability: Survival Chance at Time {0:F2} is {1:f4} -- {2:f4}^({3:f4}*{0:f2}*-1.0)", (float)operatingTime, survivalChance, Mathf.Exp(1), (float)currentFailureRate));
