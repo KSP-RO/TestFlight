@@ -9,7 +9,7 @@ Project Status
 
 TestFlight is currently in Alpha development, but is available for play in KSP.
 
-As of 30 January 2015, TestFlight is not maintained in two separate versions and branches in GitHub.  Stock and Realism Overhaul.
+As of 30 January 2015, TestFlight is maintained as two separate versions and branches in GitHub.  Stock and Realism Overhaul.
 
 Stock
 -----
