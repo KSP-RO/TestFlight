@@ -165,8 +165,8 @@
 					"type" : "FloatCurve",
 					"keys" :
 					[
-						"key = 0 0.1",
-						"key = 1000 0.05"
+						"key = 0 0.15",
+						"key = 5000 0.05"
 					]
 				}
 			},
@@ -198,7 +198,7 @@
 		{
 			"patterns" : 
 			[
-				"@PART[microEngine]:AFTER[RealismOverhaul]"
+				"@PART[ROAerobeeSustainer]:AFTER[RealismOverhaul]"
 			],
 			"config" : "WAC-Corporal"
 		}
