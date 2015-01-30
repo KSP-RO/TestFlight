@@ -272,10 +272,6 @@ namespace TestFlightAPI
             else
                 currentFailureRate = baseFailureRate;
 
-            double mtbf = core.FailureRateToMTBF(currentFailureRate, TestFlightUtil.MTBFUnits.SECONDS);
-            if (operatingTime > mtbf)
-                operatingTime = mtbf;
-
             // Given we have been operating for a given number of seconds, calculate our chance of survival to that time based on currentFailureRate
             // This is *not* an exact science, as the real calculations are much more complex than this, plus technically the momentary rate for
             // *each* second should be accounted for, but this is a simplification of the system.  It provides decent enough numbers for fun gameplay
