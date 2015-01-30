@@ -489,10 +489,7 @@ namespace TestFlightCore
                 return 0;
             }
             else
-            {
-                LogFormatted_DebugOnly("TestFlightCore: Returning flight data");
                 return dataBody.flightData;
-            }
         }
         public double GetInitialFlightData()
         {
