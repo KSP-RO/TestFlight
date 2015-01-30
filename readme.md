@@ -1,13 +1,58 @@
+TestFlight
+==========
+
 Project Status
 --------------
-Build Status
- 
- * **master** [![Build Status Master](https://travis-ci.org/jwvanderbeck/TestFlight.svg?branch=master)](https://travis-ci.org/jwvanderbeck/TestFlight) 
 
-Issue Status
+[![Stories in Ready](https://badge.waffle.io/jwvanderbeck/TestFlight.png?label=ready&title=Ready)](https://waffle.io/jwvanderbeck/TestFlight) [![Stories in In Progress](https://badge.waffle.io/jwvanderbeck/TestFlight.png?label=ready&title=In%20Progress)](https://waffle.io/jwvanderbeck/TestFlight)
 
-* [![Stories in In Progress](https://badge.waffle.io/jwvanderbeck/TestFlight.png?label=ready&title=In%20Progress)](https://waffle.io/jwvanderbeck/TestFlight)
-* [![Stories in Ready](https://badge.waffle.io/jwvanderbeck/TestFlight.png?label=ready&title=Ready)](https://waffle.io/jwvanderbeck/TestFlight)
+
+TestFlight is currently in Alpha development, but is available for play in KSP.
+
+As of 30 January 2015, TestFlight is not maintained in two separate versions and branches in GitHub.  Stock and Realism Overhaul.
+
+Stock
+-----
+[![Build Status Master](https://travis-ci.org/jwvanderbeck/TestFlight.svg?branch=master)](https://travis-ci.org/jwvanderbeck/TestFlight) 
+Latest Release: https://github.com/jwvanderbeck/TestFlight/releases/tag/v0.4.0
+Forum Thread: http://forum.kerbalspaceprogram.com/threads/88187-0-90-TestFlight-0-4-0-28JAN15-A-configurable-extensible-parts-research-reliability-system
+GitHub: https://github.com/jwvanderbeck/TestFlight
+Bug Reports & Feature Requests: https://github.com/jwvanderbeck/TestFlight/issues
+Waffle Status Board: https://waffle.io/jwvanderbeck/TestFlight
+
+**Config Status**
+
+* Engines
+	* All liquid engines
+	* All solid engines
+	* All monopropellant engines
+* Fuel Tanks
+	* All liquid fuel tanks
+	* All monopropellant fuel tanks
+	* All xenon fuel tanks
+
+Currently the configs for the stock branch apply to any stock or stock-alike parts and part packs that use the standard stock resources.  In generall if you are playing a "Stock" or "Stock-alike" game, you should valid TestFlight configs for the parts listed above in **Config Status**.  However there are no special configs for specific parts.  This means that currently for example, every liquid engine has the same reliability.
+
+I am looking for people willing to volunteer to help build better configs for stock.  If you are interested please let me know by posting in the forum thread.  Thank you!
+
+Realism Overhaul
+----------------
+[![Build Status RealismOverhaul](https://travis-ci.org/jwvanderbeck/TestFlight.svg?branch=RealismOverhaul)](https://travis-ci.org/jwvanderbeck/TestFlight) 
+Latest Release: None
+Forum Thread: http://forum.kerbalspaceprogram.com/threads/88187-0-90-TestFlight-0-4-0-28JAN15-A-configurable-extensible-parts-research-reliability-system
+GitHub: https://github.com/jwvanderbeck/TestFlight/RealismOverhaul
+Bug Reports & Feature Requests: https://github.com/jwvanderbeck/TestFlight/issues
+Waffle Status Board: https://waffle.io/jwvanderbeck/TestFlight
+
+**Config Status**
+
+* Engines
+	* WAC Corporal
+
+I am looking for people willing to volunteer to help with the configs for Realism Overhaul.  If you are interested please let me know by posting in the forum thread.  Thank you!
+
+
+----------------------------------
 
 #TestFlight
 ###A configurable, extensible, parts research and reliability system for Kerbal Space Program (KSP).
