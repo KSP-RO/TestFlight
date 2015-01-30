@@ -15,6 +15,102 @@ namespace TestFlightAPI
             YEARS,
             INVALID
         };
+        // Methods for accessing the TestFlight modules on a given part
+
+        public static string GetFullPartName(Part part)
+        {
+            string baseName = part.name;
+
+            if (part.Modules == null)
+                return baseName;
+
+            if (part.Modules.Contains("ModuleEngineConfigs"))
+            {
+                string configurationName = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
+                return String.Format("{0}|{1}", baseName, configurationName);
+            }
+
+            return baseName;
+        }
+        public static string GetPartTitle(Part part)
+        {
+            string baseName = part.partInfo.title;
+
+            if (part.Modules == null)
+                return baseName;
+
+            if (part.Modules.Contains("ModuleEngineConfigs"))
+            {
+                string configurationName = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
+                return String.Format("{0}", configurationName);
+            }
+
+            return baseName;
+        }
+        // Get the active Core Module - can only ever be one.
+        public static ITestFlightCore GetCore(Part part)
+        {
+            if (part == null || part.Modules == null)
+                return null;
+
+            foreach (PartModule pm in part.Modules)
+            {
+                ITestFlightCore core = pm as ITestFlightCore;
+                if (core != null && core.TestFlightEnabled)
+                    return core;
+            }
+            return null;
+        }
+        // Get the Data Recorder Module - can only ever be one.
+        public static IFlightDataRecorder GetDataRecorder(Part part)
+        {
+            if (part == null || part.Modules == null)
+                return null;
+
+            foreach (PartModule pm in part.Modules)
+            {
+                IFlightDataRecorder dataRecorder = pm as IFlightDataRecorder;
+                if (dataRecorder != null && dataRecorder.TestFlightEnabled)
+                    return dataRecorder;
+            }
+            return null;
+        }
+        // Get all Reliability Modules - can be more than one.
+        public static List<ITestFlightReliability> GetReliabilityModules(Part part)
+        {
+            List<ITestFlightReliability> reliabilityModules;
+
+            if (part == null || part.Modules == null)
+                return null;
+
+            reliabilityModules = new List<ITestFlightReliability>();
+            foreach (PartModule pm in part.Modules)
+            {
+                ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
+                if (reliabilityModule != null && reliabilityModule.TestFlightEnabled)
+                    reliabilityModules.Add(reliabilityModule);
+            }
+
+            return reliabilityModules;
+        }
+        // Get all Failure Modules - can be more than one.
+        public static List<ITestFlightFailure> GetFailureModules(Part part)
+        {
+            List<ITestFlightFailure> failureModules;
+
+            if (part == null || part.Modules == null)
+                return null;
+
+            failureModules = new List<ITestFlightFailure>();
+            foreach (PartModule pm in part.Modules)
+            {
+                ITestFlightFailure failureModule = pm as ITestFlightFailure;
+                if (failureModule != null && failureModule.TestFlightEnabled)
+                    failureModules.Add(failureModule);
+            }
+
+            return failureModules;
+        }
     }
 
 	public struct TestFlightData
@@ -79,6 +175,10 @@ namespace TestFlightAPI
 
 	public interface IFlightDataRecorder
 	{
+        bool TestFlightEnabled
+        {
+            get;
+        }
         string Configuration
         {
             get;
@@ -94,6 +194,10 @@ namespace TestFlightAPI
 
 	public interface ITestFlightReliability
 	{
+        bool TestFlightEnabled
+        {
+            get;
+        }
         string Configuration
         {
             get;
@@ -122,6 +226,10 @@ namespace TestFlightAPI
 
 	public interface ITestFlightFailure
 	{
+        bool TestFlightEnabled
+        {
+            get;
+        }
         string Configuration
         {
             get;
@@ -175,6 +283,11 @@ namespace TestFlightAPI
     /// </summary>
     public interface ITestFlightCore
     {
+        bool TestFlightEnabled
+        {
+            get;
+        }
+
         string Configuration
         {
             get;

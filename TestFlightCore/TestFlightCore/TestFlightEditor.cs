@@ -37,20 +37,6 @@ namespace TestFlightCore
         private ApplicationLauncherButton appLauncherButton;
         bool stickyWindow = false;
 
-        public string GetPartName(Part part)
-        {
-            string configuration;
-
-            if (part.Modules.Contains("ModuleEngineConfigs"))
-            {
-                configuration = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
-            }
-            else
-                configuration = "";
-
-            return part.name + "_" + configuration;
-        }
-
         public void LockPart(Part partToLock)
         {
             if (!locked)
@@ -153,7 +139,7 @@ namespace TestFlightCore
             if (core != null)
             {
                 List<TestFlightData> flightData = null;
-                PartFlightData partData = tfScenario.GetFlightDataForPartName(GetPartName(selectedPart));
+                PartFlightData partData = tfScenario.GetFlightDataForPartName(TestFlightUtil.GetFullPartName(selectedPart));
                 if (partData == null)
                     numItems = 0;
                 else
@@ -277,10 +263,10 @@ namespace TestFlightCore
 
             ITestFlightCore core = null;
             GUILayout.BeginVertical();
-            GUILayout.Label(String.Format("Selected Part: {0}", GetPartName(selectedPart)), Styles.styleEditorTitle);
+            GUILayout.Label(String.Format("Selected Part: {0}", TestFlightUtil.GetFullPartName(selectedPart)), Styles.styleEditorTitle);
 
             tfScenario.userSettings.currentEditorScrollPosition = GUILayout.BeginScrollView(tfScenario.userSettings.currentEditorScrollPosition);
-            PartFlightData partData = tfScenario.GetFlightDataForPartName(GetPartName(selectedPart));
+            PartFlightData partData = tfScenario.GetFlightDataForPartName(TestFlightUtil.GetFullPartName(selectedPart));
             if (partData != null)
             {
                 string configuration;
@@ -351,25 +337,11 @@ namespace TestFlightCore
         AvailablePart selectedPart;
         bool mouseFlag = false;
 
-        public string GetPartName(Part part)
-        {
-            string configuration;
-
-            if (part.Modules.Contains("ModuleEngineConfigs"))
-            {
-                configuration = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
-            }
-            else
-                configuration = "";
-
-            return part.name + "_" + configuration;
-        }
-
         internal override void Start()
         {
             GetComponent<UIButton>().AddInputDelegate(OnInput);
             selectedPart = GetComponent<EditorPartIcon>().partInfo;
-            LogFormatted_DebugOnly("TestFlightEditor: Added input delegate to " + GetPartName(selectedPart.partPrefab));
+            LogFormatted_DebugOnly("TestFlightEditor: Added input delegate to " + TestFlightUtil.GetFullPartName(selectedPart.partPrefab));
         }
 
         internal void OnInput(ref POINTER_INFO ptr)

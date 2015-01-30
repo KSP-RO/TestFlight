@@ -36,13 +36,27 @@ namespace TestFlightCore
         private double operatingTime;
         private double lastMET;
         private double missionStartTime;
-        private int highestStage = 0;
         private bool firstStaged;
 
         // These were created for KCT integration but might have other uses
         private double dataRateLimiter = 1.0;
         private double dataCap = double.MaxValue;
 
+        public bool TestFlightEnabled
+        {
+            get
+            {
+                bool enabled = true;
+                // If this part has a ModuleEngineConfig then we need to verify we are assigned to the active configuration
+                if (this.part.Modules.Contains("ModuleEngineConfigs"))
+                {
+                    string currentConfig = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
+                    if (currentConfig != configuration)
+                        enabled = false;
+                }
+                return enabled;
+            }
+        }
         public string Configuration
         {
             get { return configuration; }
@@ -473,6 +487,7 @@ namespace TestFlightCore
             }
             else
             {
+                LogFormatted_DebugOnly("TestFlightCore: Returning flight data");
                 return dataBody.flightData;
             }
         }
@@ -778,6 +793,9 @@ namespace TestFlightCore
             base.Update();
 
             if (!firstStaged)
+                return;
+
+            if (!TestFlightEnabled)
                 return;
 
             if (HighLogic.LoadedSceneIsFlight)

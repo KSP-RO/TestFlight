@@ -76,10 +76,11 @@ def compileCurveDef(d):
 	return configNodes
 
 def compile(pattern, config):
-	node = pattern + "\n"
-	node += "{\n\tMODULE\n\t{\n\t\tname = TestFlightCore\n\t}\n"
-
 	configDef = rawJson["TestFlightConfigs"][config]
+	node = "\n" + pattern + "\n{"
+	if not "TestFlightCore" in configDef:
+		node += "\n\tMODULE\n\t{\n\t\tname = TestFlightCore\n\t}\n"
+
 	for moduleName in configDef:
 		moduleConfig = configDef[moduleName]
 		node += "\n\tMODULE\n\t{\n\t\tname = " + moduleName

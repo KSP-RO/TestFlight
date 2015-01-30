@@ -42,11 +42,29 @@ namespace TestFlightAPI
         protected ITestFlightCore core = null;
         protected List<ReliabilityBodyConfig> reliabilityBodies = null;
         protected double lastCheck = 0;
-        protected bool isReady = false;
         protected double lastReliability = 1.0;
 
         [KSPField(isPersistant=true)]
         public string configuration = "";
+
+        public bool TestFlightEnabled
+        {
+            get
+            {
+                bool enabled = true;
+                // Verify we have a valid core attached
+                if (core == null)
+                    enabled = false;
+                // If this part has a ModuleEngineConfig then we need to verify we are assigned to the active configuration
+                if (this.part.Modules.Contains("ModuleEngineConfigs"))
+                {
+                    string currentConfig = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
+                    if (currentConfig != configuration)
+                        enabled = false;
+                }
+                return enabled;
+            }
+        }
 
         public string Configuration
         {
@@ -62,39 +80,30 @@ namespace TestFlightAPI
         //
         public double GetBaseFailureRateForScope(double flightData, String scope)
         {
-            Debug.Log(String.Format("TestFlightReliabilityBase: GetBaseFailureRateForScope({0:F2}, {1})", flightData, scope));
-            if (core == null)
-            {
-                Debug.Log(String.Format("TestFlightReliabilityBase: core is invalid"));
+            if (!TestFlightEnabled)
                 return TestFlightUtil.MIN_FAILURE_RATE;
-            }
-
+                
             ReliabilityBodyConfig body = GetConfigForScope(scope);
             if (body == null)
-            {
-                Debug.Log(String.Format("TestFlightReliabilityBase: No bodyConfig found"));
                 return TestFlightUtil.MIN_FAILURE_RATE;
-            }
 
             FloatCurve curve = body.reliabilityCurve;
             if (curve == null)
-            {
-                Debug.Log(String.Format("TestFlightReliabilityBase: reliabilityCurve is invalid"));
                 return TestFlightUtil.MIN_FAILURE_RATE;
-            }
 
             double reliability = curve.Evaluate((float)flightData);
-            Debug.Log(String.Format("TestFlightReliability: reliability is {0:F6} with {1:F6} data units", reliability, flightData));
             return reliability;
         }
 
         public FloatCurve GetReliabilityCurveForScope(String scope)
         {
-            if (core == null)
+            if (!TestFlightEnabled)
                 return null;
+
             ReliabilityBodyConfig body = GetConfigForScope(scope);
             if (body == null)
                 return null;
+
             FloatCurve curve = body.reliabilityCurve;
             return curve;
         }
@@ -103,16 +112,9 @@ namespace TestFlightAPI
         // INTERNAL methods
         private ReliabilityBodyConfig GetConfigForScope(String scope)
         {
-            Debug.Log(String.Format("TestFlightReliabilityBase: GetConfigForScope({0})", scope));
             if (reliabilityBodies == null)
-            {
-                Debug.Log(String.Format("TestFlightReliabilityBase: reliabilityBodies is invalid"));
                 return null;
-            }
-            foreach (ReliabilityBodyConfig config in reliabilityBodies)
-            {
-                Debug.Log(String.Format("TestFlightReliabilityBase: found entry {0}", config.scope));
-            }
+
             return reliabilityBodies.Find(s => s.scope == scope);
         }
 
@@ -123,152 +125,100 @@ namespace TestFlightAPI
                 yield return null;
             }
 
+            while (core == null)
+            {
+                core = TestFlightUtil.GetCore(this.part);
+                yield return null;
+            }
+
+            Startup();
+        }
+
+        protected void LoadDataFromPrefab()
+        {
             Part prefab = this.part.partInfo.partPrefab;
             foreach (PartModule pm in prefab.Modules)
             {
                 TestFlightReliabilityBase modulePrefab = pm as TestFlightReliabilityBase;
                 if (modulePrefab != null && modulePrefab.Configuration == configuration)
-                {
-                    Debug.Log("TestFlightReliabilityBase: Reloading data from Prefab");
                     reliabilityBodies = modulePrefab.reliabilityBodies;
-                    Debug.Log("TestFlightReliabilityBase: " + reliabilityBodies.Count + " scopes in reliability data");
-                }
             }
+        }
 
-            while (core == null)
-            {
-                foreach (PartModule pm in this.part.Modules)
-                {
-                    core = pm as ITestFlightCore;
-                    if (core != null && core.Configuration == configuration)
-                    {
-                        Debug.Log("TestFlightReliabilityBase: Attaching to core");
-                        break;
-                    }
-                }
-                yield return null;
-            }
-            if (this.part.started)
-                isReady = true;
+        protected void Startup()
+        {
+            LoadDataFromPrefab();
+            UnityEngine.Random.seed = (int)Time.time;
         }
 
         // PARTMODULE Implementation
         public override void OnAwake()
         {
-            String partName;
-            if (this.part != null)
-                partName = this.part.name;
-            else
-                partName = "unknown";
-            Debug.Log("TestFlightReliabilityBase: OnAwake(" + partName + ")");
-
-            if (this.part == null || this.part.Modules == null)
-            {
-                Debug.Log("TestFlightReliabilityBase: Starting Coroutine to setup when part is available");
-                StartCoroutine("Attach");
-                return;
-            }
-
-            foreach (PartModule pm in this.part.Modules)
-            {
-                core = pm as ITestFlightCore;
-                if (core != null && core.Configuration == configuration)
-                    break;
-            }
-
-            if (core == null)
-            {
-                Debug.Log("Starting Coroutine to find core module");
-                StartCoroutine("Attach");
-                return;
-            }
-            if (this.part.partInfo == null || this.part.partInfo.partPrefab == null)
-            {
-                Debug.Log("Can't find partInfo or partPrefab.  Starting Coroutine to attach later.");
-                StartCoroutine("Attach");
-                return;
-            }
-            Part prefab = this.part.partInfo.partPrefab;
-            foreach (PartModule pm in prefab.Modules)
-            {
-                TestFlightReliabilityBase modulePrefab = pm as TestFlightReliabilityBase;
-                if (modulePrefab != null && modulePrefab.Configuration == configuration)
-                {
-                    Debug.Log("TestFlightReliabilityBase: Reloading data from Prefab");
-                    reliabilityBodies = modulePrefab.reliabilityBodies;
-                    if (reliabilityBodies == null)
-                    {
-                        Debug.Log("TestFlightReliabilityBase: Prefab data is invalid!");
-                    }
-                    else
-                        Debug.Log("TestFlightReliabilityBase: " + reliabilityBodies.Count + " scopes in reliability data");
-                }
-            }
-            Debug.Log("TestFlightReliabilityBase: OnAwake(" + partName + "):DONE");
+            StartCoroutine("Attach");
         }
 
-        public void Start()
-        {
-            String partName;
-            if (this.part != null)
-                partName = this.part.name;
-            else
-                partName = "unknown";
-            Debug.Log("TestFlightReliabilityBase: Start(" + partName + ")");
-
-            Part prefab = this.part.partInfo.partPrefab;
-            foreach (PartModule pm in prefab.Modules)
-            {
-                TestFlightReliabilityBase modulePrefab = pm as TestFlightReliabilityBase;
-                if (modulePrefab != null && modulePrefab.Configuration == configuration)
-                {
-                    Debug.Log("TestFlightReliabilityBase: Reloading data from Prefab");
-                    reliabilityBodies = modulePrefab.reliabilityBodies;
-                    if (reliabilityBodies == null)
-                    {
-                        Debug.Log("TestFlightReliabilityBase: Prefab data is invalid!");
-                    }
-                    else
-                        Debug.Log("TestFlightReliabilityBase: " + reliabilityBodies.Count + " scopes in reliability data");
-                }
-            }
-
-            UnityEngine.Random.seed = (int)Time.time;
-            Debug.Log("TestFlightReliabilityBase: Start(" + partName + "):DONE");
-        }
-
-        public override void OnStart(StartState state)
-        {
-            String partName;
-            if (this.part != null)
-                partName = this.part.name;
-            else
-                partName = "unknown";
-            Debug.Log("TestFlightReliabilityBase: OnStart(" + partName + ")");
-
-            base.OnStart(state);
-
-            Part prefab = this.part.partInfo.partPrefab;
-            foreach (PartModule pm in prefab.Modules)
-            {
-                TestFlightReliabilityBase modulePrefab = pm as TestFlightReliabilityBase;
-                if (modulePrefab != null && modulePrefab.Configuration == configuration)
-                {
-                    Debug.Log("TestFlightReliabilityBase: Reloading data from Prefab");
-                    reliabilityBodies = modulePrefab.reliabilityBodies;
-                    if (reliabilityBodies == null)
-                    {
-                        Debug.Log("TestFlightReliabilityBase: Prefab data is invalid!");
-                    }
-                    else
-                        Debug.Log("TestFlightReliabilityBase: " + reliabilityBodies.Count + " scopes in reliability data");
-                }
-            }
-
-
-            isReady = true;
-            Debug.Log("TestFlightReliabilityBase: OnStart(" + partName + "):DONE");
-        }
+//        public void Start()
+//        {
+//            String partName;
+//            if (this.part != null)
+//                partName = this.part.name;
+//            else
+//                partName = "unknown";
+//            Debug.Log("TestFlightReliabilityBase: Start(" + partName + ")");
+//
+//            Part prefab = this.part.partInfo.partPrefab;
+//            foreach (PartModule pm in prefab.Modules)
+//            {
+//                TestFlightReliabilityBase modulePrefab = pm as TestFlightReliabilityBase;
+//                if (modulePrefab != null && modulePrefab.Configuration == configuration)
+//                {
+//                    Debug.Log("TestFlightReliabilityBase: Reloading data from Prefab");
+//                    reliabilityBodies = modulePrefab.reliabilityBodies;
+//                    if (reliabilityBodies == null)
+//                    {
+//                        Debug.Log("TestFlightReliabilityBase: Prefab data is invalid!");
+//                    }
+//                    else
+//                        Debug.Log("TestFlightReliabilityBase: " + reliabilityBodies.Count + " scopes in reliability data");
+//                }
+//            }
+//
+//            UnityEngine.Random.seed = (int)Time.time;
+//            Debug.Log("TestFlightReliabilityBase: Start(" + partName + "):DONE");
+//        }
+//
+//        public override void OnStart(StartState state)
+//        {
+//            String partName;
+//            if (this.part != null)
+//                partName = this.part.name;
+//            else
+//                partName = "unknown";
+//            Debug.Log("TestFlightReliabilityBase: OnStart(" + partName + ")");
+//
+//            base.OnStart(state);
+//
+//            Part prefab = this.part.partInfo.partPrefab;
+//            foreach (PartModule pm in prefab.Modules)
+//            {
+//                TestFlightReliabilityBase modulePrefab = pm as TestFlightReliabilityBase;
+//                if (modulePrefab != null && modulePrefab.Configuration == configuration)
+//                {
+//                    Debug.Log("TestFlightReliabilityBase: Reloading data from Prefab");
+//                    reliabilityBodies = modulePrefab.reliabilityBodies;
+//                    if (reliabilityBodies == null)
+//                    {
+//                        Debug.Log("TestFlightReliabilityBase: Prefab data is invalid!");
+//                    }
+//                    else
+//                        Debug.Log("TestFlightReliabilityBase: " + reliabilityBodies.Count + " scopes in reliability data");
+//                }
+//            }
+//
+//
+//            isReady = true;
+//            Debug.Log("TestFlightReliabilityBase: OnStart(" + partName + "):DONE");
+//        }
 
         public override void OnLoad(ConfigNode node)
         {
@@ -282,27 +232,19 @@ namespace TestFlightAPI
                     reliabilityBody.Load(bodyNode);
                     reliabilityBodies.Add(reliabilityBody);
                 }
-                Debug.Log("TestFlightReliabilityBase: Loaded " + reliabilityBodies.Count + " reliability bodies from config");
             }
-            else
-            {
-                Part prefab = this.part.partInfo.partPrefab;
-                foreach (PartModule pm in prefab.Modules)
-                {
-                    TestFlightReliabilityBase modulePrefab = pm as TestFlightReliabilityBase;
-                    if (modulePrefab != null && modulePrefab.Configuration == configuration)
-                    {
-                        Debug.Log("TestFlightReliabilityBase: Reloading data from Prefab");
-                        reliabilityBodies = modulePrefab.reliabilityBodies;
-                        if (reliabilityBodies == null)
-                        {
-                            Debug.Log("TestFlightReliabilityBase: Prefab data is invalid!");
-                        }
-                        else
-                            Debug.Log("TestFlightReliabilityBase: " + reliabilityBodies.Count + " scopes in reliability data");
-                    }
-                }
-            }
+//            else
+//            {
+//                Part prefab = this.part.partInfo.partPrefab;
+//                foreach (PartModule pm in prefab.Modules)
+//                {
+//                    TestFlightReliabilityBase modulePrefab = pm as TestFlightReliabilityBase;
+//                    if (modulePrefab != null && modulePrefab.Configuration == configuration)
+//                    {
+//                        reliabilityBodies = modulePrefab.reliabilityBodies;
+//                    }
+//                }
+//            }
             base.OnLoad(node);
         }
 
@@ -311,10 +253,7 @@ namespace TestFlightAPI
         {
             base.OnUpdate();
 
-            if (core == null)
-                return;
-
-            if (!isReady)
+            if (!TestFlightEnabled)
                 return;
 
             // NEW RELIABILITY CODE

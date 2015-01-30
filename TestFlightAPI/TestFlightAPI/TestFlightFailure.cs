@@ -137,6 +137,21 @@ namespace TestFlightAPI
 
         public string repairConfigString;
 
+        public bool TestFlightEnabled
+        {
+            get
+            {
+                bool enabled = true;
+                // If this part has a ModuleEngineConfig then we need to verify we are assigned to the active configuration
+                if (this.part.Modules.Contains("ModuleEngineConfigs"))
+                {
+                    string currentConfig = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
+                    if (currentConfig != configuration)
+                        enabled = false;
+                }
+                return enabled;
+            }
+        }
         public string Configuration
         {
             get { return configuration; }
@@ -185,10 +200,8 @@ namespace TestFlightAPI
         /// <returns>A List of all repair requirements for attempting repair of the part</returns>
         public List<RepairRequirements> GetRepairRequirements()
         {
-            if (repairConfig == null)
-            {
+            if (!TestFlightEnabled)
                 return null;
-            }
 
             List<RepairRequirements> requirements = new List<RepairRequirements>();
             Vessel.Situations situation = this.vessel.situation;
