@@ -128,6 +128,12 @@
 			"resourceToLeak" : "random",
 			"initialAmount" : 5,
 			"perSecondAmount" : 1
+		},
+		"IgnitionFail" :
+		{
+			"failureTitle" : "Failed to ignite",
+			"failureType" : "mechanical",
+			"severity" : "major"
 		}
 	},
 	"TestFlightConfigs" :
@@ -149,46 +155,40 @@
 				"CURVE_DEF" : "WAC-Corporal",
 				"configuration" : "WAC-Corporal"
 			},
-			"TestFlightReliability_EngineCycle" : 
+			"TestFlightFailure_IgnitionFail" : 
 			{
 				"configuration" : "WAC-Corporal",
-				"cycle" : 
+				"FAILURE_DEF" : "IgnitionFail",
+				"weight" : 2,
+				"ignitionFailureRate" : 
 				{
 					"type" : "FloatCurve",
 					"keys" :
 					[
-						"key = 0 10",
-						"key = 5 1"
+						"key = 0 0.1",
+						"key = 1000 0.05"
 					]
-				},
-				"CURVE_DEF" : "WAC-Corporal"
+				}
 			},
 			"TestFlightFailure_ShutdownEngine" :
 			{
 				"configuration" : "WAC-Corporal",
 				"FAILURE_DEF" : "ShutdownEngine",
-				"weight" : 4,
+				"weight" : 16,
 				"REPAIR_DEF" : "EasySoftware"
-			},
-			"TestFlightFailure_LockGimbal" :
-			{
-				"configuration" : "WAC-Corporal",
-				"FAILURE_DEF" : "LockGimbal",
-				"weight" : 8,
-				"REPAIR_DEF" : "MediumHydraulic"
 			},
 			"TestFlightFailure_ReducedMaxThrust" :
 			{
 				"configuration" : "WAC-Corporal",
 				"FAILURE_DEF" : "ReducedMaxThrust",
-				"weight" : 32,
+				"weight" : 16,
 				"REPAIR_DEF" : "EasyMechanical"
 			},
 			"TestFlightFailure_Explode" :
 			{
 				"configuration" : "WAC-Corporal",
 				"FAILURE_DEF" : "Explode",
-				"weight" : 2
+				"weight" : 4
 			}
 		}
 	},
@@ -202,4 +202,5 @@
 			],
 			"config" : "WAC-Corporal"
 		}
+	}
 }
