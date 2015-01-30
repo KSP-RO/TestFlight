@@ -15,7 +15,7 @@ namespace TestFlight
         public int engineIndex = 0;
 
         private ITestFlightCore core = null;
-        private EngineModuleWrapper.EngineIgnitionState currentIgnitionState = EngineModuleWrapper.EngineIgnitionState.UNKNOWN;
+        private EngineModuleWrapper.EngineIgnitionState previousIgnitionState = EngineModuleWrapper.EngineIgnitionState.UNKNOWN;
         private EngineModuleWrapper engine = null;
 
         public new bool TestFlightEnabled
@@ -94,22 +94,30 @@ namespace TestFlight
             // If we are transitioning from not ignited to ignited, we do our check
             // The ignitionFailueRate defines the failure rate per flight data
 
-            // We want the initial flight data, not the current here
-            double initialFlightData = core.GetInitialFlightData();
-            double failureRate = ignitionFailureRate.Evaluate((float)initialFlightData);
-            failureRate = Mathf.Max((float)failureRate, (float)TestFlightUtil.MIN_FAILURE_RATE);
-
-            // r1 = the chance of survival right now at time index 1
-            // r2 = the chance of survival through ignition and into initial run up
-
-            double r1 = Mathf.Exp((float)-failureRate * 1f);
-            double r2 = Mathf.Exp((float)-failureRate * 3f);
-            double survivalChance = r1 / r2;
-            float failureRoll = UnityEngine.Random.value;
-            if (failureRoll > survivalChance)
+            if (currentIgnitionState == EngineModuleWrapper.EngineIgnitionState.IGNITED)
             {
-                core.TriggerNamedFailure("TestFlightFailure_IgnitionFail");
+                if (previousIgnitionState == EngineModuleWrapper.EngineIgnitionState.NOT_IGNITED || previousIgnitionState == EngineModuleWrapper.EngineIgnitionState.UNKNOWN)
+                {
+                    // We want the initial flight data, not the current here
+                    double initialFlightData = core.GetInitialFlightData();
+                    double failureRate = ignitionFailureRate.Evaluate((float)initialFlightData);
+                    failureRate = Mathf.Max((float)failureRate, (float)TestFlightUtil.MIN_FAILURE_RATE);
+
+                    // r1 = the chance of survival right now at time index 1
+                    // r2 = the chance of survival through ignition and into initial run up
+
+                    double r1 = Mathf.Exp((float)-failureRate * 1f);
+                    double r2 = Mathf.Exp((float)-failureRate * 3f);
+                    double survivalChance = r1 / r2;
+                    float failureRoll = UnityEngine.Random.value;
+                    if (failureRoll > survivalChance)
+                    {
+                        core.TriggerNamedFailure("TestFlightFailure_IgnitionFail");
+                    }
+                }
             }
+
+            previousIgnitionState = currentIgnitionState;
         }
 
         // Failure methods
