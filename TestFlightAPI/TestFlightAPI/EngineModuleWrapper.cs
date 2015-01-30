@@ -132,6 +132,27 @@ public class EngineModuleWrapper : ScriptableObject
         }
     }
 
+    public bool enabled
+    {
+        get
+        {
+            if (engineType == EngineModuleType.UNKNOWN)
+                return false;
+
+            if (engineType == EngineModuleType.ENGINE)
+                return engine.enabled;
+            else
+                return engineFX.enabled;
+        }
+        set
+        {
+            if (engineType == EngineModuleType.ENGINE)
+                engine.enabled = value;
+            else
+                engineFX.enabled = value;
+        }
+    }
+
     public float requestedThrust
     {
         get
@@ -189,25 +210,12 @@ public class EngineModuleWrapper : ScriptableObject
             engine.Shutdown();
             engine.DeactivateRunningFX();
             engine.DeactivatePowerFX();
-            engine.enabled = false;
         }
         else
         {
             engineFX.Shutdown();
             engineFX.DeactivateLoopingFX();
-            engineFX.enabled = false;
         }
-    }
-
-    public void Startup()
-    {
-        if (engineType == EngineModuleType.UNKNOWN)
-            return;
-
-        if (engineType == EngineModuleType.ENGINE)
-            engine.enabled = true;
-        else
-            engineFX.enabled = true;
     }
 
     public EngineModuleWrapper(Part part)
