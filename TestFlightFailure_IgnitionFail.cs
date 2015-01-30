@@ -53,9 +53,7 @@ namespace TestFlight
         IEnumerator Attach()
         {
             while (this.part == null || this.part.partInfo == null || this.part.partInfo.partPrefab == null || this.part.Modules == null)
-            {
                 yield return null;
-            }
 
             while (core == null)
             {
@@ -75,14 +73,14 @@ namespace TestFlight
             {
                 TestFlightFailure_IgnitionFail modulePrefab = pm as TestFlightFailure_IgnitionFail;
                 if (modulePrefab != null && modulePrefab.Configuration == configuration)
-                {
                     ignitionFailureRate = modulePrefab.ignitionFailureRate;
-                }
             }
             if (engineIndex > 0)
                 engine = new EngineModuleWrapper(this.part, engineIndex);
             else
                 engine = new EngineModuleWrapper(this.part);
+
+            UnityEngine.Random.seed = (int)Time.time;
         }
 
         public override void OnUpdate()
@@ -108,12 +106,10 @@ namespace TestFlight
 
                     double r1 = Mathf.Exp((float)-failureRate * 1f);
                     double r2 = Mathf.Exp((float)-failureRate * 3f);
-                    double survivalChance = r1 / r2;
-                    float failureRoll = UnityEngine.Random.value;
+                    double survivalChance = r2 / r1;
+                    float failureRoll = UnityEngine.Random.Range(0f, 1f);
                     if (failureRoll > survivalChance)
-                    {
                         core.TriggerNamedFailure("TestFlightFailure_IgnitionFail");
-                    }
                 }
             }
 
