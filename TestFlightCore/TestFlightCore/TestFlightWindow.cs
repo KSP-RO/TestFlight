@@ -363,7 +363,7 @@ namespace TestFlightCore
                     }
                     if (status.activeFailure != null)
                     {
-                        if (status.activeFailure.CanAttemptRepair() && status.timeToRepair == -1)
+                        if (status.activeFailure.CanAttemptRepair() && status.timeToRepair <= 0)
                         {
                             if (GUILayout.Button("R", GUILayout.Width(38)))
                             {
