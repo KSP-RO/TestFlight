@@ -107,7 +107,10 @@ namespace TestFlight
                     double survivalChance = r2 / r1;
                     double failureRoll = TestFlightUtil.GetCore(this.part).RandomGenerator.NextDouble();
                     if (failureRoll > survivalChance)
+                    {
+                        Debug.Log("TestFlightFailure: Manually triggering ingition fail");
                         core.TriggerNamedFailure("TestFlightFailure_IgnitionFail");
+                    }
                 }
             }
 
