@@ -289,6 +289,9 @@ namespace TestFlightAPI
         {
             float totalBonus = 0f;
             List<RepairRequirements> requirements = GetRepairRequirements();
+            if (requirements == null)
+                return 0f;
+
             foreach (var entry in requirements)
             {
                 if (entry.optionalRequirement && entry.requirementMet)
@@ -312,6 +315,8 @@ namespace TestFlightAPI
         public virtual bool CanAttemptRepair()
         {
             List<RepairRequirements> requirements = GetRepairRequirements();
+            if (requirements == null)
+                return false;
             foreach (var entry in requirements)
             {
                 if (!entry.optionalRequirement && !entry.requirementMet)
