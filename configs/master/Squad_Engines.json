@@ -1,0 +1,305 @@
+{
+	"ReliabilityDefinitions" : 
+	{
+		"HighReliability" :
+		{
+			"default" : 
+			[
+				"key = 0 0.005",
+				"key = 1000 0.0025",
+				"key = 10000 0.0001"
+			]
+		},
+		"MediumReliability" :
+		{
+			"default" : 
+			[
+				"key = 0 0.01",
+				"key = 1000 0.05",
+				"key = 10000 0.0005"
+			]
+		},
+		"LowReliability" :
+		{
+			"default" : 
+			[
+				"key = 0 0.1",
+				"key = 1000 0.01",
+				"key = 10000 0.001"
+			]
+		},
+		"LiquidEngineStandard" :
+		{
+			"default" : 
+			[
+				"key = 0 0.01",
+				"key = 1000 0.007",
+				"key = 10000 0.001"
+			],
+			"kerbin_atmosphere" :
+			[
+				"key = 0 0.01",
+				"key = 7519.115 0.008904761 0 0",
+				"key = 10000 0.006047619 -1.521722E-06 -1.521722E-06"
+			]
+		},
+		"SolidEngineStandard" :
+		{
+			"default" : 
+			[
+				"key = 0 0.002",
+				"key = 1000 0.0014",
+				"key = 10000 0.0002"
+			],
+			"kerbin_atmosphere" :
+			[
+				"key = 0 0.002",
+				"key = 10000 0.001"
+			]
+		}
+	},
+	"RepairConfigs" :
+	{
+		"EasySoftware" :
+		{
+			"canBeRepairedByRemote" : true,
+			"canBeRepairedInFlight" : true,
+			"canBeRepairedOnSplashed" : true,
+			"dataScale" : 1,
+			"dataSize" : 1,
+			"repairChance" : 75
+		},
+		"MediumHydraulic" :
+		{
+			"canBeRepairedByRemote" : false,
+			"canBeRepairedInFlight" : false,
+			"canBeRepairedOnSplashed" : false,
+			"repairChance" : 50,
+			"replacementPart" : "HydraulicGizmo",
+			"replacementPartOptional" : true,
+			"replacementPartBonus" : 0.10
+		},
+		"EasyMechanical" :
+		{
+			"canBeRepairedByRemote" : false,
+			"canBeRepairedInFlight" : false,
+			"canBeRepairedOnSplashed" : false,
+			"repairChance" : 75
+		}
+	},
+	"FailureConfigs" :
+	{
+		"ShutdownEngine" :
+		{
+			"failureTitle" : "Engine Shutdown",
+			"failureType" : "software",
+			"severity" : "failure"
+		},
+		"LockGimbal" :
+		{
+			"failureTitle" : "Gimbal Failure",
+			"failureType" : "mechanical",
+			"severity" : "failure"
+		},
+		"ReducedMaxThrust" : 
+		{
+			"failureTitle" : "Loss of Thrust",
+			"failureType" : "mechanical",
+			"severity" : "failure"
+		},
+		"Explode" :
+		{
+			"failureTitle" : "Explosion!",
+			"failureType" : "mechanical",
+			"severity" : "major"
+		},
+		"ResourceLeak_LiquidFuel" :
+		{
+			"failureTitle" : "Liquid Fuel Leaking",
+			"failureType" : "mechanical",
+			"severity" : "failure",
+			"resourceToLeak" : "LiquidFuel",
+			"initialAmount" : 10,
+			"perSecondAmount" : 1
+		},
+		"ResourceLeak_Oxidizer" :
+		{
+			"failureTitle" : "Oxidizer Leaking",
+			"failureType" : "mechanical",
+			"severity" : "failure",
+			"resourceToLeak" : "Oxidizer",
+			"initialAmount" : 10,
+			"perSecondAmount" : 1
+		},
+		"ResourceLeak_MonoPropellant" :
+		{
+			"failureTitle" : "MonoPropellant Leaking",
+			"failureType" : "mechanical",
+			"severity" : "failure",
+			"resourceToLeak" : "MonoPropellant",
+			"initialAmount" : 1,
+			"perSecondAmount" : 0.1
+		},
+		"ResourceLeak_Random" :
+		{
+			"failureTitle" : "Tank is leaking",
+			"failureType" : "mechanical",
+			"severity" : "failure",
+			"resourceToLeak" : "random",
+			"initialAmount" : 5,
+			"perSecondAmount" : 1
+		}
+	},
+	"TestFlightConfigs" :
+	{
+		"LiquidEngine" : 
+		{
+			"TestFlightCore" :
+			{
+				"configuration" : ""
+			},
+			"FlightDataRecorder_Engine" : 
+			{
+				"flightDataMultiplier" : 10,
+				"flightDataEngineerModifier" : 0.25
+			},
+			"TestFlightReliability" :
+			{
+				"CURVE_DEF" : "LiquidEngineStandard"
+			},
+			"TestFlightReliability_EngineCycle" : 
+			{
+				"cycle" : 
+				{
+					"type" : "FloatCurve",
+					"keys" :
+					[
+						"key = 0 10",
+						"key = 5 1"
+					]
+				},
+				"CURVE_DEF" : "LiquidEngineStandard"
+			},
+			"TestFlightFailure_ShutdownEngine" :
+			{
+				"FAILURE_DEF" : "ShutdownEngine",
+				"weight" : 16,
+				"REPAIR_DEF" : "EasySoftware"
+			},
+			"TestFlightFailure_ReducedMaxThrust" :
+			{
+				"FAILURE_DEF" : "ReducedMaxThrust",
+				"weight" : 32,
+				"REPAIR_DEF" : "EasyMechanical"
+			},
+			"TestFlightFailure_LockGimbal" :
+			{
+				"FAILURE_DEF" : "LockGimbal",
+				"weight" : 8,
+				"REPAIR_DEF" : "MediumHydraulic"
+			},
+			"TestFlightFailure_Explode" :
+			{
+				"FAILURE_DEF" : "Explode",
+				"weight" : 2
+			}
+		},
+		"SolidEngine" : 
+		{
+			"TestFlightCore" :
+			{
+				"configuration" : ""
+			},
+			"FlightDataRecorder_Engine" : 
+			{
+				"flightDataMultiplier" : 10,
+				"flightDataEngineerModifier" : 0.25
+			},
+			"TestFlightReliability" :
+			{
+				"CURVE_DEF" : "SolidEngineStandard"
+			},
+			"TestFlightReliability_EngineCycle" : 
+			{
+				"cycle" : 
+				{
+					"type" : "FloatCurve",
+					"keys" :
+					[
+						"key = 0 10",
+						"key = 5 1"
+					]
+				},
+				"CURVE_DEF" : "SolidEngineStandard"
+			},
+			"TestFlightFailure_ShutdownEngine" :
+			{
+				"FAILURE_DEF" : "ShutdownEngine",
+				"weight" : 8
+			},
+			"TestFlightFailure_ReducedMaxThrust" :
+			{
+				"FAILURE_DEF" : "ReducedMaxThrust",
+				"weight" : 16
+			},
+			"TestFlightFailure_Explode" :
+			{
+				"FAILURE_DEF" : "Explode",
+				"weight" : 4
+			}
+		},
+		"RCS" : 
+		{
+			"TestFlightCore" :
+			{
+				"configuration" : ""
+			},
+			"FlightDataRecorder_Engine" : 
+			{
+				"flightDataMultiplier" : 15,
+				"flightDataEngineerModifier" : 0.25
+			},
+			"TestFlightReliability" :
+			{
+				"CURVE_DEF" : "HighReliability"
+			},
+			"TestFlightFailure_ShutdownEngine" :
+			{
+				"FAILURE_DEF" : "ShutdownEngine",
+				"weight" : 32
+			},
+			"TestFlightFailure_ReducedMaxThrust" :
+			{
+				"FAILURE_DEF" : "ReducedMaxThrust",
+				"weight" : 8
+			}
+		}
+	},
+	"PartConfigs" : 
+	{
+		"LiquidEnginesAll" : 
+		{
+			"patterns" : 
+			[
+				"@PART[*]:HAS[@MODULE[ModuleEngines]:HAS[@PROPELLANT[LiquidFuel]]]:FINAL"
+			],
+			"configs" : ["LiquidEngine"]
+		},
+		"SolidEnginesAll" : 
+		{
+			"patterns" : 
+			[
+				"@PART[*]:HAS[@MODULE[ModuleEngines],@RESOURCE[SolidFuel]]:FINAL"
+			],
+			"configs" : ["SolidEngine"]
+		},
+		"RCSEngines" : 
+		{
+			"patterns" : 
+			[
+				"@PART[*]:HAS[@MODULE[ModuleEngines]:HAS[@PROPELLANT[MonoPropellant]]]:FINAL"
+			],
+			"configs" : ["RCS"]
+		}
+	}
+}
