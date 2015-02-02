@@ -18,6 +18,7 @@ namespace TestFlight
         private float gimbalRange;
         public override void DoFailure()
         {
+            base.DoFailure();
             List<ModuleGimbal> gimbals = this.part.Modules.OfType<ModuleGimbal>().ToList();
             foreach (ModuleGimbal gimbal in gimbals)
             {
@@ -28,6 +29,7 @@ namespace TestFlight
 
         public override double DoRepair()
         {
+            base.DoRepair();
             List<ModuleGimbal> gimbals = this.part.Modules.OfType<ModuleGimbal>().ToList();
             foreach (ModuleGimbal gimbal in gimbals)
             {

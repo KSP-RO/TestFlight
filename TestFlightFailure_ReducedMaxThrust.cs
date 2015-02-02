@@ -16,6 +16,7 @@ namespace TestFlight
         /// </summary>
         public override void DoFailure()
         {
+            base.DoFailure();
             List<ModuleEngines> partEngines = this.part.Modules.OfType<ModuleEngines>().ToList();
             List<ModuleEnginesFX> partEnginesFX = this.part.Modules.OfType<ModuleEnginesFX>().ToList();
             foreach (ModuleEngines engine in partEngines)
@@ -32,6 +33,7 @@ namespace TestFlight
 
         public override double DoRepair()
         {
+            base.DoRepair();
             List<ModuleEngines> partEngines = this.part.Modules.OfType<ModuleEngines>().ToList();
             List<ModuleEnginesFX> partEnginesFX = this.part.Modules.OfType<ModuleEnginesFX>().ToList();
             foreach (ModuleEngines engine in partEngines)

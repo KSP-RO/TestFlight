@@ -117,6 +117,7 @@ namespace TestFlight
         // Failure methods
         public override void DoFailure()
         {
+            base.DoFailure();
             if (!TestFlightEnabled)
                 return;
 

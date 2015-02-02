@@ -135,6 +135,12 @@ namespace TestFlightAPI
         [KSPField(isPersistant=true)]
         public string configuration = "";
 
+        public bool Failed
+        {
+            get;
+            set;
+        }
+
         public string repairConfigString;
 
         public bool TestFlightEnabled
@@ -200,14 +206,15 @@ namespace TestFlightAPI
         /// <returns>A List of all repair requirements for attempting repair of the part</returns>
         public List<RepairRequirements> GetRepairRequirements()
         {
+
+            if (!Failed)
+                return null;
+
             if (!TestFlightEnabled)
                 return null;
 
             if (repairConfig == null)
-            {
-                Debug.Log("TestFlightFailure: No repairConfig found");
                 return null;
-            }
 
             List<RepairRequirements> requirements = new List<RepairRequirements>();
             Vessel.Situations situation = this.vessel.situation;
@@ -306,6 +313,7 @@ namespace TestFlightAPI
         /// </summary>
         public virtual void DoFailure()
         {
+            Failed = true;
         }
         
         /// <summary>
@@ -356,6 +364,7 @@ namespace TestFlightAPI
 
         public virtual double DoRepair()
         {
+            Failed = false;
             return 0;
         }
 
@@ -365,11 +374,14 @@ namespace TestFlightAPI
         /// <returns>The seconds until repair is complete, <c>0</c> if repair is complete, and <c>-1</c> if something changed the inteerupt the repairs and reapir has stopped with the part still broken.</returns>
         public double GetSecondsUntilRepair()
         {
+            if (Failed)
+                return -1;
             return 0;
         }
 
         public override void OnAwake()
         {
+            Failed = false;
             base.OnAwake();
         }
         
