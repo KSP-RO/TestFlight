@@ -15,7 +15,6 @@ namespace TestFlightCore
     {
         internal TestFlightManagerScenario tfScenario;
         internal TestFlightManager tfManager;
-        private bool isReady = false;
         private ApplicationLauncherButton appLauncherButton;
         private TestFlightHUD hud;
         private bool stickyWindow;
@@ -27,7 +26,6 @@ namespace TestFlightCore
         internal override void Start()
         {
             Visible = false;
-            isReady = false;
             tfScenario = null;
             StartCoroutine("ConnectToScenario");
             base.Start();
@@ -90,7 +88,6 @@ namespace TestFlightCore
             ddlSettingsPage.OnSelectionChanged += SettingsPage_OnSelectionChanged;
             WindowMoveEventsEnabled = true;
             onWindowMoveComplete += MainWindow_OnWindowMoveComplete;
-            isReady = true;
         }
 
         public void Event_OnGameSceneLoadRequested(GameScenes scene)
@@ -122,15 +119,15 @@ namespace TestFlightCore
                 return;
             if (tfScenario == null)
                 return;
-            float windowWidth = 710f;
+            float windowWidth = 740f;
             if (tfScenario.userSettings.shortenPartNameInMSD)
                 windowWidth -= 100f;
             if (!tfScenario.userSettings.showFlightDataInMSD)
                 windowWidth -= 75f;
             if (!tfScenario.userSettings.showFailureRateInMSD)
-                windowWidth -= 75f;
+                windowWidth -= 60f;
             if (!tfScenario.userSettings.showMTBFStringInMSD)
-                windowWidth -= 150f;
+                windowWidth -= 130f;
             if (!tfScenario.userSettings.showStatusTextInMSD)
                 windowWidth -= 100f;
 
@@ -366,7 +363,7 @@ namespace TestFlightCore
                     }
                     if (status.activeFailure != null)
                     {
-                        if (status.activeFailure.CanAttemptRepair() && status.timeToRepair == -1)
+                        if (status.activeFailure.CanAttemptRepair() && status.timeToRepair <= 0)
                         {
                             if (GUILayout.Button("R", GUILayout.Width(38)))
                             {

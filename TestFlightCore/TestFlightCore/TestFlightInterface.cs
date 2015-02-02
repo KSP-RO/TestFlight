@@ -496,22 +496,27 @@ namespace TestFlightCore
 
             return core.IsPartOperating();
         }
+        // Methods for accessing the TestFlight modules on a given part
 
-
-        // INTERNAL methods
-        private static ITestFlightCore GetCore(Part corePart)
+        // Get the active Core Module - can only ever be one.
+        public static ITestFlightCore GetCore(Part part)
         {
-            if (corePart == null || corePart.Modules == null)
-                return null;
-
-            foreach (PartModule pm in corePart.Modules)
-            {
-                ITestFlightCore core = pm as ITestFlightCore;
-                if (core != null)
-                    return core;
-            }
-
-            return null;
+            return TestFlightUtil.GetCore(part);
+        }
+        // Get the Data Recorder Module - can only ever be one.
+        public static IFlightDataRecorder GetDataRecorder(Part part)
+        {
+            return TestFlightUtil.GetDataRecorder(part);
+        }
+        // Get all Reliability Modules - can be more than one.
+        public static List<ITestFlightReliability> GetReliabilityModules(Part part)
+        {
+            return TestFlightUtil.GetReliabilityModules(part);
+        }
+        // Get all Failure Modules - can be more than one.
+        public static List<ITestFlightFailure> GetFailureModules(Part part)
+        {
+            return TestFlightUtil.GetFailureModules(part);
         }
     }
 }

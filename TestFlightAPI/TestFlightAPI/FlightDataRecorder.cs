@@ -11,48 +11,58 @@ namespace TestFlightAPI
     public class FlightDataRecorderBase : PartModule, IFlightDataRecorder
     {
         private double lastRecordedMet = 0;
-        private bool isReady = false;
         private ITestFlightCore core = null;
         #region KSPFields
         [KSPField(isPersistant = true)]
         public float flightDataMultiplier = 10.0f;
         [KSPField(isPersistant = true)]
         public float flightDataEngineerModifier = 0.25f;
+        [KSPField(isPersistant=true)]
+        public string configuration = "";
         #endregion
 
-
+        public bool TestFlightEnabled
+        {
+            get
+            {
+                bool enabled = true;
+                // Verify we have a valid core attached
+                if (core == null)
+                    enabled = false;
+                // If this part has a ModuleEngineConfig then we need to verify we are assigned to the active configuration
+                if (this.part.Modules.Contains("ModuleEngineConfigs"))
+                {
+                    string currentConfig = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
+                    if (currentConfig != configuration)
+                        enabled = false;
+                }
+                return enabled;
+            }
+        }
+        public string Configuration
+        {
+            get { return configuration; }
+            set { configuration = value; }
+        }
 
         public override void OnStart(StartState state)
         {
             base.OnStart(state);
 
-            foreach (PartModule pm in this.part.Modules)
-            {
-                core = pm as ITestFlightCore;
-                if (core != null)
-                    break;
-            }
+            core = TestFlightUtil.GetCore(this.part);
 
             if (core == null)
-            {
                 StartCoroutine("GetCore");
-            }
-            else
-                isReady = true;
-
         }
 
         public override void OnUpdate()
         {
+            if (!TestFlightEnabled)
+                return;
+
             base.OnUpdate();
 
-            if (!isReady)
-                return;
-
-            if (core == null)
-                return;
-
-            double currentMet = this.vessel.missionTime;
+            double currentMet = core.GetOperatingTime();
             if (!IsRecordingFlightData())
             {
                 lastRecordedMet = currentMet;
@@ -60,12 +70,15 @@ namespace TestFlightAPI
             }
 
             string scope = core.GetScope();
-            double flightData = (currentMet - lastRecordedMet) * flightDataMultiplier;
-            double engineerBonus = core.GetEngineerDataBonus(flightDataEngineerModifier);
-            flightData *= engineerBonus;
 
             if (IsRecordingFlightData())
+            {
+                double flightData = (currentMet - lastRecordedMet) * flightDataMultiplier;
+                double engineerBonus = core.GetEngineerDataBonus(flightDataEngineerModifier);
+                flightData *= engineerBonus;
+
                 core.ModifyFlightDataForScope(flightData, scope, true);
+            }
 
             core.ModifyFlightTimeForScope(currentMet - lastRecordedMet, scope, true);
 
@@ -76,41 +89,31 @@ namespace TestFlightAPI
         {
             while (core == null)
             {
-                foreach (PartModule pm in this.part.Modules)
-                {
-                    core = pm as ITestFlightCore;
-                    if (core != null)
-                    {
-                        Debug.Log("Found Code");
-                        break;
-                    }
-                }
-                Debug.Log("Yielding");
+                core = TestFlightUtil.GetCore(this.part);
                 yield return null;
             }
-            if (this.part.started)
-                isReady = true;
         }
 
         public virtual bool IsPartOperating()
         {
+            if (!TestFlightEnabled)
+                return false;
+
             return true;
         }
 
         public virtual bool IsRecordingFlightData()
         {
-            bool isRecording = true;
-
-            if (!IsPartOperating())
+            if (!TestFlightEnabled)
                 return false;
 
-            if (!isReady)
+            if (!IsPartOperating())
                 return false;
 
             if (!isEnabled)
                 return false;
 				
-            return isRecording;
+            return true;
         }
 
         public override void OnAwake()

@@ -1,52 +1,40 @@
 {
 	"ReliabilityDefinitions" : 
 	{
-		"LiquidEngineStandard" :
-		{
-			"default" : 
-			[
-				"key = 0 0.01",
-				"key = 1000 0.007",
-				"key = 10000 0.001"
-			],
-			"kerbin_atmosphere" :
-			[
-				"key = 0 0.01",
-				"key = 7519.115 0.008904761 0 0",
-				"key = 10000 0.006047619 -1.521722E-06 -1.521722E-06"
-			]
-		},
-		"SolidEngineStandard" :
+		"HighReliability" :
 		{
 			"default" : 
 			[
 				"key = 0 0.005",
-				"key = 800 0.005",
-				"key = 5000 0.0001"
-			],
-			"kerbin_atmosphere" :
-			[
-				"key = 0 0.005",
-				"key = 3494.97 0.002238095 0 0",
-				"key = 9969.819 0.001476191 -1.521722E-06 -1.521722E-06"
+				"key = 1000 0.0025",
+				"key = 10000 0.0001"
 			]
 		},
-		"RCSEngineStandard" :
+		"WAC-Corporal" :
 		{
 			"default" : 
 			[
-				"key = 0 0.002",
-				"key = 800 0.0015",
-				"key = 5000 0.0001"
+				"key = 0 0.3",
+				"key = 1000 0.2 -5.833334E-05 -5.833334E-05",
+				"key = 10000 0.05 -2.49122E-06 -1.666667E-05"
 			]
 		},
-		"StandardPropellantTank" :
+		"Aerobee-Hi" :
 		{
 			"default" : 
 			[
-				"key = 0 0.002",
-				"key = 800 0.0015",
-				"key = 5000 0.0001"
+				"key = 0 0.35",
+				"key = 1000 0.3",
+				"key = 10000 0.08"
+			]
+		},
+		"Aerobee-150" :
+		{
+			"default" : 
+			[
+				"key = 0 0.1",
+				"key = 1000 0.05",
+				"key = 10000 0.03"
 			]
 		}
 	},
@@ -140,166 +128,190 @@
 			"resourceToLeak" : "random",
 			"initialAmount" : 5,
 			"perSecondAmount" : 1
+		},
+		"IgnitionFail" :
+		{
+			"failureTitle" : "Failed to ignite",
+			"failureType" : "mechanical",
+			"severity" : "major"
 		}
 	},
 	"TestFlightConfigs" :
 	{
-		"LiquidEnginesBase" : 
+		"WAC-Corporal" : 
 		{
+			"TestFlightCore" :
+			{
+				"configuration" : "WAC-Corporal"
+			},
 			"FlightDataRecorder_Engine" : 
 			{
 				"flightDataMultiplier" : 10,
-				"flightDataEngineerModifier" : 0.25
+				"flightDataEngineerModifier" : 0.25,
+				"configuration" : "WAC-Corporal"
 			},
 			"TestFlightReliability" :
 			{
-				"CURVE_DEF" : "LiquidEngineStandard"
+				"CURVE_DEF" : "WAC-Corporal",
+				"configuration" : "WAC-Corporal"
 			},
-			"TestFlightReliability_EngineCycle" : 
+			"TestFlightFailure_IgnitionFail" : 
 			{
-				"cycle" : 
+				"configuration" : "WAC-Corporal",
+				"FAILURE_DEF" : "IgnitionFail",
+				"weight" : 2,
+				"ignitionFailureRate" : 
 				{
 					"type" : "FloatCurve",
 					"keys" :
 					[
-						"key = 0 10",
-						"key = 5 1"
+						"key = 0 0.15",
+						"key = 5000 0.05"
 					]
-				},
-				"CURVE_DEF" : "LiquidEngineStandard"
+				}
 			},
 			"TestFlightFailure_ShutdownEngine" :
 			{
+				"configuration" : "WAC-Corporal",
 				"FAILURE_DEF" : "ShutdownEngine",
-				"weight" : 4,
+				"weight" : 16,
 				"REPAIR_DEF" : "EasySoftware"
-			},
-			"TestFlightFailure_LockGimbal" :
-			{
-				"FAILURE_DEF" : "LockGimbal",
-				"weight" : 8,
-				"REPAIR_DEF" : "MediumHydraulic"
 			},
 			"TestFlightFailure_ReducedMaxThrust" :
 			{
+				"configuration" : "WAC-Corporal",
 				"FAILURE_DEF" : "ReducedMaxThrust",
-				"weight" : 32,
+				"weight" : 16,
 				"REPAIR_DEF" : "EasyMechanical"
 			},
 			"TestFlightFailure_Explode" :
 			{
+				"configuration" : "WAC-Corporal",
 				"FAILURE_DEF" : "Explode",
-				"weight" : 2
+				"weight" : 4
 			}
 		},
-		"SolidEnginesBase" :
+		"Aerobee-Hi" : 
 		{
+			"TestFlightCore" :
+			{
+				"configuration" : "Aerobee-Hi",
+				"techTransfer" : "WAC-Corporal:50",
+				"techTransferMax" : 0
+			},
 			"FlightDataRecorder_Engine" : 
 			{
 				"flightDataMultiplier" : 10,
-				"flightDataEngineerModifier" : 0.25
+				"flightDataEngineerModifier" : 0.25,
+				"configuration" : "Aerobee-Hi"
 			},
 			"TestFlightReliability" :
 			{
-				"CURVE_DEF" : "SolidEngineStandard"
+				"CURVE_DEF" : "Aerobee-Hi",
+				"configuration" : "Aerobee-Hi"
+			},
+			"TestFlightFailure_IgnitionFail" : 
+			{
+				"configuration" : "Aerobee-Hi",
+				"FAILURE_DEF" : "IgnitionFail",
+				"weight" : 2,
+				"ignitionFailureRate" : 
+				{
+					"type" : "FloatCurve",
+					"keys" :
+					[
+						"key = 0 0.15",
+						"key = 5000 0.05"
+					]
+				}
 			},
 			"TestFlightFailure_ShutdownEngine" :
 			{
+				"configuration" : "Aerobee-Hi",
 				"FAILURE_DEF" : "ShutdownEngine",
-				"weight" : 4,
+				"weight" : 16,
 				"REPAIR_DEF" : "EasySoftware"
-			},
-			"TestFlightFailure_LockGimbal" :
-			{
-				"FAILURE_DEF" : "LockGimbal",
-				"weight" : 8,
-				"REPAIR_DEF" : "MediumHydraulic"
-			},
-			"TestFlightFailure_Explode" :
-			{
-				"FAILURE_DEF" : "Explode",
-				"weight" : 2
-			}
-		},
-		"RCSEnginesBase" :
-		{
-			"FlightDataRecorder_Engine" : 
-			{
-				"flightDataMultiplier" : 12,
-				"flightDataEngineerModifier" : 0.25
-			},
-			"TestFlightReliability" :
-			{
-				"CURVE_DEF" : "RCSEngineStandard"
 			},
 			"TestFlightFailure_ReducedMaxThrust" :
 			{
+				"configuration" : "Aerobee-Hi",
 				"FAILURE_DEF" : "ReducedMaxThrust",
-				"weight" : 32,
+				"weight" : 16,
 				"REPAIR_DEF" : "EasyMechanical"
 			},
-			"TestFlightFailure_ShutdownEngine" :
+			"TestFlightFailure_Explode" :
 			{
-				"FAILURE_DEF" : "ShutdownEngine",
-				"weight" : 4,
-				"REPAIR_DEF" : "EasySoftware"
+				"configuration" : "Aerobee-Hi",
+				"FAILURE_DEF" : "Explode",
+				"weight" : 4
 			}
 		},
-		"StandardResourceTank" :
+		"Aerobee-150" : 
 		{
-			"FlightDataRecorder_Resources" : 
+			"TestFlightCore" :
 			{
-				"flightDataMultiplier" : 5,
-				"flightDataEngineerModifier" : 0.1
+				"configuration" : "Aerobee-150",
+				"techTransfer" : "Aerobee-Hi,WAC-Corporal:50",
+				"techTransferMax" : 1000,
+				"techTransferGenerationPenalty" : 0.1
+			},
+			"FlightDataRecorder_Engine" : 
+			{
+				"flightDataMultiplier" : 10,
+				"flightDataEngineerModifier" : 0.25,
+				"configuration" : "Aerobee-150"
 			},
 			"TestFlightReliability" :
 			{
-				"CURVE_DEF" : "RCSEngineStandard"
+				"CURVE_DEF" : "Aerobee-150",
+				"configuration" : "Aerobee-150"
 			},
-			"TestFlightFailure_ResourceLeak" :
+			"TestFlightFailure_IgnitionFail" : 
 			{
-				"FAILURE_DEF" : "ResourceLeak_Random",
-				"weight" : 32,
+				"configuration" : "Aerobee-150",
+				"FAILURE_DEF" : "IgnitionFail",
+				"weight" : 2,
+				"ignitionFailureRate" : 
+				{
+					"type" : "FloatCurve",
+					"keys" :
+					[
+						"key = 0 0.15",
+						"key = 5000 0.05"
+					]
+				}
+			},
+			"TestFlightFailure_ShutdownEngine" :
+			{
+				"configuration" : "Aerobee-150",
+				"FAILURE_DEF" : "ShutdownEngine",
+				"weight" : 16,
+				"REPAIR_DEF" : "EasySoftware"
+			},
+			"TestFlightFailure_ReducedMaxThrust" :
+			{
+				"configuration" : "Aerobee-150",
+				"FAILURE_DEF" : "ReducedMaxThrust",
+				"weight" : 16,
 				"REPAIR_DEF" : "EasyMechanical"
+			},
+			"TestFlightFailure_Explode" :
+			{
+				"configuration" : "Aerobee-150",
+				"FAILURE_DEF" : "Explode",
+				"weight" : 4
 			}
 		}
 	},
 	"PartConfigs" : 
 	{
-		"LiquidEnginesAll" : 
+		"ROAerobeeSustainer" : 
 		{
 			"patterns" : 
 			[
-				"@PART[*]:HAS[@MODULE[ModuleEngines]:HAS[@PROPELLANT[LiquidFuel]]]:FINAL"
+				"@PART[ROAerobeeSustainer]:AFTER[RealismOverhaul]"
 			],
-			"config" : "LiquidEnginesBase"
-		},
-		"SolidEnginesAll" : 
-		{
-			"patterns" : 
-			[
-				"@PART[*]:HAS[@MODULE[ModuleEngines],@RESOURCE[SolidFuel]]:FINAL"
-			],
-			"config" : "LiquidEnginesBase"
-		},
-		"RCSEnginesAll" :
-		{
-			"patterns" :
-			[
-				"@PART[*]:HAS[@MODULE[ModuleEngines]:HAS[@PROPELLANT[MonoPropellant]]]:FINAL"
-			],
-			"config" : "RCSEnginesBase"
-		},
-		"ResourceTank" :
-		{
-			"patterns" :
-			[
-				"@PART[*]:HAS[@RESOURCE[LiquidFuel],@RESOURCE[Oxidizer],!MODULE[ModuleCommand]]:FINAL",
-				"@PART[*]:HAS[@RESOURCE[LiquidFuel,!RESOURCE[Oxidizer]],!MODULE[ModuleCommand]]:FINAL",
-				"@PART[*]:HAS[@RESOURCE[MonoPropellant],!MODULE[ModuleCommand]]:FOR[TestFlight]:FINAL",
-				"@PART[*]:HAS[@RESOURCE[XenonGas],!MODULE[ModuleCommand]]:FOR[TestFlight]:FINAL"
-			],
-			"config" : "StandardResourceTank"
+			"configs" : ["WAC-Corporal", "Aerobee-150", "Aerobee-Hi"]
 		}
 	}
 }

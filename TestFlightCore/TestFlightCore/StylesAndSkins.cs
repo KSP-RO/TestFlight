@@ -48,7 +48,6 @@ namespace TestFlightCore
         internal static GUIStyle stylePanelSolarizedDark;
         internal static GUIStyle stylePanelSolarizedDarkHUD;
         internal static GUIStyle styleTextSolarizedDark;
-        internal static GUIStyle styleButtonSolarizedDark;
         internal static GUIStyle styleTextSafeSolarizedDark;
         internal static GUIStyle styleTextWarningSolarizedDark;
         internal static GUIStyle styleTextCriticalSolarizedDark;

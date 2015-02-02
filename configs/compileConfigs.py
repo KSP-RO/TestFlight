@@ -76,10 +76,11 @@ def compileCurveDef(d):
 	return configNodes
 
 def compile(pattern, config):
-	node = pattern + "\n"
-	node += "{\n\tMODULE\n\t{\n\t\tname = TestFlightCore\n\t}\n"
-
 	configDef = rawJson["TestFlightConfigs"][config]
+	node = "\n" + pattern + "\n{"
+	if not "TestFlightCore" in configDef:
+		node += "\n\tMODULE\n\t{\n\t\tname = TestFlightCore\n\t}\n"
+
 	for moduleName in configDef:
 		moduleConfig = configDef[moduleName]
 		node += "\n\tMODULE\n\t{\n\t\tname = " + moduleName
@@ -131,10 +132,11 @@ for jsonFile in configs:
 	# Process each defined part config
 	finalConfig = ""
 	for partConfig in rawJson["PartConfigs"].values():
-		config = partConfig["config"]
+		configs = partConfig["configs"]
 		patterns = partConfig["patterns"]
 		for pattern in patterns:
-			finalConfig += compile(pattern, config)
+			for config in configs:
+				finalConfig += compile(pattern, config)
 
 	baseName = os.path.splitext(jsonFile)[0]
 	with open(baseName + ".cfg", "w") as cfgFile:

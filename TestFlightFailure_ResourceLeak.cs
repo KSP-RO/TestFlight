@@ -24,6 +24,7 @@ namespace TestFlight
         /// </summary>
         public override void DoFailure()
         {
+            base.DoFailure();
             Debug.Log("TestFlightFailure_ResourceLeak: Failing part");
             if (resourceToLeak.ToLower() == "random")
             {
@@ -49,6 +50,7 @@ namespace TestFlight
 
         public override double DoRepair()
         {
+            base.DoRepair();
             StopCoroutine("LeakResource");
 
             return 0;

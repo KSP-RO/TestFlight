@@ -132,8 +132,37 @@ namespace TestFlightAPI
         public int weight;
         [KSPField(isPersistant = true)]
         public string failureTitle = "Failure";
+        [KSPField(isPersistant=true)]
+        public string configuration = "";
+
+        public bool Failed
+        {
+            get;
+            set;
+        }
 
         public string repairConfigString;
+
+        public bool TestFlightEnabled
+        {
+            get
+            {
+                bool enabled = true;
+                // If this part has a ModuleEngineConfig then we need to verify we are assigned to the active configuration
+                if (this.part.Modules.Contains("ModuleEngineConfigs"))
+                {
+                    string currentConfig = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
+                    if (currentConfig != configuration)
+                        enabled = false;
+                }
+                return enabled;
+            }
+        }
+        public string Configuration
+        {
+            get { return configuration; }
+            set { configuration = value; }
+        }
 
 
         public RepairConfig repairConfig;
@@ -177,10 +206,15 @@ namespace TestFlightAPI
         /// <returns>A List of all repair requirements for attempting repair of the part</returns>
         public List<RepairRequirements> GetRepairRequirements()
         {
-            if (repairConfig == null)
-            {
+
+            if (!Failed)
                 return null;
-            }
+
+            if (!TestFlightEnabled)
+                return null;
+
+            if (repairConfig == null)
+                return null;
 
             List<RepairRequirements> requirements = new List<RepairRequirements>();
             Vessel.Situations situation = this.vessel.situation;
@@ -262,6 +296,9 @@ namespace TestFlightAPI
         {
             float totalBonus = 0f;
             List<RepairRequirements> requirements = GetRepairRequirements();
+            if (requirements == null)
+                return 0f;
+
             foreach (var entry in requirements)
             {
                 if (entry.optionalRequirement && entry.requirementMet)
@@ -276,6 +313,7 @@ namespace TestFlightAPI
         /// </summary>
         public virtual void DoFailure()
         {
+            Failed = true;
         }
         
         /// <summary>
@@ -285,6 +323,8 @@ namespace TestFlightAPI
         public virtual bool CanAttemptRepair()
         {
             List<RepairRequirements> requirements = GetRepairRequirements();
+            if (requirements == null)
+                return false;
             foreach (var entry in requirements)
             {
                 if (!entry.optionalRequirement && !entry.requirementMet)
@@ -324,6 +364,7 @@ namespace TestFlightAPI
 
         public virtual double DoRepair()
         {
+            Failed = false;
             return 0;
         }
 
@@ -333,11 +374,14 @@ namespace TestFlightAPI
         /// <returns>The seconds until repair is complete, <c>0</c> if repair is complete, and <c>-1</c> if something changed the inteerupt the repairs and reapir has stopped with the part still broken.</returns>
         public double GetSecondsUntilRepair()
         {
+            if (Failed)
+                return -1;
             return 0;
         }
 
         public override void OnAwake()
         {
+            Failed = false;
             base.OnAwake();
         }
         

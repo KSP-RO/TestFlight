@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using UnityEngine;
+
 namespace TestFlightAPI
 {
     public class TestFlightUtil
@@ -15,6 +17,102 @@ namespace TestFlightAPI
             YEARS,
             INVALID
         };
+        // Methods for accessing the TestFlight modules on a given part
+
+        public static string GetFullPartName(Part part)
+        {
+            string baseName = part.name;
+
+            if (part.Modules == null)
+                return baseName;
+
+            if (part.Modules.Contains("ModuleEngineConfigs"))
+            {
+                string configurationName = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
+                return String.Format("{0}|{1}", baseName, configurationName);
+            }
+
+            return baseName;
+        }
+        public static string GetPartTitle(Part part)
+        {
+            string baseName = part.partInfo.title;
+
+            if (part.Modules == null)
+                return baseName;
+
+            if (part.Modules.Contains("ModuleEngineConfigs"))
+            {
+                string configurationName = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
+                return String.Format("{0}", configurationName);
+            }
+
+            return baseName;
+        }
+        // Get the active Core Module - can only ever be one.
+        public static ITestFlightCore GetCore(Part part)
+        {
+            if (part == null || part.Modules == null)
+                return null;
+
+            foreach (PartModule pm in part.Modules)
+            {
+                ITestFlightCore core = pm as ITestFlightCore;
+                if (core != null && core.TestFlightEnabled)
+                    return core;
+            }
+            return null;
+        }
+        // Get the Data Recorder Module - can only ever be one.
+        public static IFlightDataRecorder GetDataRecorder(Part part)
+        {
+            if (part == null || part.Modules == null)
+                return null;
+
+            foreach (PartModule pm in part.Modules)
+            {
+                IFlightDataRecorder dataRecorder = pm as IFlightDataRecorder;
+                if (dataRecorder != null && dataRecorder.TestFlightEnabled)
+                    return dataRecorder;
+            }
+            return null;
+        }
+        // Get all Reliability Modules - can be more than one.
+        public static List<ITestFlightReliability> GetReliabilityModules(Part part)
+        {
+            List<ITestFlightReliability> reliabilityModules;
+
+            if (part == null || part.Modules == null)
+                return null;
+
+            reliabilityModules = new List<ITestFlightReliability>();
+            foreach (PartModule pm in part.Modules)
+            {
+                ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
+                if (reliabilityModule != null && reliabilityModule.TestFlightEnabled)
+                    reliabilityModules.Add(reliabilityModule);
+            }
+
+            return reliabilityModules;
+        }
+        // Get all Failure Modules - can be more than one.
+        public static List<ITestFlightFailure> GetFailureModules(Part part)
+        {
+            List<ITestFlightFailure> failureModules;
+
+            if (part == null || part.Modules == null)
+                return null;
+
+            failureModules = new List<ITestFlightFailure>();
+            foreach (PartModule pm in part.Modules)
+            {
+                ITestFlightFailure failureModule = pm as ITestFlightFailure;
+                if (failureModule != null && failureModule.TestFlightEnabled)
+                    failureModules.Add(failureModule);
+            }
+
+            return failureModules;
+        }
     }
 
 	public struct TestFlightData
@@ -79,6 +177,15 @@ namespace TestFlightAPI
 
 	public interface IFlightDataRecorder
 	{
+        bool TestFlightEnabled
+        {
+            get;
+        }
+        string Configuration
+        {
+            get;
+            set;
+        }
         /// <summary>
         /// Returns whether or not the part is considered to be operating or running.  IE is an engine actually turned on and thrusting?  Is a command pod supplied with electricity and operating?
         /// The point of this is to distinguish between the life time of a part and the operating time of a part, which might be smaller than its total lifetime.
@@ -89,6 +196,15 @@ namespace TestFlightAPI
 
 	public interface ITestFlightReliability
 	{
+        bool TestFlightEnabled
+        {
+            get;
+        }
+        string Configuration
+        {
+            get;
+            set;
+        }
         // New API
         // Get the base or static failure rate for the given scope
         // !! IMPORTANT: Only ONE Reliability module may return a Base Failure Rate.  Additional modules can exist only to supply Momentary rates
@@ -112,6 +228,15 @@ namespace TestFlightAPI
 
 	public interface ITestFlightFailure
 	{
+        bool TestFlightEnabled
+        {
+            get;
+        }
+        string Configuration
+        {
+            get;
+            set;
+        }
         /// <summary>
         /// Gets the details of the failure encapsulated by this module.  In most cases you can let the base class take care of this unless oyu need to do somethign special
         /// </summary>
@@ -160,6 +285,20 @@ namespace TestFlightAPI
     /// </summary>
     public interface ITestFlightCore
     {
+        bool TestFlightEnabled
+        {
+            get;
+        }
+
+        string Configuration
+        {
+            get;
+            set;
+        }
+        System.Random RandomGenerator
+        {
+            get;
+        }
         /// <summary>
         /// 0 = OK, 1 = Minor Failure, 2 = Failure, 3 = Major Failure
         /// </summary>
@@ -230,6 +369,8 @@ namespace TestFlightAPI
         // Get the FlightData or FlightTime for the part
         double GetFlightData();
         double GetFlightDataForScope(String scope);
+        double GetInitialFlightData();
+        double GetInitialFlightDataforScope(String scope);
         double GetFlightTime();
         double GetFlightTimeForScope(String scope);
         // Methods to restrict the amount of data accumulated.  Useful for KCT or other "Simulation" mods to use
