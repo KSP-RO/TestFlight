@@ -186,6 +186,9 @@ namespace TestFlightAPI
             // NEW RELIABILITY CODE
             double operatingTime = core.GetOperatingTime();
 //            Debug.Log(String.Format("TestFlightReliability: Operating Time = {0:F2}", operatingTime));
+            if (operatingTime == -1)
+                lastCheck = 0;
+
             if (operatingTime < lastCheck + 1f)
                 return;
 

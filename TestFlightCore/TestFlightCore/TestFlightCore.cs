@@ -821,12 +821,26 @@ namespace TestFlightCore
                 if (TestFlightManagerScenario.Instance == null)
                     return;
 
-                if (operatingTime < 0)
-                    return;
+                if (activeFailure != null)
+                {
+                    double repairStatus = activeFailure.GetSecondsUntilRepair();
+                    if (repairStatus == 0)
+                    {
+                        LogFormatted_DebugOnly("TestFlightCore: Part has been repaired");
+                        activeFailure = null;
+                        failureAcknowledged = false;
+                        operatingTime = 0;
+                    }
+                }
+
 
                 double currentMET = Planetarium.GetUniversalTime() - missionStartTime;
-
-                operatingTime += currentMET - lastMET;
+//                LogFormatted("TestFlightCore: Current MET: " + currentMET + ", Last MET: " + lastMET);
+                if (operatingTime != -1)
+                {
+//                    LogFormatted_DebugOnly("TestFlightCore: Adding " + (currentMET - lastMET) + " seconds to operatingTime");
+                    operatingTime += currentMET - lastMET;
+                }
 
                 lastMET = currentMET;
             }
@@ -988,6 +1002,7 @@ namespace TestFlightCore
                 double repairStatus = activeFailure.AttemptRepair();
                 if (repairStatus == 0)
                 {
+                    LogFormatted_DebugOnly("TestFlightCore: Part has been repaired");
                     activeFailure = null;
                     failureAcknowledged = false;
                     operatingTime = 0;
