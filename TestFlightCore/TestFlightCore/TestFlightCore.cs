@@ -836,7 +836,7 @@ namespace TestFlightCore
 
                 double currentMET = Planetarium.GetUniversalTime() - missionStartTime;
 //                LogFormatted("TestFlightCore: Current MET: " + currentMET + ", Last MET: " + lastMET);
-                if (operatingTime != -1)
+                if (operatingTime != -1 && IsPartOperating())
                 {
 //                    LogFormatted_DebugOnly("TestFlightCore: Adding " + (currentMET - lastMET) + " seconds to operatingTime");
                     operatingTime += currentMET - lastMET;
