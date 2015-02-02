@@ -70,6 +70,14 @@ namespace TestFlightCore
             set { configuration = value; }
         }
 
+        public System.Random RandomGenerator
+        {
+            get
+            {
+                return TestFlightManagerScenario.Instance.RandomGenerator;
+            }
+        }
+
         // Get a proper scope string for use in other parts of the API
         public String GetScope()
         {
@@ -679,7 +687,7 @@ namespace TestFlightCore
             {
                 totalWeight += fm.GetFailureDetails().weight;
             }
-            chosenWeight = UnityEngine.Random.Range(1,totalWeight);
+            chosenWeight = RandomGenerator.Next(1,totalWeight);
             foreach(ITestFlightFailure fm in failureModules)
             {
                 currentWeight += fm.GetFailureDetails().weight;

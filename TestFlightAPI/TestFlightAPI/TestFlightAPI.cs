@@ -295,6 +295,10 @@ namespace TestFlightAPI
             get;
             set;
         }
+        System.Random RandomGenerator
+        {
+            get;
+        }
         /// <summary>
         /// 0 = OK, 1 = Minor Failure, 2 = Failure, 3 = Major Failure
         /// </summary>

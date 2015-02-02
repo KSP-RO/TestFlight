@@ -486,6 +486,7 @@ namespace TestFlightCore
         internal UserSettings userSettings = null;
         internal BodySettings bodySettings = null;
         public static TestFlightManagerScenario Instance { get; private set; }
+        public System.Random RandomGenerator { get; private set; }
         public bool isReady = false;
 
         public List<PartFlightData> partsFlightData;
@@ -550,6 +551,7 @@ namespace TestFlightCore
         public void Start()
         {
             Debug.Log("Scenario Start");
+            RandomGenerator = new System.Random();
             isReady = true;
         }
 
