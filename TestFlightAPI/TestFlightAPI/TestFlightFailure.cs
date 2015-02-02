@@ -203,6 +203,12 @@ namespace TestFlightAPI
             if (!TestFlightEnabled)
                 return null;
 
+            if (repairConfig == null)
+            {
+                Debug.Log("TestFlightFailure: No repairConfig found");
+                return null;
+            }
+
             List<RepairRequirements> requirements = new List<RepairRequirements>();
             Vessel.Situations situation = this.vessel.situation;
 

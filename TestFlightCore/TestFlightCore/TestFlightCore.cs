@@ -714,6 +714,7 @@ namespace TestFlightCore
                         return null;
                     else
                     {
+                        LogFormatted_DebugOnly("TestFlightCore: Triggering Failure: " + pm.moduleName);
                         activeFailure = fm;
                         failureAcknowledged = false;
                         fm.DoFailure();
@@ -1002,7 +1003,7 @@ namespace TestFlightCore
             List<RepairRequirements> requirements = activeFailure.GetRepairRequirements();
 
             if (requirements == null)
-                return "This repair has no requirements";
+                return "This repair has no requirements or can not be repaired.";
 
             string tooltip = "";
 
