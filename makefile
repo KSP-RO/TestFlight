@@ -10,15 +10,15 @@ all: configs
 release: zip
 
 configs: $(CONFIG_DIR)/%.cfg
-	cp $(CONFIG_DIR)/$(BRANCH)/*.cfg GameData/TestFlight
+	cp $(CONFIG_DIR)/$(TRAVIS_BRANCH)/*.cfg GameData/TestFlight
 
 $(CONFIG_DIR)/%.cfg:
-	cd $(CONFIG_DIR);python compileConfigs.py $(BRANCH)
+	cd $(CONFIG_DIR);python compileConfigs.py $(TRAVIS_BRANCH)
 
 zip: configs
 	zip -r $(ZIPFILE) GameData
 
 clean:
 	-rm GameData/TestFlight/*.cfg
-	-rm $(CONFIG_DIR)/$(BRANCH)/*.cfg
+	-rm $(CONFIG_DIR)/$(TRAVIS_BRANCH)/*.cfg
 	-rm *.zip
