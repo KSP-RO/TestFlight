@@ -1,0 +1,128 @@
+{
+	"ReliabilityDefinitions" : 
+	{
+		"HighReliability" :
+		{
+			"default" : 
+			[
+				"key = 0 0.005",
+				"key = 1000 0.0025",
+				"key = 10000 0.0001"
+			]
+		}
+	},
+	"RepairConfigs" :
+	{
+		"EasySoftware" :
+		{
+			"canBeRepairedByRemote" : true,
+			"canBeRepairedInFlight" : true,
+			"canBeRepairedOnSplashed" : true,
+			"dataScale" : 1,
+			"dataSize" : 1,
+			"repairChance" : 75
+		},
+		"MediumHydraulic" :
+		{
+			"canBeRepairedByRemote" : false,
+			"canBeRepairedInFlight" : false,
+			"canBeRepairedOnSplashed" : false,
+			"repairChance" : 50,
+			"replacementPart" : "HydraulicGizmo",
+			"replacementPartOptional" : true,
+			"replacementPartBonus" : 0.10
+		},
+		"EasyMechanical" :
+		{
+			"canBeRepairedByRemote" : false,
+			"canBeRepairedInFlight" : false,
+			"canBeRepairedOnSplashed" : false,
+			"repairChance" : 75
+		}
+	},
+	"FailureConfigs" :
+	{
+		"Explode" :
+		{
+			"failureTitle" : "Explosion!",
+			"failureType" : "mechanical",
+			"severity" : "major"
+		},
+		"ResourceLeak_LiquidFuel" :
+		{
+			"failureTitle" : "Liquid Fuel Leaking",
+			"failureType" : "mechanical",
+			"severity" : "failure",
+			"resourceToLeak" : "LiquidFuel",
+			"initialAmount" : 10,
+			"perSecondAmount" : 1
+		},
+		"ResourceLeak_Oxidizer" :
+		{
+			"failureTitle" : "Oxidizer Leaking",
+			"failureType" : "mechanical",
+			"severity" : "failure",
+			"resourceToLeak" : "Oxidizer",
+			"initialAmount" : 10,
+			"perSecondAmount" : 1
+		},
+		"ResourceLeak_MonoPropellant" :
+		{
+			"failureTitle" : "MonoPropellant Leaking",
+			"failureType" : "mechanical",
+			"severity" : "failure",
+			"resourceToLeak" : "MonoPropellant",
+			"initialAmount" : 1,
+			"perSecondAmount" : 0.1
+		},
+		"ResourceLeak_Random" :
+		{
+			"failureTitle" : "Tank is leaking",
+			"failureType" : "mechanical",
+			"severity" : "failure",
+			"resourceToLeak" : "random",
+			"initialAmount" : 5,
+			"perSecondAmount" : 1
+		}
+	},
+	"TestFlightConfigs" :
+	{
+		"Tank" : 
+		{
+			"TestFlightCore" :
+			{
+				"configuration" : ""
+			},
+			"FlightDataRecorder" : 
+			{
+				"flightDataMultiplier" : 2,
+				"flightDataEngineerModifier" : 0.05
+			},
+			"TestFlightReliability" :
+			{
+				"CURVE_DEF" : "HighReliability"
+			},
+			"TestFlightFailure_Explode" :
+			{
+				"FAILURE_DEF" : "Explode",
+				"weight" : 2
+			},
+			"TestFlightFailure_ResourceLeak" :
+			{
+				"FAILURE_DEF" : "ResourceLeak_Random",
+				"weight" : 32
+			}
+		}
+	},
+	"PartConfigs" : 
+	{
+		"TanksAll" : 
+		{
+			"patterns" : 
+			[
+				"@PART[*]:HAS[@RESOURCE[*]]:FINAL"
+			],
+			"configs" : ["Tank"]
+		}
+	}
+}

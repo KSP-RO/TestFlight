@@ -20,5 +20,5 @@ zip: configs
 
 clean:
 	-rm GameData/TestFlight/*.cfg
-	-rm $(CONFIG_DIR)/*.cfg
+	-rm $(CONFIG_DIR)/$(BRANCH)/*.cfg
 	-rm *.zip
