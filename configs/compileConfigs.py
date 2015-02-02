@@ -132,10 +132,11 @@ for jsonFile in configs:
 	# Process each defined part config
 	finalConfig = ""
 	for partConfig in rawJson["PartConfigs"].values():
-		config = partConfig["config"]
+		configs = partConfig["configs"]
 		patterns = partConfig["patterns"]
 		for pattern in patterns:
-			finalConfig += compile(pattern, config)
+			for config in configs:
+				finalConfig += compile(pattern, config)
 
 	baseName = os.path.splitext(jsonFile)[0]
 	with open(baseName + ".cfg", "w") as cfgFile:
