@@ -15,8 +15,8 @@
 			"default" : 
 			[
 				"key = 0 0.3",
-				"key = 1000 0.2",
-				"key = 10000 0.05"
+				"key = 1000 0.2 -5.833334E-05 -5.833334E-05",
+				"key = 10000 0.05 -2.49122E-06 -1.666667E-05"
 			]
 		},
 		"Aerobee-Hi" :
@@ -195,7 +195,9 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "Aerobee-Hi"
+				"configuration" : "Aerobee-Hi",
+				"techTransfer" : "WAC-Corporal:50",
+				"techTransferMax" : 0
 			},
 			"FlightDataRecorder_Engine" : 
 			{
@@ -248,7 +250,10 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "Aerobee-150"
+				"configuration" : "Aerobee-150",
+				"techTransfer" : "Aerobee-Hi,WAC-Corporal:50",
+				"techTransferMax" : 1000,
+				"techTransferGenerationPenalty" : 0.1
 			},
 			"FlightDataRecorder_Engine" : 
 			{
