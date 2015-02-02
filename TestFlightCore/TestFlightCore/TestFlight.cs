@@ -236,13 +236,11 @@ namespace TestFlightCore
                     if (partData == null)
                     {
                         LogFormatted_DebugOnly("TestFlightManager: Unable to find part data.  Starting fresh.");
-                        partData = new PartFlightData();
+                        core.InitializeFlightData(null);
                     }
-
-                    if (partData != null && partData.GetFlightData() != null)
+                    else
                     {
                         core.InitializeFlightData(partData.GetFlightData());
-                        LogFormatted_DebugOnly("TestFlightManager: Part initialised");
                     }
                 }
             }
@@ -559,10 +557,31 @@ namespace TestFlightCore
         {
             foreach (PartFlightData data in partsFlightData)
             {
-                if (data.GetPartName() == partName)
+                if (data.GetPartName().ToLower().Trim() == partName.ToLower().Trim())
                     return data;
             }
             return null;
+        }
+
+        public PartFlightData GetFlightDataForPartNameFragment(string partNameFragment)
+        {
+            PartFlightData returnValue = null;
+            // check 1, do we have an exact match?
+            returnValue = GetFlightDataForPartName(partNameFragment);
+            if (returnValue != null)
+                return returnValue;
+
+            // check 2, is this a base part name or a configuration name?
+            foreach (PartFlightData data in partsFlightData)
+            {
+                string[] split = data.GetPartName().Split(new char[1]{ '|' });
+                if (split[0].ToLower().Trim() == partNameFragment.ToLower().Trim())
+                    return data;
+                if (split.Length > 1 && split[1].ToLower().Trim() == partNameFragment.ToLower().Trim())
+                    return data;
+            }
+
+            return returnValue;
         }
 
         public void SetFlightDataForPartName(string partName, PartFlightData data)

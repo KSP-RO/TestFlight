@@ -21,6 +21,13 @@ namespace TestFlightCore
         public double deepSpaceThreshold = 10000000;
         [KSPField(isPersistant=true)]
         public string configuration = "";
+        [KSPField(isPersistant=true)]
+        public string techTransfer = "";
+        [KSPField(isPersistant=true)]
+        public float techTransferMax = 1000;
+        [KSPField(isPersistant=true)]
+        public float techTransferGenerationPenalty = 0.05f;
+
 
 
 
@@ -865,9 +872,9 @@ namespace TestFlightCore
         public void InitializeFlightData(List<TestFlightData> allFlightData)
         {
             if (allFlightData == null)
-            {
+                allFlightData = AttemptTechTransfer();
+            if (allFlightData == null)
                 return;
-            }
             baseFlightData = new FlightDataConfig();
             flightData = new FlightDataConfig();
             foreach (TestFlightData data in allFlightData)
@@ -880,7 +887,76 @@ namespace TestFlightCore
         }
 
 
+        internal List<TestFlightData> AttemptTechTransfer()
+        {
+            // attempts to transfer data from a predecessor part
+            // parts can be referenced either by part name, full name, or configuration name
+            // multiple branches can be specified with the & character
+            // multiple parts in a branch can be specified by separating them with a comma
+            // for each branch the first part listed is considered the closest part, and each part after is considered to be one generation removed.  An optional generation penalty is added for each level
+            //  for each branch, the flight data from each part is added together including any generation penalties, to create a total for that branch, modifed by the transfer amount for that branch
+            // if multiple branches are specified, each branch is then added together
+            // an optional maximum data can be enforced for each scope (global setting but applied to each scope, not total)
+            // Example
+            // techTransfer = rs-27a,rs-27,h1-b,h1:10&lr-89-na-7,lr-89-na-6,lr-89-na-5:25
+            // defines two branches, one from the RS-27 branch and one from the LR-89 branch.  
 
+            if (techTransfer.Trim() == "")
+                return null;
+
+            List<TestFlightData> transferredFlightData;
+            Dictionary<string, double> dataToTransfer = null;
+            string[] branches;
+            string[] modifiers;
+            int generation = 0;
+
+            branches = techTransfer.Split(new char[1]{ '&' });
+
+            foreach (string branch in branches)
+            {
+                modifiers = branch.Split(new char[1]{ ':' });
+                if (modifiers.Length < 2)
+                    continue;
+                string[] partsInBranch = modifiers[0].Split(new char[1]{ ',' });
+                float branchModifier = float.Parse(modifiers[1]);
+                branchModifier /= 100f;
+                dataToTransfer = new Dictionary<string, double>();
+                foreach (string partNameFragment in partsInBranch)
+                {
+                    PartFlightData partData = TestFlightManagerScenario.Instance.GetFlightDataForPartNameFragment(partNameFragment);
+                    if (partData == null)
+                        continue;
+                    List<TestFlightData> data = partData.GetFlightData();
+                    foreach (TestFlightData scopeData in data)
+                    {
+                        if (dataToTransfer.ContainsKey(scopeData.scope))
+                        {
+                            dataToTransfer[scopeData.scope] = dataToTransfer[scopeData.scope] + ((scopeData.flightData - (scopeData.flightData * generation * techTransferGenerationPenalty)) * branchModifier);
+                        }
+                        else
+                        {
+                            dataToTransfer.Add(scopeData.scope, ((scopeData.flightData - (scopeData.flightData * generation * techTransferGenerationPenalty))) * branchModifier);
+                        }
+                    }
+                    generation++;
+                }
+            }
+            // When that is all done we should have a bunch of data in our dictionary dataToTransfer sorted by scope.  Now we just need to pack it into proper TestFlightData structs
+            if (dataToTransfer == null || dataToTransfer.Count <= 0)
+                return null;
+            transferredFlightData = new List<TestFlightData>();
+            foreach (var scope in dataToTransfer)
+            {
+                TestFlightData data = new TestFlightData();
+                data.scope = scope.Key;
+                if (techTransferMax > 0 && scope.Value > techTransferMax)
+                    data.flightData = techTransferMax;
+                else
+                    data.flightData = scope.Value;
+                transferredFlightData.Add(data);
+            }
+            return transferredFlightData;
+        }
 
 
         private ITestFlightFailure activeFailure = null;
