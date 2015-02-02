@@ -190,17 +190,123 @@
 				"FAILURE_DEF" : "Explode",
 				"weight" : 4
 			}
+		},
+		"Aerobee-Hi" : 
+		{
+			"TestFlightCore" :
+			{
+				"configuration" : "Aerobee-Hi"
+			},
+			"FlightDataRecorder_Engine" : 
+			{
+				"flightDataMultiplier" : 10,
+				"flightDataEngineerModifier" : 0.25,
+				"configuration" : "Aerobee-Hi"
+			},
+			"TestFlightReliability" :
+			{
+				"CURVE_DEF" : "Aerobee-Hi",
+				"configuration" : "Aerobee-Hi"
+			},
+			"TestFlightFailure_IgnitionFail" : 
+			{
+				"configuration" : "Aerobee-Hi",
+				"FAILURE_DEF" : "IgnitionFail",
+				"weight" : 2,
+				"ignitionFailureRate" : 
+				{
+					"type" : "FloatCurve",
+					"keys" :
+					[
+						"key = 0 0.15",
+						"key = 5000 0.05"
+					]
+				}
+			},
+			"TestFlightFailure_ShutdownEngine" :
+			{
+				"configuration" : "Aerobee-Hi",
+				"FAILURE_DEF" : "ShutdownEngine",
+				"weight" : 16,
+				"REPAIR_DEF" : "EasySoftware"
+			},
+			"TestFlightFailure_ReducedMaxThrust" :
+			{
+				"configuration" : "Aerobee-Hi",
+				"FAILURE_DEF" : "ReducedMaxThrust",
+				"weight" : 16,
+				"REPAIR_DEF" : "EasyMechanical"
+			},
+			"TestFlightFailure_Explode" :
+			{
+				"configuration" : "Aerobee-Hi",
+				"FAILURE_DEF" : "Explode",
+				"weight" : 4
+			}
+		},
+		"Aerobee-150" : 
+		{
+			"TestFlightCore" :
+			{
+				"configuration" : "Aerobee-150"
+			},
+			"FlightDataRecorder_Engine" : 
+			{
+				"flightDataMultiplier" : 10,
+				"flightDataEngineerModifier" : 0.25,
+				"configuration" : "Aerobee-150"
+			},
+			"TestFlightReliability" :
+			{
+				"CURVE_DEF" : "Aerobee-150",
+				"configuration" : "Aerobee-150"
+			},
+			"TestFlightFailure_IgnitionFail" : 
+			{
+				"configuration" : "Aerobee-150",
+				"FAILURE_DEF" : "IgnitionFail",
+				"weight" : 2,
+				"ignitionFailureRate" : 
+				{
+					"type" : "FloatCurve",
+					"keys" :
+					[
+						"key = 0 0.15",
+						"key = 5000 0.05"
+					]
+				}
+			},
+			"TestFlightFailure_ShutdownEngine" :
+			{
+				"configuration" : "Aerobee-150",
+				"FAILURE_DEF" : "ShutdownEngine",
+				"weight" : 16,
+				"REPAIR_DEF" : "EasySoftware"
+			},
+			"TestFlightFailure_ReducedMaxThrust" :
+			{
+				"configuration" : "Aerobee-150",
+				"FAILURE_DEF" : "ReducedMaxThrust",
+				"weight" : 16,
+				"REPAIR_DEF" : "EasyMechanical"
+			},
+			"TestFlightFailure_Explode" :
+			{
+				"configuration" : "Aerobee-150",
+				"FAILURE_DEF" : "Explode",
+				"weight" : 4
+			}
 		}
 	},
 	"PartConfigs" : 
 	{
-		"WAC-Corporal" : 
+		"ROAerobeeSustainer" : 
 		{
 			"patterns" : 
 			[
 				"@PART[ROAerobeeSustainer]:AFTER[RealismOverhaul]"
 			],
-			"config" : "WAC-Corporal"
+			"configs" : ["WAC-Corporal", "Aerobee-150", "Aerobee-Hi"]
 		}
 	}
 }
