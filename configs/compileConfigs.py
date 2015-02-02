@@ -106,19 +106,19 @@ def compile(pattern, config):
 
 
 HELP_DESC = "Compiles a given TestFlight config.json to standard ModuleManager.cfg"
-# parser = DefaultHelpParser(description=HELP_DESC)
-# parser.add_argument('config', metavar='file', type=str, nargs=1,
-#                    help='config.json file to compile')
+parser = DefaultHelpParser(description=HELP_DESC)
+parser.add_argument('directory', metavar='directory', type=str, nargs=1,
+                   help='directory containing .json configs to compile')
 
-# args = parser.parse_args()
+args = parser.parse_args()
 
 # print args
 
-# if not args.config or len(args.config) < 1:
-#     print "ERROR: No configuration file specified.  Configuration file must be specified."
-#     sys.exit(2)
+if not args.directory or len(args.directory) < 1:
+    print "ERROR: No configuration directory specified.  Configuration directory must be specified."
+    sys.exit(2)
 
-configs = glob.glob("*.json")
+configs = glob.glob(args.directory[0] + "/*.json")
 
 for jsonFile in configs:
 	print "PROCESSING " + jsonFile
