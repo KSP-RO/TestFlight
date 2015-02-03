@@ -2,17 +2,19 @@ SHELL=/bin/bash
 PROJ_NAME = $(shell basename `pwd`)
 CONFIG_DIR = configs
 VERSION = $(shell git describe --tags)
+ifdef $(TRAVIS_BRANCH)
+BRANCH := $(TRAVIS_BRANCH)
+else
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD 2>&1)
+endif
+
 ifdef $(TRAVIS_TAG)
 BUILD := $(shell echo $(TRAVIS_TAG) | cut -d - -f 2)
 else
-ifdef $(TRAVIS_BRANCH)
-BUILD := $(TRAVIS_BRANCH)
-else
-BUILD := $(shell git rev-parse --abbrev-ref HEAD 2>&1)
+BUILD := $(BRANCH)
 endif
-endif
-ZIPFILE := $(PROJ_NAME)-$(VERSION).zip
+
+ZIPFILE := $(PROJ_NAME)-$(TRAVIS_TAG).zip
 
 all: configs
 
