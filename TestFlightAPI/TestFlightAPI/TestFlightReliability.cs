@@ -78,7 +78,7 @@ namespace TestFlightAPI
         // If this Reliability module's purpose is to supply Momentary Fialure Rates, then it MUST return 0 when asked for the Base Failure Rate
         // If it dosn't, then the Base Failure Rate of the part will not be correct.
         //
-        public double GetBaseFailureRateForScope(double flightData, String scope)
+        public virtual double GetBaseFailureRateForScope(double flightData, String scope)
         {
             if (!TestFlightEnabled)
                 return 0;
