@@ -16,9 +16,6 @@ all: configs
 
 release: zip
 
-configs: configs_$(BUILD)
-	cp $(CONFIG_DIR)/$(BUILD)/*.cfg GameData/TestFlight
-
 configs_master: configs_HEAD
 
 configs_HEAD: configs_Stock configs_RealismOverhaul
@@ -35,7 +32,7 @@ $(CONFIG_DIR)/Stock/%.cfg:
 $(CONFIG_DIR)/RealismOverhaul/%.cfg:
 	cd $(CONFIG_DIR);python compileConfigs.py RealismOverhaul
 
-zip: configs
+zip: configs_$(BUILD)
 	zip -r $(ZIPFILE) GameData
 
 clean: clean_$(BUILD)
