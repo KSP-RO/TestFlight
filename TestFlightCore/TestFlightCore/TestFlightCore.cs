@@ -679,9 +679,21 @@ namespace TestFlightCore
             int totalWeight = 0;
             int currentWeight = 0;
             int chosenWeight = 0;
-            List<ITestFlightFailure> failureModules;
+            List<ITestFlightFailure> failureModules = null;
 
-            failureModules = TestFlightUtil.GetFailureModules(this.part);
+            // Get all failure modules on the part
+            // Then filter only the ones that are not disabled
+            List<ITestFlightFailure> allFailureModules = TestFlightUtil.GetFailureModules(this.part);
+            foreach (ITestFlightFailure fm in allFailureModules)
+            {
+                PartModule pm = fm as PartModule;
+                if (!disabledFailures.Contains(pm.moduleName))
+                {
+                    if (failureModules == null)
+                        failureModules = new List<ITestFlightFailure>();
+                    failureModules.Add(fm);
+                }
+            }
 
             foreach(ITestFlightFailure fm in failureModules)
             {
