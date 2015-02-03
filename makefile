@@ -4,7 +4,7 @@ CONFIG_DIR = configs
 VERSION = $(shell git describe --tags)
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD 2>&1)
 
-ifdef $(TRAVIS_TAG)
+ifdef TRAVIS_TAG
 BUILD := $(shell echo $(TRAVIS_TAG) | cut -d - -f 2)
 else
 BUILD := $(BRANCH)
@@ -36,6 +36,7 @@ zip: configs_$(BUILD)
 	zip -r $(ZIPFILE) GameData
 
 clean: clean_$(BUILD)
+	echo Build is $(BUILD)
 	-rm GameData/TestFlight/*.cfg
 	-rm *.zip
 
