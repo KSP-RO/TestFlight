@@ -278,47 +278,6 @@
 				"FAILURE_DEF" : "Explode",
 				"weight" : 2
 			}
-		},
-		"Aerobee-150" : 
-		{
-			"TestFlightCore" :
-			{
-				"configuration" : "Aerobee-150",
-				"techTransfer" : "Aerobee-Hi,WAC-Corporal:50",
-				"techTransferMax" : 5000,
-				"techTransferGenerationPenalty" : 0.1
-			},
-			"FlightDataRecorder_Engine" : 
-			{
-				"flightDataMultiplier" : 10,
-				"flightDataEngineerModifier" : 0.25,
-				"configuration" : "Aerobee-150"
-			},
-			"TestFlightReliability" :
-			{
-				"CURVE_DEF" : "Aerobee-150",
-				"configuration" : "Aerobee-150"
-			},
-			"TestFlightFailure_ShutdownEngine" :
-			{
-				"configuration" : "Aerobee-150",
-				"FAILURE_DEF" : "ShutdownEngine",
-				"weight" : 16,
-				"REPAIR_DEF" : "EasySoftware"
-			},
-			"TestFlightFailure_ReducedMaxThrust" :
-			{
-				"configuration" : "Aerobee-150",
-				"FAILURE_DEF" : "ReducedMaxThrust",
-				"weight" : 32,
-				"REPAIR_DEF" : "EasyMechanical"
-			},
-			"TestFlightFailure_Explode" :
-			{
-				"configuration" : "Aerobee-150",
-				"FAILURE_DEF" : "Explode",
-				"weight" : 2
-			}
 		}
 	},
 	"PartConfigs" : 
