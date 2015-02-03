@@ -116,7 +116,10 @@ namespace TestFlightAPI
             if (reliabilityBodies == null)
                 return null;
 
-            return reliabilityBodies.Find(s => s.scope == scope);
+            ReliabilityBodyConfig returnBody = reliabilityBodies.Find(s => s.scope == scope);
+            if (returnBody == null)
+                returnBody = reliabilityBodies.Find(s => s.scope == "default");
+            return returnBody;
         }
 
         IEnumerator Attach()
