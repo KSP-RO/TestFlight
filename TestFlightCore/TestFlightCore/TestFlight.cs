@@ -375,7 +375,6 @@ namespace TestFlightCore
                 VerifyMasterStatus();
             }
             // process vessels
-            string configuration = "";
             foreach (var entry in knownVessels)
             {
                 Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == entry.Key);

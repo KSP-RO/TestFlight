@@ -61,15 +61,12 @@ def compileCurveDef(d):
 	definition = rawJson["ReliabilityDefinitions"][d]
 	# build reliability curves for each scope unless its overridden
 	configNodes = ""
-	for scope in ALL_SCOPES:
+	for scope in definition:
 		configNodes += "\n\t\tRELIABILITY_BODY\n\t\t{"
 		configNodes += "\n\t\t\tscope = " + scope
 		configNodes += "\n\t\t\treliabilityCurve"
 		configNodes += "\n\t\t\t{"
-		curve = definition["default"]
-		if scope in definition:
-			curve = definition[scope]
-		for key in curve:
+		for key in definition[scope]:
 			configNodes += "\n\t\t\t\t" + key
 		configNodes += "\n\t\t\t}"
 		configNodes += "\n\t\t}"

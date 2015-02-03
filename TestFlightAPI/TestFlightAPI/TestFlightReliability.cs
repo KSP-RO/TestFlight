@@ -78,7 +78,7 @@ namespace TestFlightAPI
         // If this Reliability module's purpose is to supply Momentary Fialure Rates, then it MUST return 0 when asked for the Base Failure Rate
         // If it dosn't, then the Base Failure Rate of the part will not be correct.
         //
-        public double GetBaseFailureRateForScope(double flightData, String scope)
+        public virtual double GetBaseFailureRateForScope(double flightData, String scope)
         {
             if (!TestFlightEnabled)
                 return 0;
@@ -116,7 +116,10 @@ namespace TestFlightAPI
             if (reliabilityBodies == null)
                 return null;
 
-            return reliabilityBodies.Find(s => s.scope == scope);
+            ReliabilityBodyConfig returnBody = reliabilityBodies.Find(s => s.scope == scope);
+            if (returnBody == null)
+                returnBody = reliabilityBodies.Find(s => s.scope == "default");
+            return returnBody;
         }
 
         IEnumerator Attach()

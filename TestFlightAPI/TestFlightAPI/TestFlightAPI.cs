@@ -237,6 +237,10 @@ namespace TestFlightAPI
             get;
             set;
         }
+        bool OneShot
+        {
+            get;
+        }
         /// <summary>
         /// Gets the details of the failure encapsulated by this module.  In most cases you can let the base class take care of this unless oyu need to do somethign special
         /// </summary>

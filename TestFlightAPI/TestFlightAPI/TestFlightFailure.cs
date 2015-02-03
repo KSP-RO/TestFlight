@@ -134,6 +134,15 @@ namespace TestFlightAPI
         public string failureTitle = "Failure";
         [KSPField(isPersistant=true)]
         public string configuration = "";
+        [KSPField(isPersistant = true)]
+        public double duFail = 0;
+        [KSPField(isPersistant = true)]
+        public double duRepair = 0;
+        [KSPField(isPersistant = true)]
+        public bool oneShot = false;
+
+        public RepairConfig repairConfig;
+
 
         public bool Failed
         {
@@ -164,8 +173,10 @@ namespace TestFlightAPI
             set { configuration = value; }
         }
 
-
-        public RepairConfig repairConfig;
+        public bool OneShot
+        {
+            get { return oneShot; }
+        }
 
         /// <summary>
         /// Gets the details of the failure encapsulated by this module.  In most cases you can let the base class take care of this unless oyu need to do somethign special
@@ -314,6 +325,9 @@ namespace TestFlightAPI
         public virtual void DoFailure()
         {
             Failed = true;
+            ITestFlightCore core = TestFlightUtil.GetCore(this.part);
+            if (core != null)
+                core.ModifyFlightData(duFail, true);
         }
         
         /// <summary>
@@ -365,6 +379,9 @@ namespace TestFlightAPI
         public virtual double DoRepair()
         {
             Failed = false;
+            ITestFlightCore core = TestFlightUtil.GetCore(this.part);
+            if (core != null)
+                core.ModifyFlightData(duRepair, true);
             return 0;
         }
 

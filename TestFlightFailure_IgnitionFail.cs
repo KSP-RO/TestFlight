@@ -11,6 +11,9 @@ namespace TestFlight
 {
     public class TestFlightFailure_IgnitionFail : TestFlightFailureBase
     {
+        [KSPField(isPersistant=true)]
+        public bool restoreIgnitionCharge = false;
+
         public FloatCurve ignitionFailureRate;
         public int engineIndex = 0;
 
@@ -125,6 +128,25 @@ namespace TestFlight
                 return;
 
             engine.Shutdown();
+
+            if (OneShot && restoreIgnitionCharge)
+                RestoreIgnitor();
+        }
+        public override double DoRepair()
+        {
+            base.DoRepair();
+            if (restoreIgnitionCharge)
+                RestoreIgnitor();
+            return 0;
+        }
+        public void RestoreIgnitor()
+        {
+            // part.Modules["ModuleEngineIgnitor"].GetType().GetField("ignitionsRemained").GetValue(part.Modules["ModuleEngineIgnitor"]));
+            if (this.part.Modules.Contains("ModuleEngineIgnitor"))
+            {
+                int currentIgnitions = (int)part.Modules["ModuleEngineIgnitor"].GetType().GetField("ignitionsRemained").GetValue(part.Modules["ModuleEngineIgnitor"]);
+                part.Modules["ModuleEngineIgnitor"].GetType().GetField("ignitionsRemained").SetValue(part.Modules["ModuleEngineIgnitor"], currentIgnitions + 1);
+            }
         }
 
         public override void OnLoad(ConfigNode node)

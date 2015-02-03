@@ -76,8 +76,8 @@ namespace TestFlightAPI
                 double flightData = (currentMet - lastRecordedMet) * flightDataMultiplier;
                 double engineerBonus = core.GetEngineerDataBonus(flightDataEngineerModifier);
                 flightData *= engineerBonus;
-
-                core.ModifyFlightDataForScope(flightData, scope, true);
+                if (flightData >= 0)
+                    core.ModifyFlightDataForScope(flightData, scope, true);
             }
 
             core.ModifyFlightTimeForScope(currentMet - lastRecordedMet, scope, true);

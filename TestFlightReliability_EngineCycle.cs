@@ -27,8 +27,15 @@ namespace TestFlight
                 }
             }
         }
+        public override double GetBaseFailureRateForScope(double flightData, String scope)
+        {
+            return 0;
+        }
         public override void OnUpdate()
         {
+            if (!TestFlightEnabled)
+                return;
+
             if (core == null)
                 return;
             if (cycle == null)
@@ -53,7 +60,7 @@ namespace TestFlight
                 }
                 double engineOperatingTime = Planetarium.GetUniversalTime() - engineStartTime;
                 float penalty = cycle.Evaluate((float)engineOperatingTime);
-                core.SetTriggerMomentaryFailureModifier("", penalty, this);
+                core.SetTriggerMomentaryFailureModifier("EngineCycle", penalty, this);
             }
             // We intentionally do NOT call our base class OnUpdate() because that would kick off a second round of 
             // failure checks which is already handled by the main Reliabilty module that should 
