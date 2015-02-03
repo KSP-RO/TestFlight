@@ -15,7 +15,8 @@ ZIPFILE := $(PROJ_NAME)-$(TRAVIS_TAG).zip
 all: configs
 
 release: zip
-
+	echo BUILD IS $(BUILD)
+	
 configs_master: configs_HEAD
 
 configs_HEAD: configs_Stock configs_RealismOverhaul
