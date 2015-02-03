@@ -742,11 +742,14 @@ namespace TestFlightCore
                     else
                     {
                         LogFormatted_DebugOnly("TestFlightCore: Triggering Failure: " + pm.moduleName);
-                        activeFailure = fm;
-                        failureAcknowledged = false;
-                        fm.DoFailure();
-                        operatingTime = -1;
-                        return fm;
+                        if (!fm.OneShot)
+                        {
+                            activeFailure = fm;
+                            failureAcknowledged = false;
+                            fm.DoFailure();
+                            operatingTime = -1;
+                            return fm;
+                        }
                     }
                 }
             }

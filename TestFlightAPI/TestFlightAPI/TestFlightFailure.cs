@@ -138,6 +138,10 @@ namespace TestFlightAPI
         public double duFail = 0;
         [KSPField(isPersistant = true)]
         public double duRepair = 0;
+        [KSPField(isPersistant = true)]
+        public bool oneShot = false;
+
+        public RepairConfig repairConfig;
 
 
         public bool Failed
@@ -169,8 +173,10 @@ namespace TestFlightAPI
             set { configuration = value; }
         }
 
-
-        public RepairConfig repairConfig;
+        public bool OneShot
+        {
+            get { return oneShot; }
+        }
 
         /// <summary>
         /// Gets the details of the failure encapsulated by this module.  In most cases you can let the base class take care of this unless oyu need to do somethign special
