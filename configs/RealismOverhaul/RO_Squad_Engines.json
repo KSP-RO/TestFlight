@@ -154,7 +154,8 @@
 		{
 			"failureTitle" : "Failed to ignite",
 			"failureType" : "mechanical",
-			"severity" : "major"
+			"severity" : "major",
+			"oneShot" : true
 		}
 	},
 	"TestFlightConfigs" :
@@ -175,6 +176,21 @@
 			{
 				"CURVE_DEF" : "WAC-Corporal",
 				"configuration" : "WAC-Corporal"
+			},
+			"TestFlightFailure_IgnitionFail" :
+			{
+				"configuration" : "WAC-Corporal",
+				"FAILURE_DEF" : "IgnitionFail",
+				"restoreIgnitionCharge" : false,
+				"ignitionFailureRate" : 
+				{
+					"type" : "FloatCurve",
+					"keys" :
+					[
+						"key = 0 0.05",
+						"key = 5000 0.005"
+					]
+				}
 			},
 			"TestFlightFailure_ShutdownEngine" :
 			{
@@ -216,7 +232,21 @@
 				"CURVE_DEF" : "Aerobee-Hi",
 				"configuration" : "Aerobee-Hi"
 			},
-
+			"TestFlightFailure_IgnitionFail" :
+			{
+				"configuration" : "Aerobee-Hi",
+				"FAILURE_DEF" : "IgnitionFail",
+				"restoreIgnitionCharge" : false,
+				"ignitionFailureRate" : 
+				{
+					"type" : "FloatCurve",
+					"keys" :
+					[
+						"key = 0 0.005",
+						"key = 5000 0.001"
+					]
+				}
+			},
 			"TestFlightFailure_ShutdownEngine" :
 			{
 				"configuration" : "Aerobee-Hi",
@@ -257,6 +287,12 @@
 			{
 				"CURVE_DEF" : "Aerobee-150",
 				"configuration" : "Aerobee-150"
+			},
+			"TestFlightFailure_IgnitionFail" :
+			{
+				"configuration" : "Aerobee-150",
+				"FAILURE_DEF" : "IgnitionFail",
+				"restoreIgnitionCharge" : false
 			},
 			"TestFlightFailure_ShutdownEngine" :
 			{
