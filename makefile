@@ -1,24 +1,51 @@
+SHELL=/bin/bash
 PROJ_NAME = $(shell basename `pwd`)
 CONFIG_DIR = configs
 VERSION = $(shell git describe --tags)
-BRANCH=$(shell git rev-parse --abbrev-ref HEAD 2>&1)
+BRANCH := $(shell git rev-parse --abbrev-ref HEAD 2>&1)
 
-ZIPFILE := $(PROJ_NAME)-$(VERSION).zip
+ifdef $(TRAVIS_TAG)
+BUILD := $(shell echo $(TRAVIS_TAG) | cut -d - -f 2)
+else
+BUILD := $(BRANCH)
+endif
+
+ZIPFILE := $(PROJ_NAME)-$(TRAVIS_TAG).zip
 
 all: configs
 
 release: zip
 
-configs: $(CONFIG_DIR)/%.cfg
-	cp $(CONFIG_DIR)/$(TRAVIS_BRANCH)/*.cfg GameData/TestFlight
+configs_master: configs_HEAD
 
-$(CONFIG_DIR)/%.cfg:
-	cd $(CONFIG_DIR);python compileConfigs.py $(TRAVIS_BRANCH)
+configs_HEAD: configs_Stock configs_RealismOverhaul
 
-zip: configs
+configs_Stock: $(CONFIG_DIR)/Stock/%.cfg
+	cp $(CONFIG_DIR)/Stock/*.cfg GameData/TestFlight
+
+configs_RealismOverhaul: $(CONFIG_DIR)/RealismOverhaul/%.cfg
+	cp $(CONFIG_DIR)/RealismOverhaul/*.cfg GameData/TestFlight
+
+$(CONFIG_DIR)/Stock/%.cfg:
+	cd $(CONFIG_DIR);python compileConfigs.py Stock
+
+$(CONFIG_DIR)/RealismOverhaul/%.cfg:
+	cd $(CONFIG_DIR);python compileConfigs.py RealismOverhaul
+
+zip: configs_$(BUILD)
 	zip -r $(ZIPFILE) GameData
 
-clean:
+clean: clean_$(BUILD)
 	-rm GameData/TestFlight/*.cfg
-	-rm $(CONFIG_DIR)/$(TRAVIS_BRANCH)/*.cfg
 	-rm *.zip
+
+clean_master: clean_HEAD
+
+clean_HEAD: clean_Stock clean_RealismOverhaul
+
+clean_Stock:
+	-rm $(CONFIG_DIR)/Stock/*.cfg
+
+clean_RealismOverhaul:
+	-rm $(CONFIG_DIR)/RealismOverhaul/*.cfg
+
