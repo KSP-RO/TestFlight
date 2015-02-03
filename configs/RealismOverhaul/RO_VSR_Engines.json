@@ -10,30 +10,6 @@
 				"key = 10000 0.0001"
 			]
 		},
-		"WAC-Corporal" :
-		{
-			"default" : 
-			[
-				"key = 0 0.0127",
-				"key = 10000 0.0075"
-			]
-		},
-		"Aerobee-Hi" :
-		{
-			"default" : 
-			[
-				"key = 0 0.0083",
-				"key = 10000 0.0009"
-			]
-		},
-		"Aerobee-150" :
-		{
-			"default" : 
-			[
-				"key = 0 0.0011",
-				"key = 10000 0.0008"
-			]
-		},
 		"X-405" :
 		{
 			"default" :
@@ -159,163 +135,118 @@
 	},
 	"TestFlightConfigs" :
 	{
-		"WAC-Corporal" : 
+		"X-405" : 
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "WAC-Corporal"
+				"configuration" : "X-405"
 			},
 			"FlightDataRecorder_Engine" : 
 			{
 				"flightDataMultiplier" : 10,
 				"flightDataEngineerModifier" : 0.25,
-				"configuration" : "WAC-Corporal"
+				"configuration" : "X-405"
 			},
 			"TestFlightReliability" :
 			{
-				"CURVE_DEF" : "WAC-Corporal",
-				"configuration" : "WAC-Corporal"
+				"CURVE_DEF" : "X-405",
+				"configuration" : "X-405"
 			},
 			"TestFlightFailure_ShutdownEngine" :
 			{
-				"configuration" : "WAC-Corporal",
+				"configuration" : "X-405",
 				"FAILURE_DEF" : "ShutdownEngine",
-				"weight" : 16,
+				"weight" : 32,
 				"REPAIR_DEF" : "EasySoftware"
 			},
 			"TestFlightFailure_ReducedMaxThrust" :
 			{
-				"configuration" : "WAC-Corporal",
+				"configuration" : "X-405",
 				"FAILURE_DEF" : "ReducedMaxThrust",
-				"weight" : 32,
-				"REPAIR_DEF" : "EasyMechanical"
-			},
-			"TestFlightFailure_Explode" :
-			{
-				"configuration" : "WAC-Corporal",
-				"FAILURE_DEF" : "Explode",
-				"weight" : 4
-			}
-		},
-		"Aerobee-Hi" : 
-		{
-			"TestFlightCore" :
-			{
-				"configuration" : "Aerobee-Hi",
-				"techTransfer" : "WAC-Corporal:50",
-				"techTransferMax" : 2000
-			},
-			"FlightDataRecorder_Engine" : 
-			{
-				"flightDataMultiplier" : 10,
-				"flightDataEngineerModifier" : 0.25,
-				"configuration" : "Aerobee-Hi"
-			},
-			"TestFlightReliability" :
-			{
-				"CURVE_DEF" : "Aerobee-Hi",
-				"configuration" : "Aerobee-Hi"
-			},
-
-			"TestFlightFailure_ShutdownEngine" :
-			{
-				"configuration" : "Aerobee-Hi",
-				"FAILURE_DEF" : "ShutdownEngine",
 				"weight" : 16,
-				"REPAIR_DEF" : "EasySoftware"
-			},
-			"TestFlightFailure_ReducedMaxThrust" :
-			{
-				"configuration" : "Aerobee-Hi",
-				"FAILURE_DEF" : "ReducedMaxThrust",
-				"weight" : 32,
 				"REPAIR_DEF" : "EasyMechanical"
 			},
 			"TestFlightFailure_Explode" :
 			{
-				"configuration" : "Aerobee-Hi",
+				"configuration" : "X-405",
 				"FAILURE_DEF" : "Explode",
 				"weight" : 2
 			}
 		},
-		"Aerobee-150" : 
+		"AJ-10-37" : 
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "Aerobee-150",
-				"techTransfer" : "Aerobee-Hi,WAC-Corporal:50",
-				"techTransferMax" : 5000,
-				"techTransferGenerationPenalty" : 0.1
+				"configuration" : "AJ-10-37"
 			},
 			"FlightDataRecorder_Engine" : 
 			{
 				"flightDataMultiplier" : 10,
 				"flightDataEngineerModifier" : 0.25,
-				"configuration" : "Aerobee-150"
+				"configuration" : "AJ-10-37"
 			},
 			"TestFlightReliability" :
 			{
-				"CURVE_DEF" : "Aerobee-150",
-				"configuration" : "Aerobee-150"
+				"CURVE_DEF" : "AJ-10-37",
+				"configuration" : "AJ-10-37"
 			},
 			"TestFlightFailure_ShutdownEngine" :
 			{
-				"configuration" : "Aerobee-150",
+				"configuration" : "AJ-10-37",
 				"FAILURE_DEF" : "ShutdownEngine",
 				"weight" : 16,
 				"REPAIR_DEF" : "EasySoftware"
 			},
 			"TestFlightFailure_ReducedMaxThrust" :
 			{
-				"configuration" : "Aerobee-150",
+				"configuration" : "AJ-10-37",
 				"FAILURE_DEF" : "ReducedMaxThrust",
 				"weight" : 32,
 				"REPAIR_DEF" : "EasyMechanical"
 			},
 			"TestFlightFailure_Explode" :
 			{
-				"configuration" : "Aerobee-150",
+				"configuration" : "AJ-10-37",
 				"FAILURE_DEF" : "Explode",
 				"weight" : 2
 			}
 		},
-		"Aerobee-150" : 
+		"AJ-10-42" : 
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "Aerobee-150",
-				"techTransfer" : "Aerobee-Hi,WAC-Corporal:50",
-				"techTransferMax" : 5000,
-				"techTransferGenerationPenalty" : 0.1
+				"configuration" : "AJ-10-42",
+				"techTransfer" : "AJ-10-37:50",
+				"techTransferMax" : 5000
 			},
 			"FlightDataRecorder_Engine" : 
 			{
 				"flightDataMultiplier" : 10,
 				"flightDataEngineerModifier" : 0.25,
-				"configuration" : "Aerobee-150"
+				"configuration" : "AJ-10-42"
 			},
 			"TestFlightReliability" :
 			{
-				"CURVE_DEF" : "Aerobee-150",
-				"configuration" : "Aerobee-150"
+				"CURVE_DEF" : "AJ-10-42",
+				"configuration" : "AJ-10-42"
 			},
 			"TestFlightFailure_ShutdownEngine" :
 			{
-				"configuration" : "Aerobee-150",
+				"configuration" : "AJ-10-42",
 				"FAILURE_DEF" : "ShutdownEngine",
 				"weight" : 16,
 				"REPAIR_DEF" : "EasySoftware"
 			},
 			"TestFlightFailure_ReducedMaxThrust" :
 			{
-				"configuration" : "Aerobee-150",
+				"configuration" : "AJ-10-42",
 				"FAILURE_DEF" : "ReducedMaxThrust",
 				"weight" : 32,
 				"REPAIR_DEF" : "EasyMechanical"
 			},
 			"TestFlightFailure_Explode" :
 			{
-				"configuration" : "Aerobee-150",
+				"configuration" : "AJ-10-42",
 				"FAILURE_DEF" : "Explode",
 				"weight" : 2
 			}
@@ -323,13 +254,21 @@
 	},
 	"PartConfigs" : 
 	{
-		"ROAerobeeSustainer" : 
+		"Vanguard" : 
 		{
 			"patterns" : 
 			[
-				"@PART[ROAerobeeSustainer]:AFTER[RealismOverhaul]"
+				"@PART[liquidEngine2]:AFTER[RP-0]"
 			],
-			"configs" : ["WAC-Corporal", "Aerobee-150", "Aerobee-Hi"]
+			"configs" : ["X-405"]
+		},
+		"AJ-10-Early" : 
+		{
+			"patterns" : 
+			[
+				"@PART[RO-AJ10-Early]:AFTER[RP-0]"
+			],
+			"configs" : ["AJ-10-37", "AJ-10-42"]
 		}
 	}
 }
