@@ -3,7 +3,11 @@ PROJ_NAME = $(shell basename `pwd`)
 CONFIG_DIR = configs
 VERSION = $(shell git describe --tags)
 
+ifdef $(TRAVIS_TAG)
 BUILD := $(shell echo $(TRAVIS_TAG) | cut -d - -f 2)
+else
+BUILD := $(shell git rev-parse --abbrev-ref HEAD 2>&1)
+endif
 ZIPFILE := $(PROJ_NAME)-$(VERSION).zip
 
 all: configs
