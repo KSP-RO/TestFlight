@@ -114,9 +114,73 @@ public class EngineModuleWrapper : ScriptableObject
                 return;
 
             if (engineType == EngineModuleType.ENGINE)
-                engine.maxThrust = value;
+            {
+                Part part = engine.part;
+                if (part.Modules.Contains("ModuleEngineConfigs"))
+                {
+                    part.Modules["ModuleEngineConfigs"].GetType().GetField("configMaxThrust").SetValue(part.Modules["ModuleEngineConfigs"], value);
+                }
+                else
+                {
+                    engine.maxThrust = value;
+                }
+            }
             else
-                engineFX.maxThrust = value;
+            {
+                Part part = engineFX.part;
+                if (part.Modules.Contains("ModuleEngineConfigs"))
+                {
+                    part.Modules["ModuleEngineConfigs"].GetType().GetField("configMaxThrust").SetValue(part.Modules["ModuleEngineConfigs"], value);
+                }
+                else
+                {
+                    engineFX.maxThrust = value;
+                }
+            }
+        }
+    }
+
+    public float minThrust
+    {
+        get
+        {
+            if (engineType == EngineModuleType.UNKNOWN)
+                return 0f;
+
+            if (engineType == EngineModuleType.ENGINE)
+                return engine.minThrust;
+            else
+                return engineFX.minThrust;
+        }
+        set
+        {
+            if (engineType == EngineModuleType.UNKNOWN)
+                return;
+
+            if (engineType == EngineModuleType.ENGINE)
+            {
+                Part part = engine.part;
+                if (part.Modules.Contains("ModuleEngineConfigs"))
+                {
+                    part.Modules["ModuleEngineConfigs"].GetType().GetField("configMinThrust").SetValue(part.Modules["ModuleEngineConfigs"], value);
+                }
+                else
+                {
+                    engine.minThrust = value;
+                }
+            }
+            else
+            {
+                Part part = engineFX.part;
+                if (part.Modules.Contains("ModuleEngineConfigs"))
+                {
+                    part.Modules["ModuleEngineConfigs"].GetType().GetField("configMinThrust").SetValue(part.Modules["ModuleEngineConfigs"], value);
+                }
+                else
+                {
+                    engineFX.minThrust = value;
+                }
+            }
         }
     }
 
