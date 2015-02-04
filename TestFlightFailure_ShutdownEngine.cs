@@ -11,6 +11,13 @@ namespace TestFlight
     public class TestFlightFailure_ShutdownEngine : TestFlightFailureBase
     {
         private bool allowShutdown;
+        private EngineModuleWrapper engine;
+
+        public override void OnStart(StartState state)
+        {
+            base.OnStart(state);
+            engine = new EngineModuleWrapper(this.part);
+        }
         /// <summary>
         /// Triggers the failure controlled by the failure module
         /// </summary>
@@ -18,42 +25,15 @@ namespace TestFlight
         {
             base.DoFailure();
             Debug.Log("TestFlightFailure_ShutdownEngine: Failing part");
-            List<ModuleEngines> partEngines = this.part.Modules.OfType<ModuleEngines>().ToList();
-            List<ModuleEnginesFX> partEnginesFX = this.part.Modules.OfType<ModuleEnginesFX>().ToList();
-            foreach (ModuleEngines engine in partEngines)
-            {
-                allowShutdown = engine.allowShutdown;
-                engine.allowShutdown = true;
-                engine.Shutdown();
-                engine.DeactivateRunningFX();
-                engine.DeactivatePowerFX();
-                engine.enabled = false;
-            }
-            foreach (ModuleEnginesFX engineFX in partEnginesFX)
-            {
-                allowShutdown = engineFX.allowShutdown;
-                engineFX.allowShutdown = true;
-                engineFX.Shutdown();
-                engineFX.DeactivateLoopingFX();
-                engineFX.enabled = false;
-            }
+            allowShutdown = engine.allowShutdown;
+            engine.Shutdown();
         }
 
         public override double DoRepair()
         {
             base.DoRepair();
-            List<ModuleEngines> partEngines = this.part.Modules.OfType<ModuleEngines>().ToList();
-            List<ModuleEnginesFX> partEnginesFX = this.part.Modules.OfType<ModuleEnginesFX>().ToList();
-            foreach (ModuleEngines engine in partEngines)
-            {
-                engine.enabled = true;
-                engine.allowShutdown = allowShutdown;
-            }
-            foreach (ModuleEnginesFX engineFX in partEnginesFX)
-            {
-                engineFX.enabled = true;
-                engineFX.allowShutdown = allowShutdown;
-            }
+            engine.allowShutdown = allowShutdown;
+            engine.enabled = true;
             return 0;
         }
     }
