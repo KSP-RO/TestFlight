@@ -11,40 +11,32 @@ namespace TestFlight
     public class TestFlightFailure_ReducedMaxThrust : TestFlightFailureBase
     {
         private float maxThrust;
+        private float minThrust;
+        EngineModuleWrapper engine;
+
+        public override void OnStart(StartState state)
+        {
+            base.OnStart(state);
+            engine = new EngineModuleWrapper(this.part);
+        }
         /// <summary>
         /// Triggers the failure controlled by the failure module
         /// </summary>
         public override void DoFailure()
         {
             base.DoFailure();
-            List<ModuleEngines> partEngines = this.part.Modules.OfType<ModuleEngines>().ToList();
-            List<ModuleEnginesFX> partEnginesFX = this.part.Modules.OfType<ModuleEnginesFX>().ToList();
-            foreach (ModuleEngines engine in partEngines)
-            {
-                maxThrust = engine.maxThrust;
-                engine.maxThrust = maxThrust * 0.5f;
-            }
-            foreach (ModuleEnginesFX engineFX in partEnginesFX)
-            {
-                maxThrust = engineFX.maxThrust;
-                engineFX.maxThrust = maxThrust * 0.5f;
-            }
+            maxThrust = engine.maxThrust;
+            minThrust = engine.minThrust;
+            engine.maxThrust = maxThrust * 0.5f;
+            if (maxThrust == minThrust || maxThrust * 0.5 < minThrust)
+                engine.minThrust = maxThrust * 0.5f;
         }
 
         public override double DoRepair()
         {
             base.DoRepair();
-            List<ModuleEngines> partEngines = this.part.Modules.OfType<ModuleEngines>().ToList();
-            List<ModuleEnginesFX> partEnginesFX = this.part.Modules.OfType<ModuleEnginesFX>().ToList();
-            foreach (ModuleEngines engine in partEngines)
-            {
-                engine.maxThrust = maxThrust;
-            }
-            foreach (ModuleEnginesFX engineFX in partEnginesFX)
-            {
-                engineFX.maxThrust = maxThrust;
-            }
-
+            engine.maxThrust = maxThrust;
+            engine.minThrust = minThrust;
             return 0;
         }
     }
