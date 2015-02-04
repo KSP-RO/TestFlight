@@ -16,7 +16,7 @@ all: configs
 
 release: zip
 	echo BUILD IS $(BUILD)
-	
+
 configs_master: configs_HEAD
 
 configs_HEAD: configs_Stock configs_RealismOverhaul
@@ -33,13 +33,23 @@ $(CONFIG_DIR)/Stock/%.cfg:
 $(CONFIG_DIR)/RealismOverhaul/%.cfg:
 	cd $(CONFIG_DIR);python compileConfigs.py RealismOverhaul
 
-zip: configs_$(BUILD)
+ifdef TRAVIS_TAG
+meta:
+	python makeMeta.py $(TRAVIS_TAG)
+	cp TestFlight.version GameData/TestFlight/TestFlight.version
+else
+meta:
+endif
+
+zip: configs_$(BUILD) meta
 	zip -r $(ZIPFILE) GameData
 
 clean: clean_$(BUILD)
 	echo Build is $(BUILD)
 	-rm GameData/TestFlight/*.cfg
 	-rm *.zip
+	-rm GameData/TestFlight/*.version
+	-rm *.version
 
 clean_master: clean_HEAD
 
