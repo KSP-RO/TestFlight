@@ -88,6 +88,7 @@ namespace TestFlightCore
             ddlSettingsPage.OnSelectionChanged += SettingsPage_OnSelectionChanged;
             WindowMoveEventsEnabled = true;
             onWindowMoveComplete += MainWindow_OnWindowMoveComplete;
+            Visible = tfScenario.userSettings.showMSD;
         }
 
         public void Event_OnGameSceneLoadRequested(GameScenes scene)
@@ -198,11 +199,15 @@ namespace TestFlightCore
             PrepareWindowState();
             Visible = true;
             stickyWindow = true;
+            tfScenario.userSettings.showMSD = true;
+            tfScenario.userSettings.Save();
         }
         void CloseWindow()
         {
             Visible = false;
             stickyWindow = false;
+            tfScenario.userSettings.showMSD = false;
+            tfScenario.userSettings.Save();
         }
         void HideButton()
         {
@@ -463,9 +468,11 @@ namespace TestFlightCore
                                 CalculateWindowBounds();
                                 tfScenario.userSettings.mainWindowPosition = WindowRect;
                                 DragEnabled = false;
+                                tfScenario.userSettings.showMSD = false;
                             }
                             else
                             {
+                                tfScenario.userSettings.showMSD = Visible;
                                 DragEnabled = true;
                             }
                             tfScenario.userSettings.Save();
