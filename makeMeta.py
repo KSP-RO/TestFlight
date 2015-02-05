@@ -25,10 +25,10 @@ if configuration == "Stock":
 elif configuration == "RealismOverhaul":
 	opposingConfiguration = "Stock"
 	avcID = 117
-major = version.split(".")[0]
-minor = version.split(".")[1]
-patch = version.split(".")[2]
-build = version.split(".")[3]
+major = int(version.split(".")[0])
+minor = int(version.split(".")[1])
+patch = int(version.split(".")[2])
+build = int(version.split(".")[3])
 # create AVC .version file
 avc = {
 	"NAME" : "TestFlight-{}".format(configuration),
