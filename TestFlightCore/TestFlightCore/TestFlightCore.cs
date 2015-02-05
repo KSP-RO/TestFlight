@@ -58,9 +58,11 @@ namespace TestFlightCore
                 if (this.part.Modules.Contains("ModuleEngineConfigs"))
                 {
                     string currentConfig = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
+                    LogFormatted_DebugOnly(String.Format("TestFlightCore:({0}): Checking configuration {0} ? {1}", configuration, currentConfig));
                     if (currentConfig != configuration)
                         enabled = false;
                 }
+                LogFormatted_DebugOnly(String.Format("TestFlightCore:({0}): TestFlightEnabled is {1}", configuration, enabled));
                 return enabled;
             }
         }
@@ -355,6 +357,7 @@ namespace TestFlightCore
             mfm = GetMomentaryFailureModifier(trigger, ownerName, scope);
             if (mfm.valid)
             {
+//                LogFormatted_DebugOnly(String.Format("TestFlightCore:({0}): Updating MFT for {1} with a value of {2:F4}", Configuration, trigger, multiplier));
                 // recalculate new rate and cache everything
                 momentaryFailureModifiers.Remove(mfm);
                 mfm.modifier = multiplier;
@@ -371,6 +374,7 @@ namespace TestFlightCore
                 mfm.triggerName = trigger;
                 momentaryFailureModifiers.Add(mfm);
                 // recalculate new rate
+//                LogFormatted_DebugOnly(String.Format("TestFlightCore:({0}): Adding new MFT for {1} with a value of {2:F4}", Configuration, trigger, multiplier));
                 return CalculateMomentaryFailureRate(trigger, scope);
             }
         }
@@ -812,7 +816,7 @@ namespace TestFlightCore
             if (activeFailure != null)
                 return false;
 
-            IFlightDataRecorder dr = TestFlightUtil.GetDataRecorder(this.part);
+            IFlightDataRecorder dr = TestFlightUtil.GetDataRecorder(this.part, Configuration);
             if (dr == null)
                 return false;
 

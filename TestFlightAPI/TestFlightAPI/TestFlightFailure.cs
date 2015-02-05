@@ -325,7 +325,7 @@ namespace TestFlightAPI
         public virtual void DoFailure()
         {
             Failed = true;
-            ITestFlightCore core = TestFlightUtil.GetCore(this.part);
+            ITestFlightCore core = TestFlightUtil.GetCore(this.part, Configuration);
             if (core != null)
                 core.ModifyFlightData(duFail, true);
         }
@@ -379,7 +379,7 @@ namespace TestFlightAPI
         public virtual double DoRepair()
         {
             Failed = false;
-            ITestFlightCore core = TestFlightUtil.GetCore(this.part);
+            ITestFlightCore core = TestFlightUtil.GetCore(this.part, Configuration);
             if (core != null)
                 core.ModifyFlightData(duRepair, true);
             return 0;

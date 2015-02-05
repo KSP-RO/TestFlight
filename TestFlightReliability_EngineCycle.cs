@@ -60,6 +60,7 @@ namespace TestFlight
                 }
                 double engineOperatingTime = Planetarium.GetUniversalTime() - engineStartTime;
                 float penalty = cycle.Evaluate((float)engineOperatingTime);
+//                Debug.Log(String.Format("TestFlightFailure_EngineCycle: Applying modifier {0:F4} at cycle time {1:F4}", penalty, engineOperatingTime));
                 core.SetTriggerMomentaryFailureModifier("EngineCycle", penalty, this);
             }
             // We intentionally do NOT call our base class OnUpdate() because that would kick off a second round of 

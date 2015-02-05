@@ -63,6 +63,19 @@ namespace TestFlightAPI
             }
             return null;
         }
+        public static ITestFlightCore GetCore(Part part, string configuration)
+        {
+            if (part == null || part.Modules == null)
+                return null;
+
+            foreach (PartModule pm in part.Modules)
+            {
+                ITestFlightCore core = pm as ITestFlightCore;
+                if (core != null && core.TestFlightEnabled && core.Configuration == configuration)
+                    return core;
+            }
+            return null;
+        }
         // Get the Data Recorder Module - can only ever be one.
         public static IFlightDataRecorder GetDataRecorder(Part part)
         {
@@ -73,6 +86,19 @@ namespace TestFlightAPI
             {
                 IFlightDataRecorder dataRecorder = pm as IFlightDataRecorder;
                 if (dataRecorder != null && dataRecorder.TestFlightEnabled)
+                    return dataRecorder;
+            }
+            return null;
+        }
+        public static IFlightDataRecorder GetDataRecorder(Part part, string configuration)
+        {
+            if (part == null || part.Modules == null)
+                return null;
+
+            foreach (PartModule pm in part.Modules)
+            {
+                IFlightDataRecorder dataRecorder = pm as IFlightDataRecorder;
+                if (dataRecorder != null && dataRecorder.TestFlightEnabled && dataRecorder.Configuration == configuration)
                     return dataRecorder;
             }
             return null;
@@ -95,6 +121,23 @@ namespace TestFlightAPI
 
             return reliabilityModules;
         }
+        public static List<ITestFlightReliability> GetReliabilityModules(Part part, string configuration)
+        {
+            List<ITestFlightReliability> reliabilityModules;
+
+            if (part == null || part.Modules == null)
+                return null;
+
+            reliabilityModules = new List<ITestFlightReliability>();
+            foreach (PartModule pm in part.Modules)
+            {
+                ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
+                if (reliabilityModule != null && reliabilityModule.TestFlightEnabled && reliabilityModule.Configuration == configuration)
+                    reliabilityModules.Add(reliabilityModule);
+            }
+
+            return reliabilityModules;
+        }
         // Get all Failure Modules - can be more than one.
         public static List<ITestFlightFailure> GetFailureModules(Part part)
         {
@@ -108,6 +151,23 @@ namespace TestFlightAPI
             {
                 ITestFlightFailure failureModule = pm as ITestFlightFailure;
                 if (failureModule != null && failureModule.TestFlightEnabled)
+                    failureModules.Add(failureModule);
+            }
+
+            return failureModules;
+        }
+        public static List<ITestFlightFailure> GetFailureModules(Part part, string configuration)
+        {
+            List<ITestFlightFailure> failureModules;
+
+            if (part == null || part.Modules == null)
+                return null;
+
+            failureModules = new List<ITestFlightFailure>();
+            foreach (PartModule pm in part.Modules)
+            {
+                ITestFlightFailure failureModule = pm as ITestFlightFailure;
+                if (failureModule != null && failureModule.TestFlightEnabled && failureModule.Configuration == configuration)
                     failureModules.Add(failureModule);
             }
 

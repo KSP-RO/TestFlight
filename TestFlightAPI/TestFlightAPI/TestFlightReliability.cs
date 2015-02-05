@@ -44,6 +44,8 @@ namespace TestFlightAPI
         protected double lastCheck = 0;
         protected double lastReliability = 1.0;
 
+        private string originalAttachedConfig = "";
+
         [KSPField(isPersistant=true)]
         public string configuration = "";
 
@@ -131,7 +133,9 @@ namespace TestFlightAPI
 
             while (core == null)
             {
-                core = TestFlightUtil.GetCore(this.part);
+                core = TestFlightUtil.GetCore(this.part, Configuration);
+                if (core != null)
+                    Debug.Log(String.Format("TestFlightReliability:({0}): Attached to Core({1})", Configuration, core.Configuration));
                 yield return null;
             }
 
@@ -218,7 +222,7 @@ namespace TestFlightAPI
             lastReliability = reliability;
 //            float failureRoll = Mathf.Min(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f));
 //            float failureRoll = UnityEngine.Random.Range(0f, 1f);
-            double failureRoll = TestFlightUtil.GetCore(this.part).RandomGenerator.NextDouble();
+            double failureRoll = core.RandomGenerator.NextDouble();
             Debug.Log(String.Format("TestFlightReliability: Survival Chance at Time {0:F2} is {1:f4}.  Rolled {2:f4}", (float)operatingTime, survivalChance, failureRoll));
             if (failureRoll > survivalChance)
             {

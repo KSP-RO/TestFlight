@@ -60,7 +60,7 @@ namespace TestFlight
 
             while (core == null)
             {
-                core = TestFlightUtil.GetCore(this.part);
+                core = TestFlightUtil.GetCore(this.part, Configuration);
                 yield return null;
             }
 
@@ -108,7 +108,7 @@ namespace TestFlight
                     double r1 = Mathf.Exp((float)-failureRate * 1f);
                     double r2 = Mathf.Exp((float)-failureRate * 3f);
                     double survivalChance = r2 / r1;
-                    double failureRoll = TestFlightUtil.GetCore(this.part).RandomGenerator.NextDouble();
+                    double failureRoll = core.RandomGenerator.NextDouble();
                     if (failureRoll > survivalChance)
                     {
                         Debug.Log("TestFlightFailure: Manually triggering ingition fail");
