@@ -88,6 +88,7 @@ namespace TestFlightCore
             ddlSettingsPage.OnSelectionChanged += SettingsPage_OnSelectionChanged;
             WindowMoveEventsEnabled = true;
             onWindowMoveComplete += MainWindow_OnWindowMoveComplete;
+            CalculateWindowBounds();
             Visible = tfScenario.userSettings.showMSD;
         }
 
