@@ -50,6 +50,7 @@ clean: clean_$(BUILD)
 	-rm *.zip
 	-rm GameData/TestFlight/*.version
 	-rm *.version
+	-rm *.ckan
 
 clean_master: clean_HEAD
 
