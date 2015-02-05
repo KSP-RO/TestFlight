@@ -18,7 +18,7 @@ namespace TestFlightCore
         [KSPField(isPersistant = true)]
         public FlightDataConfig flightData;
         [KSPField(isPersistant = true)]
-        public double deepSpaceThreshold = 10000000;
+        public float deepSpaceThreshold = 10000000;
         [KSPField(isPersistant=true)]
         public string configuration = "";
         [KSPField(isPersistant=true)]
