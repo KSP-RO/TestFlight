@@ -33,8 +33,8 @@ build = version.split(".")[3]
 avc = {
 	"NAME" : "TestFlight-{}".format(configuration),
 	"URL" : "http://ksp-avc.cybutek.net/version.php?id={}".format(avcID),
-	"DOWNLOAD" : "https://github.com/jwvanderbeck/TestFlight/releases/download/v{}/TestFlight-{}.zip".format(args.tag[0],args.tag[0]),
-	"CHANGE_LOG_URL" : "https://github.com/jwvanderbeck/TestFlight/releases/tag/v{}".format(args.tag[0]),
+	"DOWNLOAD" : "https://github.com/jwvanderbeck/TestFlight/releases/download/{}/TestFlight-{}.zip".format(args.tag[0],args.tag[0]),
+	"CHANGE_LOG_URL" : "https://github.com/jwvanderbeck/TestFlight/releases/tag/{}".format(args.tag[0]),
 	"VERSION" :
 	{
 		"MAJOR" : major,
@@ -58,7 +58,7 @@ ckant = {
 	"name" : "TestFlight-{}".format(configuration),
 	"abstract" : "Persistent part research & reliability system gives you a reason to test fly your space hardware.  Fly parts to gain data, the more data the more reliable the parts.",
 	"identifier" : "TestFlight-{}".format("configuration"),
-	"download" : "https://github.com/jwvanderbeck/TestFlight/releases/download/v{}/TestFlight-{}.zip".format(args.tag[0],args.tag[0]),
+	"download" : "https://github.com/jwvanderbeck/TestFlight/releases/download/{}/TestFlight-{}.zip".format(args.tag[0],args.tag[0]),
 	"license" : "CC-BY-NC-SA-4.0",
 	"version" : version,
 	"release_status" : "testing",
