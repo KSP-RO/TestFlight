@@ -10,6 +10,9 @@ namespace TestFlight
 {
     public class TestFlightFailure_ReducedMaxThrust : TestFlightFailureBase
     {
+        [KSPField(isPersistant=true)]
+        public float thrustReduction = 0.5f;
+
         private float maxThrust;
         private float minThrust;
         EngineModuleWrapper engine;
@@ -27,9 +30,9 @@ namespace TestFlight
             base.DoFailure();
             maxThrust = engine.maxThrust;
             minThrust = engine.minThrust;
-            engine.maxThrust = maxThrust * 0.5f;
-            if (maxThrust == minThrust || maxThrust * 0.5 < minThrust)
-                engine.minThrust = maxThrust * 0.5f;
+            engine.maxThrust = maxThrust * thrustReduction;
+            if (maxThrust == minThrust || maxThrust * thrustReduction < minThrust)
+                engine.minThrust = maxThrust * thrustReduction;
         }
 
         public override double DoRepair()
