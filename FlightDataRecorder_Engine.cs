@@ -13,42 +13,24 @@ namespace TestFlight
 
     public class FlightDataRecorder_Engine : FlightDataRecorderBase
     {
+        private EngineModuleWrapper engine;
+
         public override void OnAwake()
         {
             base.OnAwake();
         }
 
+        public override void OnStart(StartState state)
+        {
+            base.OnStart(state);
+            engine = new EngineModuleWrapper(this.part);
+        }
         public override bool IsPartOperating()
         {
-            bool isRecording = true;
-
             if (!isEnabled)
                 return false;
 
-            // ModuleEngines
-            if (this.part.Modules.Contains("ModuleEngines"))
-            {
-                ModuleEngines engine = (ModuleEngines)this.part.Modules["ModuleEngines"];
-                if (!engine.isOperational)
-                    return false;
-                if (engine.normalizedThrustOutput <= 0)
-                    return false;
-                if (engine.finalThrust <= 0)
-                    return false;
-            }
-            // ModuleEnginesFX
-            if (this.part.Modules.Contains("ModuleEnginesFX"))
-            {
-                ModuleEnginesFX engine = (ModuleEnginesFX)this.part.Modules["ModuleEnginesFX"];
-                if (!engine.isOperational)
-                    return false;
-                if (engine.normalizedThrustOutput <= 0)
-                    return false;
-                if (engine.finalThrust <= 0)
-                    return false;
-            }
-
-            return isRecording;
+            return engine.IgnitionState == EngineModuleWrapper.EngineIgnitionState.IGNITED;
         }
 
         public override bool IsRecordingFlightData()
