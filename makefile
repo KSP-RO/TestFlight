@@ -37,6 +37,7 @@ ifdef TRAVIS_TAG
 meta:
 	python makeMeta.py $(TRAVIS_TAG)
 	cp TestFlight.version GameData/TestFlight/TestFlight.version
+	cp *.ckan GameData/TestFlight
 else
 meta:
 endif
@@ -49,6 +50,7 @@ clean: clean_$(BUILD)
 	-rm GameData/TestFlight/*.cfg
 	-rm *.zip
 	-rm GameData/TestFlight/*.version
+	-rm GameData/TestFlight/*.ckan
 	-rm *.version
 	-rm *.ckan
 
