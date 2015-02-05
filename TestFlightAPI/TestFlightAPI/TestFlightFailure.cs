@@ -135,9 +135,9 @@ namespace TestFlightAPI
         [KSPField(isPersistant=true)]
         public string configuration = "";
         [KSPField(isPersistant = true)]
-        public double duFail = 0;
+        public float duFail = 0f;
         [KSPField(isPersistant = true)]
-        public double duRepair = 0;
+        public float duRepair = 0f;
         [KSPField(isPersistant = true)]
         public bool oneShot = false;
 
