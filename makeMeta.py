@@ -21,10 +21,10 @@ version = args.tag[0].split("-")[0]
 configuration = args.tag[0].split("-")[1]
 if configuration == "Stock":
 	opposingConfiguration = "RealismOverhaul"
-	avcID = 118
+	avcID = 117
 elif configuration == "RealismOverhaul":
 	opposingConfiguration = "Stock"
-	avcID = 117
+	avcID = 118
 major = int(version.split(".")[0])
 minor = int(version.split(".")[1])
 patch = int(version.split(".")[2])
@@ -82,4 +82,4 @@ ckant = {
     ]
 }
 with open("TestFlight-{}-{}.ckan".format(configuration, version), "w") as f:
-	f.write(json.dumps(ckant))
+	f.write(json.dumps(ckant,sort_keys=True,indent=4, separators=(',', ': ')))
