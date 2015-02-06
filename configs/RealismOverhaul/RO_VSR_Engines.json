@@ -546,7 +546,7 @@
 			[
 				"@PART[RO-AJ10-Early]:AFTER[RP-0]"
 			],
-			"configs" : ["AJ-10-37", "AJ-10-42"]
+			"configs" : ["AJ-10-37", "AJ-10-42", "AJ-10-142", "AJ-10-104D"]
 		}
 	}
 }
