@@ -14,48 +14,30 @@
 		{
 			"default" : 
 			[
-				"key = 0 0.0127",
-				"key = 10000 0.0075"
+				"key = 0 0.024 0 0",
+				"key = 1000 0.0144 0 0",
+				"key = 4000 0.0072 0 0",
+				"key = 10000 0.0048 0 0"
 			]
 		},
 		"Aerobee-Hi" :
 		{
 			"default" : 
 			[
-				"key = 0 0.0083",
-				"key = 10000 0.0009"
+				"key = 0 0.008372 0 0",
+				"key = 1000 0.005023 0 0",
+				"key = 4000 0.002512 0 0",
+				"key = 10000 0.000419 0 0"
 			]
 		},
 		"Aerobee-150" :
 		{
 			"default" : 
 			[
-				"key = 0 0.0011",
-				"key = 10000 0.0008"
-			]
-		},
-		"X-405" :
-		{
-			"default" :
-			[
-				"key = 0 0.0045",
-				"key = 10000 0.0025"
-			]
-		},
-		"AJ-10-37" :
-		{
-			"default" :
-			[
-				"key = 0 0.0021",
-				"key = 10000 0.0008"
-			]
-		},
-		"AJ-10-42" :
-		{
-			"default" :
-			[
-				"key = 0 0.0012",
-				"key = 10000 0.0005"
+				"key = 0 0.001036 0 0",
+				"key = 1000 0.000777 0 0",
+				"key = 3000 0.000518 0 0",
+				"key = 10000 0.000362 0 0"
 			]
 		}
 	},
@@ -184,7 +166,7 @@
 			},
 			"FlightDataRecorder_Engine" : 
 			{
-				"flightDataMultiplier" : 10,
+				"flightDataMultiplier" : 20,
 				"flightDataEngineerModifier" : 0.25,
 				"configuration" : "WAC-Corporal"
 			},
@@ -200,10 +182,10 @@
 					"type" : "FloatCurve",
 					"keys" :
 					[
-						"key = 0 10",
-						"key = 15 1 0 0",
-						"key = 25 1 0 0",
-						"key = 47 5"
+						"key = 0 5 0 0",
+						"key = 12 1 0 0",
+						"key = 72 1 0 0",
+						"key = 150 3 0 0"
 					]
 				},
 				"configuration" : "WAC-Corporal"
@@ -270,10 +252,10 @@
 					"type" : "FloatCurve",
 					"keys" :
 					[
-						"key = 0 10",
-						"key = 15 1 0 0",
-						"key = 25 1 0 0",
-						"key = 47 5"
+						"key = 0 5 0 0",
+						"key = 11.25 1 0 0",
+						"key = 86.25 1 0 0",
+						"key = 183.75 2 0 0"
 					]
 				},
 				"CURVE_DEF" : "Aerobee-Hi",
@@ -342,10 +324,10 @@
 					"type" : "FloatCurve",
 					"keys" :
 					[
-						"key = 0 10",
-						"key = 15 1 0 0",
-						"key = 47 1 0 0",
-						"key = 141 5"
+						"key = 0 5 0 0",
+						"key = 18 1 0 0",
+						"key = 198 1 0 0",
+						"key = 432 3 0 0"
 					]
 				},
 				"CURVE_DEF" : "Aerobee-150",
