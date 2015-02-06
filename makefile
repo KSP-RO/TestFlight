@@ -12,6 +12,9 @@ endif
 
 ZIPFILE := $(PROJ_NAME)-$(TRAVIS_TAG).zip
 
+ro: clean_all clean_RealismOverhaul configs_RealismOverhaul
+	cp -r GameData/TestFlight/ ~/Dropbox/KSP/TestFlight/
+
 all: configs
 
 release: zip
@@ -46,7 +49,6 @@ zip: configs_$(BUILD) meta
 	zip -r $(ZIPFILE) GameData
 
 clean: clean_$(BUILD)
-	echo Build is $(BUILD)
 	-rm GameData/TestFlight/*.cfg
 	-rm *.zip
 	-rm GameData/TestFlight/*.version
@@ -64,3 +66,10 @@ clean_Stock:
 clean_RealismOverhaul:
 	-rm $(CONFIG_DIR)/RealismOverhaul/*.cfg
 
+clean_all:
+	-rm GameData/TestFlight/*.cfg
+	-rm *.zip
+	-rm GameData/TestFlight/*.version
+	-rm GameData/TestFlight/*.ckan
+	-rm *.version
+	-rm *.ckan
