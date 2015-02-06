@@ -236,7 +236,7 @@
 			},
 			"FlightDataRecorder_Engine" : 
 			{
-				"flightDataMultiplier" : 10,
+				"flightDataMultiplier" : 15,
 				"flightDataEngineerModifier" : 0.25,
 				"configuration" : "Aerobee-Hi"
 			},

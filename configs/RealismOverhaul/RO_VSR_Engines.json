@@ -14,24 +14,50 @@
 		{
 			"default" :
 			[
-				"key = 0 0.0045",
-				"key = 10000 0.0025"
+				"key = 0 0.000575 0 0",
+				"key = 1000 0.000287 0 0",
+				"key = 4000 0.000172 0 0",
+				"key = 10000 0.000115 0 0"
 			]
 		},
 		"AJ10-37-Vanguard" :
 		{
 			"default" :
 			[
-				"key = 0 0.0021",
-				"key = 10000 0.0008"
+				"key = 0 0.002174 0 0",
+				"key = 1000 0.001304 0 0",
+				"key = 4000 0.000978 0 0",
+				"key = 10000 0.000652 0 0"
 			]
 		},
 		"AJ10-42-Able" :
 		{
 			"default" :
 			[
-				"key = 0 0.0012",
-				"key = 10000 0.0005"
+				"key = 0 0.001449 0 0",
+				"key = 2000 0.000870 0 0",
+				"key = 4000 0.000580 0 0",
+				"key = 10000 0.000362 0 0"
+			]
+		},
+		"AJ10-142-Delta" :
+		{
+			"default" :
+			[
+				"key = 0 0.000471 0 0",
+				"key = 2000 0.000376 0 0",
+				"key = 4000 0.000235 0 0",
+				"key = 10000 0.000094 0 0"
+			]
+		}
+		"AJ10-104D" :
+		{
+			"default" :
+			[
+				"key = 0 0.000419 0 0",
+				"key = 2000 0.000188 0 0",
+				"key = 4000 0.000126 0 0",
+				"key = 10000 0.000021 0 0"
 			]
 		}
 	},
@@ -176,12 +202,10 @@
 					"type" : "FloatCurve",
 					"keys" :
 					[
-						"key = 0 15 0 0",
-						"key = 10 12 -0.07135148 -0.07135148",
-						"key = 30 10",
-						"key = 60 1 0 0",
-						"key = 145 1 0 0",
-						"key = 435 5"
+						"key = 0 10 0 0",
+						"key = 10.15 1 0 0",
+						"key = 155.15 1 0 0",
+						"key = 343.65 3 0 0"
 					]
 				},
 				"CURVE_DEF" : "X-405",
@@ -240,6 +264,21 @@
 				"CURVE_DEF" : "AJ10-37-Vanguard",
 				"configuration" : "AJ10-37-Vanguard"
 			},
+			"TestFlightFailure_IgnitionFail" :
+			{
+				"configuration" : "AJ10-37-Vanguard",
+				"FAILURE_DEF" : "IgnitionFail",
+				"restoreIgnitionCharge" : false,
+				"ignitionFailureRate" : 
+				{
+					"type" : "FloatCurve",
+					"keys" :
+					[
+						"key = 0 0.1",
+						"key = 5000 0.01"
+					]
+				}
+			},
 			"TestFlightReliability_EngineCycle" : 
 			{
 				"cycle" : 
@@ -247,10 +286,10 @@
 					"type" : "FloatCurve",
 					"keys" :
 					[
-						"key = 0 8",
-						"key = 40 1 0 0",
-						"key = 115 1 0 0",
-						"key = 400 4"
+						"key = 0 15 0 0",
+						"key = 11.50 1 0 0",
+						"key = 126.50 1 0 0",
+						"key = 184 3 0 0"
 					]
 				},
 				"CURVE_DEF" : "AJ10-37-Vanguard",
@@ -283,7 +322,7 @@
 			{
 				"configuration" : "AJ10-42-Able",
 				"techTransfer" : "AJ-10-37-Vanguard:50",
-				"techTransferMax" : 5000
+				"techTransferMax" : 2000
 			},
 			"FlightDataRecorder_Engine" : 
 			{
@@ -296,6 +335,21 @@
 				"CURVE_DEF" : "AJ10-42-Able",
 				"configuration" : "AJ10-42-Able"
 			},
+			"TestFlightFailure_IgnitionFail" :
+			{
+				"configuration" : "AJ10-42-Able",
+				"FAILURE_DEF" : "IgnitionFail",
+				"restoreIgnitionCharge" : false,
+				"ignitionFailureRate" : 
+				{
+					"type" : "FloatCurve",
+					"keys" :
+					[
+						"key = 0 0.1",
+						"key = 5000 0.01"
+					]
+				}
+			},
 			"TestFlightReliability_EngineCycle" : 
 			{
 				"cycle" : 
@@ -303,10 +357,10 @@
 					"type" : "FloatCurve",
 					"keys" :
 					[
-						"key = 0 5",
-						"key = 40 1 0 0",
-						"key = 149 1 0 0",
-						"key = 400 4"
+						"key = 0 8 0 0",
+						"key = 12 1 0 0",
+						"key = 162 1 0 0",
+						"key = 237 2.5 0 0"
 					]
 				},
 				"CURVE_DEF" : "AJ10-42-Able",
@@ -329,6 +383,148 @@
 			"TestFlightFailure_Explode" :
 			{
 				"configuration" : "AJ10-42-Able",
+				"FAILURE_DEF" : "Explode",
+				"weight" : 2
+			}
+		},
+		"AJ-10-142" : 
+		{
+			"TestFlightCore" :
+			{
+				"configuration" : "AJ10-142-Delta",
+				"techTransfer" : "AJ-10-37-Vanguard,AJ10-42-Able:50",
+				"techTransferMax" : 2000
+			},
+			"FlightDataRecorder_Engine" : 
+			{
+				"flightDataMultiplier" : 10,
+				"flightDataEngineerModifier" : 0.25,
+				"configuration" : "AJ10-142-Delta"
+			},
+			"TestFlightReliability" :
+			{
+				"CURVE_DEF" : "AJ10-142-Delta",
+				"configuration" : "AJ10-142-Delta"
+			},
+			"TestFlightFailure_IgnitionFail" :
+			{
+				"configuration" : "AJ10-142-Delta",
+				"FAILURE_DEF" : "IgnitionFail",
+				"restoreIgnitionCharge" : false,
+				"ignitionFailureRate" : 
+				{
+					"type" : "FloatCurve",
+					"keys" :
+					[
+						"key = 0 0.1",
+						"key = 5000 0.01"
+					]
+				}
+			},
+			"TestFlightReliability_EngineCycle" : 
+			{
+				"cycle" : 
+				{
+					"type" : "FloatCurve",
+					"keys" :
+					[
+						"key = 0 5 0 0",
+						"key = 10 1 0 0",
+						"key = 210 1 0 0",
+						"key = 310 2 0 0"
+					]
+				},
+				"CURVE_DEF" : "AJ10-142-Delta",
+				"configuration" : "AJ10-142-Delta"
+			},
+			"TestFlightFailure_ShutdownEngine" :
+			{
+				"configuration" : "AJ10-142-Delta",
+				"FAILURE_DEF" : "ShutdownEngine",
+				"weight" : 16,
+				"REPAIR_DEF" : "EasySoftware"
+			},
+			"TestFlightFailure_ReducedMaxThrust" :
+			{
+				"configuration" : "AJ10-142-Delta",
+				"FAILURE_DEF" : "ReducedMaxThrust",
+				"weight" : 32,
+				"REPAIR_DEF" : "EasyMechanical"
+			},
+			"TestFlightFailure_Explode" :
+			{
+				"configuration" : "AJ10-142-Delta",
+				"FAILURE_DEF" : "Explode",
+				"weight" : 2
+			}
+		},
+		"AJ-10-104D" : 
+		{
+			"TestFlightCore" :
+			{
+				"configuration" : "AJ10-104D",
+				"techTransfer" : "AJ10-37-Vanguard,AJ10-42-Able,AJ10-142-Delta:50",
+				"techTransferMax" : 2000
+			},
+			"FlightDataRecorder_Engine" : 
+			{
+				"flightDataMultiplier" : 10,
+				"flightDataEngineerModifier" : 0.25,
+				"configuration" : "AJ10-104D"
+			},
+			"TestFlightReliability" :
+			{
+				"CURVE_DEF" : "AJ10-104D",
+				"configuration" : "AJ10-104D"
+			},
+			"TestFlightFailure_IgnitionFail" :
+			{
+				"configuration" : "AJ10-104D",
+				"FAILURE_DEF" : "IgnitionFail",
+				"restoreIgnitionCharge" : false,
+				"ignitionFailureRate" : 
+				{
+					"type" : "FloatCurve",
+					"keys" :
+					[
+						"key = 0 0.1",
+						"key = 5000 0.01"
+					]
+				}
+			},
+			"TestFlightReliability_EngineCycle" : 
+			{
+				"cycle" : 
+				{
+					"type" : "FloatCurve",
+					"keys" :
+					[
+						"key = 0 3 0 0",
+						"key = 7.54 1 0 0",
+						"key = 384.54 1 0 0",
+						"key = 497.64 2.5 0 0"
+					]
+				},
+				"CURVE_DEF" : "AJ10-104D",
+				"configuration" : "AJ10-104D"
+			},
+			"TestFlightFailure_ShutdownEngine" :
+			{
+				"configuration" : "AJ10-104D",
+				"FAILURE_DEF" : "ShutdownEngine",
+				"weight" : 16,
+				"REPAIR_DEF" : "EasySoftware"
+			},
+			"TestFlightFailure_ReducedMaxThrust" :
+			{
+				"configuration" : "AJ10-104D",
+				"FAILURE_DEF" : "ReducedMaxThrust",
+				"weight" : 32,
+				"REPAIR_DEF" : "EasyMechanical"
+			},
+			"TestFlightFailure_Explode" :
+			{
+				"configuration" : "AJ10-104D",
 				"FAILURE_DEF" : "Explode",
 				"weight" : 2
 			}
