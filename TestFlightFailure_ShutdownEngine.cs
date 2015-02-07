@@ -13,6 +13,12 @@ namespace TestFlight
         private bool allowShutdown;
         private EngineModuleWrapper engine;
 
+        internal void Log(string message)
+        {
+            message = String.Format("TestFlightFailure_ShutDownEngine({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(this.part), Configuration, message);
+            TestFlightUtil.Log(message, this.part);
+        }
+
         public override void OnStart(StartState state)
         {
             base.OnStart(state);
@@ -24,7 +30,7 @@ namespace TestFlight
         public override void DoFailure()
         {
             base.DoFailure();
-            Debug.Log("TestFlightFailure_ShutdownEngine: Failing part");
+            Log("Failing part");
             allowShutdown = engine.allowShutdown;
             engine.Shutdown();
         }

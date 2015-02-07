@@ -70,12 +70,24 @@ namespace TestFlightCore
             set { configuration = value; }
         }
 
+        public bool DebugEnabled
+        {
+            get { return TestFlightManagerScenario.Instance.userSettings.debugLog; }
+        }
+
         public System.Random RandomGenerator
         {
             get
             {
                 return TestFlightManagerScenario.Instance.RandomGenerator;
             }
+        }
+
+        internal void Log(string message)
+        {
+            bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
+            message = String.Format("TestFlightCore({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(this.part), Configuration, message);
+            TestFlightUtil.Log(message, debug);
         }
 
         // Get a proper scope string for use in other parts of the API
@@ -497,7 +509,7 @@ namespace TestFlightCore
         {
             if (flightData == null)
             {
-                LogFormatted_DebugOnly("FlightData is invalid");
+                Log("FlightData is invalid");
                 return 0;
             }
             FlightDataBody dataBody = flightData.GetFlightData(scope);
@@ -743,7 +755,7 @@ namespace TestFlightCore
                         return null;
                     else
                     {
-                        LogFormatted_DebugOnly("TestFlightCore: Triggering Failure: " + pm.moduleName);
+                        Log("Triggering Failure: " + pm.moduleName);
                         if (!fm.OneShot)
                         {
                             activeFailure = fm;
@@ -804,7 +816,7 @@ namespace TestFlightCore
             GameEvents.onStageActivate.Remove(OnStageActivate);
             firstStaged = true;
             missionStartTime = Planetarium.GetUniversalTime();
-            LogFormatted_DebugOnly("TestFlightCore: First stage activated");
+            Log("First stage activated");
         }
         /// <summary>
         /// Determines whether the part is considered operating or not.
@@ -843,7 +855,7 @@ namespace TestFlightCore
                     double repairStatus = activeFailure.GetSecondsUntilRepair();
                     if (repairStatus == 0)
                     {
-                        LogFormatted_DebugOnly("TestFlightCore: Part has been repaired");
+                        Log("Part has been repaired");
                         activeFailure = null;
                         failureAcknowledged = false;
                         operatingTime = 0;
@@ -886,7 +898,6 @@ namespace TestFlightCore
                 partName = this.part.name;
             else
                 partName = "unknown";
-            LogFormatted_DebugOnly("TestFlightCore: OnAwake(" + partName + ")");
             if (baseFlightData == null)
                 baseFlightData = new FlightDataConfig();
             if (flightData == null)
@@ -905,7 +916,6 @@ namespace TestFlightCore
                 disabledFailures = new List<string>();
 
             operatingTime = 0;
-            LogFormatted_DebugOnly("TestFlightCore: OnWake(" + partName + "):DONE");
         }
 
         public void InitializeFlightData(List<TestFlightData> allFlightData)
@@ -1019,7 +1029,7 @@ namespace TestFlightCore
                 double repairStatus = activeFailure.AttemptRepair();
                 if (repairStatus == 0)
                 {
-                    LogFormatted_DebugOnly("TestFlightCore: Part has been repaired");
+                    Log("Part has been repaired");
                     activeFailure = null;
                     failureAcknowledged = false;
                     operatingTime = 0;

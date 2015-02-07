@@ -8,6 +8,8 @@ using UnityEngine;
 
 using KSPPluginFramework;
 
+using TestFlightAPI;
+
 namespace TestFlightCore
 {
     [KSPAddon(KSPAddon.Startup.Flight, false)]
@@ -22,6 +24,13 @@ namespace TestFlightCore
         private string[] guiSizes = { "Small", "Normal", "Large" };
 
         private DropDownList ddlSettingsPage = null;
+
+        internal void Log(string message)
+        {
+            bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
+            message = "TestFlightWindow: " + message;
+            TestFlightUtil.Log(message, debug);
+        }
 
         internal override void Start()
         {
@@ -55,7 +64,7 @@ namespace TestFlightCore
             tfScenario = TestFlightManagerScenario.Instance;
             tfScenario.userSettings.Load();
             tfManager = TestFlightManager.Instance;
-            LogFormatted_DebugOnly("Starting coroutine to add toolbar icon");
+            Log("Starting coroutine to add toolbar icon");
             StartCoroutine("AddToToolbar");
             TestFlight.Resources.LoadTextures();
 
@@ -64,7 +73,7 @@ namespace TestFlightCore
                 hud = gameObject.AddComponent(typeof(TestFlightHUD)) as TestFlightHUD;
                 if (hud != null)
                 {
-                    LogFormatted_DebugOnly("Starting up TestFlightHUD");
+                    Log("Starting up TestFlightHUD");
                     hud.Startup(this);
                 }
                 GameEvents.onGameSceneLoadRequested.Add(Event_OnGameSceneLoadRequested);
@@ -94,11 +103,11 @@ namespace TestFlightCore
 
         public void Event_OnGameSceneLoadRequested(GameScenes scene)
         {
-            LogFormatted_DebugOnly("Destroying Flight HUD");
+            Log("Destroying Flight HUD");
             hud.Shutdown();
             Destroy(hud);
             hud = null;
-            LogFormatted_DebugOnly("Unhooking event");
+            Log("Unhooking event");
             GameEvents.onGameSceneLoadRequested.Remove(Event_OnGameSceneLoadRequested);
         }
 
@@ -116,7 +125,7 @@ namespace TestFlightCore
 
         internal void CalculateWindowBounds()
         {
-            LogFormatted_DebugOnly("Calculating Window Bounds");
+            Log("Calculating Window Bounds");
             if (appLauncherButton == null)
                 return;
             if (tfScenario == null)
@@ -236,7 +245,7 @@ namespace TestFlightCore
                 return;
             // We update the window bounds here, around twice a second, instead of in the GUI draw
             // This way for one it will cause less overhead, and also shouldn't cause as much flashing
-            LogFormatted_DebugOnly("Recalculating Window Bounds");
+            Log("Recalculating Window Bounds");
             CalculateWindowBounds();
 
             base.RepeatingWorker();
@@ -494,14 +503,14 @@ namespace TestFlightCore
                                 hud = gameObject.AddComponent(typeof(TestFlightHUD)) as TestFlightHUD;
                                 if (hud != null)
                                 {
-                                    LogFormatted_DebugOnly("Starting up Flight HUD");
+                                    Log("Starting up Flight HUD");
                                     hud.Startup(this);
                                 }
                                 GameEvents.onGameSceneLoadRequested.Add(Event_OnGameSceneLoadRequested);
                             }
                             else
                             {
-                                LogFormatted_DebugOnly("Destroying Flight HUD");
+                                Log("Destroying Flight HUD");
                                 hud.Shutdown();
                                 Destroy(hud);
                                 hud = null;

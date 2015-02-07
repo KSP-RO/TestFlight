@@ -184,6 +184,13 @@ namespace TestFlightCore
         double lastFailurePoll = 0.0;
         double lastMasterStatusUpdate = 0.0;
 
+        internal void Log(string message)
+        {
+            bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
+            message = "TestFlightManager: " + message;
+            TestFlightUtil.Log(message, debug);
+        }
+
         internal override void Start()
         {
             base.Start();
@@ -218,7 +225,7 @@ namespace TestFlightCore
 
         private void InitializeParts(Vessel vessel)
         {
-            LogFormatted_DebugOnly("TestFlightManager: Initializing parts for vessel " + vessel.GetName());
+            Log("TestFlightManager: Initializing parts for vessel " + vessel.GetName());
 
             // Launch time is equal to current UT unless we have already chached this vessel's launch time
             double launchTime = Planetarium.GetUniversalTime();
@@ -231,11 +238,11 @@ namespace TestFlightCore
                 ITestFlightCore core = TestFlightUtil.GetCore(part);
                 if (core != null)
                 {
-                    LogFormatted_DebugOnly("TestFlightManager: Found core.  Getting part data");
+                    Log("TestFlightManager: Found core.  Getting part data");
                     PartFlightData partData = tfScenario.GetFlightDataForPartName(TestFlightUtil.GetFullPartName(part));
                     if (partData == null)
                     {
-                        LogFormatted_DebugOnly("TestFlightManager: Unable to find part data.  Starting fresh.");
+                        Log("TestFlightManager: Unable to find part data.  Starting fresh.");
                         core.InitializeFlightData(null);
                     }
                     else
@@ -258,20 +265,20 @@ namespace TestFlightCore
                 Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == entry.Key);
                 if (vessel == null)
                 {
-                    LogFormatted_DebugOnly("TestFlightManager: Vessel no longer exists. Marking it for deletion.");
+                    Log("TestFlightManager: Vessel no longer exists. Marking it for deletion.");
                     vesselsToDelete.Add(entry.Key);
                 }
                 else
                 {
                     if (vessel.vesselType == VesselType.Debris)
                     {
-                        LogFormatted_DebugOnly("TestFlightManager: Vessel appears to be debris now. Marking it for deletion.");
+                        Log("TestFlightManager: Vessel appears to be debris now. Marking it for deletion.");
                         vesselsToDelete.Add(entry.Key);
                     }
                 }
             }
             if (vesselsToDelete.Count > 0)
-                LogFormatted_DebugOnly("TestFlightManager: Removing " + vesselsToDelete.Count() + " vessels from Master Status");
+                Log("TestFlightManager: Removing " + vesselsToDelete.Count() + " vessels from Master Status");
             foreach (Guid id in vesselsToDelete)
             {
                 masterStatus.Remove(id);
@@ -287,12 +294,12 @@ namespace TestFlightCore
                     Part part = vessel.Parts.Find(p => p.flightID == partStatus.partID);
                     if (part == null)
                     {
-                        LogFormatted_DebugOnly("TestFlightManager: Could not find part. " + partStatus.partName + "(" + partStatus.partID + ") Marking it for deletion.");
+                        Log("TestFlightManager: Could not find part. " + partStatus.partName + "(" + partStatus.partID + ") Marking it for deletion.");
                         partsToDelete.Add(partStatus);
                     }
                 }
                 if (partsToDelete.Count > 0)
-                    LogFormatted_DebugOnly("TestFlightManager: Deleting " + partsToDelete.Count() + " parts from vessel " + vessel.GetName());
+                    Log("TestFlightManager: Deleting " + partsToDelete.Count() + " parts from vessel " + vessel.GetName());
                 foreach (PartStatus oldPartStatus in partsToDelete)
                 {
                     masterStatus[entry.Key].allPartsStatus.Remove(oldPartStatus);
@@ -322,7 +329,7 @@ namespace TestFlightCore
                 }
             }
             if (vesselsToDelete.Count() > 0)
-                LogFormatted_DebugOnly("TestFlightManager: Deleting " + vesselsToDelete.Count() + " vessels from cached vessels");
+                Log("TestFlightManager: Deleting " + vesselsToDelete.Count() + " vessels from cached vessels");
             foreach (Guid id in vesselsToDelete)
             {
                 knownVessels.Remove(id);
@@ -336,7 +343,7 @@ namespace TestFlightCore
             {
                 if (FlightGlobals.ActiveVessel != null && !knownVessels.ContainsKey(FlightGlobals.ActiveVessel.id))
                 {
-                    LogFormatted_DebugOnly("TestFlightManager: Adding new vessel " + FlightGlobals.ActiveVessel.GetName() + " with launch time " + Planetarium.GetUniversalTime());
+                    Log("TestFlightManager: Adding new vessel " + FlightGlobals.ActiveVessel.GetName() + " with launch time " + Planetarium.GetUniversalTime());
                     knownVessels.Add(FlightGlobals.ActiveVessel.id, Planetarium.GetUniversalTime());
                     InitializeParts(FlightGlobals.ActiveVessel);
                 }
@@ -349,7 +356,7 @@ namespace TestFlightCore
                     {
                         if ( !knownVessels.ContainsKey(vessel.id) )
                         {
-                            LogFormatted_DebugOnly("TestFlightManager: Adding new vessel " + vessel.GetName() + " with launch time " + Planetarium.GetUniversalTime());
+                            Log("TestFlightManager: Adding new vessel " + vessel.GetName() + " with launch time " + Planetarium.GetUniversalTime());
                             knownVessels.Add(vessel.id, Planetarium.GetUniversalTime());
                             InitializeParts(vessel);
                         }
@@ -430,7 +437,7 @@ namespace TestFlightCore
                                     {
                                         existingPartIndex = masterStatus[vessel.id].allPartsStatus.FindIndex(p => p.partID == part.flightID);
                                         masterStatus[vessel.id].allPartsStatus[existingPartIndex] = partStatus;
-                                        LogFormatted_DebugOnly("[ERROR] TestFlightManager: Found " + numItems + " matching parts in Master Status Display!");
+                                        Log("[ERROR] TestFlightManager: Found " + numItems + " matching parts in Master Status Display!");
                                     }
                                 }
                                 else
@@ -491,6 +498,13 @@ namespace TestFlightCore
         public List<PartFlightData> partsFlightData;
         public List<String> partsPackedStrings;
 
+        internal void Log(string message)
+        {
+            bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
+            message = "TestFlightManagerScenario: " + message;
+            TestFlightUtil.Log(message, debug);
+        }
+
         public override void OnAwake()
         {
             Instance = this;
@@ -534,7 +548,7 @@ namespace TestFlightCore
                 {
                     foreach (string packedString in partsPackedStrings)
                     {
-                        Debug.Log(packedString);
+                        Log(packedString);
                         PartFlightData data = PartFlightData.FromString(packedString);
                         partsFlightData.Add(data);
                     }
@@ -549,7 +563,7 @@ namespace TestFlightCore
 
         public void Start()
         {
-            Debug.Log("Scenario Start");
+            Log("Scenario Start");
             RandomGenerator = new System.Random();
             isReady = true;
         }

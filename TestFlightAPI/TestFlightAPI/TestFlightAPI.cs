@@ -173,6 +173,25 @@ namespace TestFlightAPI
 
             return failureModules;
         }
+        public static void Log(string message, Part loggingPart)
+        {
+            ITestFlightCore core = TestFlightUtil.GetCore(loggingPart);
+            bool debug = false;
+            if (core != null)
+                debug = core.DebugEnabled;
+
+            if (debug)
+            {
+                Debug.Log("[TestFlight] " + message);
+            }
+        }
+        public static void Log(string message, bool debug)
+        {
+            if (debug)
+            {
+                Debug.Log("[TestFlight] " + message);
+            }
+        }
     }
 
 	public struct TestFlightData
@@ -363,6 +382,11 @@ namespace TestFlightAPI
         {
             get;
         }
+        bool DebugEnabled
+        {
+            get;
+        }
+
         /// <summary>
         /// 0 = OK, 1 = Minor Failure, 2 = Failure, 3 = Major Failure
         /// </summary>

@@ -17,7 +17,6 @@ namespace TestFlight
         public override void DoFailure()
         {
             base.DoFailure();
-            Debug.Log("TestFlightFailure_Explode: Failing part");
             this.part.explode();
         }
 

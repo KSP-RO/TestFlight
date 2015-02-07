@@ -19,13 +19,19 @@ namespace TestFlight
         public float perSecondAmount = 0.1f;
 
         private string leakingResource;
+        internal void Log(string message)
+        {
+            message = String.Format("TestFlightFailure_ResourceLeak({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(this.part), Configuration, message);
+            TestFlightUtil.Log(message, this.part);
+        }
+
         /// <summary>
         /// Triggers the failure controlled by the failure module
         /// </summary>
         public override void DoFailure()
         {
             base.DoFailure();
-            Debug.Log("TestFlightFailure_ResourceLeak: Failing part");
+            Log("Failing part");
             if (resourceToLeak.ToLower() == "random")
             {
                 List<PartResource> allResources = this.part.Resources.list;

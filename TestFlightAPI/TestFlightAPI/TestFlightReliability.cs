@@ -72,6 +72,12 @@ namespace TestFlightAPI
             set { configuration = value; }
         }
 
+        internal void Log(string message)
+        {
+            message = String.Format("TestFlightReliability({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(this.part), Configuration, message);
+            TestFlightUtil.Log(message, this.part);
+        }
+
         // New API
         // Get the base or static failure rate for the given scope
         // !! IMPORTANT: Only ONE Reliability module may return a Base Failure Rate.  Additional modules can exist only to supply Momentary rates
@@ -92,7 +98,7 @@ namespace TestFlightAPI
                 return TestFlightUtil.MIN_FAILURE_RATE;
 
             double reliability = curve.Evaluate((float)flightData);
-            Debug.Log(String.Format("TestFlightFailure: {0}|{1} reporting BFR of {2:F4}", TestFlightUtil.GetFullPartName(this.part), configuration, reliability));
+            Log(String.Format("Reporting BFR of {0:F4}", reliability));
             return reliability;
         }
 
@@ -133,7 +139,7 @@ namespace TestFlightAPI
             {
                 core = TestFlightUtil.GetCore(this.part, Configuration);
                 if (core != null)
-                    Debug.Log(String.Format("TestFlightReliability:({0}): Attached to Core({1})", Configuration, core.Configuration));
+                    Log(String.Format("Attached to Core({0})", core.Configuration));
                 yield return null;
             }
 
@@ -221,11 +227,11 @@ namespace TestFlightAPI
 //            float failureRoll = Mathf.Min(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f));
 //            float failureRoll = UnityEngine.Random.Range(0f, 1f);
             double failureRoll = core.RandomGenerator.NextDouble();
-            Debug.Log(String.Format("TestFlightReliability: Survival Chance at Time {0:F2} is {1:f4}.  Rolled {2:f4}", (float)operatingTime, survivalChance, failureRoll));
+            Log(String.Format("Survival Chance at Time {0:F2} is {1:f4}.  Rolled {2:f4}", (float)operatingTime, survivalChance, failureRoll));
             if (failureRoll > survivalChance)
             {
 //                Debug.Log(String.Format("TestFlightReliability: Survival Chance at Time {0:F2} is {1:f4} -- {2:f4}^({3:f4}*{0:f2}*-1.0)", (float)operatingTime, survivalChance, Mathf.Exp(1), (float)currentFailureRate));
-                Debug.Log(String.Format("TestFlightReliability: Part has failed after {1:F1} secodns of operation at MET T+{2:F2} seconds with roll of {0:F4}", failureRoll, operatingTime, this.vessel.missionTime));
+                Log(String.Format("Part has failed after {1:F1} secodns of operation at MET T+{2:F2} seconds with roll of {0:F4}", failureRoll, operatingTime, this.vessel.missionTime));
                 core.TriggerFailure();
             }
         }
