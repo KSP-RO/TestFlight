@@ -358,6 +358,13 @@ namespace TestFlightCore
         AvailablePart selectedPart;
         bool mouseFlag = false;
 
+        internal void Log(string message)
+        {
+            bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
+            message = "TestFlightEditor: " + message;
+            TestFlightUtil.Log(message, debug);
+        }
+
         internal override void Start()
         {
             GetComponent<UIButton>().AddInputDelegate(OnInput);
