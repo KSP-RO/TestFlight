@@ -58,11 +58,9 @@ namespace TestFlightCore
                 if (this.part.Modules.Contains("ModuleEngineConfigs"))
                 {
                     string currentConfig = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
-                    LogFormatted_DebugOnly(String.Format("TestFlightCore:({0}): Checking configuration {0} ? {1}", configuration, currentConfig));
                     if (currentConfig != configuration)
                         enabled = false;
                 }
-                LogFormatted_DebugOnly(String.Format("TestFlightCore:({0}): TestFlightEnabled is {1}", configuration, enabled));
                 return enabled;
             }
         }

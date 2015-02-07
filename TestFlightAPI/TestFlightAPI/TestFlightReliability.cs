@@ -44,8 +44,6 @@ namespace TestFlightAPI
         protected double lastCheck = 0;
         protected double lastReliability = 1.0;
 
-        private string originalAttachedConfig = "";
-
         [KSPField(isPersistant=true)]
         public string configuration = "";
 
