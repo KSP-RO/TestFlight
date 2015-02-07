@@ -307,9 +307,9 @@ namespace TestFlightCore
                 foreach (PartStatus status in masterStatus[currentVessel].allPartsStatus)
                 {
                     // Display part data
-//                    GUILayout.Label(String.Format("{0,50}", status.partName));
-//                    GUILayout.Label(String.Format("{0,7:F2}du", status.flightData));
-//                    GUILayout.Label(String.Format("{0,7:F2}%", status.reliability));
+                    //                    GUILayout.Label(String.Format("{0,50}", status.partName));
+                    //                    GUILayout.Label(String.Format("{0,7:F2}du", status.flightData));
+                    //                    GUILayout.Label(String.Format("{0,7:F2}%", status.reliability));
 
                     if (tfScenario.userSettings.showFailedPartsOnlyInMSD && status.activeFailure == null)
                         continue;
@@ -511,20 +511,6 @@ namespace TestFlightCore
                         GUILayout.EndHorizontal();
                         break;
                     case 1:
-                        GUILayout.BeginHorizontal();
-                        GUILayout.Label(new GUIContent("Minimum Update Rate", 
-                            "Define the time in seconds between updates to all parts.\n" +
-                            "Setting this lower will ensure you always have up to date data, but might be a performance issue on large craft.\n" +
-                            "Increase this if you find it affecting performance"),
-                            GUILayout.Width(200)
-                        );
-                        if (DrawHorizontalSlider(ref tfScenario.userSettings.minTimeBetweenDataPoll, 0, 1, GUILayout.Width(150)))
-                        {
-                            tfScenario.userSettings.Save();
-                        }
-                        GUILayout.Label(String.Format("{0,5:f2}", tfScenario.userSettings.minTimeBetweenDataPoll), GUILayout.Width(75));
-                        GUILayout.EndHorizontal();
-
                         GUILayout.BeginHorizontal();
                         GUILayout.Label(new GUIContent("Flight Data Multiplier", "Overall difficulty slider.\n" +
                             "Increase to make all parts accumuate flight data faster.  Decrease to make them accumulate flight data slower.\n" + 
