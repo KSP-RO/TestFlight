@@ -925,7 +925,7 @@
 					[
 						"key = 0 5 0 0",
 						"key = 15.45 1 0 0",
-						"key = 132 324.45 0 0",
+						"key = 324.45 1 0 0",
 						"key = 417.15 5 0 0"
 					]
 				},
@@ -1196,7 +1196,7 @@
 			"patterns" : 
 			[
 				"@PART[liquidEngine2]NEEDS[!RP-0]:AFTER[RealismOverhaul]",
-				"@PART[liquidEngine1-2]:AFTER[RP-0]",
+				"@PART[RO-LR-89]:AFTER[RP-0]",
 				"@PART[FASAMercuryAtlasEngBooster]:AFTER[RP-0]"
 			],
 			"configs" : ["LR-89-NA-5"]
