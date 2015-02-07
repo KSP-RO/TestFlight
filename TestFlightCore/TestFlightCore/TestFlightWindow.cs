@@ -558,8 +558,8 @@ namespace TestFlightCore
             }
         }
 
-        // nicked from magico13's Kerbal Construction Time mod
-        // Hope he doesn't mind!  Just seemed silly to reimplement the wheel here
+        // nicked from magico13's Kerbal Construction Time mod with permission
+        // https://github.com/magico13/KCT/blob/master/Kerbal_Construction_Time/KCT_Utilities.cs#L46-L73
         public static string GetColonFormattedTime(double time)
         {
             if (time > 0)
