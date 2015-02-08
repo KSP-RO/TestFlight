@@ -529,7 +529,7 @@
 				"weight" : 2
 			}
 		},
-		"AJ-10-37" : 
+		"AJ10-37" : 
 		{
 			"TestFlightCore" :
 			{
@@ -598,12 +598,12 @@
 				"weight" : 2
 			}
 		},
-		"AJ-10-42" : 
+		"AJ10-42" : 
 		{
 			"TestFlightCore" :
 			{
 				"configuration" : "AJ10-42-Able",
-				"techTransfer" : "AJ-10-37-Vanguard:50",
+				"techTransfer" : "AJ10-37-Vanguard:50",
 				"techTransferMax" : 2000
 			},
 			"FlightDataRecorder_Engine" : 
@@ -669,12 +669,12 @@
 				"weight" : 2
 			}
 		},
-		"AJ-10-142" : 
+		"AJ10-142" : 
 		{
 			"TestFlightCore" :
 			{
 				"configuration" : "AJ10-142-Delta",
-				"techTransfer" : "AJ-10-37-Vanguard,AJ10-42-Able:50",
+				"techTransfer" : "AJ10-37-Vanguard,AJ10-42-Able:50",
 				"techTransferMax" : 2000
 			},
 			"FlightDataRecorder_Engine" : 
@@ -740,7 +740,7 @@
 				"weight" : 2
 			}
 		},
-		"AJ-10-104D" : 
+		"AJ10-104D" : 
 		{
 			"TestFlightCore" :
 			{
@@ -1183,13 +1183,13 @@
 			],
 			"configs" : ["X-405"]
 		},
-		"AJ-10-Early" : 
+		"AJ10-Early" : 
 		{
 			"patterns" : 
 			[
 				"@PART[RO-AJ10-Early]:AFTER[RP-0]"
 			],
-			"configs" : ["AJ-10-37", "AJ-10-42", "AJ-10-142", "AJ-10-104D"]
+			"configs" : ["AJ10-37", "AJ10-42", "AJ10-142", "AJ10-104D"]
 		},
 		"LR-89-NA-5" : 
 		{
