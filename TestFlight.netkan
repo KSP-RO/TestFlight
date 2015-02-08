@@ -19,11 +19,11 @@
         }
     ],
 	"depends" : [
-        { "name" : "ModuleManager", "min_version" : "2.5.8" },
-        { "name" : "RealismOverhaul", "min_version" : "7.0.7" }
+        { "name" : "ModuleManager", "min_version" : "2.5.8" }
 
     ],
     "suggests" : [
-    	{ "name" : "RP-0" } 
+    	{ "name" : "RP-0" },
+    	{ "name" : "RealismOverhaul"} 
     ]
 }
