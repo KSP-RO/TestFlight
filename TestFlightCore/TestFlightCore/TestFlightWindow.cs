@@ -549,7 +549,7 @@ namespace TestFlightCore
                         break;
                     case 2:
                         GUILayout.BeginHorizontal();
-                        if (DrawToggle(ref tfScenario.userSettings.debugLog, "Eable Debugging", Styles.styleToggle))
+                        if (DrawToggle(ref tfScenario.userSettings.debugLog, "Enable Debugging", Styles.styleToggle))
                         {
                             tfScenario.userSettings.Save();
                         }
