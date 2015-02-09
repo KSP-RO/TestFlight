@@ -26,6 +26,7 @@ namespace TestFlightCore
         internal bool acknowledged;
         internal String mtbfString;
         internal double timeToRepair;
+        internal double lastSeen;
     }
 
     internal struct MasterStatusItem
@@ -175,6 +176,7 @@ namespace TestFlightCore
         public Dictionary<Guid, double> knownVessels;
 
         public double pollingInterval = 5.0f;
+        public double partDecayTime = 15f;
         public bool processInactiveVessels = true;
 
         private Dictionary<Guid, MasterStatusItem> masterStatus = null;
@@ -302,7 +304,8 @@ namespace TestFlightCore
                     Log("TestFlightManager: Deleting " + partsToDelete.Count() + " parts from vessel " + vessel.GetName());
                 foreach (PartStatus oldPartStatus in partsToDelete)
                 {
-                    masterStatus[entry.Key].allPartsStatus.Remove(oldPartStatus);
+                    if (oldPartStatus.lastSeen < Planetarium.GetUniversalTime() - partDecayTime)
+                        masterStatus[entry.Key].allPartsStatus.Remove(oldPartStatus);
                 }
             }
         }
@@ -401,6 +404,7 @@ namespace TestFlightCore
                                 currentFlightData.flightTime = core.GetFlightTime();
 
                                 PartStatus partStatus = new PartStatus();
+                                partStatus.lastSeen = currentUTC;
                                 partStatus.flightCore = core;
                                 partStatus.partName = TestFlightUtil.GetPartTitle(part);
                                 partStatus.partID = part.flightID;
