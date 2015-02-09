@@ -2648,7 +2648,7 @@
 				"@PART[RO-LR-89]:AFTER[RP-0]",
 				"@PART[FASAMercuryAtlasEngBooster]:AFTER[RP-0]"
 			],
-			"configs" : ["LR-89-NA-3"]
+			"configs" : ["LR-89-NA-5"]
 		},
 		"LR-105-NA-5" : 
 		{
