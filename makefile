@@ -6,7 +6,8 @@ BRANCH := $(shell git rev-parse --abbrev-ref HEAD 2>&1)
 
 ZIPFILE := $(PROJ_NAME)-$(TRAVIS_TAG).zip
 
-all: configs
+all: clean configs meta
+	cp -r GameData/TestFlight/ ~/Dropbox/KSP/TestFlight/
 
 release: zip
 

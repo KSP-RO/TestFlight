@@ -35,14 +35,7 @@ namespace TestFlightAPI
             {
                 float diameter = (float)(part.Modules["ProceduralShapeCylinder"].GetType().GetField("diameter").GetValue(part.Modules["ProceduralShapeCylinder"]));
                 float length = (float)(part.Modules["ProceduralShapeCylinder"].GetType().GetField("length").GetValue(part.Modules["ProceduralShapeCylinder"]));
-                string size = "";
-                if (length <= 30f)
-                    size = "short";
-                else if (length <= 60f)
-                    size = "normal";
-                else
-                    size = "long";
-                return String.Format("{0}|{1:F2}-{2}", baseName, diameter, size);
+                return String.Format("{0}|{1:F2}d{2:F2}l", baseName, diameter, length);
             }
 
             return baseName;
