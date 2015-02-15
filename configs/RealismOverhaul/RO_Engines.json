@@ -50,7 +50,7 @@
 				"key = 10000 0.000115 0 0"
 			]
 		},
-		"AJ10-37-Vanguard" :
+		"AJ10-37" :
 		{
 			"default" :
 			[
@@ -60,7 +60,7 @@
 				"key = 10000 0.000652 0 0"
 			]
 		},
-		"AJ10-42-Able" :
+		"AJ10-42" :
 		{
 			"default" :
 			[
@@ -70,7 +70,7 @@
 				"key = 10000 0.000362 0 0"
 			]
 		},
-		"AJ10-142-Delta" :
+		"AJ10-142" :
 		{
 			"default" :
 			[
@@ -713,22 +713,22 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "AJ10-37-Vanguard"
+				"configuration" : "AJ10-37"
 			},
 			"FlightDataRecorder_Engine" : 
 			{
 				"flightDataMultiplier" : 5.5,
 				"flightDataEngineerModifier" : 0.25,
-				"configuration" : "AJ10-37-Vanguard"
+				"configuration" : "AJ10-37"
 			},
 			"TestFlightReliability" :
 			{
-				"CURVE_DEF" : "AJ10-37-Vanguard",
-				"configuration" : "AJ10-37-Vanguard"
+				"CURVE_DEF" : "AJ10-37",
+				"configuration" : "AJ10-37"
 			},
 			"TestFlightFailure_IgnitionFail" :
 			{
-				"configuration" : "AJ10-37-Vanguard",
+				"configuration" : "AJ10-37",
 				"FAILURE_DEF" : "IgnitionFail",
 				"restoreIgnitionCharge" : false,
 				"ignitionFailureRate" : 
@@ -755,26 +755,26 @@
 						"key = 177.50 100.00 0 0"
 					]
 				},
-				"CURVE_DEF" : "AJ10-37-Vanguard",
-				"configuration" : "AJ10-37-Vanguard"
+				"CURVE_DEF" : "AJ10-37",
+				"configuration" : "AJ10-37"
 			},
 			"TestFlightFailure_ShutdownEngine" :
 			{
-				"configuration" : "AJ10-37-Vanguard",
+				"configuration" : "AJ10-37",
 				"FAILURE_DEF" : "ShutdownEngine",
 				"weight" : 16,
 				"REPAIR_DEF" : "EasySoftware"
 			},
 			"TestFlightFailure_ReducedMaxThrust" :
 			{
-				"configuration" : "AJ10-37-Vanguard",
+				"configuration" : "AJ10-37",
 				"FAILURE_DEF" : "ReducedMaxThrust",
 				"weight" : 32,
 				"REPAIR_DEF" : "EasyMechanical"
 			},
 			"TestFlightFailure_Explode" :
 			{
-				"configuration" : "AJ10-37-Vanguard",
+				"configuration" : "AJ10-37",
 				"FAILURE_DEF" : "Explode",
 				"weight" : 2
 			}
@@ -783,24 +783,24 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "AJ10-42-Able",
-				"techTransfer" : "AJ10-37-Vanguard:50",
+				"configuration" : "AJ10-42",
+				"techTransfer" : "AJ10-37:50",
 				"techTransferMax" : 2000
 			},
 			"FlightDataRecorder_Engine" : 
 			{
 				"flightDataMultiplier" : 3.5,
 				"flightDataEngineerModifier" : 0.25,
-				"configuration" : "AJ10-42-Able"
+				"configuration" : "AJ10-42"
 			},
 			"TestFlightReliability" :
 			{
-				"CURVE_DEF" : "AJ10-42-Able",
-				"configuration" : "AJ10-42-Able"
+				"CURVE_DEF" : "AJ10-42",
+				"configuration" : "AJ10-42"
 			},
 			"TestFlightFailure_IgnitionFail" :
 			{
-				"configuration" : "AJ10-42-Able",
+				"configuration" : "AJ10-42",
 				"FAILURE_DEF" : "IgnitionFail",
 				"restoreIgnitionCharge" : false,
 				"ignitionFailureRate" : 
@@ -826,26 +826,26 @@
 						"key = 267.50 100.00 0 0"
 					]
 				},
-				"CURVE_DEF" : "AJ10-42-Able",
-				"configuration" : "AJ10-42-Able"
+				"CURVE_DEF" : "AJ10-42",
+				"configuration" : "AJ10-42"
 			},
 			"TestFlightFailure_ShutdownEngine" :
 			{
-				"configuration" : "AJ10-42-Able",
+				"configuration" : "AJ10-42",
 				"FAILURE_DEF" : "ShutdownEngine",
 				"weight" : 16,
 				"REPAIR_DEF" : "EasySoftware"
 			},
 			"TestFlightFailure_ReducedMaxThrust" :
 			{
-				"configuration" : "AJ10-42-Able",
+				"configuration" : "AJ10-42",
 				"FAILURE_DEF" : "ReducedMaxThrust",
 				"weight" : 32,
 				"REPAIR_DEF" : "EasyMechanical"
 			},
 			"TestFlightFailure_Explode" :
 			{
-				"configuration" : "AJ10-42-Able",
+				"configuration" : "AJ10-42",
 				"FAILURE_DEF" : "Explode",
 				"weight" : 2
 			}
@@ -854,24 +854,24 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "AJ10-142-Delta",
-				"techTransfer" : "AJ10-37-Vanguard,AJ10-42-Able:50",
+				"configuration" : "AJ10-142",
+				"techTransfer" : "AJ10-37,AJ10-42:50",
 				"techTransferMax" : 2000
 			},
 			"FlightDataRecorder_Engine" : 
 			{
 				"flightDataMultiplier" : 1,
 				"flightDataEngineerModifier" : 0.25,
-				"configuration" : "AJ10-142-Delta"
+				"configuration" : "AJ10-142"
 			},
 			"TestFlightReliability" :
 			{
-				"CURVE_DEF" : "AJ10-142-Delta",
-				"configuration" : "AJ10-142-Delta"
+				"CURVE_DEF" : "AJ10-142",
+				"configuration" : "AJ10-142"
 			},
 			"TestFlightFailure_IgnitionFail" :
 			{
-				"configuration" : "AJ10-142-Delta",
+				"configuration" : "AJ10-142",
 				"FAILURE_DEF" : "IgnitionFail",
 				"restoreIgnitionCharge" : false,
 				"ignitionFailureRate" : 
@@ -897,26 +897,26 @@
 						"key = 1005.00 200.00 0 0"
 					]
 				},
-				"CURVE_DEF" : "AJ10-142-Delta",
-				"configuration" : "AJ10-142-Delta"
+				"CURVE_DEF" : "AJ10-142",
+				"configuration" : "AJ10-142"
 			},
 			"TestFlightFailure_ShutdownEngine" :
 			{
-				"configuration" : "AJ10-142-Delta",
+				"configuration" : "AJ10-142",
 				"FAILURE_DEF" : "ShutdownEngine",
 				"weight" : 16,
 				"REPAIR_DEF" : "EasySoftware"
 			},
 			"TestFlightFailure_ReducedMaxThrust" :
 			{
-				"configuration" : "AJ10-142-Delta",
+				"configuration" : "AJ10-142",
 				"FAILURE_DEF" : "ReducedMaxThrust",
 				"weight" : 32,
 				"REPAIR_DEF" : "EasyMechanical"
 			},
 			"TestFlightFailure_Explode" :
 			{
-				"configuration" : "AJ10-142-Delta",
+				"configuration" : "AJ10-142",
 				"FAILURE_DEF" : "Explode",
 				"weight" : 2
 			}
@@ -926,7 +926,7 @@
 			"TestFlightCore" :
 			{
 				"configuration" : "AJ10-104D",
-				"techTransfer" : "AJ10-37-Vanguard,AJ10-42-Able,AJ10-142-Delta:50",
+				"techTransfer" : "AJ10-37,AJ10-42,AJ10-142:50",
 				"techTransferMax" : 2000
 			},
 			"FlightDataRecorder_Engine" : 
@@ -2628,7 +2628,7 @@
 		{
 			"patterns" : 
 			[
-				"@PART[liquidEngine2]:AFTER[RP-0]"
+				"@PART[SXTX405]:AFTER[RP-0]"
 			],
 			"configs" : ["X-405"]
 		},
@@ -2636,7 +2636,7 @@
 		{
 			"patterns" : 
 			[
-				"@PART[RO-AJ10-Early]:AFTER[RP-0]"
+				"@PART[SXTAJ10]:AFTER[RP-0]"
 			],
 			"configs" : ["AJ10-37", "AJ10-42", "AJ10-142", "AJ10-104D"]
 		},
