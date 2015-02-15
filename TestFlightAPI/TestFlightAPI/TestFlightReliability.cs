@@ -138,8 +138,6 @@ namespace TestFlightAPI
             while (core == null)
             {
                 core = TestFlightUtil.GetCore(this.part, Configuration);
-                if (core != null)
-                    Log(String.Format("Attached to Core({0})", core.Configuration));
                 yield return null;
             }
 
