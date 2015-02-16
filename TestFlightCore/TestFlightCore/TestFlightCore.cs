@@ -72,7 +72,9 @@ namespace TestFlightCore
             get 
             { 
                 if (TestFlightManagerScenario.Instance != null)
-                    return TestFlightManagerScenario.Instance.userSettings.debugLog; 
+                    return TestFlightManagerScenario.Instance.userSettings.debugLog;
+                else
+                    return false;
             }
         }
 
