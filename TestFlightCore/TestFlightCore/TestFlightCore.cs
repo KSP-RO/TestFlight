@@ -28,9 +28,6 @@ namespace TestFlightCore
         [KSPField(isPersistant=true)]
         public float techTransferGenerationPenalty = 0.05f;
 
-
-
-
         // Base Failure Rate is stored per Scope internally
         private Dictionary<String, double> baseFailureRate;
         // We store the base, or initial, flight data for calculation of Base Failure Rate
@@ -72,7 +69,11 @@ namespace TestFlightCore
 
         public bool DebugEnabled
         {
-            get { return TestFlightManagerScenario.Instance.userSettings.debugLog; }
+            get 
+            { 
+                if (TestFlightManagerScenario.Instance != null)
+                    return TestFlightManagerScenario.Instance.userSettings.debugLog; 
+            }
         }
 
         public System.Random RandomGenerator
