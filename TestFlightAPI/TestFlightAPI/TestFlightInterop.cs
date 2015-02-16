@@ -72,7 +72,7 @@ namespace TestFlightAPI
                 knownInterops = new Dictionary<string, InteropValue>();
 
             if (!knownInterops.ContainsKey(name))
-                return false;
+                return true;
 
             InteropValue opValue = knownInterops[name];
             if (opValue.owner != owner)
