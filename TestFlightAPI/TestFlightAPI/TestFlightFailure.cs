@@ -94,6 +94,9 @@ namespace TestFlightAPI
         
         public static RepairConfig FromString(string s)
         {
+            if (String.IsNullOrEmpty(s))
+                return null;
+
             RepairConfig repairConfig = null;
             string[] sections = s.Split(new char[1] { ',' });
             if (sections.Length == 10)
@@ -404,11 +407,10 @@ namespace TestFlightAPI
         
         public override void OnStart(StartState state)
         {
-            if (repairConfig == null && repairConfigString.Length > 0)
+            if (repairConfig == null && !String.IsNullOrEmpty(repairConfigString))
             {
                 repairConfig = RepairConfig.FromString(repairConfigString);
             }
-            base.OnStart(state);
         }
         
         public override void OnLoad(ConfigNode node)
