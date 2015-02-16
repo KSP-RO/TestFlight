@@ -5,6 +5,25 @@ using UnityEngine;
 
 namespace TestFlightAPI
 {
+    public enum InteropValueType
+    {
+        INVALID = -1,
+        STRING,
+        FLOAT,
+        INT,
+        BOOL,
+        STRING_LIST,
+        FLOAT_LIST,
+        INT_LIST,
+        BOOL_LIST
+    };
+    public struct InteropValue
+    {
+        public InteropValueType valueType;
+        public string value;
+        public string owner;
+    };
+
     public class TestFlightUtil
     {
         public const double MIN_FAILURE_RATE = 0.000001;
@@ -17,6 +36,8 @@ namespace TestFlightAPI
             YEARS,
             INVALID
         };
+
+
         // Methods for accessing the TestFlight modules on a given part
 
         public static string GetFullPartName(Part part)
@@ -35,7 +56,7 @@ namespace TestFlightAPI
             {
                 float diameter = (float)(part.Modules["ProceduralShapeCylinder"].GetType().GetField("diameter").GetValue(part.Modules["ProceduralShapeCylinder"]));
                 float length = (float)(part.Modules["ProceduralShapeCylinder"].GetType().GetField("length").GetValue(part.Modules["ProceduralShapeCylinder"]));
-                return String.Format("{0}|{1:F2}d{2:F2}l", baseName, diameter, length);
+                return String.Format("{0}|{1:F2}d{2:F2}l{3:F2}v", baseName, diameter, length);
             }
 
             return baseName;
@@ -192,6 +213,119 @@ namespace TestFlightAPI
 
             return failureModules;
         }
+
+        // Originally `configuration` was just a string to match again ModuleEngineConfigs property of the same name.
+        // But with the expansion to work with Procedural Parts, it is getting more complicated.  Thus it is probably
+        // best to split it out into a common method for all handling of configuration matches
+//        public static bool IsMatchingConfiguration(string configuration, Part part)
+//        {
+//            // split into list elements.  For a configuration to be valid only one list element has to evaluate to true
+//            string[] elements = configuration.Split(new char[1] { ',' });
+//            foreach (string element in elements)
+//            {
+//                if (EvaluateElement(element, part))
+//                    return true;
+//            }
+//
+//            return false;
+//        }
+//
+//        protected static bool EvaluateElement(string element, Part part)
+//        {
+//            // If the element contains conditionals, then it needs to be further broken down and those conditions evaluated left to right
+//            // otherwise we just evaluate the block
+//            if (element.Contains("||"))
+//            {
+//                string[] orSections = element.Split("||");
+//                foreach (string section in orSections)
+//                {
+//                    if (section.Contains("&&"))
+//                    {
+//                        bool sectionIsTrue = true;
+//                        string[] andSections = section.Split("&&");
+//                        foreach (string block in andSections)
+//                        {
+//                            if (!EvaluateBlock(block, part))
+//                            {
+//                                sectionIsTrue = false;
+//                                break;
+//                            }
+//                        }
+//                        if (sectionIsTrue)
+//                            return true;
+//                    }
+//                    else
+//                    {
+//                        if (EvaluateBlock(section, part))
+//                            return true;
+//                    }
+//                }
+//            }
+//            else
+//                return EvaluateBlock(element, part);
+//        }
+//
+//        protected static bool EvaluateBlock(string block, Part part)
+//        {
+//            block = block.ToLower();
+//            // The meat of the evaluation is done here
+//            if (block.Contains("|"))
+//            {
+//                string[] parts = block.Split("|");
+//                if (parts.Length < 2)
+//                    return false;
+//
+//                string op = parts[0];
+//                string term = parts[1];
+//                string qualifier = "";
+//
+//                if (parts.Length == 3)
+//                {
+//                    qualifier = parts[2];
+//                }
+//
+//                switch (op)
+//                {
+//                    case "$":
+//                        if (part.name.ToLower().StartsWith(term))
+//                            return true;
+//                        if (Configuration(part).StartsWith(term))
+//                            return true;
+//                        break;
+//                    case "<":
+//
+//                        break;
+//                }
+//                return false;
+//            }
+//            else
+//            {
+//                // if there are no "parts" to this block, then it must be just a simple part or configuration match
+//                if (block == part.name.ToLower())
+//                    return true;
+//                if (block == Configuration(part))
+//                    return true;
+//                if (block == part.name.ToLower() + "+" + Configuration(part))
+//                    return true;
+//                return false;
+//            }
+//        }
+
+        protected static string Configuration(Part part)
+        {
+            if (part.Modules.Contains("ModuleEngineConfigs"))
+            {
+                string configuration = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
+                return configuration.ToLower();
+            }
+            return "";
+        }
+
+        protected static float ProcPartsDiameter(Part part)
+        {
+            return 0f;
+        }
+
         public static void Log(string message, Part loggingPart)
         {
             ITestFlightCore core = TestFlightUtil.GetCore(loggingPart);
@@ -381,6 +515,17 @@ namespace TestFlightAPI
         /// <returns>The seconds until repair is complete, <c>0</c> if repair is completed instantly, and <c>-1</c> if repair failed and the part is still broken.</returns>
         double ForceRepair();
 	}
+
+    public interface ITestFlightInterop
+    {
+        bool AddInteropValue(string name, int value, string owner);
+        bool AddInteropValue(string name, float value, string owner);
+        bool AddInteropValue(string name, bool value, string owner);
+        bool AddInteropValue(string name, string value, string owner);
+        bool RemoveInteropValue(string name, string owner);
+        void ClearInteropValues(string owner);
+        InteropValue GetInterop(string name);
+    }
 
     /// <summary>
     /// This is used internally and should not be implemented by any 3rd party modules
