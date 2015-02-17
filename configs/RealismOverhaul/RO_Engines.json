@@ -996,7 +996,7 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "LR-89-NA-5",
+				"configuration" : "LR-89-NA-3/5",
 				"techTransfer" : "A-7:10",
 				"techTransferMax" : 2000
 			},
@@ -1004,16 +1004,16 @@
 			{
 				"flightDataMultiplier" : 6,
 				"flightDataEngineerModifier" : 0.25,
-				"configuration" : "LR-89-NA-5"
+				"configuration" : "LR-89-NA-3/5"
 			},
 			"TestFlightReliability" :
 			{
 				"CURVE_DEF" : "LR-89-NA-5",
-				"configuration" : "LR-89-NA-5"
+				"configuration" : "LR-89-NA-3/5"
 			},
 			"TestFlightFailure_IgnitionFail" :
 			{
-				"configuration" : "LR-89-NA-5",
+				"configuration" : "LR-89-NA-3/5",
 				"FAILURE_DEF" : "IgnitionFail",
 				"restoreIgnitionCharge" : false,
 				"ignitionFailureRate" : 
@@ -1040,25 +1040,25 @@
 					]
 				},
 				"CURVE_DEF" : "LR-89-NA-5",
-				"configuration" : "LR-89-NA-5"
+				"configuration" : "LR-89-NA-3/5"
 			},
 			"TestFlightFailure_ShutdownEngine" :
 			{
-				"configuration" : "LR-89-NA-5",
+				"configuration" : "LR-89-NA-3/5",
 				"FAILURE_DEF" : "ShutdownEngine",
 				"weight" : 16,
 				"REPAIR_DEF" : "EasySoftware"
 			},
 			"TestFlightFailure_ReducedMaxThrust" :
 			{
-				"configuration" : "LR-89-NA-5",
+				"configuration" : "LR-89-NA-3/5",
 				"FAILURE_DEF" : "ReducedMaxThrust",
 				"weight" : 32,
 				"REPAIR_DEF" : "EasyMechanical"
 			},
 			"TestFlightFailure_Explode" :
 			{
-				"configuration" : "LR-89-NA-5",
+				"configuration" : "LR-89-NA-3/5",
 				"FAILURE_DEF" : "Explode",
 				"weight" : 2
 			}
@@ -2644,7 +2644,7 @@
 		{
 			"patterns" : 
 			[
-				"@PART[liquidEngine2]NEEDS[!RP-0]:AFTER[RealismOverhaul]",
+				"@PART[liquidEngine2]:NEEDS[!RP-0]:AFTER[RealismOverhaul]",
 				"@PART[RO-LR-89]:AFTER[RP-0]",
 				"@PART[FASAMercuryAtlasEngBooster]:AFTER[RP-0]"
 			],
