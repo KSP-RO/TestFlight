@@ -50,7 +50,7 @@
 				"key = 10000 0.000115 0 0"
 			]
 		},
-		"AJ10-37-Vanguard" :
+		"AJ10-37" :
 		{
 			"default" :
 			[
@@ -60,7 +60,7 @@
 				"key = 10000 0.000652 0 0"
 			]
 		},
-		"AJ10-42-Able" :
+		"AJ10-42" :
 		{
 			"default" :
 			[
@@ -70,7 +70,7 @@
 				"key = 10000 0.000362 0 0"
 			]
 		},
-		"AJ10-142-Delta" :
+		"AJ10-142" :
 		{
 			"default" :
 			[
@@ -442,7 +442,11 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "WAC-Corporal"
+				"configuration" : "engineConfig = WAC-Corporal:WAC-Corporal",
+				"title" : "WAC Corporal"
+			},
+			"TestFlightInterop" :
+			{
 			},
 			"FlightDataRecorder_Engine" : 
 			{
@@ -510,7 +514,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "Aerobee-Hi",
+				"configuration" : "engineConfig = Aerobee-Hi:Aerobee-Hi",
+				"title" : "Aerobee HI",
 				"techTransfer" : "WAC-Corporal:50",
 				"techTransferMax" : 2000
 			},
@@ -581,7 +586,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "Aerobee-150",
+				"configuration" : "engineConfig = Aerobee-150:Aerobee-150",
+				"title" : "Aerobee 150",
 				"techTransfer" : "Aerobee-Hi,WAC-Corporal:50",
 				"techTransferMax" : 5000,
 				"techTransferGenerationPenalty" : 0.1
@@ -644,7 +650,11 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "X-405"
+				"configuration" : "engineConfig = X-405:X-405",
+				"title" : "X-405"
+			},
+			"TestFlightInterop" :
+			{
 			},
 			"FlightDataRecorder_Engine" : 
 			{
@@ -713,22 +723,26 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "AJ10-37-Vanguard"
+				"configuration" : "engineConfig = AJ10-37-Vanguard:AJ10-37",
+				"title" : "AJ10-37"
+			},
+			"TestFlightInterop" :
+			{
 			},
 			"FlightDataRecorder_Engine" : 
 			{
 				"flightDataMultiplier" : 5.5,
 				"flightDataEngineerModifier" : 0.25,
-				"configuration" : "AJ10-37-Vanguard"
+				"configuration" : "AJ10-37"
 			},
 			"TestFlightReliability" :
 			{
-				"CURVE_DEF" : "AJ10-37-Vanguard",
-				"configuration" : "AJ10-37-Vanguard"
+				"CURVE_DEF" : "AJ10-37",
+				"configuration" : "AJ10-37"
 			},
 			"TestFlightFailure_IgnitionFail" :
 			{
-				"configuration" : "AJ10-37-Vanguard",
+				"configuration" : "AJ10-37",
 				"FAILURE_DEF" : "IgnitionFail",
 				"restoreIgnitionCharge" : false,
 				"ignitionFailureRate" : 
@@ -755,26 +769,26 @@
 						"key = 177.50 100.00 0 0"
 					]
 				},
-				"CURVE_DEF" : "AJ10-37-Vanguard",
-				"configuration" : "AJ10-37-Vanguard"
+				"CURVE_DEF" : "AJ10-37",
+				"configuration" : "AJ10-37"
 			},
 			"TestFlightFailure_ShutdownEngine" :
 			{
-				"configuration" : "AJ10-37-Vanguard",
+				"configuration" : "AJ10-37",
 				"FAILURE_DEF" : "ShutdownEngine",
 				"weight" : 16,
 				"REPAIR_DEF" : "EasySoftware"
 			},
 			"TestFlightFailure_ReducedMaxThrust" :
 			{
-				"configuration" : "AJ10-37-Vanguard",
+				"configuration" : "AJ10-37",
 				"FAILURE_DEF" : "ReducedMaxThrust",
 				"weight" : 32,
 				"REPAIR_DEF" : "EasyMechanical"
 			},
 			"TestFlightFailure_Explode" :
 			{
-				"configuration" : "AJ10-37-Vanguard",
+				"configuration" : "AJ10-37",
 				"FAILURE_DEF" : "Explode",
 				"weight" : 2
 			}
@@ -783,24 +797,25 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "AJ10-42-Able",
-				"techTransfer" : "AJ10-37-Vanguard:50",
+				"configuration" : "engineConfig = AJ10-42-Able:AJ10-42",
+				"title" : "AJ10-42",
+				"techTransfer" : "AJ10-37:50",
 				"techTransferMax" : 2000
 			},
 			"FlightDataRecorder_Engine" : 
 			{
 				"flightDataMultiplier" : 3.5,
 				"flightDataEngineerModifier" : 0.25,
-				"configuration" : "AJ10-42-Able"
+				"configuration" : "AJ10-42"
 			},
 			"TestFlightReliability" :
 			{
-				"CURVE_DEF" : "AJ10-42-Able",
-				"configuration" : "AJ10-42-Able"
+				"CURVE_DEF" : "AJ10-42",
+				"configuration" : "AJ10-42"
 			},
 			"TestFlightFailure_IgnitionFail" :
 			{
-				"configuration" : "AJ10-42-Able",
+				"configuration" : "AJ10-42",
 				"FAILURE_DEF" : "IgnitionFail",
 				"restoreIgnitionCharge" : false,
 				"ignitionFailureRate" : 
@@ -826,26 +841,26 @@
 						"key = 267.50 100.00 0 0"
 					]
 				},
-				"CURVE_DEF" : "AJ10-42-Able",
-				"configuration" : "AJ10-42-Able"
+				"CURVE_DEF" : "AJ10-42",
+				"configuration" : "AJ10-42"
 			},
 			"TestFlightFailure_ShutdownEngine" :
 			{
-				"configuration" : "AJ10-42-Able",
+				"configuration" : "AJ10-42",
 				"FAILURE_DEF" : "ShutdownEngine",
 				"weight" : 16,
 				"REPAIR_DEF" : "EasySoftware"
 			},
 			"TestFlightFailure_ReducedMaxThrust" :
 			{
-				"configuration" : "AJ10-42-Able",
+				"configuration" : "AJ10-42",
 				"FAILURE_DEF" : "ReducedMaxThrust",
 				"weight" : 32,
 				"REPAIR_DEF" : "EasyMechanical"
 			},
 			"TestFlightFailure_Explode" :
 			{
-				"configuration" : "AJ10-42-Able",
+				"configuration" : "AJ10-42",
 				"FAILURE_DEF" : "Explode",
 				"weight" : 2
 			}
@@ -854,24 +869,25 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "AJ10-142-Delta",
-				"techTransfer" : "AJ10-37-Vanguard,AJ10-42-Able:50",
+				"configuration" : "engineConfig = AJ10-142-Delta:AJ10-142",
+				"title" : "AJ10-142",
+				"techTransfer" : "AJ10-37,AJ10-42:50",
 				"techTransferMax" : 2000
 			},
 			"FlightDataRecorder_Engine" : 
 			{
 				"flightDataMultiplier" : 1,
 				"flightDataEngineerModifier" : 0.25,
-				"configuration" : "AJ10-142-Delta"
+				"configuration" : "AJ10-142"
 			},
 			"TestFlightReliability" :
 			{
-				"CURVE_DEF" : "AJ10-142-Delta",
-				"configuration" : "AJ10-142-Delta"
+				"CURVE_DEF" : "AJ10-142",
+				"configuration" : "AJ10-142"
 			},
 			"TestFlightFailure_IgnitionFail" :
 			{
-				"configuration" : "AJ10-142-Delta",
+				"configuration" : "AJ10-142",
 				"FAILURE_DEF" : "IgnitionFail",
 				"restoreIgnitionCharge" : false,
 				"ignitionFailureRate" : 
@@ -897,26 +913,26 @@
 						"key = 1005.00 200.00 0 0"
 					]
 				},
-				"CURVE_DEF" : "AJ10-142-Delta",
-				"configuration" : "AJ10-142-Delta"
+				"CURVE_DEF" : "AJ10-142",
+				"configuration" : "AJ10-142"
 			},
 			"TestFlightFailure_ShutdownEngine" :
 			{
-				"configuration" : "AJ10-142-Delta",
+				"configuration" : "AJ10-142",
 				"FAILURE_DEF" : "ShutdownEngine",
 				"weight" : 16,
 				"REPAIR_DEF" : "EasySoftware"
 			},
 			"TestFlightFailure_ReducedMaxThrust" :
 			{
-				"configuration" : "AJ10-142-Delta",
+				"configuration" : "AJ10-142",
 				"FAILURE_DEF" : "ReducedMaxThrust",
 				"weight" : 32,
 				"REPAIR_DEF" : "EasyMechanical"
 			},
 			"TestFlightFailure_Explode" :
 			{
-				"configuration" : "AJ10-142-Delta",
+				"configuration" : "AJ10-142",
 				"FAILURE_DEF" : "Explode",
 				"weight" : 2
 			}
@@ -925,8 +941,9 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "AJ10-104D",
-				"techTransfer" : "AJ10-37-Vanguard,AJ10-42-Able,AJ10-142-Delta:50",
+				"configuration" : "engineConfig = AJ10-104D:AJ10-104D",
+				"title" : "AJ10-104D",
+				"techTransfer" : "AJ10-37,AJ10-42,AJ10-142:50",
 				"techTransferMax" : 2000
 			},
 			"FlightDataRecorder_Engine" : 
@@ -996,24 +1013,28 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "LR-89-NA-3/5",
+				"configuration" : "engineConfig = LR-89-NA-3/5:LR-89-NA-5",
+				"title" : "LR-89-5",
 				"techTransfer" : "A-7:10",
 				"techTransferMax" : 2000
+			},
+			"TestFlightInterop" :
+			{
 			},
 			"FlightDataRecorder_Engine" : 
 			{
 				"flightDataMultiplier" : 6,
 				"flightDataEngineerModifier" : 0.25,
-				"configuration" : "LR-89-NA-3/5"
+				"configuration" : "LR-89-NA-5"
 			},
 			"TestFlightReliability" :
 			{
 				"CURVE_DEF" : "LR-89-NA-5",
-				"configuration" : "LR-89-NA-3/5"
+				"configuration" : "LR-89-NA-5"
 			},
 			"TestFlightFailure_IgnitionFail" :
 			{
-				"configuration" : "LR-89-NA-3/5",
+				"configuration" : "LR-89-NA-5",
 				"FAILURE_DEF" : "IgnitionFail",
 				"restoreIgnitionCharge" : false,
 				"ignitionFailureRate" : 
@@ -1040,25 +1061,25 @@
 					]
 				},
 				"CURVE_DEF" : "LR-89-NA-5",
-				"configuration" : "LR-89-NA-3/5"
+				"configuration" : "LR-89-NA-5"
 			},
 			"TestFlightFailure_ShutdownEngine" :
 			{
-				"configuration" : "LR-89-NA-3/5",
+				"configuration" : "LR-89-NA-5",
 				"FAILURE_DEF" : "ShutdownEngine",
 				"weight" : 16,
 				"REPAIR_DEF" : "EasySoftware"
 			},
 			"TestFlightFailure_ReducedMaxThrust" :
 			{
-				"configuration" : "LR-89-NA-3/5",
+				"configuration" : "LR-89-NA-5",
 				"FAILURE_DEF" : "ReducedMaxThrust",
 				"weight" : 32,
 				"REPAIR_DEF" : "EasyMechanical"
 			},
 			"TestFlightFailure_Explode" :
 			{
-				"configuration" : "LR-89-NA-3/5",
+				"configuration" : "LR-89-NA-5",
 				"FAILURE_DEF" : "Explode",
 				"weight" : 2
 			}
@@ -1067,9 +1088,13 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "LR-105-NA-5",
+				"configuration" : "engineConfig = LR-105-NA-5:LR-105-NA-5",
+				"title" : "LR-105-5",
 				"techTransfer" : "A-7:10",
 				"techTransferMax" : 2000
+			},
+			"TestFlightInterop" :
+			{
 			},
 			"FlightDataRecorder_Engine" : 
 			{
@@ -1138,7 +1163,11 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "Bell-8048"
+				"configuration" : "engineConfig = Bell-8048:Bell-8048",
+				"title" : "Bell 8048"
+			},
+			"TestFlightInterop" :
+			{
 			},
 			"FlightDataRecorder_Engine" : 
 			{
@@ -1207,7 +1236,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "Bell-8081",
+				"configuration" : "engineConfig = Bell-8081:Bell-8081",
+				"title" : "Bell 8081",
 				"techTransfer" : "Bell-8048:50",
 				"techTransferMax" : 2000
 			},
@@ -1278,7 +1308,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "Bell-8247",
+				"configuration" : "engineConfig = Bell-8247:Bell-8247",
+				"title" : "Bell 8247",
 				"techTransfer" : "Bell-8048,Bell-8081:50",
 				"techTransferMax" : 2000
 			},
@@ -1349,7 +1380,11 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "XLR11"
+				"configuration" : "engineConfig = XLR11:XLR11",
+				"title" : "XLR11"
+			},
+			"TestFlightInterop" :
+			{
 			},
 			"FlightDataRecorder_Engine" : 
 			{
@@ -1418,9 +1453,13 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "XLR99",
+				"configuration" : "engineConfig = XLR99:XLR99",
+				"title" : "XLR99",
 				"techTransfer" : "XLR11:25",
 				"techTransferMax" : 2000
+			},
+			"TestFlightInterop" :
+			{
 			},
 			"FlightDataRecorder_Engine" : 
 			{
@@ -1489,7 +1528,11 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "A-6"
+				"configuration" : "engineConfig = A-6:A-6",
+				"title" : "A-6"
+			},
+			"TestFlightInterop" :
+			{
 			},
 			"FlightDataRecorder_Engine" : 
 			{
@@ -1558,7 +1601,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "A-7",
+				"configuration" : "engineConfig = A-7:A-7",
+				"title" : "A-7",
 				"techTransfer" : "A-6:50",
 				"techTransferMax" : 2000
 			},
@@ -1629,7 +1673,11 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "LR-87-3"
+				"configuration" : "engineConfig = LR-87-3:LR-87-3",
+				"title" : "LR-87-3"
+			},
+			"TestFlightInterop" :
+			{
 			},
 			"FlightDataRecorder_Engine" : 
 			{
@@ -1698,7 +1746,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "LR-87-5",
+				"configuration" : "enineConfig = LR-87-5:LR-87-5",
+				"title" : "LR-87-5",
 				"techTransfer" : "LR-87-3:50",
 				"techTransferMax" : 2000
 			},
@@ -1769,7 +1818,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "LR-87-7",
+				"configuration" : "engineConfig = LR-87-7:LR-87-7",
+				"title" : "LR-87-7",
 				"techTransfer" : "LR-87-3,LR-87-5:50",
 				"techTransferMax" : 2000
 			},
@@ -1840,7 +1890,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "LR-87-9",
+				"configuration" : "engineConfig = LR-87-9:LR-87-9",
+				"title" : "LR-87-9",
 				"techTransfer" : "LR-87-3,LR-87-5,LR-87-7:50",
 				"techTransferMax" : 2000
 			},
@@ -1911,7 +1962,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "LR-87-11",
+				"configuration" : "engineConfig = LR-87-11:LR-87-11",
+				"title" : "LR-87-11",
 				"techTransfer" : "LR-87-3,LR-87-5,LR-87-7,LR-87-9:50",
 				"techTransferMax" : 2000
 			},
@@ -1982,7 +2034,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "LR-87-11A",
+				"configuration" : "engineConfig = LR-87-11A:LR-87-11A",
+				"title" : "LR-87-11A",
 				"techTransfer" : "LR-87-3,LR-87-5,LR-87-7,LR-87-9,LR-87-11:50",
 				"techTransferMax" : 2000
 			},
@@ -2053,7 +2106,11 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "RL10A-1"
+				"configuration" : "engineConfig = RL10A-1:RL10A-1",
+				"title" : "RL10A-1"
+			},
+			"TestFlightInterop" :
+			{
 			},
 			"FlightDataRecorder_Engine" : 
 			{
@@ -2122,7 +2179,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "RL10A-3-1"
+				"configuration" : "engineConfig = RL10A-3-1:RL10A-3-1",
+				"title" : "RL10A-3-1"
 			},
 			"FlightDataRecorder_Engine" : 
 			{
@@ -2191,7 +2249,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "RL10A-3-3",
+				"configuration" : "engineConfig = RL10A-3-3:RL10A-3-3",
+				"title" : "RL10A-3-3",
 				"techTransfer" : "RL10A-1:50",
 				"techTransferMax" : 2000
 			},
@@ -2262,7 +2321,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "RL10A-3-3A",
+				"configuration" : "engineConfig = RL10A-3-3A:RL10A-3-3A",
+				"title" : "RL10A-3-3A",
 				"techTransfer" : "RL10A-1,RL10A-3-3:50",
 				"techTransferMax" : 2000
 			},
@@ -2333,7 +2393,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "RL10A-4",
+				"configuration" : "engineConfig = RL10A-4",
+				"title" : "RL10A-4",
 				"techTransfer" : "RL10A-1,RL10A-3-3,RL10A-3-3A:50",
 				"techTransferMax" : 2000
 			},
@@ -2404,7 +2465,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "RL10A-4-1/2",
+				"configuration" : "engineConfig = RL10A-4-1/2:RL10A-4-1/2",
+				"title" : "RL10A-4-1/2",
 				"techTransfer" : "RL10A-1,RL10A-3-3,RL10A-3-3A,RL10A-4:50",
 				"techTransferMax" : 2000
 			},
@@ -2475,7 +2537,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "RL10B-2",
+				"configuration" : "engineConfig = RL10B-2:RL10B-2",
+				"title" : "RL10B-2",
 				"techTransfer" : "RL10A-1,RL10A-3-3,RL10A-3-3A,RL10A-4:50",
 				"techTransferMax" : 2000
 			},
@@ -2546,7 +2609,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "RL10C-1",
+				"configuration" : "engineConfig = RL10C-1",
+				"title" : "RL10C-1",
 				"techTransfer" : "RL10A-1,RL10A-3-3,RL10A-3-3A,RL10A-4,RL10A-4-1/2,RL10B-2:50",
 				"techTransferMax" : 2000
 			},
