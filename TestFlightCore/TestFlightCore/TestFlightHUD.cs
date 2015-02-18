@@ -25,6 +25,8 @@ namespace TestFlightCore
 
         internal void Log(string message)
         {
+            if (TestFlightManagerScenario.Instance == null)
+                return;
             bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
             message = "TestFlightHUD: " + message;
             TestFlightUtil.Log(message, debug);
