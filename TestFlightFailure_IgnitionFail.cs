@@ -25,17 +25,9 @@ namespace TestFlight
         {
             get
             {
-                bool enabled = true;
                 // verify we have a valid core attached
                 if (core == null)
                     return false;
-                // If this part has a ModuleEngineConfig then we need to verify we are assigned to the active configuration
-                if (this.part.Modules.Contains("ModuleEngineConfigs"))
-                {
-                    string currentConfig = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
-                    if (currentConfig != configuration)
-                        enabled = false;
-                }
                 // We also need a reliability curve
                 if (ignitionFailureRate == null)
                     return false;
@@ -43,7 +35,7 @@ namespace TestFlight
                 if (engine == null)
                     return false;
 
-                return enabled;
+                return TestFlightUtil.EvaluateQuery(Configuration, this.part);
             }
         }
 
@@ -60,7 +52,7 @@ namespace TestFlight
 
             while (core == null)
             {
-                core = TestFlightUtil.GetCore(this.part, Configuration);
+                core = TestFlightUtil.GetCore(this.part);
                 yield return null;
             }
 

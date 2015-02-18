@@ -159,15 +159,7 @@ namespace TestFlightAPI
         {
             get
             {
-                bool enabled = true;
-                // If this part has a ModuleEngineConfig then we need to verify we are assigned to the active configuration
-                if (this.part.Modules.Contains("ModuleEngineConfigs"))
-                {
-                    string currentConfig = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
-                    if (currentConfig != configuration)
-                        enabled = false;
-                }
-                return enabled;
+                return TestFlightUtil.EvaluateQuery(Configuration, this.part);
             }
         }
         public string Configuration
@@ -328,7 +320,7 @@ namespace TestFlightAPI
         public virtual void DoFailure()
         {
             Failed = true;
-            ITestFlightCore core = TestFlightUtil.GetCore(this.part, Configuration);
+            ITestFlightCore core = TestFlightUtil.GetCore(this.part);
             if (core != null)
                 core.ModifyFlightData(duFail, true);
         }
@@ -382,7 +374,7 @@ namespace TestFlightAPI
         public virtual double DoRepair()
         {
             Failed = false;
-            ITestFlightCore core = TestFlightUtil.GetCore(this.part, Configuration);
+            ITestFlightCore core = TestFlightUtil.GetCore(this.part);
             if (core != null)
                 core.ModifyFlightData(duRepair, true);
             return 0;

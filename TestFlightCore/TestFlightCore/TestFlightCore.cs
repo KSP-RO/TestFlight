@@ -22,6 +22,8 @@ namespace TestFlightCore
         [KSPField(isPersistant=true)]
         public string configuration = "";
         [KSPField(isPersistant=true)]
+        public string title = "";
+        [KSPField(isPersistant=true)]
         public string techTransfer = "";
         [KSPField(isPersistant=true)]
         public float techTransferMax = 1000;
@@ -50,15 +52,7 @@ namespace TestFlightCore
         {
             get
             {
-                bool enabled = true;
-                // If this part has a ModuleEngineConfig then we need to verify we are assigned to the active configuration
-                if (this.part.Modules.Contains("ModuleEngineConfigs"))
-                {
-                    string currentConfig = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
-                    if (currentConfig != configuration)
-                        enabled = false;
-                }
-                return enabled;
+                return TestFlightUtil.EvaluateQuery(Configuration, this.part);
             }
         }
         public string Configuration
@@ -66,7 +60,10 @@ namespace TestFlightCore
             get { return configuration; }
             set { configuration = value; }
         }
-
+        public string Title
+        {
+            get { return title; }
+        }
         public bool DebugEnabled
         {
             get 
@@ -88,6 +85,9 @@ namespace TestFlightCore
 
         internal void Log(string message)
         {
+            if (TestFlightManagerScenario.Instance == null)
+                return;
+
             bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
             message = String.Format("TestFlightCore({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(this.part), Configuration, message);
             TestFlightUtil.Log(message, debug);
@@ -829,7 +829,7 @@ namespace TestFlightCore
             if (activeFailure != null)
                 return false;
 
-            IFlightDataRecorder dr = TestFlightUtil.GetDataRecorder(this.part, Configuration);
+            IFlightDataRecorder dr = TestFlightUtil.GetDataRecorder(this.part);
             if (dr == null)
                 return false;
 
@@ -880,6 +880,9 @@ namespace TestFlightCore
 
         public override void Start()
         {
+            if (!TestFlightEnabled)
+                return;
+
             if (HighLogic.LoadedSceneIsFlight)
             {
                 if (this.vessel.situation == Vessel.Situations.PRELAUNCH)
