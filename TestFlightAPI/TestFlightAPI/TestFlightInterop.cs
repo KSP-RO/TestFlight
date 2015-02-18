@@ -12,13 +12,19 @@ namespace TestFlightAPI
 
         public bool AddInteropValue(string name, string value, string owner)
         {
+            name = name.ToLower().Trim();
             if (!RemoveInteropValue(name, owner))
+            {
+                Debug.Log("remove interop returned false");
                 return false;
+            }
 
             InteropValue opValue = new InteropValue();
             opValue.owner = owner;
             opValue.value = value;
             opValue.valueType = InteropValueType.STRING;
+
+            knownInterops.Add(name, opValue);
 
             Debug.Log("Added new interop " + name + " = " + value + ", for " + owner);
 
@@ -26,6 +32,7 @@ namespace TestFlightAPI
         }
         public bool AddInteropValue(string name, int value, string owner)
         {
+            name = name.ToLower().Trim();
             if (!RemoveInteropValue(name, owner))
                 return false;
 
@@ -34,19 +41,24 @@ namespace TestFlightAPI
             opValue.value = String.Format("{0:D}",value);
             opValue.valueType = InteropValueType.INT;
 
+            knownInterops.Add(name, opValue);
+
             Debug.Log("Added new interop " + name + " = " + value + ", for " + owner);
 
             return true;
         }
         public bool AddInteropValue(string name, float value, string owner)
         {
+            name = name.ToLower().Trim();
             if (!RemoveInteropValue(name, owner))
                 return false;
 
             InteropValue opValue = new InteropValue();
             opValue.owner = owner;
-            opValue.value = String.Format("{0:F}",value);
+            opValue.value = String.Format("{0:F4}",value);
             opValue.valueType = InteropValueType.FLOAT;
+
+            knownInterops.Add(name, opValue);
 
             Debug.Log("Added new interop " + name + " = " + value + ", for " + owner);
 
@@ -54,6 +66,7 @@ namespace TestFlightAPI
         }
         public bool AddInteropValue(string name, bool value, string owner)
         {
+            name = name.ToLower().Trim();
             if (!RemoveInteropValue(name, owner))
                 return false;
 
@@ -62,12 +75,15 @@ namespace TestFlightAPI
             opValue.value = String.Format("{0:D}",value);
             opValue.valueType = InteropValueType.BOOL;
 
+            knownInterops.Add(name, opValue);
+
             Debug.Log("Added new interop " + name + " = " + value + ", for " + owner);
 
             return true;
         }
         public bool RemoveInteropValue(string name, string owner)
         {
+            name = name.ToLower().Trim();
             if (knownInterops == null)
                 knownInterops = new Dictionary<string, InteropValue>();
 
@@ -101,6 +117,14 @@ namespace TestFlightAPI
         }
         public InteropValue GetInterop(string name)
         {
+            name = name.ToLower().Trim();
+            if (knownInterops == null)
+            {
+                InteropValue returnVal = new InteropValue();
+                returnVal.valueType = InteropValueType.INVALID;
+                return returnVal;
+            }
+
             if (knownInterops.ContainsKey(name))
                 return knownInterops[name];
             else
