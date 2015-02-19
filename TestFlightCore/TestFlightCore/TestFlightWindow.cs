@@ -27,7 +27,7 @@ namespace TestFlightCore
 
         internal void Log(string message)
         {
-            if (TestFlightManagerScenario.Instance == null)
+            if (TestFlightManagerScenario.Instance == null || TestFlightManagerScenario.Instance.userSettings == null)
                 return;
 
             bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
@@ -419,6 +419,7 @@ namespace TestFlightCore
                 }
                 ddlSettingsPage.styleListBox = Styles.styleDropDownListBoxUnity;
                 ddlSettingsPage.styleListBlocker = Styles.styleDropDownListBoxUnity;
+                ddlSettingsPage.SelectedIndex = tfScenario.userSettings.settingsPage;
                 ddlSettingsPage.DrawButton();
 
                 switch (tfScenario.userSettings.settingsPage)
