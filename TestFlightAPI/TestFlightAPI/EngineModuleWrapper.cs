@@ -246,6 +246,20 @@ public class EngineModuleWrapper : ScriptableObject
         }
     }
 
+    public float finalThrust
+    {
+        get
+        {
+            if (engineType == EngineModuleType.UNKNOWN)
+                return 0f;
+
+            if (engineType == EngineModuleType.ENGINE)
+                return engine.finalThrust;
+            else
+                return engineFX.finalThrust;
+        }
+    }
+
     public BaseEventList Events
     {
         get
@@ -269,11 +283,25 @@ public class EngineModuleWrapper : ScriptableObject
                 return EngineIgnitionState.UNKNOWN;
 
             if (flameout)
+            {
+                Log("IgnitionState is NOT_IGNITED due to flameout");
                 return EngineIgnitionState.NOT_IGNITED;
+            }
             if (requestedThrust <= 0f)
+            {
+                Log("IgnitionState is NOT_IGNITED due to requestedThrust <= 0");
                 return EngineIgnitionState.NOT_IGNITED;
+            }
             if (!throttleLocked && Events.Contains("Shutdown Engine"))
+            {
+                Log("IgnitionState is NOT_IGNITED due to Shutwon Engine event");
                 return EngineIgnitionState.NOT_IGNITED;
+            }
+            if (finalThrust <= 0f)
+            {
+                Log("IgnitionState is NOT_IGNITED due to finalThrust <= 0");
+                return EngineIgnitionState.NOT_IGNITED;
+            }
 
             return EngineIgnitionState.IGNITED;
         }
@@ -348,5 +376,23 @@ public class EngineModuleWrapper : ScriptableObject
 
     ~EngineModuleWrapper()
     {
+    }
+
+    internal void Log(string message)
+    {
+        PartModule pm = this.Module;
+        if (pm == null)
+            return;
+        Part part = pm.part;
+        if (part == null)
+            return;
+        string meType = "UNKNOWN";
+        if (EngineType == EngineModuleType.ENGINE)
+            meType = "ENGINE";
+        if (EngineType == EngineModuleType.ENGINEFX)
+            meType = "ENGINEFX";
+
+        message = String.Format("TestFlight_EngineModuleWrapper({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(part), meType, message);
+        TestFlightUtil.Log(message, part);
     }
 }
