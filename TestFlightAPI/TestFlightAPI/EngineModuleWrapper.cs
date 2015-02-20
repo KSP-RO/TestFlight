@@ -343,6 +343,24 @@ public class EngineModuleWrapper : ScriptableObject
         }
     }
 
+    public EngineModuleWrapper(Part part, string engineID)
+    {
+        engineType = EngineModuleType.UNKNOWN;
+
+        if (part.Modules.Contains("ModuleEnginesFX"))
+        {
+            List<ModuleEnginesFX> enginesFX = null;
+            enginesFX = part.Modules.OfType<ModuleEnginesFX>().Where(e => e.engineID == engineID).ToList();
+            // really should only ever be one by a given ID, so we just take the first.  If there really is more than one, then that is someone else fault
+            if (enginesFX.Count > 0)
+            {
+                engine = null;
+                engineFX = enginesFX[0];
+                engineType = EngineModuleType.ENGINEFX;
+            }
+        }
+    }
+
     public EngineModuleWrapper(Part part, int index)
     {
         List<ModuleEngines> engines = null;
