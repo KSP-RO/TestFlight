@@ -370,25 +370,19 @@ public class EngineModuleWrapper : ScriptableObject
         engine = null;
         engineFX = null;
 
-        if (part.Modules.Contains("ModuleEngines"))
+        PartModule pm = part.Modules.GetModule(index);
+        engine = pm as ModuleEngines;
+        engineFX = pm as ModuleEnginesFX;
+
+        if (engine != null)
         {
-            engines = part.Modules.OfType<ModuleEngines>().ToList();
-            if (index < engines.Count)
-            {
-                engine = engines[index];
-                engineFX = null;
-                engineType = EngineModuleType.ENGINE;
-            }
+            engineFX = null;
+            engineType = EngineModuleType.ENGINE;
         }
-        if (part.Modules.Contains("ModuleEnginesFX"))
+        else if (engineFX != null)
         {
-            enginesFX = part.Modules.OfType<ModuleEnginesFX>().ToList();
-            if (index < enginesFX.Count)
-            {
-                engine = null;
-                engineFX = enginesFX[index];
-                engineType = EngineModuleType.ENGINEFX;
-            }
+            engine = null;
+            engineType = EngineModuleType.ENGINEFX;
         }
     }
 
