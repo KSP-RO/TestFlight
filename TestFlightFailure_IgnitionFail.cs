@@ -87,6 +87,7 @@ namespace TestFlight
                 {
                     if (engine.ignitionState == EngineModuleWrapper.EngineIgnitionState.NOT_IGNITED || engine.ignitionState == EngineModuleWrapper.EngineIgnitionState.UNKNOWN)
                     {
+                        Log(String.Format("IgnitionFail: Engine {0} transitioning to INGITED state", engine.engine.Module.GetInstanceID()));
                         // We want the initial flight data, not the current here
                         double initialFlightData = core.GetInitialFlightData();
                         double failureRate = ignitionFailureRate.Evaluate((float)initialFlightData);
@@ -99,6 +100,7 @@ namespace TestFlight
                         double r2 = Mathf.Exp((float)-failureRate * 3f);
                         double survivalChance = r2 / r1;
                         double failureRoll = core.RandomGenerator.NextDouble();
+                        Log(String.Format("IgnitionFail: Engine {0} surivival chance {1:F4}, roll {2:F4}", engine.engine.Module.GetInstanceID(), survivalChance, failureRoll));
                         if (failureRoll > survivalChance)
                         {
                             engine.failEngine = true;
@@ -124,7 +126,7 @@ namespace TestFlight
                     engine.engine.Shutdown();
                     if (OneShot && restoreIgnitionCharge)
                         RestoreIgnitor();
-                    engine.failEngine = false;
+                    engines[i].failEngine = false;
                 }
             }
 
@@ -139,7 +141,7 @@ namespace TestFlight
                     engine.engine.Shutdown();
                     if (restoreIgnitionCharge)
                         RestoreIgnitor();
-                    engine.failEngine = false;
+                    engines[i].failEngine = false;
                 }
             }
             return 0;

@@ -650,7 +650,7 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "engineConfig = X-405:X-405",
+				"configuration" : "engineConfig = X-405||engineConfig = X-405-Exhaust:X-405",
 				"title" : "X-405"
 			},
 			"TestFlightInterop" :
@@ -723,7 +723,7 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "engineConfig = AJ10-37-Vanguard:AJ10-37",
+				"configuration" : "engineConfig = AJ10-37:AJ10-37",
 				"title" : "AJ10-37"
 			},
 			"TestFlightInterop" :
@@ -2692,7 +2692,7 @@
 		{
 			"patterns" : 
 			[
-				"@PART[liquidEngine2]:AFTER[RP-0]"
+				"@PART[SXTX405]:AFTER[RP-0]"
 			],
 			"configs" : ["X-405"]
 		},
@@ -2700,7 +2700,7 @@
 		{
 			"patterns" : 
 			[
-				"@PART[RO-AJ10-Early]:AFTER[RP-0]"
+				"@PART[SXTAJ10]:AFTER[RP-0]"
 			],
 			"configs" : ["AJ10-37", "AJ10-42", "AJ10-142", "AJ10-104D"]
 		},

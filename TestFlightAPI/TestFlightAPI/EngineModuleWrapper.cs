@@ -284,22 +284,18 @@ public class EngineModuleWrapper : ScriptableObject
 
             if (flameout)
             {
-                Log("IgnitionState is NOT_IGNITED due to flameout");
                 return EngineIgnitionState.NOT_IGNITED;
             }
             if (requestedThrust <= 0f)
             {
-                Log("IgnitionState is NOT_IGNITED due to requestedThrust <= 0");
                 return EngineIgnitionState.NOT_IGNITED;
             }
             if (!throttleLocked && Events.Contains("Shutdown Engine"))
             {
-                Log("IgnitionState is NOT_IGNITED due to Shutwon Engine event");
                 return EngineIgnitionState.NOT_IGNITED;
             }
             if (finalThrust <= 0f)
             {
-                Log("IgnitionState is NOT_IGNITED due to finalThrust <= 0");
                 return EngineIgnitionState.NOT_IGNITED;
             }
 

@@ -16,7 +16,7 @@ namespace TestFlight
         [KSPField(isPersistant=true)]
         public string engineID = "";
 
-        protected struct EngineHandler
+        protected class EngineHandler
         {
             public EngineModuleWrapper.EngineIgnitionState ignitionState;
             public EngineModuleWrapper engine;

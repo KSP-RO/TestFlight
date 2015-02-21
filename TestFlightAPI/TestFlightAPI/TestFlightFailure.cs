@@ -173,6 +173,12 @@ namespace TestFlightAPI
             get { return oneShot; }
         }
 
+        protected void Log(string message)
+        {
+            message = String.Format("TestFlightFailure({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(this.part), Configuration, message);
+            TestFlightUtil.Log(message, this.part);
+        }
+
         /// <summary>
         /// Gets the details of the failure encapsulated by this module.  In most cases you can let the base class take care of this unless oyu need to do somethign special
         /// </summary>
