@@ -460,6 +460,8 @@ namespace TestFlightAPI
             else
             {
                 // if there are no "parts" to this block, then it must be just a simple part name or an alias
+                if (block == part.name.ToLower())
+                    return true;
                 if (block == TestFlightUtil.GetFullPartName(part).ToLower())
                     return true;
                 return false;
@@ -573,7 +575,13 @@ namespace TestFlightAPI
         /// </summary>
         /// <returns><c>true</c> if this instance is part operating; otherwise, <c>false</c>.</returns>
         bool IsPartOperating();
-	}
+
+        /// <summary>
+        /// Should return a string if the module wants to report any information to the user in the TestFlight Editor window.
+        /// </summary>
+        /// <returns>A string of information to display to the user, or "" if none</returns>
+        string GetTestFlightInfo();
+    }
 
 	public interface ITestFlightReliability
 	{
@@ -605,6 +613,12 @@ namespace TestFlightAPI
         /// <returns>The reliability curve for scope.  MUST return null if the reliability module does not handle Base Failure Rate</returns>
         /// <param name="scope">Scope.</param>
         FloatCurve GetReliabilityCurveForScope(String scope);
+
+        /// <summary>
+        /// Should return a string if the module wants to report any information to the user in the TestFlight Editor window.
+        /// </summary>
+        /// <returns>A string of information to display to the user, or "" if none</returns>
+        string GetTestFlightInfo();
 	}
 
 	public interface ITestFlightFailure
@@ -663,6 +677,12 @@ namespace TestFlightAPI
         /// </summary>
         /// <returns>The seconds until repair is complete, <c>0</c> if repair is completed instantly, and <c>-1</c> if repair failed and the part is still broken.</returns>
         double ForceRepair();
+
+        /// <summary>
+        /// Should return a string if the module wants to report any information to the user in the TestFlight Editor window.
+        /// </summary>
+        /// <returns>A string of information to display to the user, or "" if none</returns>
+        string GetTestFlightInfo();
 	}
 
     public interface ITestFlightInterop
@@ -832,6 +852,12 @@ namespace TestFlightAPI
         /// Determines whether the part is considered operating or not.
         /// </summary>
         bool IsPartOperating();
+
+        /// <summary>
+        /// Should return a string if the module wants to report any information to the user in the TestFlight Editor window.
+        /// </summary>
+        /// <returns>A string of information to display to the user, or "" if none</returns>
+        string GetTestFlightInfo();
     }
 }
 

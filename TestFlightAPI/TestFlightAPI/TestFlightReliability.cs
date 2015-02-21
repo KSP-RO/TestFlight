@@ -234,6 +234,12 @@ namespace TestFlightAPI
                 core.TriggerFailure();
             }
         }
+
+        public virtual string GetTestFlightInfo()
+        {
+            return "";
+        }
+
     }
 }
 

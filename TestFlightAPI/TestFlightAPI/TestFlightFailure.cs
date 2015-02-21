@@ -397,6 +397,11 @@ namespace TestFlightAPI
             return 0;
         }
 
+        public virtual string GetTestFlightInfo()
+        {
+            return "";
+        }
+
         public override void OnAwake()
         {
             Failed = false;

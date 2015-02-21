@@ -129,6 +129,11 @@ namespace TestFlightAPI
         {
             base.OnSave(node);
         }
+
+        public virtual string GetTestFlightInfo()
+        {
+            return "";
+        }
     }
 }
 

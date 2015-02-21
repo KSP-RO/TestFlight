@@ -1157,7 +1157,24 @@ namespace TestFlightCore
 
             return tooltip;
         }
-
+        public string GetTestFlightInfo()
+        {
+            string info = "";
+//            List<ITestFlightFailure> failureModules = TestFlightUtil.GetFailureModules(this.part);
+//            List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part);
+//            IFlightDataRecorder dataRecorder = TestFlightUtil.GetDataRecorder(this.part);
+//
+//            foreach (ITestFlightFailure fm in failureModules)
+//            {
+//                info += fm.GetTestFlightInfo();
+//            }
+//            foreach (ITestFlightReliability rm in reliabilityModules)
+//            {
+//                info += rm.GetTestFlightInfo();
+//            }
+//            info += dataRecorder.GetTestFlightInfo();
+            return info;
+        }
     }
 }
 
