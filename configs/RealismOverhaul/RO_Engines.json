@@ -472,6 +472,7 @@
 						"key = 245.00 10.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 125,
 				"configuration" : "WAC-Corporal"
 			},
 			"TestFlightFailure_IgnitionFail" :
@@ -543,6 +544,7 @@
 						"key = 155.00 10.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 105,
 				"CURVE_DEF" : "Aerobee-Hi",
 				"configuration" : "Aerobee-Hi"
 			},
@@ -616,6 +618,7 @@
 						"key = 155.00 10.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 105,
 				"CURVE_DEF" : "Aerobee-150",
 				"configuration" : "Aerobee-150"
 			},
@@ -680,6 +683,7 @@
 						"key = 222.50 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 150,
 				"CURVE_DEF" : "X-405",
 				"configuration" : "X-405"
 			},
@@ -762,13 +766,13 @@
 					"type" : "FloatCurve",
 					"keys" :
 					[
-						"key = 177.50 0.217391 0 0",
 						"key = 0.00 10.00 0 0",
 						"key = 5.00 1.00 0 0",
 						"key = 120.00 1.00 0 0",
 						"key = 177.50 100.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 120,
 				"CURVE_DEF" : "AJ10-37",
 				"configuration" : "AJ10-37"
 			},
@@ -841,6 +845,7 @@
 						"key = 267.50 100.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 155,
 				"CURVE_DEF" : "AJ10-42",
 				"configuration" : "AJ10-42"
 			},
@@ -913,6 +918,7 @@
 						"key = 1005.00 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 505,
 				"CURVE_DEF" : "AJ10-142",
 				"configuration" : "AJ10-142"
 			},
@@ -985,6 +991,7 @@
 						"key = 457.40 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 382,
 				"CURVE_DEF" : "AJ10-104D",
 				"configuration" : "AJ10-104D"
 			},
@@ -1060,6 +1067,7 @@
 						"key = 161.00 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 125,
 				"CURVE_DEF" : "LR-89-NA-5",
 				"configuration" : "LR-89-NA-5"
 			},
@@ -1135,6 +1143,7 @@
 						"key = 406.70 1000.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 314,
 				"CURVE_DEF" : "LR-105-NA-5",
 				"configuration" : "LR-105-NA-5"
 			},
@@ -1208,6 +1217,7 @@
 						"key = 363.80 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 281,
 				"CURVE_DEF" : "Bell-8048",
 				"configuration" : "Bell-8048"
 			},
@@ -1280,6 +1290,7 @@
 						"key = 363.80 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 281,
 				"CURVE_DEF" : "Bell-8081",
 				"configuration" : "Bell-8081"
 			},
@@ -1352,6 +1363,7 @@
 						"key = 455.00 150.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 305,
 				"CURVE_DEF" : "Bell-8247",
 				"configuration" : "Bell-8247"
 			},
@@ -1425,6 +1437,7 @@
 						"key = 1205.00 50.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 605,
 				"CURVE_DEF" : "XLR11",
 				"configuration" : "XLR11"
 			},
@@ -1500,6 +1513,7 @@
 						"key = 2005.00 20.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 1005,
 				"CURVE_DEF" : "XLR99",
 				"configuration" : "XLR99"
 			},
@@ -1573,6 +1587,7 @@
 						"key = 237.50 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 160,
 				"CURVE_DEF" : "A-6",
 				"configuration" : "A-6"
 			},
@@ -1645,6 +1660,7 @@
 						"key = 329.00 100.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 185,
 				"CURVE_DEF" : "A-7",
 				"configuration" : "A-7"
 			},
@@ -1718,6 +1734,7 @@
 						"key = 212.00 100.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 143,
 				"CURVE_DEF" : "LR-87-3",
 				"configuration" : "LR-87-3"
 			},
@@ -1790,6 +1807,7 @@
 						"key = 213.50 100.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 144,
 				"CURVE_DEF" : "LR-87-5",
 				"configuration" : "LR-87-5"
 			},
@@ -1862,6 +1880,7 @@
 						"key = 213.50 100.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 144,
 				"CURVE_DEF" : "LR-87-7",
 				"configuration" : "LR-87-7"
 			},
@@ -1934,6 +1953,7 @@
 						"key = 225.50 100.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 152,
 				"CURVE_DEF" : "LR-87-9",
 				"configuration" : "LR-87-9"
 			},
@@ -2006,6 +2026,7 @@
 						"key = 246.50 150.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 166,
 				"CURVE_DEF" : "LR-87-11",
 				"configuration" : "LR-87-11"
 			},
@@ -2078,6 +2099,7 @@
 						"key = 251.00 150.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 169,
 				"CURVE_DEF" : "LR-87-11A",
 				"configuration" : "LR-87-11A"
 			},
@@ -2151,6 +2173,7 @@
 						"key = 564.00 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 435,
 				"CURVE_DEF" : "RL10A-1",
 				"configuration" : "RL10A-1"
 			},
@@ -2221,6 +2244,7 @@
 						"key = 616.00 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 475,
 				"CURVE_DEF" : "RL10A-3-1",
 				"configuration" : "RL10A-3-1"
 			},
@@ -2293,6 +2317,7 @@
 						"key = 616.00 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 475,
 				"CURVE_DEF" : "RL10A-3-3",
 				"configuration" : "RL10A-3-3"
 			},
@@ -2365,6 +2390,7 @@
 						"key = 616.00 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 475,
 				"CURVE_DEF" : "RL10A-3-3A",
 				"configuration" : "RL10A-3-3A"
 			},
@@ -2437,6 +2463,7 @@
 						"key = 514.60 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 397,
 				"CURVE_DEF" : "RL10A-4",
 				"configuration" : "RL10A-4"
 			},
@@ -2509,6 +2536,7 @@
 						"key = 967.00 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 745,
 				"CURVE_DEF" : "RL10A-4-1/2",
 				"configuration" : "RL10A-4-1/2"
 			},
@@ -2581,6 +2609,7 @@
 						"key = 915.00 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 705,
 				"CURVE_DEF" : "RL10B-2",
 				"configuration" : "RL10B-2"
 			},
@@ -2653,6 +2682,7 @@
 						"key = 614.70 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 474,
 				"CURVE_DEF" : "RL10C-1",
 				"configuration" : "RL10C-1"
 			},
