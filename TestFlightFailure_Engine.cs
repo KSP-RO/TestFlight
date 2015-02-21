@@ -23,7 +23,7 @@ namespace TestFlight
             public bool failEngine;
         }
 
-        List<EngineHandler> engines = null;
+        protected List<EngineHandler> engines = null;
 
         public new bool TestFlightEnabled
         {
@@ -51,7 +51,7 @@ namespace TestFlight
             Startup();
         }
 
-        public void Startup()
+        public virtual void Startup()
         {
             engines = new List<EngineHandler>();
             if (!String.IsNullOrEmpty(engineID))

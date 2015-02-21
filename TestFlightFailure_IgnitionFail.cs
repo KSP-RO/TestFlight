@@ -9,27 +9,14 @@ using TestFlightAPI;
 
 namespace TestFlight
 {
-    public class TestFlightFailure_IgnitionFail : TestFlightFailureBase
+    public class TestFlightFailure_IgnitionFail : TestFlightFailure_Engine
     {
         [KSPField(isPersistant=true)]
         public bool restoreIgnitionCharge = false;
-        [KSPField(isPersistant=true)]
-        public string engineIndex = "";
-        [KSPField(isPersistant=true)]
-        public string engineID = "";
 
         public FloatCurve ignitionFailureRate;
 
         private ITestFlightCore core = null;
-
-        protected struct EngineHandler
-        {
-            public EngineModuleWrapper.EngineIgnitionState ignitionState;
-            public EngineModuleWrapper engine;
-            public bool failEngine;
-        }
-
-        List<EngineHandler> engines = null;
 
         public new bool TestFlightEnabled
         {
@@ -69,8 +56,9 @@ namespace TestFlight
             Startup();
         }
 
-        public void Startup()
+        public override void Startup()
         {
+            base.Startup();
             // We don't want this getting triggered as a random failure
             core.DisableFailure("TestFlightFailure_IgnitionFail");
             Part prefab = this.part.partInfo.partPrefab;
@@ -79,96 +67,6 @@ namespace TestFlight
                 TestFlightFailure_IgnitionFail modulePrefab = pm as TestFlightFailure_IgnitionFail;
                 if (modulePrefab != null && modulePrefab.Configuration == configuration)
                     ignitionFailureRate = modulePrefab.ignitionFailureRate;
-            }
-            engines = new List<EngineHandler>();
-            if (!String.IsNullOrEmpty(engineID))
-            {
-                if (engineID.ToLower() == "all")
-                {
-                    List<ModuleEnginesFX> enginesFX = this.part.Modules.OfType<ModuleEnginesFX>().ToList();
-                    foreach (ModuleEnginesFX fx in enginesFX)
-                    {
-                        string id = fx.engineID;
-                        EngineModuleWrapper engine = new EngineModuleWrapper(this.part, id);
-                        EngineHandler engineHandler = new EngineHandler();
-                        engineHandler.engine = engine;
-                        engineHandler.ignitionState = EngineModuleWrapper.EngineIgnitionState.UNKNOWN;
-                        engines.Add(engineHandler);
-                    }
-                }
-                else if (engineID.Contains(","))
-                {
-                    string[] sEngineIndices = engineID.Split(new char[1] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                    foreach (string sEngineIndex in sEngineIndices)
-                    {
-                        EngineModuleWrapper engine = new EngineModuleWrapper(this.part, sEngineIndex);
-                        EngineHandler engineHandler = new EngineHandler();
-                        engineHandler.engine = engine;
-                        engineHandler.ignitionState = EngineModuleWrapper.EngineIgnitionState.UNKNOWN;
-                        engines.Add(engineHandler);
-                    }
-                }
-                else
-                {
-                    int index = int.Parse(engineIndex);
-                    EngineModuleWrapper engine = new EngineModuleWrapper(this.part, index);
-                    EngineHandler engineHandler = new EngineHandler();
-                    engineHandler.engine = engine;
-                    engineHandler.ignitionState = EngineModuleWrapper.EngineIgnitionState.UNKNOWN;
-                    engines.Add(engineHandler);
-                }
-            }
-            else if (!String.IsNullOrEmpty(engineIndex))
-            {
-                if (engineIndex.ToLower() == "all")
-                {
-                    int length = this.part.Modules.Count;
-                    for (int i = 0; i < length; i++)
-                    {
-                        PartModule pm = this.part.Modules.GetModule(i);
-                        ModuleEngines pmEngine = pm as ModuleEngines;
-                        ModuleEnginesFX pmEngineFX = pm as ModuleEnginesFX;
-                        EngineModuleWrapper engine = null;
-                        if (pmEngine != null || pmEngineFX != null)
-                        {
-                            engine = new EngineModuleWrapper(this.part, i);
-                            EngineHandler engineHandler = new EngineHandler();
-                            engineHandler.engine = engine;
-                            engineHandler.ignitionState = EngineModuleWrapper.EngineIgnitionState.UNKNOWN;
-                            engines.Add(engineHandler);
-                        }
-                    }
-                }
-                else if (engineIndex.Contains(","))
-                {
-                    string[] sEngineIndices = engineIndex.Split(new char[1] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                    foreach (string sEngineIndex in sEngineIndices)
-                    {
-                        int index = int.Parse(sEngineIndex);
-                        EngineModuleWrapper engine = new EngineModuleWrapper(this.part, index);
-                        EngineHandler engineHandler = new EngineHandler();
-                        engineHandler.engine = engine;
-                        engineHandler.ignitionState = EngineModuleWrapper.EngineIgnitionState.UNKNOWN;
-                        engines.Add(engineHandler);
-                    }
-                }
-                else
-                {
-                    int index = int.Parse(engineIndex);
-                    EngineModuleWrapper engine = new EngineModuleWrapper(this.part, index);
-                    EngineHandler engineHandler = new EngineHandler();
-                    engineHandler.engine = engine;
-                    engineHandler.ignitionState = EngineModuleWrapper.EngineIgnitionState.UNKNOWN;
-                    engines.Add(engineHandler);
-                }
-            }
-            else
-            {
-                EngineModuleWrapper engine = new EngineModuleWrapper(this.part);
-                EngineHandler engineHandler = new EngineHandler();
-                engineHandler.engine = engine;
-                engineHandler.ignitionState = EngineModuleWrapper.EngineIgnitionState.UNKNOWN;
-                engines.Add(engineHandler);
             }
         }
 
@@ -237,7 +135,6 @@ namespace TestFlight
             for (int i = 0; i < engines.Count; i++)
             {
                 EngineHandler engine = engines[i];
-                if (engine.failEngine)
                 {
                     engine.engine.Shutdown();
                     if (restoreIgnitionCharge)
