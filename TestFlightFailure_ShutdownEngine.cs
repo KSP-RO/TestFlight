@@ -17,12 +17,6 @@ namespace TestFlight
 
         Dictionary<int, CachedEngineState> engineStates;
 
-        internal void Log(string message)
-        {
-            message = String.Format("TestFlightFailure_ShutDownEngine({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(this.part), Configuration, message);
-            TestFlightUtil.Log(message, this.part);
-        }
-
         public override void OnStart(StartState state)
         {
             base.OnStart(state);

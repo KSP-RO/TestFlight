@@ -359,9 +359,6 @@ public class EngineModuleWrapper : ScriptableObject
 
     public EngineModuleWrapper(Part part, int index)
     {
-        List<ModuleEngines> engines = null;
-        List<ModuleEnginesFX> enginesFX = null;
-
         engineType = EngineModuleType.UNKNOWN;
         engine = null;
         engineFX = null;

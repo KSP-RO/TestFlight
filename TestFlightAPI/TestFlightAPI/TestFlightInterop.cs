@@ -14,10 +14,7 @@ namespace TestFlightAPI
         {
             name = name.ToLower().Trim();
             if (!RemoveInteropValue(name, owner))
-            {
-                Debug.Log("remove interop returned false");
                 return false;
-            }
 
             InteropValue opValue = new InteropValue();
             opValue.owner = owner;
@@ -25,8 +22,6 @@ namespace TestFlightAPI
             opValue.valueType = InteropValueType.STRING;
 
             knownInterops.Add(name, opValue);
-
-            Debug.Log("Added new interop " + name + " = " + value + ", for " + owner);
 
             return true;
         }
@@ -43,8 +38,6 @@ namespace TestFlightAPI
 
             knownInterops.Add(name, opValue);
 
-            Debug.Log("Added new interop " + name + " = " + value + ", for " + owner);
-
             return true;
         }
         public bool AddInteropValue(string name, float value, string owner)
@@ -60,8 +53,6 @@ namespace TestFlightAPI
 
             knownInterops.Add(name, opValue);
 
-            Debug.Log("Added new interop " + name + " = " + value + ", for " + owner);
-
             return true;
         }
         public bool AddInteropValue(string name, bool value, string owner)
@@ -76,8 +67,6 @@ namespace TestFlightAPI
             opValue.valueType = InteropValueType.BOOL;
 
             knownInterops.Add(name, opValue);
-
-            Debug.Log("Added new interop " + name + " = " + value + ", for " + owner);
 
             return true;
         }
