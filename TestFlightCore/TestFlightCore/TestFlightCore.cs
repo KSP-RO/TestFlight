@@ -120,6 +120,11 @@ namespace TestFlightCore
         }
         public String GetScopeForSituationAndBody(String situation, String body)
         {
+            if (TestFlightManagerScenario.Instance != null && TestFlightManagerScenario.Instance.userSettings != null)
+            {
+                if (TestFlightManagerScenario.Instance.userSettings.singleScope)
+                    return "default";
+            }
             // Determine if we are recording data in SPACE or ATMOSHPHERE
             situation = situation.ToLower().Trim();
             body = body.ToLower().Trim();

@@ -35,6 +35,7 @@ namespace TestFlightCore
         [Persistent] public bool editorShowGraph = false;
         [Persistent] public bool editorShowOnDemand = true;
         [Persistent] public bool showMSD = false;
+        [Persistent] public bool singleScope = false;
 
         // Unity/KSP can't store some more complex data types so we provide classes to convert
         [Persistent] public PersistentRect mainWindowPositionStored = new PersistentRect();

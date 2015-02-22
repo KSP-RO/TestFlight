@@ -526,8 +526,8 @@ namespace TestFlightCore
                     case 1:
                         GUILayout.BeginHorizontal();
                         GUILayout.Label(new GUIContent("Flight Data Multiplier", "Overall difficulty slider.\n" +
-                            "Increase to make all parts accumuate flight data faster.  Decrease to make them accumulate flight data slower.\n" + 
-                            "A setting of 1 is normal rate"),
+                        "Increase to make all parts accumuate flight data faster.  Decrease to make them accumulate flight data slower.\n" +
+                        "A setting of 1 is normal rate"),
                             GUILayout.Width(200)
                         );
                         if (DrawHorizontalSlider(ref tfScenario.userSettings.flightDataMultiplier, 0.5, 2, GUILayout.Width(150)))
@@ -538,9 +538,9 @@ namespace TestFlightCore
                         GUILayout.EndHorizontal();
 
                         GUILayout.BeginHorizontal();
-                        GUILayout.Label(new GUIContent("Flight Data Engineer Multiplier", "Overall difficulty slider\n" + 
-                            "Increases or decreases the bonus applied to the accumulation of flight data from having Engineers in your crew.\n" + 
-                            "A setting of 1 is normal difficulty."),
+                        GUILayout.Label(new GUIContent("Flight Data Engineer Multiplier", "Overall difficulty slider\n" +
+                        "Increases or decreases the bonus applied to the accumulation of flight data from having Engineers in your crew.\n" +
+                        "A setting of 1 is normal difficulty."),
                             GUILayout.Width(200)
                         );
                         if (DrawHorizontalSlider(ref tfScenario.userSettings.flightDataEngineerMultiplier, 0.5, 2, GUILayout.Width(150)))
@@ -550,6 +550,12 @@ namespace TestFlightCore
                         GUILayout.Label(String.Format("{0,5:f2}", tfScenario.userSettings.flightDataEngineerMultiplier), GUILayout.Width(75));
                         GUILayout.EndHorizontal();
 
+                        GUILayout.BeginHorizontal();
+                        if (DrawToggle(ref tfScenario.userSettings.singleScope, "Use a single scope for all data", Styles.styleToggle))
+                        {
+                            tfScenario.userSettings.Save();
+                        }
+                        GUILayout.EndHorizontal();
                         break;
                     case 2:
                         GUILayout.BeginHorizontal();
