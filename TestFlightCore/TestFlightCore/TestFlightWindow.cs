@@ -255,9 +255,9 @@ namespace TestFlightCore
         }
         internal override void DrawWindow(Int32 id)
         {
-            GUILayout.BeginVertical();
             Dictionary<Guid, MasterStatusItem> masterStatus = tfManager.GetMasterStatus();
             GUIContent settingsButton = new GUIContent(TestFlight.Resources.btnChevronDown, "Open Settings Panel");
+            GUILayout.BeginVertical();
             if (tfScenario.userSettings.displaySettingsWindow)
             {
                 settingsButton.image = TestFlight.Resources.btnChevronUp;
