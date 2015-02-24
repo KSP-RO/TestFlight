@@ -10,6 +10,12 @@ namespace TestFlightAPI
     {
         private Dictionary<String, InteropValue> knownInterops;
 
+        internal void Log(string message)
+        {
+            message = String.Format("TestFlightInterop({0}): {1}", TestFlightUtil.GetFullPartName(this.part), message);
+            TestFlightUtil.Log(message, this.part);
+        }
+
         public bool AddInteropValue(string name, string value, string owner)
         {
             name = name.ToLower().Trim();
@@ -22,6 +28,8 @@ namespace TestFlightAPI
             opValue.valueType = InteropValueType.STRING;
 
             knownInterops.Add(name, opValue);
+
+            Log(String.Format("Added new interop, {0} = {1}, for {2}", name, value, owner));
 
             return true;
         }
