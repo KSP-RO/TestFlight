@@ -149,7 +149,11 @@ namespace TestFlightAPI
                 if (modulePrefab != null && TestFlightUtil.EvaluateQuery(modulePrefab.Configuration, this.part))
                 {
                     Log("Found matching prefab");
-                    reliabilityBodies = modulePrefab.reliabilityBodies;
+                    if (modulePrefab.reliabilityBodies != null && modulePrefab.reliabilityBodies.Count > 0)
+                    {
+                        reliabilityBodies = modulePrefab.reliabilityBodies;
+                        Log("Loaded prefab data");
+                    }
                 }
             }
         }
