@@ -15,7 +15,7 @@ configs: $(CONFIG_DIR)/RealismOverhaul/%.cfg
 	cp $(CONFIG_DIR)/RealismOverhaul/*.cfg GameData/TestFlight
 
 $(CONFIG_DIR)/RealismOverhaul/%.cfg:
-	cd $(CONFIG_DIR);python compileConfigs.py RealismOverhaul
+	cd $(CONFIG_DIR);python compileYamlConfigs.py RealismOverhaul
 
 ifdef TRAVIS_TAG
 meta:
