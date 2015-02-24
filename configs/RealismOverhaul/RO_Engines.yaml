@@ -91,6 +91,7 @@ FailureConfigs:
 PartConfigs:
     # Aerobee Sustainer series
     WAC-Corporal: &WAC-Corporal
+        # Should only ever be ONE Interop module for a unique PART in KSP.
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             configuration: 'engineConfig = WAC-Corporal:WAC-Corporal'
@@ -141,7 +142,6 @@ PartConfigs:
             configuration: 'WAC-Corporal'
             weight: 4
     Aerobee-Hi: &Aerobee-Hi
-        -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             configuration: 'engineConfig = Aerobee-Hi:Aerobee-Hi'
             title: 'Aerobee Hi'
@@ -193,7 +193,6 @@ PartConfigs:
             configuration: 'Aerobee-Hi'
             weight: 4
     Aerobee-150: &Aerobee-150
-        -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             configuration: 'engineConfig = Aerobee-150:Aerobee-150'
             title: 'Aerobee 150'
@@ -342,7 +341,6 @@ PartConfigs:
             configuration: 'AJ10-37'
             weight: 4
     AJ10-42: &AJ10-42
-        -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             configuration: 'engineConfig = AJ10-42:AJ10-42'
             title: 'AJ10-42'
@@ -395,7 +393,6 @@ PartConfigs:
             configuration: 'AJ10-42'
             weight: 4
     AJ10-142: &AJ10-142
-        -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             configuration: 'engineConfig = AJ10-142:AJ10-142'
             title: 'AJ10-142'
@@ -448,7 +445,6 @@ PartConfigs:
             configuration: 'AJ10-142'
             weight: 4
     AJ10-104D: &AJ10-104D
-        -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             configuration: 'engineConfig = AJ10-104D:AJ10-104D'
             title: 'AJ10-104D'
@@ -658,7 +654,6 @@ PartConfigs:
             configuration: 'Bell-8048'
             weight: 4
     Bell-8081: &Bell-8081
-        -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             configuration: 'engineConfig = Bell-8081:Bell-8081'
             title: 'Bell-8081'
@@ -711,7 +706,6 @@ PartConfigs:
             configuration: 'Bell-8081'
             weight: 4
     Bell-8247: &Bell-8247
-        -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             configuration: 'engineConfig = Bell-8247:Bell-8247'
             title: 'Bell-8247'
@@ -921,7 +915,6 @@ PartConfigs:
             configuration: 'A-6'
             weight: 2
     A-7: &A-7
-        -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             configuration: 'engineConfig = A-7:A-7'
             title: 'A-7'
@@ -1026,7 +1019,6 @@ PartConfigs:
             configuration: 'LR-87-3'
             weight: 2
     LR-87-5: &LR-87-5
-        -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             configuration: 'engineConfig = LR-87-5:LR-87-5'
             title: 'LR-87-5'
@@ -1079,7 +1071,6 @@ PartConfigs:
             configuration: 'LR-87-5'
             weight: 2
     LR-87-7: &LR-87-7
-        -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             configuration: 'engineConfig = LR-87-7:LR-87-7'
             title: 'LR-87-7'
@@ -1132,7 +1123,6 @@ PartConfigs:
             configuration: 'LR-87-7'
             weight: 2
     LR-87-9: &LR-87-9
-        -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             configuration: 'engineConfig = LR-87-9:LR-87-9'
             title: 'LR-87-9'
@@ -1185,7 +1175,6 @@ PartConfigs:
             configuration: 'LR-87-9'
             weight: 2
     LR-87-11: &LR-87-11
-        -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             configuration: 'engineConfig = LR-87-11:LR-87-11'
             title: 'LR-87-11'
@@ -1238,7 +1227,6 @@ PartConfigs:
             configuration: 'LR-87-11'
             weight: 2
     LR-87-11A: &LR-87-11A
-        -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             configuration: 'engineConfig = LR-87-11A:LR-87-11A'
             title: 'LR-87-11A'
@@ -1343,7 +1331,6 @@ PartConfigs:
             configuration: 'RL10A-1'
             weight: 2
     RL10A-3-1: &RL10A-3-1
-        -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             configuration: 'engineConfig = RL10A-3-1:RL10A-3-1'
             title: 'RL10A-3-1'
@@ -1396,7 +1383,6 @@ PartConfigs:
             configuration: 'RL10A-3-1'
             weight: 2
     RL10A-3-3: &RL10A-3-3
-        -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             configuration: 'engineConfig = RL10A-3-3:RL10A-3-3'
             title: 'RL10A-3-3'
@@ -1449,7 +1435,6 @@ PartConfigs:
             configuration: 'RL10A-3-3'
             weight: 2
     RL10A-3-3A: &RL10A-3-3A
-        -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             configuration: 'engineConfig = RL10A-3-3A:RL10A-3-3A'
             title: 'RL10A-3-3A'
@@ -1502,7 +1487,6 @@ PartConfigs:
             configuration: 'RL10A-3-3A'
             weight: 2
     RL10A-4: &RL10A-4
-        -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             configuration: 'engineConfig = RL10A-4:RL10A-4'
             title: 'RL10A-4'
@@ -1555,7 +1539,6 @@ PartConfigs:
             configuration: 'RL10A-4'
             weight: 2
     RL10A-4-1-2: &RL10A-4-1-2
-        -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             configuration: 'engineConfig = RL10A-4-1-2:RL10A-4-1-2'
             title: 'RL10A-4-1-2'
@@ -1608,7 +1591,6 @@ PartConfigs:
             configuration: 'RL10A-4-1-2'
             weight: 2
     RL10B-2: &RL10B-2
-        -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             configuration: 'engineConfig = RL10B-2:RL10B-2'
             title: 'RL10B-2'
@@ -1661,7 +1643,6 @@ PartConfigs:
             configuration: 'RL10B-2'
             weight: 2
     RL10C-1: &RL10C-1
-        -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             configuration: 'engineConfig = RL10C-1:RL10C-1'
             title: 'RL10C-1'
