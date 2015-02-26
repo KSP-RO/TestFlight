@@ -277,6 +277,10 @@ PartConfigs:
             ignitionFailureRate:
                 - '0 0.1'
                 - '5000 0.001'
+            pressureMultiplier:
+                - '1 100'
+                - '0 1'
+            ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'X-405'
