@@ -1,21 +1,26 @@
 ﻿<Properties StartupItem="TestFlight.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="TestFlightAPI/TestFlightAPI/EngineModuleWrapper.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="TestFlightFailure_IgnitionFail.cs">
     <Files>
-      <File FileName="TestFlightAPI/TestFlightAPI/EngineModuleWrapper.cs" Line="1" Column="1" />
+      <File FileName="TestFlightAPI/TestFlightAPI/EngineModuleWrapper.cs" Line="6" Column="6" />
       <File FileName="TestFlightCore/TestFlightCore/TestFlight.cs" Line="1" Column="1" />
       <File FileName="TestFlightCore/TestFlightCore/TestFlightEditor.cs" Line="1" Column="1" />
+      <File FileName="TestFlightFailure_ShutdownEngine.cs" Line="1" Column="1" />
+      <File FileName="TestFlightFailure_ReducedMaxThrust.cs" Line="1" Column="1" />
+      <File FileName="TestFlightReliability_EngineCycle.cs" Line="1" Column="1" />
+      <File FileName="TestFlightFailure_ResourceLeak.cs" Line="1" Column="1" />
+      <File FileName="TestFlightFailure_LockGimbal.cs" Line="1" Column="1" />
+      <File FileName="TestFlightAPI/TestFlightAPI/TestFlightFailure.cs" Line="10" Column="10" />
+      <File FileName="TestFlightFailure_IgnitionFail.cs" Line="67" Column="67" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
+          <Node name="TestFlight" expanded="True">
+            <Node name="TestFlightFailure_IgnitionFail.cs" selected="True" />
+          </Node>
           <Node name="TestFlightAPI" expanded="True" />
-          <Node name="TestFlightContracts" expanded="True">
-            <Node name="TestFlightContractConfigurator.cs" selected="True" />
-          </Node>
-          <Node name="TestFlightCore" expanded="True">
-            <Node name="References" expanded="True" />
-          </Node>
+          <Node name="TestFlightCore" expanded="True" />
         </State>
       </Pad>
     </Pads>

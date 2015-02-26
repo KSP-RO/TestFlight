@@ -62,8 +62,17 @@ namespace TestFlight
                 {
                     Vector3 velocity = this.part.Rigidbody.velocity + Krakensbane.GetFrameVelocityV3f();
                     float sqrSpeed = velocity.sqrMagnitude;
-                    double airDensity = (double)densityMethod.Invoke(null, new object[] { this.vessel.mainBody, this.vessel.altitude, true });
-                    dynamicPressure = 0.5 * airDensity * sqrSpeed;
+                    try
+                    {
+                        double airDensity = (double)densityMethod.Invoke(null, new object[] { this.vessel.mainBody, this.vessel.altitude, true });
+                        dynamicPressure = 0.5 * airDensity * sqrSpeed;
+                        // convert from Pa to Atm
+                        dynamicPressure = dynamicPressure / 101325;
+                    }
+                    catch
+                    {
+                        return dynamicPressure;
+                    }
                 }
 
                 return dynamicPressure;
