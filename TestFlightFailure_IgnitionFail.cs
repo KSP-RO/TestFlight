@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 
 using UnityEngine;
 
@@ -13,11 +14,61 @@ namespace TestFlight
     {
         [KSPField(isPersistant=true)]
         public bool restoreIgnitionCharge = false;
+        [KSPField(isPersistant=true)]
+        public bool ignorePressureOnPad = true;
 
         public FloatCurve ignitionFailureRate;
+        public FloatCurve pressureMultiplier;
 
         private ITestFlightCore core = null;
 
+
+        private bool _FARLoaded = false, check = true;
+        /// <summary>
+        /// Returns if FAR is currently loaded in the game
+        /// </summary>
+        public bool FARLoaded
+        {
+            get 
+            {
+                if (check) { _FARLoaded = AssemblyLoader.loadedAssemblies.Any(a => a.dllName == "FerramAerospaceResearch"); check = false; }
+                return _FARLoaded;
+            }
+        }
+        private MethodInfo _densityMethod = null;
+        /// <summary>
+        /// A delegate to the FAR GetCurrentDensity method
+        /// </summary>
+        public MethodInfo densityMethod
+        {
+            get
+            {
+                if (_densityMethod == null)
+                {
+                    _densityMethod = AssemblyLoader.loadedAssemblies.FirstOrDefault(a => a.dllName == "FerramAerospaceResearch").assembly
+                        .GetTypes().Single(t => t.Name == "FARAeroUtil").GetMethods().Where(m => m.IsPublic && m.IsStatic)
+                        .Where(m => m.ReturnType == typeof(double) && m.Name == "GetCurrentDensity").ToDictionary(m => m, m => m.GetParameters())
+                        .Single(p => p.Value[0].ParameterType == typeof(CelestialBody) && p.Value[1].ParameterType == typeof(double)).Key;
+                }
+                return _densityMethod;
+            }
+        }
+        public double DynamicPressure
+        {
+            get
+            {
+                double dynamicPressure = this.part.dynamicPressureAtm;
+                if (FARLoaded)
+                {
+                    Vector3 velocity = this.part.Rigidbody.velocity + Krakensbane.GetFrameVelocityV3f();
+                    float sqrSpeed = velocity.sqrMagnitude;
+                    double airDensity = (double)densityMethod.Invoke(null, new object[] { this.vessel.mainBody, this.vessel.altitude, true });
+                    dynamicPressure = 0.5 * airDensity * sqrSpeed;
+                }
+
+                return dynamicPressure;
+            }
+        }
         public new bool TestFlightEnabled
         {
             get
@@ -91,6 +142,20 @@ namespace TestFlight
                         // We want the initial flight data, not the current here
                         double initialFlightData = core.GetInitialFlightData();
                         double failureRate = ignitionFailureRate.Evaluate((float)initialFlightData);
+                        if (pressureMultiplier != null)
+                        {
+                            if (!ignorePressureOnPad)
+                            {
+                                failureRate = failureRate * pressureMultiplier.Evaluate((float)DynamicPressure);
+                            }
+                            else
+                            {
+                                if (this.vessel.situation != Vessel.Situations.PRELAUNCH)
+                                {
+                                    failureRate = failureRate * pressureMultiplier.Evaluate((float)DynamicPressure);
+                                }
+                            }
+                        }
                         failureRate = Mathf.Max((float)failureRate, (float)TestFlightUtil.MIN_FAILURE_RATE);
 
                         // r1 = the chance of survival right now at time index 1
@@ -166,6 +231,13 @@ namespace TestFlight
             }
             else
                 ignitionFailureRate = null;
+            if (node.HasNode("pressureMultiplier"))
+            {
+                pressureMultiplier = new FloatCurve();
+                pressureMultiplier.Load(node.GetNode("pressureMultiplier"));
+            }
+            else
+                pressureMultiplier = null;
         }
     }
 }
