@@ -293,7 +293,7 @@ PartConfigs:
         -   name: 'TestFlightCore'
             configuration: 'engineConfig = AJ10-37:AJ10-37'
             title: 'AJ10-37'
-            techTransfer: 'Aerobee-Hi:10'
+            techTransfer: 'WAC-Corporal,Aerobee-Hi,Aerobee-150:10'
             techTransferMax: 1000
         -   name: 'FlightDataRecorder_Engine'
             configuration: 'AJ10-37'
