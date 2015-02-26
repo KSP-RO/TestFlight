@@ -257,7 +257,6 @@ namespace TestFlightCore
         {
             Dictionary<Guid, MasterStatusItem> masterStatus = tfManager.GetMasterStatus();
             GUIContent settingsButton = new GUIContent(TestFlight.Resources.btnChevronDown, "Open Settings Panel");
-            GUILayout.BeginVertical();
             if (tfScenario.userSettings.displaySettingsWindow)
             {
                 settingsButton.image = TestFlight.Resources.btnChevronUp;
@@ -266,6 +265,7 @@ namespace TestFlightCore
 
             if (masterStatus == null)
             {
+                GUILayout.BeginVertical();
                 GUILayout.Space(10);
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("TestFlight is starting up...");
@@ -279,6 +279,7 @@ namespace TestFlightCore
             }
             else if (masterStatus.Count() <= 0)
             {
+                GUILayout.BeginVertical();
                 GUILayout.Space(10);
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("TestFlight is not currently tracking any vessels");
@@ -311,10 +312,8 @@ namespace TestFlightCore
                         CalculateWindowBounds();
                     }
                 }
+                GUILayout.BeginVertical();
                 GUILayout.Space(10);
-                GUILayout.BeginHorizontal();
-                GUILayout.Label("MSD for " + masterStatus[currentVessel].vesselName);
-                GUILayout.EndHorizontal();
                 tfScenario.userSettings.currentMSDScrollPosition = GUILayout.BeginScrollView(tfScenario.userSettings.currentMSDScrollPosition);
                 foreach (PartStatus status in masterStatus[currentVessel].allPartsStatus)
                 {
