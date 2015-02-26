@@ -84,14 +84,22 @@ namespace TestFlight
             {
                 // verify we have a valid core attached
                 if (core == null)
+                {
+                    Log("IgnitionFail: No valid core attached");
                     return false;
+                }
                 // We also need a reliability curve
                 if (ignitionFailureRate == null)
+                {
+                    Log("IgnitionFail: No valid ingitionFailureRate curve");
                     return false;
+                }
                 // and a valid engine
                 if (engines == null)
+                {
+                    Log("IgnitionFail: No valid engines found");
                     return false;
-
+                }
                 return TestFlightUtil.EvaluateQuery(Configuration, this.part);
             }
         }
@@ -192,6 +200,7 @@ namespace TestFlight
             base.DoFailure();
             if (!TestFlightEnabled)
                 return;
+            Log(String.Format("IgnitionFail: Failing {0} engine(s)", engines.Count));
             for (int i = 0; i < engines.Count; i++)
             {
                 EngineHandler engine = engines[i];

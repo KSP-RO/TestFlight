@@ -31,8 +31,10 @@ namespace TestFlight
             {
                 // Make sure we have valid engines
                 if (engines == null)
+                {
+                    Log("EngineBase: No valid engines found");
                     return false;
-
+                }
                 return TestFlightUtil.EvaluateQuery(Configuration, this.part);
             }
         }

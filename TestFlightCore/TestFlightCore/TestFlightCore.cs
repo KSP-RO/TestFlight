@@ -768,10 +768,10 @@ namespace TestFlightCore
                         {
                             activeFailure = fm;
                             failureAcknowledged = false;
-                            fm.DoFailure();
                             operatingTime = -1;
-                            return fm;
                         }
+                        fm.DoFailure();
+                        return fm;
                     }
                 }
             }
