@@ -329,7 +329,7 @@ namespace TestFlightAPI
             ITestFlightCore core = TestFlightUtil.GetCore(this.part);
             if (core != null)
                 core.ModifyFlightData(duFail, true);
-            FlightLogger.eventLog.Add(String.Format("{0} suffered a failure at MET T+{1:F2}: {2}", TestFlightUtil.GetPartTitle(this.part), this.vessel.missionTime, failureTitle));
+            FlightLogger.eventLog.Add(String.Format("[{0}] {1} failed: {2}", TestFlightUtil.FormatTime(this.vessel.missionTime), TestFlightUtil.GetPartTitle(this.part)));
         }
         
         /// <summary>
