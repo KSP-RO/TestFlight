@@ -16,10 +16,9 @@ namespace TestFlight
         public bool restoreIgnitionCharge = false;
         [KSPField(isPersistant=true)]
         public bool ignorePressureOnPad = true;
-        [KSPField(isPersistant=true)]
-        public float baseIgnitionChance = 1f;
 
-        public FloatCurve pressureCurve;
+        public FloatCurve baseIgnitionChance = null;
+        public FloatCurve pressureCurve = null;
 
         private ITestFlightCore core = null;
 
@@ -51,6 +50,7 @@ namespace TestFlight
                         .Where(m => m.ReturnType == typeof(double) && m.Name == "GetCurrentDensity").ToDictionary(m => m, m => m.GetParameters())
                         .Single(p => p.Value[0].ParameterType == typeof(CelestialBody) && p.Value[1].ParameterType == typeof(double)).Key;
                 }
+
                 return _densityMethod;
             }
         }
@@ -88,6 +88,11 @@ namespace TestFlight
                 if (core == null)
                 {
                     Log("IgnitionFail: No valid core attached");
+                    return false;
+                }
+                if (baseIgnitionChance == null)
+                {
+                    Log("IgnitionFail: No valid baseIgnitionChance FloatCurve");
                     return false;
                 }
                 // and a valid engine
@@ -131,6 +136,7 @@ namespace TestFlight
                 TestFlightFailure_IgnitionFail modulePrefab = pm as TestFlightFailure_IgnitionFail;
                 if (modulePrefab != null && modulePrefab.Configuration == configuration)
                 {
+                    baseIgnitionChance = modulePrefab.baseIgnitionChance;
                     pressureCurve = modulePrefab.pressureCurve;
                 }
             }
@@ -154,15 +160,18 @@ namespace TestFlight
                     if (engine.ignitionState == EngineModuleWrapper.EngineIgnitionState.NOT_IGNITED || engine.ignitionState == EngineModuleWrapper.EngineIgnitionState.UNKNOWN)
                     {
                         Log(String.Format("IgnitionFail: Engine {0} transitioning to INGITED state", engine.engine.Module.GetInstanceID()));
+                        double initialFlightData = core.GetInitialFlightData();
                         float ignitionChance = 1f;
                         if (this.vessel.situation == Vessel.Situations.PRELAUNCH && ignorePressureOnPad)
-                            ignitionChance = baseIgnitionChance;
+                            ignitionChance = baseIgnitionChance.Evaluate((float)initialFlightData);
                         else
                         {
                             if (pressureCurve != null)
-                                ignitionChance = pressureCurve.Evaluate((float)DynamicPressure);
+                            {
+                                ignitionChance *= pressureCurve.Evaluate((float)DynamicPressure);
+                            }
                             else
-                                ignitionChance = baseIgnitionChance;
+                                ignitionChance = baseIgnitionChance.Evaluate((float)initialFlightData);
                         }
                         double failureRoll = core.RandomGenerator.NextDouble();
                         Log(String.Format("IgnitionFail: Engine {0} ignition chance {1:F4}, roll {2:F4}", engine.engine.Module.GetInstanceID(), ignitionChance, failureRoll));
@@ -225,6 +234,14 @@ namespace TestFlight
         public override void OnLoad(ConfigNode node)
         {
             base.OnLoad(node);
+            if (node.HasNode("baseIgnitionChance"))
+            {
+                Log("IgnitionFail: Loading baseIgnitionChance curve");
+                baseIgnitionChance = new FloatCurve();
+                baseIgnitionChance.Load(node.GetNode("baseIgnitionChance"));
+            }
+            else
+                baseIgnitionChance = null;
             if (node.HasNode("pressureCurve"))
             {
                 Log("IgnitionFail: Loading pressure curve");

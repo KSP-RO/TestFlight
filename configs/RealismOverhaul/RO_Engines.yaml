@@ -128,7 +128,9 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'WAC-Corporal'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.90
+            baseIgnitionChance: 
+            - '0 0.90'
+            - '10000 0.95'
             ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
@@ -178,7 +180,9 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'Aerobee-Hi'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.95
+            baseIgnitionChance: 
+            - '0 0.95'
+            - '10000 0.995'
             ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
@@ -222,7 +226,9 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'Aerobee-150'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.95
+            baseIgnitionChance:
+            - '0 0.95'
+            - '10000 0.998'
             ignorePressureOnPad: true
         -   *ShutdownEngine        
         -   name: 'TestFlightFailure_ShutdownEngine'
@@ -278,12 +284,14 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'X-405'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.70
+            baseIgnitionChance: 
+            - '0 0.70'
+            - '10000 0.9'
             ignorePressureOnPad: true
             pressureCurve:
-            - '0 0.60'
-            - '5000 0.50'
-            - '50000 0.10'
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'X-405'
@@ -334,7 +342,9 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'AJ10-37'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.70
+            baseIgnitionChance: 
+            - '0 0.70'
+            - '10000 0.85'
             ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
@@ -385,7 +395,9 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'AJ10-42'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.85
+            baseIgnitionChance:
+            - '0 0.85'
+            - '10000 0.95'
             ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
@@ -436,7 +448,9 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'AJ10-142'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.95
+            baseIgnitionChance: 
+            - '0 0.95'
+            - '10000 0.995'
             ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
@@ -487,7 +501,9 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'AJ10-104D'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.98
+            baseIgnitionChance: 
+            - '0 0.98'
+            - '0 0.998'
             ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
@@ -539,12 +555,14 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'LR-89-NA-3'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.80
+            baseIgnitionChance: 
+            - '0 0.80'
+            - '10000 0.90'
             ignorePressureOnPad: true
             pressureCurve:
-            - '0 0.70'
-            - '5000 0.60'
-            - '50000 0.20'
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'LR-89-NA-3'
@@ -594,12 +612,14 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'LR-105-NA-5'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.90
+            baseIgnitionChance:
+            - '0 0.90'
+            - '10000 0.98'
             ignorePressureOnPad: true
             pressureCurve:
-            - '0 0.70'
-            - '5000 0.60'
-            - '50000 0.20'
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'LR-105-NA-5'
@@ -649,7 +669,9 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'Bell-8048'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.625
+            baseIgnitionChance: 
+            - '0 0.625'
+            - '10000 0.75'
             ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
@@ -700,7 +722,9 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'Bell-8081'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.90
+            baseIgnitionChance: 
+            - '0 0.90'
+            - '10000 0.95'
             ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
@@ -751,7 +775,9 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'Bell-8247'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.98
+            baseIgnitionChance: 
+            - '0 0.98'
+            - '10000 0.9995'
             ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
@@ -802,7 +828,9 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'XLR11'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.8
+            baseIgnitionChance: 
+            - '0 0.8'
+            - '10000 0.9'
             ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
@@ -853,7 +881,9 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'XLR99'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.85
+            baseIgnitionChance: 
+            - '0 0.85'
+            - '10000 0.95'
             ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
@@ -905,12 +935,14 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'A-6'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.70
+            baseIgnitionChance: 
+            - '0 0.70'
+            - '10000 0.9'
             ignorePressureOnPad: true
             pressureCurve:
-            - '0 0.50'
-            - '5000 0.30'
-            - '50000 0.10'
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'A-6'
@@ -960,12 +992,14 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'A-7'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.80
+            baseIgnitionChance: 
+            - '0 0.80'
+            - '10000 0.95'
             ignorePressureOnPad: true
             pressureCurve:
-            - '0 0.70'
-            - '5000 0.40'
-            - '50000 0.10'
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'A-7'
@@ -1015,12 +1049,14 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'LR-87-3'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.80
+            baseIgnitionChance: 
+            - '0 0.80'
+            - '10000 0.875'
             ignorePressureOnPad: true
             pressureCurve:
-            - '0 0.70'
-            - '5000 0.60'
-            - '50000 0.20'
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'LR-87-3'
@@ -1070,12 +1106,14 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'LR-87-5'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.90
+            baseIgnitionChance: 
+            - '0 0.90'
+            - '10000 0.95'
             ignorePressureOnPad: true
             pressureCurve:
-            - '0 0.70'
-            - '5000 0.60'
-            - '50000 0.20'
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'LR-87-5'
@@ -1125,12 +1163,14 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'LR-87-7'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.90
+            baseIgnitionChance: 
+            - '0 0.90'
+            - '10000 0.975'
             ignorePressureOnPad: true
             pressureCurve:
-            - '0 0.70'
-            - '5000 0.60'
-            - '50000 0.20'
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'LR-87-7'
@@ -1180,12 +1220,14 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'LR-87-9'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.98
+            baseIgnitionChance: 
+            - '0 0.98'
+            - '10000 0.995'
             ignorePressureOnPad: true
             pressureCurve:
-            - '0 0.90'
-            - '5000 0.70'
-            - '50000 0.30'
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'LR-87-9'
@@ -1235,12 +1277,14 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'LR-87-11'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.98
+            baseIgnitionChance: 
+            - '0 0.98'
+            - '10000 0.99975'
             ignorePressureOnPad: true
             pressureCurve:
-            - '0 0.90'
-            - '5000 0.70'
-            - '50000 0.30'
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'LR-87-11'
@@ -1290,12 +1334,14 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'LR-87-11A'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.98
+            baseIgnitionChance: 
+            - '0 0.98'
+            - '10000 0.9999'
             ignorePressureOnPad: true
             pressureCurve:
-            - '0 0.90'
-            - '5000 0.70'
-            - '50000 0.30'
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'LR-87-11A'
@@ -1350,7 +1396,9 @@ PartConfigs:
             name: 'TestFlightFailure_IgnitionFail'
             configuration: 'RL10A-1'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.70
+            baseIgnitionChance: 
+            - '0 0.70'
+            - '10000 0.85'
             ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   &RL10A-1-ReducedMaxThrust
@@ -1425,7 +1473,9 @@ PartConfigs:
             name: 'TestFlightFailure_IgnitionFail'
             configuration: 'RL10A-3-1'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.80
+            baseIgnitionChance: 
+            - '0 0.80'
+            - '10000 0.9'
             ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   &RL10A-3-1-ReducedMaxThrust
@@ -1500,7 +1550,9 @@ PartConfigs:
             name: 'TestFlightFailure_IgnitionFail'
             configuration: 'RL10A-3-3'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.90
+            baseIgnitionChance: 
+            - '0 0.90'
+            - '10000 0.95'
             ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   &RL10A-3-3-ReducedMaxThrust
@@ -1575,7 +1627,9 @@ PartConfigs:
             name: 'TestFlightFailure_IgnitionFail'
             configuration: 'RL10A-3-3A'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.98
+            baseIgnitionChance: 
+            - '0 0.98'
+            - '10000 0.9995'
             ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   &RL10A-3-3A-ReducedMaxThrust
@@ -1650,7 +1704,9 @@ PartConfigs:
             name: 'TestFlightFailure_IgnitionFail'
             configuration: 'RL10A-4'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.98
+            baseIgnitionChance: 
+            - '0 0.98'
+            - '10000 0.9995'
             ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   &RL10A-4-ReducedMaxThrust
@@ -1725,7 +1781,9 @@ PartConfigs:
             name: 'TestFlightFailure_IgnitionFail'
             configuration: 'RL10A-4-1-2'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.98
+            baseIgnitionChance: 
+            - '0 0.98'
+            - '10000 0.9995'
             ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   &RL10A-4-1-2-ReducedMaxThrust
@@ -1800,7 +1858,9 @@ PartConfigs:
             name: 'TestFlightFailure_IgnitionFail'
             configuration: 'RL10B-2'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.98
+            baseIgnitionChance: 
+            - '0 0.98'
+            - '10000 0.9995'
             ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   &RL10B-2-ReducedMaxThrust
@@ -1875,7 +1935,9 @@ PartConfigs:
             name: 'TestFlightFailure_IgnitionFail'
             configuration: 'RL10C-1'
             restoreIgnitionCharge: true
-            baseIgnitionChance: 0.98
+            baseIgnitionChance: 
+            - '0 0.98'
+            - '10000 0.9995'
             ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   &RL10C-1-ReducedMaxThrust
