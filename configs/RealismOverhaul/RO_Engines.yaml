@@ -130,10 +130,6 @@ PartConfigs:
             restoreIgnitionCharge: true
             baseIgnitionChance: 0.90
             ignorePressureOnPad: true
-            pressureCurve:
-            - '0 0.90 0 0'
-            - '5000 0.90 0 0'
-            - '50000 0.50 0 0'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'WAC-Corporal'
@@ -184,10 +180,6 @@ PartConfigs:
             restoreIgnitionCharge: true
             baseIgnitionChance: 0.95
             ignorePressureOnPad: true
-            pressureCurve:
-            - '0 0.90 0 0'
-            - '5000 0.90 0 0'
-            - '50000 0.50 0 0'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'Aerobee-Hi'
@@ -232,10 +224,6 @@ PartConfigs:
             restoreIgnitionCharge: true
             baseIgnitionChance: 0.95
             ignorePressureOnPad: true
-            pressureCurve:
-            - '0 0.90 0 0'
-            - '5000 0.90 0 0'
-            - '50000 0.50 0 0'
         -   *ShutdownEngine        
         -   name: 'TestFlightFailure_ShutdownEngine'
             configuration: 'Aerobee-150'
