@@ -16,9 +16,10 @@ namespace TestFlight
         public bool restoreIgnitionCharge = false;
         [KSPField(isPersistant=true)]
         public bool ignorePressureOnPad = true;
+        [KSPField(isPersistant=true)]
+        public float baseIgnitionChance = 1f;
 
-        public FloatCurve ignitionFailureRate;
-        public FloatCurve pressureMultiplier;
+        public FloatCurve pressureCurve;
 
         private ITestFlightCore core = null;
 
@@ -57,24 +58,25 @@ namespace TestFlight
         {
             get
             {
-                double dynamicPressure = this.part.dynamicPressureAtm;
+                double density;
+                Vector3 velocity = this.part.Rigidbody.velocity + Krakensbane.GetFrameVelocityV3f();
+                float sqrSpeed = velocity.sqrMagnitude;
                 if (FARLoaded)
                 {
-                    Vector3 velocity = this.part.Rigidbody.velocity + Krakensbane.GetFrameVelocityV3f();
-                    float sqrSpeed = velocity.sqrMagnitude;
                     try
                     {
-                        double airDensity = (double)densityMethod.Invoke(null, new object[] { this.vessel.mainBody, this.vessel.altitude, true });
-                        dynamicPressure = 0.5 * airDensity * sqrSpeed;
-                        // convert from Pa to Atm
-                        dynamicPressure = dynamicPressure / 101325;
+                        density = (double)densityMethod.Invoke(null, new object[] { this.vessel.mainBody, this.vessel.altitude, true });
                     }
                     catch
                     {
-                        return dynamicPressure;
+                        density = this.vessel.atmDensity;
                     }
                 }
-
+                else
+                {
+                    density = this.vessel.atmDensity;
+                }
+                double dynamicPressure = 0.5 * density * sqrSpeed;
                 return dynamicPressure;
             }
         }
@@ -86,12 +88,6 @@ namespace TestFlight
                 if (core == null)
                 {
                     Log("IgnitionFail: No valid core attached");
-                    return false;
-                }
-                // We also need a reliability curve
-                if (ignitionFailureRate == null)
-                {
-                    Log("IgnitionFail: No valid ingitionFailureRate curve");
                     return false;
                 }
                 // and a valid engine
@@ -134,7 +130,9 @@ namespace TestFlight
             {
                 TestFlightFailure_IgnitionFail modulePrefab = pm as TestFlightFailure_IgnitionFail;
                 if (modulePrefab != null && modulePrefab.Configuration == configuration)
-                    ignitionFailureRate = modulePrefab.ignitionFailureRate;
+                {
+                    pressureCurve = modulePrefab.pressureCurve;
+                }
             }
         }
 
@@ -156,34 +154,19 @@ namespace TestFlight
                     if (engine.ignitionState == EngineModuleWrapper.EngineIgnitionState.NOT_IGNITED || engine.ignitionState == EngineModuleWrapper.EngineIgnitionState.UNKNOWN)
                     {
                         Log(String.Format("IgnitionFail: Engine {0} transitioning to INGITED state", engine.engine.Module.GetInstanceID()));
-                        // We want the initial flight data, not the current here
-                        double initialFlightData = core.GetInitialFlightData();
-                        double failureRate = ignitionFailureRate.Evaluate((float)initialFlightData);
-                        if (pressureMultiplier != null)
+                        float ignitionChance = 1f;
+                        if (this.vessel.situation == Vessel.Situations.PRELAUNCH && ignorePressureOnPad)
+                            ignitionChance = baseIgnitionChance;
+                        else
                         {
-                            if (!ignorePressureOnPad)
-                            {
-                                failureRate = failureRate * pressureMultiplier.Evaluate((float)DynamicPressure);
-                            }
+                            if (pressureCurve != null)
+                                ignitionChance = pressureCurve.Evaluate((float)DynamicPressure);
                             else
-                            {
-                                if (this.vessel.situation != Vessel.Situations.PRELAUNCH)
-                                {
-                                    failureRate = failureRate * pressureMultiplier.Evaluate((float)DynamicPressure);
-                                }
-                            }
+                                ignitionChance = baseIgnitionChance;
                         }
-                        failureRate = Mathf.Max((float)failureRate, (float)TestFlightUtil.MIN_FAILURE_RATE);
-
-                        // r1 = the chance of survival right now at time index 1
-                        // r2 = the chance of survival through ignition and into initial run up
-
-                        double r1 = Mathf.Exp((float)-failureRate * 1f);
-                        double r2 = Mathf.Exp((float)-failureRate * 3f);
-                        double survivalChance = r2 / r1;
                         double failureRoll = core.RandomGenerator.NextDouble();
-                        Log(String.Format("IgnitionFail: Engine {0} surivival chance {1:F4}, roll {2:F4}", engine.engine.Module.GetInstanceID(), survivalChance, failureRoll));
-                        if (failureRoll > survivalChance)
+                        Log(String.Format("IgnitionFail: Engine {0} ignition chance {1:F4}, roll {2:F4}", engine.engine.Module.GetInstanceID(), ignitionChance, failureRoll));
+                        if (failureRoll > ignitionChance)
                         {
                             engine.failEngine = true;
                             core.TriggerNamedFailure("TestFlightFailure_IgnitionFail");
@@ -242,20 +225,14 @@ namespace TestFlight
         public override void OnLoad(ConfigNode node)
         {
             base.OnLoad(node);
-            if (node.HasNode("ignitionFailureRate"))
+            if (node.HasNode("pressureCurve"))
             {
-                ignitionFailureRate = new FloatCurve();
-                ignitionFailureRate.Load(node.GetNode("ignitionFailureRate"));
+                Log("IgnitionFail: Loading pressure curve");
+                pressureCurve = new FloatCurve();
+                pressureCurve.Load(node.GetNode("pressureCurve"));
             }
             else
-                ignitionFailureRate = null;
-            if (node.HasNode("pressureMultiplier"))
-            {
-                pressureMultiplier = new FloatCurve();
-                pressureMultiplier.Load(node.GetNode("pressureMultiplier"));
-            }
-            else
-                pressureMultiplier = null;
+                pressureCurve = null;
         }
     }
 }
