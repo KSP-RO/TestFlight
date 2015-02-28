@@ -168,27 +168,29 @@ namespace TestFlight
                     if (engine.ignitionState == EngineModuleWrapper.EngineIgnitionState.NOT_IGNITED || engine.ignitionState == EngineModuleWrapper.EngineIgnitionState.UNKNOWN)
                     {
                         Log(String.Format("IgnitionFail: Engine {0} transitioning to INGITED state", engine.engine.Module.GetInstanceID()));
+                        Log(String.Format("IgnitionFail: Checking curves..."));
+                        if (baseIgnitionChance != null)
+                            Log("IgnitionFail: baseIgnitionChance is valid");
+                        else
+                            Log("IgnitionFail: baseIgnitionChance is NULL");
+
+                        if (pressureCurve != null)
+                            Log("IgnitionFail: pressureCurve is valid");
+                        else
+                            Log("IgnitionFail: pressureCurve is NULL");
+
                         double initialFlightData = core.GetInitialFlightData();
                         float ignitionChance = 1f;
-                        if (this.vessel.situation == Vessel.Situations.PRELAUNCH && ignorePressureOnPad)
-                        {
-                            Log(String.Format("IgnitionFail: Using baseIgnitionChance with {0:F2}du", initialFlightData));
-                            ignitionChance = baseIgnitionChance.Evaluate((float)initialFlightData);
-                        }
-                        else
-                        {
-                            if ((object)pressureCurve != null)
-                            {
-                                Log(String.Format("IgnitionFail: Using baseIgnitionChance with {0:F2}du", initialFlightData));
-                                Log(String.Format("IgnitionFail: Using pressureCurve with Dynamic Pressure of {0:F2}pa", DynamicPressure));
-                                ignitionChance *= pressureCurve.Evaluate((float)DynamicPressure);
-                            }
-                            else
-                            {
-                                Log(String.Format("IgnitionFail: Using baseIgnitionChance with {0:F2}du", initialFlightData));
-                                ignitionChance = baseIgnitionChance.Evaluate((float)initialFlightData);
-                            }
-                        }
+                        float multiplier = 1f;
+                        ignitionChance = baseIgnitionChance.Evaluate((float)initialFlightData);
+                        if (pressureCurve != null)
+                            multiplier = pressureCurve.Evaluate((float)DynamicPressure);
+                        if (multiplier <= 0f)
+                            multiplier = 1f;
+
+                        if (this.vessel.situation != Vessel.Situations.PRELAUNCH)
+                            ignitionChance *= multiplier;
+
                         double failureRoll = core.RandomGenerator.NextDouble();
                         Log(String.Format("IgnitionFail: Engine {0} ignition chance {1:F4}, roll {2:F4}", engine.engine.Module.GetInstanceID(), ignitionChance, failureRoll));
                         if (failureRoll > ignitionChance)
@@ -215,7 +217,7 @@ namespace TestFlight
                 if (engine.failEngine)
                 {
                     engine.engine.Shutdown();
-                    if (OneShot && restoreIgnitionCharge)
+                    if ((OneShot && restoreIgnitionCharge) || (OneShot && this.vessel.situation == Vessel.Situations.PRELAUNCH) )
                         RestoreIgnitor();
                     engines[i].failEngine = false;
                 }
@@ -230,7 +232,7 @@ namespace TestFlight
                 EngineHandler engine = engines[i];
                 {
                     engine.engine.Shutdown();
-                    if (restoreIgnitionCharge)
+                    if (restoreIgnitionCharge || this.vessel.situation == Vessel.Situations.PRELAUNCH)
                         RestoreIgnitor();
                     engines[i].failEngine = false;
                 }
