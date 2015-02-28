@@ -136,8 +136,16 @@ namespace TestFlight
                 TestFlightFailure_IgnitionFail modulePrefab = pm as TestFlightFailure_IgnitionFail;
                 if (modulePrefab != null && modulePrefab.Configuration == configuration)
                 {
-                    baseIgnitionChance = modulePrefab.baseIgnitionChance;
-                    pressureCurve = modulePrefab.pressureCurve;
+                    if ((object)modulePrefab.baseIgnitionChance != null)
+                    {
+                        Log("IgnitionFail: Loading baseIgnitionChance from prefab");
+                        baseIgnitionChance = modulePrefab.baseIgnitionChance;
+                    }
+                    if ((object)modulePrefab.pressureCurve != null)
+                    {
+                        Log("IgnitionFail: Loading pressureCurve from prefab");
+                        pressureCurve = modulePrefab.pressureCurve;
+                    }
                 }
             }
         }
@@ -163,15 +171,23 @@ namespace TestFlight
                         double initialFlightData = core.GetInitialFlightData();
                         float ignitionChance = 1f;
                         if (this.vessel.situation == Vessel.Situations.PRELAUNCH && ignorePressureOnPad)
+                        {
+                            Log(String.Format("IgnitionFail: Using baseIgnitionChance with {0:F2}du", initialFlightData));
                             ignitionChance = baseIgnitionChance.Evaluate((float)initialFlightData);
+                        }
                         else
                         {
-                            if (pressureCurve != null)
+                            if ((object)pressureCurve != null)
                             {
+                                Log(String.Format("IgnitionFail: Using baseIgnitionChance with {0:F2}du", initialFlightData));
+                                Log(String.Format("IgnitionFail: Using pressureCurve with Dynamic Pressure of {0:F2}pa", DynamicPressure));
                                 ignitionChance *= pressureCurve.Evaluate((float)DynamicPressure);
                             }
                             else
+                            {
+                                Log(String.Format("IgnitionFail: Using baseIgnitionChance with {0:F2}du", initialFlightData));
                                 ignitionChance = baseIgnitionChance.Evaluate((float)initialFlightData);
+                            }
                         }
                         double failureRoll = core.RandomGenerator.NextDouble();
                         Log(String.Format("IgnitionFail: Engine {0} ignition chance {1:F4}, roll {2:F4}", engine.engine.Module.GetInstanceID(), ignitionChance, failureRoll));
