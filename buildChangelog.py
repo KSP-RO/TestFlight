@@ -22,6 +22,7 @@ latestReleaseURL = urllib.urlopen("https://api.github.com/repos/jwvanderbeck/Tes
 latestRelease = json.load(latestReleaseURL)
 sinceDate = latestRelease["created_at"]
 commitsURL = urllib.urlopen("https://api.github.com/repos/jwvanderbeck/TestFlight/commits?since=" + sinceDate)
+print "https://api.github.com/repos/jwvanderbeck/TestFlight/commits?since=" + sinceDate
 commits = json.load(commitsURL)
 
 commits = commits[:-1]
@@ -29,4 +30,4 @@ commits = commits[:-1]
 print args.version[0]
 print "----------\n"
 for commit in commits:
-	print "* " + commit["commit"]["message"]
+	print "* " + commit["commit"]["message"].replace("\n\n", "\n").replace("\n", "\n* ")

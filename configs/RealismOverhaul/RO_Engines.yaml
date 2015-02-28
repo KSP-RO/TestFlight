@@ -127,7 +127,7 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'WAC-Corporal'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.90'
             - '10000 0.95'
@@ -179,7 +179,7 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'Aerobee-Hi'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.95'
             - '10000 0.995'
@@ -225,7 +225,7 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'Aerobee-150'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance:
             - '0 0.95'
             - '10000 0.998'
@@ -283,7 +283,7 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'X-405'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.70'
             - '10000 0.9'
@@ -341,7 +341,7 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'AJ10-37'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.70'
             - '10000 0.85'
@@ -394,7 +394,7 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'AJ10-42'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance:
             - '0 0.85'
             - '10000 0.95'
@@ -447,7 +447,7 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'AJ10-142'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.95'
             - '10000 0.995'
@@ -500,7 +500,7 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'AJ10-104D'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.98'
             - '0 0.998'
@@ -554,7 +554,7 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'LR-89-NA-3'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.80'
             - '10000 0.90'
@@ -611,7 +611,7 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'LR-105-NA-5'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance:
             - '0 0.90'
             - '10000 0.98'
@@ -668,7 +668,7 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'Bell-8048'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.625'
             - '10000 0.75'
@@ -721,7 +721,7 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'Bell-8081'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.90'
             - '10000 0.95'
@@ -774,7 +774,7 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'Bell-8247'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.98'
             - '10000 0.9995'
@@ -827,7 +827,7 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'XLR11'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.8'
             - '10000 0.9'
@@ -880,7 +880,7 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'XLR99'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.85'
             - '10000 0.95'
@@ -934,7 +934,7 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'A-6'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.70'
             - '10000 0.9'
@@ -991,7 +991,7 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'A-7'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.80'
             - '10000 0.95'
@@ -1048,7 +1048,7 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'LR-87-3'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.80'
             - '10000 0.875'
@@ -1105,7 +1105,7 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'LR-87-5'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.90'
             - '10000 0.95'
@@ -1162,7 +1162,7 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'LR-87-7'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.90'
             - '10000 0.975'
@@ -1219,7 +1219,7 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'LR-87-9'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.98'
             - '10000 0.995'
@@ -1276,7 +1276,7 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'LR-87-11'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.98'
             - '10000 0.99975'
@@ -1333,7 +1333,7 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'LR-87-11A'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.98'
             - '10000 0.9999'
@@ -1395,7 +1395,7 @@ PartConfigs:
         -   &RL10A-1-IgnitionFail
             name: 'TestFlightFailure_IgnitionFail'
             configuration: 'RL10A-1'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.70'
             - '10000 0.85'
@@ -1472,7 +1472,7 @@ PartConfigs:
         -   &RL10A-3-1-IgnitionFail
             name: 'TestFlightFailure_IgnitionFail'
             configuration: 'RL10A-3-1'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.80'
             - '10000 0.9'
@@ -1549,7 +1549,7 @@ PartConfigs:
         -   &RL10A-3-3-IgnitionFail
             name: 'TestFlightFailure_IgnitionFail'
             configuration: 'RL10A-3-3'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.90'
             - '10000 0.95'
@@ -1626,7 +1626,7 @@ PartConfigs:
         -   &RL10A-3-3A-IgnitionFail
             name: 'TestFlightFailure_IgnitionFail'
             configuration: 'RL10A-3-3A'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.98'
             - '10000 0.9995'
@@ -1703,7 +1703,7 @@ PartConfigs:
         -   &RL10A-4-IgnitionFail
             name: 'TestFlightFailure_IgnitionFail'
             configuration: 'RL10A-4'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.98'
             - '10000 0.9995'
@@ -1780,7 +1780,7 @@ PartConfigs:
         -   &RL10A-4-1-2-IgnitionFail
             name: 'TestFlightFailure_IgnitionFail'
             configuration: 'RL10A-4-1-2'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.98'
             - '10000 0.9995'
@@ -1857,7 +1857,7 @@ PartConfigs:
         -   &RL10B-2-IgnitionFail
             name: 'TestFlightFailure_IgnitionFail'
             configuration: 'RL10B-2'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.98'
             - '10000 0.9995'
@@ -1934,7 +1934,7 @@ PartConfigs:
         -   &RL10C-1-IgnitionFail
             name: 'TestFlightFailure_IgnitionFail'
             configuration: 'RL10C-1'
-            restoreIgnitionCharge: true
+            restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.98'
             - '10000 0.9995'
