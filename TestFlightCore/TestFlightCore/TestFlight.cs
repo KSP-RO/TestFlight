@@ -296,7 +296,7 @@ namespace TestFlightCore
                     Part part = vessel.Parts.Find(p => p.flightID == partStatus.partID);
                     if (part == null)
                     {
-                        Log("TestFlightManager: Could not find part. " + partStatus.partName + "(" + partStatus.partID + ") Marking it for deletion.");
+                        Log("TestFlightManager: Could not find part. " + partStatus.partName + "(" + partStatus.partID + ") Marking it for cleanup.");
                         partsToDelete.Add(partStatus);
                     }
                 }

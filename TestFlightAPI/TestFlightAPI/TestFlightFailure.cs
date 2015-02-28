@@ -222,9 +222,6 @@ namespace TestFlightAPI
             if (!Failed)
                 return null;
 
-            if (!TestFlightEnabled)
-                return null;
-
             if (repairConfig == null)
                 return null;
 
