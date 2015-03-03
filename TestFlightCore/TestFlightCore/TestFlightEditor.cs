@@ -336,7 +336,7 @@ namespace TestFlightCore
         {
             GetComponent<UIButton>().AddInputDelegate(OnInput);
             selectedPart = GetComponent<EditorPartIcon>().partInfo;
-            Log("TestFlightEditor: Added input delegate to " + TestFlightUtil.GetFullPartName(selectedPart.partPrefab));
+//            Log("TestFlightEditor: Added input delegate to " + TestFlightUtil.GetFullPartName(selectedPart.partPrefab));
         }
 
         internal void OnInput(ref POINTER_INFO ptr)
