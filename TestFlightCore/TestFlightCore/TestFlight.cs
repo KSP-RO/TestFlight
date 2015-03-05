@@ -488,7 +488,8 @@ namespace TestFlightCore
         new GameScenes[] 
         { 
             GameScenes.FLIGHT,
-            GameScenes.EDITOR
+            GameScenes.EDITOR,
+            GameScenes.SPACECENTER
         }
     )]
 	public class TestFlightManagerScenario : ScenarioModule

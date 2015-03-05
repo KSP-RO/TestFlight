@@ -20,7 +20,6 @@ namespace TestFlightCore
         private ApplicationLauncherButton appLauncherButton;
         private TestFlightHUD hud;
         private bool stickyWindow;
-        private int lastPartCount = 0;
         private string[] guiSizes = { "Small", "Normal", "Large" };
 
         private DropDownList ddlSettingsPage = null;
