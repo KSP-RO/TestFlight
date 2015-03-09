@@ -63,6 +63,9 @@ namespace TestFlightCore
 
         internal void Log(string message)
         {
+            if (TestFlightManagerScenario.Instance == null || TestFlightManagerScenario.Instance.userSettings == null)
+                return;
+
             bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
             message = "TestFlightEditor: " + message;
             TestFlightUtil.Log(message, debug);
@@ -120,30 +123,6 @@ namespace TestFlightCore
             isReady = true;
         }
 
-        internal ITestFlightCore GetCore()
-        {
-            if (SelectedPart == null)
-                return null;
-            string configuration;
-
-            if (SelectedPart.Modules.Contains("ModuleEngineConfigs"))
-            {
-                configuration = (string)(SelectedPart.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(SelectedPart.Modules["ModuleEngineConfigs"]));
-            }
-            else
-                configuration = "";
-
-            ITestFlightCore core = null;
-            foreach (PartModule pm in SelectedPart.Modules)
-            {
-                core = pm as ITestFlightCore;
-                if (core != null && core.Configuration == configuration)
-                {
-                    return core;
-                }
-            }
-            return null;
-        }
         internal void CalculateWindowBounds()
         {
             if (appLauncherButton == null)
@@ -156,7 +135,7 @@ namespace TestFlightCore
             float windowHeight = 50f;
 
             float numItems = 0;
-            ITestFlightCore core = GetCore();
+            ITestFlightCore core = TestFlightUtil.GetCore(SelectedPart);
             if (core != null)
             {
                 List<TestFlightData> flightData = null;
@@ -290,22 +269,7 @@ namespace TestFlightCore
             PartFlightData partData = tfScenario.GetFlightDataForPartName(TestFlightUtil.GetFullPartName(SelectedPart));
             if (partData != null)
             {
-                string configuration;
-
-                if (SelectedPart.Modules.Contains("ModuleEngineConfigs"))
-                {
-                    configuration = (string)(SelectedPart.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(SelectedPart.Modules["ModuleEngineConfigs"]));
-                }
-                else
-                    configuration = "";
-                foreach (PartModule pm in SelectedPart.Modules)
-                {
-                    core = pm as ITestFlightCore;
-                    if (core != null && core.Configuration == configuration)
-                    {
-                        break;
-                    }
-                }
+                core = TestFlightUtil.GetCore(SelectedPart);
                 if (core != null)
                 {
                     List<TestFlightData> flightData = partData.GetFlightData();
@@ -360,6 +324,9 @@ namespace TestFlightCore
 
         internal void Log(string message)
         {
+            if (TestFlightManagerScenario.Instance == null || TestFlightManagerScenario.Instance.userSettings == null)
+                return;
+
             bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
             message = "TestFlightEditor: " + message;
             TestFlightUtil.Log(message, debug);
@@ -369,7 +336,7 @@ namespace TestFlightCore
         {
             GetComponent<UIButton>().AddInputDelegate(OnInput);
             selectedPart = GetComponent<EditorPartIcon>().partInfo;
-            Log("TestFlightEditor: Added input delegate to " + TestFlightUtil.GetFullPartName(selectedPart.partPrefab));
+//            Log("TestFlightEditor: Added input delegate to " + TestFlightUtil.GetFullPartName(selectedPart.partPrefab));
         }
 
         internal void OnInput(ref POINTER_INFO ptr)

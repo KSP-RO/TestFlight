@@ -25,6 +25,8 @@ namespace TestFlightCore
 
         internal void Log(string message)
         {
+            if (TestFlightManagerScenario.Instance == null)
+                return;
             bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
             message = "TestFlightHUD: " + message;
             TestFlightUtil.Log(message, debug);
@@ -75,7 +77,6 @@ namespace TestFlightCore
 
         internal override void DrawWindow(Int32 id)
         {
-            GUILayout.BeginVertical();
             Dictionary<Guid, MasterStatusItem> masterStatus = parentWindow.tfManager.GetMasterStatus();
 
             if (masterStatus == null || masterStatus.Count <= 0)
@@ -89,6 +90,8 @@ namespace TestFlightCore
                 CalculateWindowBounds();
             }
             lastPartCount = masterStatus[currentVessl].allPartsStatus.Count(ps => ps.activeFailure != null);
+
+            GUILayout.BeginVertical();
 
             foreach (PartStatus status in masterStatus[currentVessl].allPartsStatus)
             {

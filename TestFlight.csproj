@@ -83,6 +83,7 @@
     <Compile Include="TestFlightFailure_ResourceLeak.cs" />
     <Compile Include="TestFlightReliability_EngineCycle.cs" />
     <Compile Include="TestFlightFailure_IgnitionFail.cs" />
+    <Compile Include="TestFlightFailure_Engine.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

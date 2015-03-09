@@ -51,18 +51,11 @@ namespace TestFlightAPI
         {
             get
             {
-                bool enabled = true;
                 // Verify we have a valid core attached
                 if (core == null)
-                    enabled = false;
-                // If this part has a ModuleEngineConfig then we need to verify we are assigned to the active configuration
-                if (this.part.Modules.Contains("ModuleEngineConfigs"))
-                {
-                    string currentConfig = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
-                    if (currentConfig != configuration)
-                        enabled = false;
-                }
-                return enabled;
+                    return false;
+
+                return TestFlightUtil.EvaluateQuery(Configuration, this.part);
             }
         }
 
@@ -137,9 +130,7 @@ namespace TestFlightAPI
 
             while (core == null)
             {
-                core = TestFlightUtil.GetCore(this.part, Configuration);
-                if (core != null)
-                    Log(String.Format("Attached to Core({0})", core.Configuration));
+                core = TestFlightUtil.GetCore(this.part);
                 yield return null;
             }
 
@@ -148,19 +139,31 @@ namespace TestFlightAPI
 
         protected void LoadDataFromPrefab()
         {
+            Log("Loading data from prefab");
             Part prefab = this.part.partInfo.partPrefab;
             foreach (PartModule pm in prefab.Modules)
             {
                 TestFlightReliabilityBase modulePrefab = pm as TestFlightReliabilityBase;
-                if (modulePrefab != null && modulePrefab.Configuration == configuration)
-                    reliabilityBodies = modulePrefab.reliabilityBodies;
+                if (modulePrefab != null)
+                    Log("Inspecting prefab with query: " + modulePrefab.Configuration);
+                if (modulePrefab != null && TestFlightUtil.EvaluateQuery(modulePrefab.Configuration, this.part))
+                {
+                    Log("Found matching prefab");
+                    if (modulePrefab.reliabilityBodies != null && modulePrefab.reliabilityBodies.Count > 0)
+                    {
+                        reliabilityBodies = modulePrefab.reliabilityBodies;
+                        Log("Loaded prefab data");
+                    }
+                }
             }
         }
 
         protected void Startup()
         {
+            Log("Startup");
             LoadDataFromPrefab();
 //            UnityEngine.Random.seed = (int)Time.time;
+            Log("Startup::DONE");
         }
 
         // PARTMODULE Implementation
@@ -235,6 +238,12 @@ namespace TestFlightAPI
                 core.TriggerFailure();
             }
         }
+
+        public virtual string GetTestFlightInfo()
+        {
+            return "";
+        }
+
     }
 }
 

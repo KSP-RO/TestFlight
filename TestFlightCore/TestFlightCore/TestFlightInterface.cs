@@ -518,6 +518,60 @@ namespace TestFlightCore
         {
             return TestFlightUtil.GetFailureModules(part);
         }
+        public static ITestFlightInterop GetInterop(Part part)
+        {
+            if (part == null)
+            {
+                Debug.Log("TestFlightInterface: part is null");
+                return null;
+            }
+
+            if (part.Modules == null)
+            {
+                Debug.Log("TestFlightInterface: part.Modules is null");
+                return null;
+            }
+
+            if (part.Modules.Contains("TestFlightInterop"))
+            {
+                return part.Modules["TestFlightInterop"] as ITestFlightInterop;
+            }
+            Debug.Log("TestFlightInterface: Could not find TestFlightInterop module");
+            return null;
+        }
+        public static bool AddInteropValue(Part part, string name, string value, string owner)
+        {
+            ITestFlightInterop op = TestFlightInterface.GetInterop(part);
+            if (op == null)
+                return false;
+
+            return op.AddInteropValue(name, value, owner);
+        }
+        public static bool AddInteropValue(Part part, string name, int value, string owner)
+        {
+            ITestFlightInterop op = TestFlightInterface.GetInterop(part);
+            if (op == null)
+                return false;
+
+            return op.AddInteropValue(name, value, owner);
+        }
+        public static bool AddInteropValue(Part part, string name, float value, string owner)
+        {
+            ITestFlightInterop op = TestFlightInterface.GetInterop(part);
+            if (op == null)
+                return false;
+
+            return op.AddInteropValue(name, value, owner);
+        }
+        public static bool AddInteropValue(Part part, string name, bool value, string owner)
+        {
+            ITestFlightInterop op = TestFlightInterface.GetInterop(part);
+            if (op == null)
+                return false;
+
+            return op.AddInteropValue(name, value, owner);
+        }
+
     }
 }
 

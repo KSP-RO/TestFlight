@@ -8,21 +8,19 @@ using TestFlightAPI;
 
 namespace TestFlight
 {
-    public class TestFlightFailure_ShutdownEngine : TestFlightFailureBase
+    public class TestFlightFailure_ShutdownEngine : TestFlightFailure_Engine
     {
-        private bool allowShutdown;
-        private EngineModuleWrapper engine;
-
-        internal void Log(string message)
+        protected struct CachedEngineState
         {
-            message = String.Format("TestFlightFailure_ShutDownEngine({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(this.part), Configuration, message);
-            TestFlightUtil.Log(message, this.part);
+            public bool allowShutdown;
         }
+
+        Dictionary<int, CachedEngineState> engineStates;
 
         public override void OnStart(StartState state)
         {
             base.OnStart(state);
-            engine = new EngineModuleWrapper(this.part);
+            base.Startup();
         }
         /// <summary>
         /// Triggers the failure controlled by the failure module
@@ -30,16 +28,33 @@ namespace TestFlight
         public override void DoFailure()
         {
             base.DoFailure();
-            Log("Failing part");
-            allowShutdown = engine.allowShutdown;
-            engine.Shutdown();
+            if (engineStates == null)
+                engineStates = new Dictionary<int, CachedEngineState>();
+            engineStates.Clear();
+            foreach (EngineHandler engine in engines)
+            {
+                int id = engine.engine.Module.GetInstanceID();
+                CachedEngineState engineState = new CachedEngineState();
+                engineState.allowShutdown = engine.engine.allowShutdown;
+                engine.engine.Shutdown();
+                engineStates.Add(id, engineState);
+            }
         }
 
         public override double DoRepair()
         {
             base.DoRepair();
-            engine.allowShutdown = allowShutdown;
-            engine.enabled = true;
+            // for each engine restore it
+            foreach (EngineHandler engine in engines)
+            {
+                int id = engine.engine.Module.GetInstanceID();
+                if (engineStates.ContainsKey(id))
+                {
+                    engine.engine.enabled = true;
+                    engine.engine.allowShutdown = engineStates[id].allowShutdown;
+                }
+            }
+            engineStates.Clear();
             return 0;
         }
     }

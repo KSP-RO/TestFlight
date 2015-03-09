@@ -8,19 +8,23 @@ using TestFlightAPI;
 
 namespace TestFlight
 {
-    public class TestFlightFailure_ReducedMaxThrust : TestFlightFailureBase
+    public class TestFlightFailure_ReducedMaxThrust : TestFlightFailure_Engine
     {
         [KSPField(isPersistant=true)]
         public float thrustReduction = 0.5f;
 
-        private float maxThrust;
-        private float minThrust;
-        EngineModuleWrapper engine;
+        protected struct CachedEngineState
+        {
+            public float maxThrust;
+            public float minThrust;
+        }
+
+        Dictionary<int, CachedEngineState> engineStates;
 
         public override void OnStart(StartState state)
         {
             base.OnStart(state);
-            engine = new EngineModuleWrapper(this.part);
+            base.Startup();
         }
         /// <summary>
         /// Triggers the failure controlled by the failure module
@@ -28,18 +32,37 @@ namespace TestFlight
         public override void DoFailure()
         {
             base.DoFailure();
-            maxThrust = engine.maxThrust;
-            minThrust = engine.minThrust;
-            engine.maxThrust = maxThrust * thrustReduction;
-            if (maxThrust == minThrust || maxThrust * thrustReduction < minThrust)
-                engine.minThrust = maxThrust * thrustReduction;
+            if (engineStates == null)
+                engineStates = new Dictionary<int, CachedEngineState>();
+            engineStates.Clear();
+            // for each engine, store its current min & max thrust then reduce it
+            foreach (EngineHandler engine in engines)
+            {
+                int id = engine.engine.Module.GetInstanceID();
+                CachedEngineState engineState = new CachedEngineState();
+                engineState.minThrust = engine.engine.minThrust;
+                engineState.maxThrust = engine.engine.maxThrust;
+                engine.engine.maxThrust = engineState.maxThrust * thrustReduction;
+                if (engineState.maxThrust == engineState.minThrust || engineState.maxThrust * thrustReduction < engineState.minThrust)
+                    engine.engine.minThrust = engineState.maxThrust * thrustReduction;
+                engineStates.Add(id, engineState);
+            }
         }
 
         public override double DoRepair()
         {
             base.DoRepair();
-            engine.maxThrust = maxThrust;
-            engine.minThrust = minThrust;
+            // for each engine restore its thrust values
+            foreach (EngineHandler engine in engines)
+            {
+                int id = engine.engine.Module.GetInstanceID();
+                if (engineStates.ContainsKey(id))
+                {
+                    engine.engine.minThrust = engineStates[id].minThrust;
+                    engine.engine.maxThrust = engineStates[id].maxThrust;
+                }
+            }
+            engineStates.Clear();
             return 0;
         }
     }

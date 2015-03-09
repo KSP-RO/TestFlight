@@ -5,6 +5,25 @@ using UnityEngine;
 
 namespace TestFlightAPI
 {
+    public enum InteropValueType
+    {
+        INVALID = -1,
+        STRING,
+        FLOAT,
+        INT,
+        BOOL,
+        STRING_LIST,
+        FLOAT_LIST,
+        INT_LIST,
+        BOOL_LIST
+    };
+    public struct InteropValue
+    {
+        public InteropValueType valueType;
+        public string value;
+        public string owner;
+    };
+
     public class TestFlightUtil
     {
         public const double MIN_FAILURE_RATE = 0.000001;
@@ -17,6 +36,17 @@ namespace TestFlightAPI
             YEARS,
             INVALID
         };
+
+        // Taken from DeadlyReentry with NathanKell's permission
+        public static string FormatTime(double time)
+        {
+            int iTime = (int) time % 3600;
+            int seconds = iTime % 60;
+            int minutes = (iTime / 60) % 60;
+            int hours = (iTime / 3600);
+            return hours.ToString ("D2") 
+                + ":" + minutes.ToString ("D2") + ":" + seconds.ToString ("D2");
+        }
         // Methods for accessing the TestFlight modules on a given part
 
         public static string GetFullPartName(Part part)
@@ -26,20 +56,31 @@ namespace TestFlightAPI
             if (part.Modules == null)
                 return baseName;
 
-            if (part.Modules.Contains("ModuleEngineConfigs"))
+            // New query system
+            // Find the active core
+            ITestFlightCore core = TestFlightUtil.GetCore(part);
+            if (core == null)
+                return baseName;
+            // Look if it has an alias and use that if present
+            string query = core.Configuration;
+            if (query.Contains(":"))
             {
-                string configurationName = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
-                return String.Format("{0}|{1}", baseName, configurationName);
+                return query.Split(new char[1]{ ':' })[1];
             }
-            if (part.Modules.Contains("ProceduralShapeCylinder"))
-            {
-                float diameter = (float)(part.Modules["ProceduralShapeCylinder"].GetType().GetField("diameter").GetValue(part.Modules["ProceduralShapeCylinder"]));
-                float length = (float)(part.Modules["ProceduralShapeCylinder"].GetType().GetField("length").GetValue(part.Modules["ProceduralShapeCylinder"]));
-                return String.Format("{0}|{1:F2}d{2:F2}l", baseName, diameter, length);
-            }
-
-            return baseName;
+            // Otherwise use part.name
+            else
+                return baseName;
         }
+
+        public static ITestFlightCore ResolveAlias(Part part, string alias)
+        {
+            // Look at each Core on the part and find the one that defines the given alias
+            // If not found return null
+            // If found, evaluate its query and return the core if true, return null if false
+
+            return null;
+        }
+
         public static string GetPartTitle(Part part)
         {
             string baseName = part.partInfo.title;
@@ -47,26 +88,15 @@ namespace TestFlightAPI
             if (part.Modules == null)
                 return baseName;
 
-            if (part.Modules.Contains("ModuleEngineConfigs"))
-            {
-                string configurationName = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
-                return String.Format("{0}", configurationName);
-            }
-            if (part.Modules.Contains("ProceduralShapeCylinder"))
-            {
-                float diameter = (float)(part.Modules["ProceduralShapeCylinder"].GetType().GetField("diameter").GetValue(part.Modules["ProceduralShapeCylinder"]));
-                float length = (float)(part.Modules["ProceduralShapeCylinder"].GetType().GetField("length").GetValue(part.Modules["ProceduralShapeCylinder"]));
-                string size = "";
-                if (length <= 30f)
-                    size = "short";
-                else if (length <= 60f)
-                    size = "normal";
-                else
-                    size = "long";
-                return String.Format("Tank {0:F2}-{1}", diameter, size);
-            }
+            // Find the active core
+            ITestFlightCore core = TestFlightUtil.GetCore(part);
+            if (core == null)
+                return baseName;
 
-            return baseName;
+            if (String.IsNullOrEmpty(core.Title))
+                return baseName;
+            else
+                return core.Title;
         }
         // Get the active Core Module - can only ever be one.
         public static ITestFlightCore GetCore(Part part)
@@ -82,19 +112,19 @@ namespace TestFlightAPI
             }
             return null;
         }
-        public static ITestFlightCore GetCore(Part part, string configuration)
-        {
-            if (part == null || part.Modules == null)
-                return null;
-
-            foreach (PartModule pm in part.Modules)
-            {
-                ITestFlightCore core = pm as ITestFlightCore;
-                if (core != null && core.TestFlightEnabled && core.Configuration == configuration)
-                    return core;
-            }
-            return null;
-        }
+//        public static ITestFlightCore GetCore(Part part, string configuration)
+//        {
+//            if (part == null || part.Modules == null)
+//                return null;
+//
+//            foreach (PartModule pm in part.Modules)
+//            {
+//                ITestFlightCore core = pm as ITestFlightCore;
+//                if (core != null && core.TestFlightEnabled && core.Configuration == configuration)
+//                    return core;
+//            }
+//            return null;
+//        }
         // Get the Data Recorder Module - can only ever be one.
         public static IFlightDataRecorder GetDataRecorder(Part part)
         {
@@ -109,19 +139,19 @@ namespace TestFlightAPI
             }
             return null;
         }
-        public static IFlightDataRecorder GetDataRecorder(Part part, string configuration)
-        {
-            if (part == null || part.Modules == null)
-                return null;
-
-            foreach (PartModule pm in part.Modules)
-            {
-                IFlightDataRecorder dataRecorder = pm as IFlightDataRecorder;
-                if (dataRecorder != null && dataRecorder.TestFlightEnabled && dataRecorder.Configuration == configuration)
-                    return dataRecorder;
-            }
-            return null;
-        }
+//        public static IFlightDataRecorder GetDataRecorder(Part part, string configuration)
+//        {
+//            if (part == null || part.Modules == null)
+//                return null;
+//
+//            foreach (PartModule pm in part.Modules)
+//            {
+//                IFlightDataRecorder dataRecorder = pm as IFlightDataRecorder;
+//                if (dataRecorder != null && dataRecorder.TestFlightEnabled && dataRecorder.Configuration == configuration)
+//                    return dataRecorder;
+//            }
+//            return null;
+//        }
         // Get all Reliability Modules - can be more than one.
         public static List<ITestFlightReliability> GetReliabilityModules(Part part)
         {
@@ -140,23 +170,23 @@ namespace TestFlightAPI
 
             return reliabilityModules;
         }
-        public static List<ITestFlightReliability> GetReliabilityModules(Part part, string configuration)
-        {
-            List<ITestFlightReliability> reliabilityModules;
-
-            if (part == null || part.Modules == null)
-                return null;
-
-            reliabilityModules = new List<ITestFlightReliability>();
-            foreach (PartModule pm in part.Modules)
-            {
-                ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
-                if (reliabilityModule != null && reliabilityModule.TestFlightEnabled && reliabilityModule.Configuration == configuration)
-                    reliabilityModules.Add(reliabilityModule);
-            }
-
-            return reliabilityModules;
-        }
+//        public static List<ITestFlightReliability> GetReliabilityModules(Part part, string configuration)
+//        {
+//            List<ITestFlightReliability> reliabilityModules;
+//
+//            if (part == null || part.Modules == null)
+//                return null;
+//
+//            reliabilityModules = new List<ITestFlightReliability>();
+//            foreach (PartModule pm in part.Modules)
+//            {
+//                ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
+//                if (reliabilityModule != null && reliabilityModule.TestFlightEnabled && reliabilityModule.Configuration == configuration)
+//                    reliabilityModules.Add(reliabilityModule);
+//            }
+//
+//            return reliabilityModules;
+//        }
         // Get all Failure Modules - can be more than one.
         public static List<ITestFlightFailure> GetFailureModules(Part part)
         {
@@ -175,41 +205,305 @@ namespace TestFlightAPI
 
             return failureModules;
         }
-        public static List<ITestFlightFailure> GetFailureModules(Part part, string configuration)
+//        public static List<ITestFlightFailure> GetFailureModules(Part part, string configuration)
+//        {
+//            List<ITestFlightFailure> failureModules;
+//
+//            if (part == null || part.Modules == null)
+//                return null;
+//
+//            failureModules = new List<ITestFlightFailure>();
+//            foreach (PartModule pm in part.Modules)
+//            {
+//                ITestFlightFailure failureModule = pm as ITestFlightFailure;
+//                if (failureModule != null && failureModule.TestFlightEnabled && failureModule.Configuration == configuration)
+//                    failureModules.Add(failureModule);
+//            }
+//
+//            return failureModules;
+//        }
+        public static ITestFlightInterop GetInteropModule(Part part)
         {
-            List<ITestFlightFailure> failureModules;
-
-            if (part == null || part.Modules == null)
+            if (part == null | part.Modules == null)
                 return null;
 
-            failureModules = new List<ITestFlightFailure>();
-            foreach (PartModule pm in part.Modules)
+            if (part.Modules.Contains("TestFlightInterop"))
+                return part.Modules["TestFlightInterop"] as ITestFlightInterop;
+
+            return null;
+        }
+
+        // Originally `configuration` was just a string to match again ModuleEngineConfigs property of the same name.
+        // But with the expansion to work with Procedural Parts, it is getting more complicated.  Thus it is probably
+        // best to split it out into a common method for all handling of configuration matches
+        public static bool EvaluateQuery(string query, Part part)
+        {
+            if (String.IsNullOrEmpty(query))
+                return true;
+
+            // If this query defines an alias, just trim it off
+            if (query.Contains(":"))
+                query = query.Split(new char[1]{ ':' })[0];
+
+            // split into list elements.  For a query to be valid only one list element has to evaluate to true
+            string[] elements = query.Split(new char[1] { ',' });
+            foreach (string element in elements)
             {
-                ITestFlightFailure failureModule = pm as ITestFlightFailure;
-                if (failureModule != null && failureModule.TestFlightEnabled && failureModule.Configuration == configuration)
-                    failureModules.Add(failureModule);
+                if (EvaluateElement(element, part))
+                    return true;
             }
 
-            return failureModules;
+            return false;
         }
+
+        protected static bool EvaluateElement(string element, Part part)
+        {
+            // If the element contains conditionals, then it needs to be further broken down and those conditions evaluated left to right
+            // otherwise we just evaluate the block
+            if (element.Contains("||"))
+            {
+                string[] orSections = element.Split(new string[1] {"||"}, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string section in orSections)
+                {
+                    if (section.Trim().Contains("&&"))
+                    {
+                        bool sectionIsTrue = true;
+                        string[] andSections = section.Trim().Split(new string[1] {"&&"}, StringSplitOptions.RemoveEmptyEntries);
+                        foreach (string block in andSections)
+                        {
+                            if (!EvaluateBlock(block.Trim(), part))
+                            {
+                                sectionIsTrue = false;
+                                break;
+                            }
+                        }
+                        if (sectionIsTrue)
+                            return true;
+                    }
+                    else
+                    {
+                        if (EvaluateBlock(section, part))
+                            return true;
+                    }
+                }
+            }
+            else
+                return EvaluateBlock(element, part);
+            return false;
+        }
+
+        protected static bool EvaluateBlock(string block, Part part)
+        {
+            block = block.ToLower();
+            // The meat of the evaluation is done here
+            if (block.Contains(" "))
+            {
+                string[] parts = block.Split(new char[1] {' '});
+                if (parts.Length < 3)
+                    return false;
+
+                string qualifier = parts[0];
+                string op = parts[1];
+                string term = parts[2];
+                string term1 = "";
+                string term2 = "";
+
+                if (term.Contains("-"))
+                {
+                    term1 = term.Split(new char[1]{ '-' })[0];
+                    term2 = term.Split(new char[1]{ '-' })[1];
+                }
+                // try to get the interop value for this operator
+                ITestFlightInterop interop = TestFlightUtil.GetInteropModule(part);
+                if (interop == null)
+                    return false;
+                InteropValue val;
+                val = interop.GetInterop(qualifier);
+                if (val.valueType == InteropValueType.INVALID)
+                    return false;
+                switch (op)
+                {
+                    case "=":
+                        switch (val.valueType)
+                        {
+                            case InteropValueType.BOOL:
+                                if (bool.Parse(val.value) == bool.Parse(term))
+                                    return true;
+                                else
+                                    return false;
+                            case InteropValueType.FLOAT:
+                                if (float.Parse(val.value) == float.Parse(term))
+                                    return true;
+                                else
+                                    return false;
+                            case InteropValueType.INT:
+                                if (int.Parse(val.value) == int.Parse(term))
+                                    return true;
+                                else
+                                    return false;
+                            case InteropValueType.STRING:
+                                if (val.value.ToLower() == term)
+                                    return true;
+                                else
+                                    return false;
+                        }
+                        break;
+                    case "!=":
+                        switch (val.valueType)
+                        {
+                            case InteropValueType.BOOL:
+                                if (bool.Parse(val.value) != bool.Parse(term))
+                                    return true;
+                                else
+                                    return false;
+                            case InteropValueType.FLOAT:
+                                if (float.Parse(val.value) != float.Parse(term))
+                                    return true;
+                                else
+                                    return false;
+                            case InteropValueType.INT:
+                                if (int.Parse(val.value) != int.Parse(term))
+                                    return true;
+                                else
+                                    return false;
+                            case InteropValueType.STRING:
+                                if (val.value.ToLower() != term)
+                                    return true;
+                                else
+                                    return false;
+                        }
+                        break;
+                    case "<":
+                        switch (val.valueType)
+                        {
+                            case InteropValueType.FLOAT:
+                                if (float.Parse(val.value) < float.Parse(term))
+                                    return true;
+                                else
+                                    return false;
+                            case InteropValueType.INT:
+                                if (int.Parse(val.value) < int.Parse(term))
+                                    return true;
+                                else
+                                    return false;
+                        }
+                        break;
+                    case ">":
+                        switch (val.valueType)
+                        {
+                            case InteropValueType.FLOAT:
+                                if (float.Parse(val.value) > float.Parse(term))
+                                    return true;
+                                else
+                                    return false;
+                            case InteropValueType.INT:
+                                if (int.Parse(val.value) > int.Parse(term))
+                                    return true;
+                                else
+                                    return false;
+                        }
+                        break;
+                    case "<=":
+                        switch (val.valueType)
+                        {
+                            case InteropValueType.FLOAT:
+                                if (float.Parse(val.value) <= float.Parse(term))
+                                    return true;
+                                else
+                                    return false;
+                            case InteropValueType.INT:
+                                if (int.Parse(val.value) <= int.Parse(term))
+                                    return true;
+                                else
+                                    return false;
+                        }
+                        break;
+                    case ">=":
+                        switch (val.valueType)
+                        {
+                            case InteropValueType.FLOAT:
+                                if (float.Parse(val.value) >= float.Parse(term))
+                                    return true;
+                                else
+                                    return false;
+                            case InteropValueType.INT:
+                                if (int.Parse(val.value) >= int.Parse(term))
+                                    return true;
+                                else
+                                    return false;
+                        }
+                        break;
+                    case "<>":
+                        switch (val.valueType)
+                        {
+                            case InteropValueType.FLOAT:
+                                if (float.Parse(val.value) > float.Parse(term1) && float.Parse(val.value) < float.Parse(term2))
+                                    return true;
+                                else
+                                    return false;
+                            case InteropValueType.INT:
+                                if (int.Parse(val.value) > int.Parse(term1) && int.Parse(val.value) < int.Parse(term1))
+                                    return true;
+                                else
+                                    return false;
+                        }
+                        break;
+                    case "<=>":
+                        switch (val.valueType)
+                        {
+                            case InteropValueType.FLOAT:
+                                if (float.Parse(val.value) >= float.Parse(term1) && float.Parse(val.value) <= float.Parse(term2))
+                                    return true;
+                                else
+                                    return false;
+                            case InteropValueType.INT:
+                                if (int.Parse(val.value) >= int.Parse(term1) && int.Parse(val.value) <= int.Parse(term1))
+                                    return true;
+                                else
+                                    return false;
+                        }
+                        break;
+                }
+                return false;
+            }
+            else
+            {
+                // if there are no "parts" to this block, then it must be just a simple part name or an alias
+                if (block == part.name.ToLower())
+                    return true;
+                if (block == TestFlightUtil.GetFullPartName(part).ToLower())
+                    return true;
+                return false;
+            }
+        }
+
+        protected static string Configuration(Part part)
+        {
+            if (part.Modules.Contains("ModuleEngineConfigs"))
+            {
+                string configuration = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
+                return configuration.ToLower();
+            }
+            return "";
+        }
+
+        protected static float ProcPartsDiameter(Part part)
+        {
+            return 0f;
+        }
+
         public static void Log(string message, Part loggingPart)
         {
             ITestFlightCore core = TestFlightUtil.GetCore(loggingPart);
             bool debug = false;
             if (core != null)
                 debug = core.DebugEnabled;
-
-            if (debug)
-            {
-                Debug.Log("[TestFlight] " + message);
-            }
+            TestFlightUtil.Log(message, debug);
         }
         public static void Log(string message, bool debug)
         {
             if (debug)
-            {
                 Debug.Log("[TestFlight] " + message);
-            }
         }
     }
 
@@ -290,7 +584,13 @@ namespace TestFlightAPI
         /// </summary>
         /// <returns><c>true</c> if this instance is part operating; otherwise, <c>false</c>.</returns>
         bool IsPartOperating();
-	}
+
+        /// <summary>
+        /// Should return a string if the module wants to report any information to the user in the TestFlight Editor window.
+        /// </summary>
+        /// <returns>A string of information to display to the user, or "" if none</returns>
+        string GetTestFlightInfo();
+    }
 
 	public interface ITestFlightReliability
 	{
@@ -322,6 +622,12 @@ namespace TestFlightAPI
         /// <returns>The reliability curve for scope.  MUST return null if the reliability module does not handle Base Failure Rate</returns>
         /// <param name="scope">Scope.</param>
         FloatCurve GetReliabilityCurveForScope(String scope);
+
+        /// <summary>
+        /// Should return a string if the module wants to report any information to the user in the TestFlight Editor window.
+        /// </summary>
+        /// <returns>A string of information to display to the user, or "" if none</returns>
+        string GetTestFlightInfo();
 	}
 
 	public interface ITestFlightFailure
@@ -380,7 +686,24 @@ namespace TestFlightAPI
         /// </summary>
         /// <returns>The seconds until repair is complete, <c>0</c> if repair is completed instantly, and <c>-1</c> if repair failed and the part is still broken.</returns>
         double ForceRepair();
+
+        /// <summary>
+        /// Should return a string if the module wants to report any information to the user in the TestFlight Editor window.
+        /// </summary>
+        /// <returns>A string of information to display to the user, or "" if none</returns>
+        string GetTestFlightInfo();
 	}
+
+    public interface ITestFlightInterop
+    {
+        bool AddInteropValue(string name, int value, string owner);
+        bool AddInteropValue(string name, float value, string owner);
+        bool AddInteropValue(string name, bool value, string owner);
+        bool AddInteropValue(string name, string value, string owner);
+        bool RemoveInteropValue(string name, string owner);
+        void ClearInteropValues(string owner);
+        InteropValue GetInterop(string name);
+    }
 
     /// <summary>
     /// This is used internally and should not be implemented by any 3rd party modules
@@ -397,6 +720,12 @@ namespace TestFlightAPI
             get;
             set;
         }
+
+        string Title
+        {
+            get;
+        }
+
         System.Random RandomGenerator
         {
             get;
@@ -532,6 +861,12 @@ namespace TestFlightAPI
         /// Determines whether the part is considered operating or not.
         /// </summary>
         bool IsPartOperating();
+
+        /// <summary>
+        /// Should return a string if the module wants to report any information to the user in the TestFlight Editor window.
+        /// </summary>
+        /// <returns>A string of information to display to the user, or "" if none</returns>
+        string GetTestFlightInfo();
     }
 }
 

@@ -22,14 +22,13 @@ namespace TestFlightCore
         [KSPField(isPersistant=true)]
         public string configuration = "";
         [KSPField(isPersistant=true)]
+        public string title = "";
+        [KSPField(isPersistant=true)]
         public string techTransfer = "";
         [KSPField(isPersistant=true)]
         public float techTransferMax = 1000;
         [KSPField(isPersistant=true)]
         public float techTransferGenerationPenalty = 0.05f;
-
-
-
 
         // Base Failure Rate is stored per Scope internally
         private Dictionary<String, double> baseFailureRate;
@@ -53,15 +52,7 @@ namespace TestFlightCore
         {
             get
             {
-                bool enabled = true;
-                // If this part has a ModuleEngineConfig then we need to verify we are assigned to the active configuration
-                if (this.part.Modules.Contains("ModuleEngineConfigs"))
-                {
-                    string currentConfig = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
-                    if (currentConfig != configuration)
-                        enabled = false;
-                }
-                return enabled;
+                return TestFlightUtil.EvaluateQuery(Configuration, this.part);
             }
         }
         public string Configuration
@@ -69,10 +60,19 @@ namespace TestFlightCore
             get { return configuration; }
             set { configuration = value; }
         }
-
+        public string Title
+        {
+            get { return title; }
+        }
         public bool DebugEnabled
         {
-            get { return TestFlightManagerScenario.Instance.userSettings.debugLog; }
+            get 
+            { 
+                if (TestFlightManagerScenario.Instance != null)
+                    return TestFlightManagerScenario.Instance.userSettings.debugLog;
+                else
+                    return false;
+            }
         }
 
         public System.Random RandomGenerator
@@ -85,6 +85,9 @@ namespace TestFlightCore
 
         internal void Log(string message)
         {
+            if (TestFlightManagerScenario.Instance == null)
+                return;
+
             bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
             message = String.Format("TestFlightCore({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(this.part), Configuration, message);
             TestFlightUtil.Log(message, debug);
@@ -117,6 +120,11 @@ namespace TestFlightCore
         }
         public String GetScopeForSituationAndBody(String situation, String body)
         {
+            if (TestFlightManagerScenario.Instance != null && TestFlightManagerScenario.Instance.userSettings != null)
+            {
+                if (TestFlightManagerScenario.Instance.userSettings.singleScope)
+                    return "default";
+            }
             // Determine if we are recording data in SPACE or ATMOSHPHERE
             situation = situation.ToLower().Trim();
             body = body.ToLower().Trim();
@@ -760,10 +768,10 @@ namespace TestFlightCore
                         {
                             activeFailure = fm;
                             failureAcknowledged = false;
-                            fm.DoFailure();
                             operatingTime = -1;
-                            return fm;
                         }
+                        fm.DoFailure();
+                        return fm;
                     }
                 }
             }
@@ -826,7 +834,7 @@ namespace TestFlightCore
             if (activeFailure != null)
                 return false;
 
-            IFlightDataRecorder dr = TestFlightUtil.GetDataRecorder(this.part, Configuration);
+            IFlightDataRecorder dr = TestFlightUtil.GetDataRecorder(this.part);
             if (dr == null)
                 return false;
 
@@ -877,6 +885,9 @@ namespace TestFlightCore
 
         public override void Start()
         {
+            if (!TestFlightEnabled)
+                return;
+
             if (HighLogic.LoadedSceneIsFlight)
             {
                 if (this.vessel.situation == Vessel.Situations.PRELAUNCH)
@@ -1151,7 +1162,24 @@ namespace TestFlightCore
 
             return tooltip;
         }
-
+        public string GetTestFlightInfo()
+        {
+            string info = "";
+//            List<ITestFlightFailure> failureModules = TestFlightUtil.GetFailureModules(this.part);
+//            List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part);
+//            IFlightDataRecorder dataRecorder = TestFlightUtil.GetDataRecorder(this.part);
+//
+//            foreach (ITestFlightFailure fm in failureModules)
+//            {
+//                info += fm.GetTestFlightInfo();
+//            }
+//            foreach (ITestFlightReliability rm in reliabilityModules)
+//            {
+//                info += rm.GetTestFlightInfo();
+//            }
+//            info += dataRecorder.GetTestFlightInfo();
+            return info;
+        }
     }
 }
 

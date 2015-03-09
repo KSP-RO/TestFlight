@@ -442,7 +442,11 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "WAC-Corporal"
+				"configuration" : "engineConfig = WAC-Corporal:WAC-Corporal",
+				"title" : "WAC Corporal"
+			},
+			"TestFlightInterop" :
+			{
 			},
 			"FlightDataRecorder_Engine" : 
 			{
@@ -468,6 +472,7 @@
 						"key = 245.00 10.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 125,
 				"configuration" : "WAC-Corporal"
 			},
 			"TestFlightFailure_IgnitionFail" :
@@ -510,7 +515,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "Aerobee-Hi",
+				"configuration" : "engineConfig = Aerobee-Hi:Aerobee-Hi",
+				"title" : "Aerobee HI",
 				"techTransfer" : "WAC-Corporal:50",
 				"techTransferMax" : 2000
 			},
@@ -538,6 +544,7 @@
 						"key = 155.00 10.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 105,
 				"CURVE_DEF" : "Aerobee-Hi",
 				"configuration" : "Aerobee-Hi"
 			},
@@ -581,7 +588,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "Aerobee-150",
+				"configuration" : "engineConfig = Aerobee-150:Aerobee-150",
+				"title" : "Aerobee 150",
 				"techTransfer" : "Aerobee-Hi,WAC-Corporal:50",
 				"techTransferMax" : 5000,
 				"techTransferGenerationPenalty" : 0.1
@@ -610,6 +618,7 @@
 						"key = 155.00 10.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 105,
 				"CURVE_DEF" : "Aerobee-150",
 				"configuration" : "Aerobee-150"
 			},
@@ -644,7 +653,11 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "X-405"
+				"configuration" : "engineConfig = X-405||engineConfig = X-405-Exhaust:X-405",
+				"title" : "X-405"
+			},
+			"TestFlightInterop" :
+			{
 			},
 			"FlightDataRecorder_Engine" : 
 			{
@@ -670,6 +683,7 @@
 						"key = 222.50 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 150,
 				"CURVE_DEF" : "X-405",
 				"configuration" : "X-405"
 			},
@@ -713,7 +727,11 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "AJ10-37"
+				"configuration" : "engineConfig = AJ10-37:AJ10-37",
+				"title" : "AJ10-37"
+			},
+			"TestFlightInterop" :
+			{
 			},
 			"FlightDataRecorder_Engine" : 
 			{
@@ -748,13 +766,13 @@
 					"type" : "FloatCurve",
 					"keys" :
 					[
-						"key = 177.50 0.217391 0 0",
 						"key = 0.00 10.00 0 0",
 						"key = 5.00 1.00 0 0",
 						"key = 120.00 1.00 0 0",
 						"key = 177.50 100.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 120,
 				"CURVE_DEF" : "AJ10-37",
 				"configuration" : "AJ10-37"
 			},
@@ -783,7 +801,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "AJ10-42",
+				"configuration" : "engineConfig = AJ10-42-Able:AJ10-42",
+				"title" : "AJ10-42",
 				"techTransfer" : "AJ10-37:50",
 				"techTransferMax" : 2000
 			},
@@ -826,6 +845,7 @@
 						"key = 267.50 100.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 155,
 				"CURVE_DEF" : "AJ10-42",
 				"configuration" : "AJ10-42"
 			},
@@ -854,7 +874,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "AJ10-142",
+				"configuration" : "engineConfig = AJ10-142-Delta:AJ10-142",
+				"title" : "AJ10-142",
 				"techTransfer" : "AJ10-37,AJ10-42:50",
 				"techTransferMax" : 2000
 			},
@@ -897,6 +918,7 @@
 						"key = 1005.00 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 505,
 				"CURVE_DEF" : "AJ10-142",
 				"configuration" : "AJ10-142"
 			},
@@ -925,7 +947,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "AJ10-104D",
+				"configuration" : "engineConfig = AJ10-104D:AJ10-104D",
+				"title" : "AJ10-104D",
 				"techTransfer" : "AJ10-37,AJ10-42,AJ10-142:50",
 				"techTransferMax" : 2000
 			},
@@ -968,6 +991,7 @@
 						"key = 457.40 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 382,
 				"CURVE_DEF" : "AJ10-104D",
 				"configuration" : "AJ10-104D"
 			},
@@ -996,9 +1020,13 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "LR-89-NA-5",
+				"configuration" : "engineConfig = LR-89-NA-3/5:LR-89-NA-5",
+				"title" : "LR-89-5",
 				"techTransfer" : "A-7:10",
 				"techTransferMax" : 2000
+			},
+			"TestFlightInterop" :
+			{
 			},
 			"FlightDataRecorder_Engine" : 
 			{
@@ -1039,6 +1067,7 @@
 						"key = 161.00 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 125,
 				"CURVE_DEF" : "LR-89-NA-5",
 				"configuration" : "LR-89-NA-5"
 			},
@@ -1067,9 +1096,13 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "LR-105-NA-5",
+				"configuration" : "engineConfig = LR-105-NA-5:LR-105-NA-5",
+				"title" : "LR-105-5",
 				"techTransfer" : "A-7:10",
 				"techTransferMax" : 2000
+			},
+			"TestFlightInterop" :
+			{
 			},
 			"FlightDataRecorder_Engine" : 
 			{
@@ -1110,6 +1143,7 @@
 						"key = 406.70 1000.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 314,
 				"CURVE_DEF" : "LR-105-NA-5",
 				"configuration" : "LR-105-NA-5"
 			},
@@ -1138,7 +1172,11 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "Bell-8048"
+				"configuration" : "engineConfig = Bell-8048:Bell-8048",
+				"title" : "Bell 8048"
+			},
+			"TestFlightInterop" :
+			{
 			},
 			"FlightDataRecorder_Engine" : 
 			{
@@ -1179,6 +1217,7 @@
 						"key = 363.80 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 281,
 				"CURVE_DEF" : "Bell-8048",
 				"configuration" : "Bell-8048"
 			},
@@ -1207,7 +1246,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "Bell-8081",
+				"configuration" : "engineConfig = Bell-8081:Bell-8081",
+				"title" : "Bell 8081",
 				"techTransfer" : "Bell-8048:50",
 				"techTransferMax" : 2000
 			},
@@ -1250,6 +1290,7 @@
 						"key = 363.80 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 281,
 				"CURVE_DEF" : "Bell-8081",
 				"configuration" : "Bell-8081"
 			},
@@ -1278,7 +1319,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "Bell-8247",
+				"configuration" : "engineConfig = Bell-8247:Bell-8247",
+				"title" : "Bell 8247",
 				"techTransfer" : "Bell-8048,Bell-8081:50",
 				"techTransferMax" : 2000
 			},
@@ -1321,6 +1363,7 @@
 						"key = 455.00 150.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 305,
 				"CURVE_DEF" : "Bell-8247",
 				"configuration" : "Bell-8247"
 			},
@@ -1349,7 +1392,11 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "XLR11"
+				"configuration" : "engineConfig = XLR11:XLR11",
+				"title" : "XLR11"
+			},
+			"TestFlightInterop" :
+			{
 			},
 			"FlightDataRecorder_Engine" : 
 			{
@@ -1390,6 +1437,7 @@
 						"key = 1205.00 50.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 605,
 				"CURVE_DEF" : "XLR11",
 				"configuration" : "XLR11"
 			},
@@ -1418,9 +1466,13 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "XLR99",
+				"configuration" : "engineConfig = XLR99:XLR99",
+				"title" : "XLR99",
 				"techTransfer" : "XLR11:25",
 				"techTransferMax" : 2000
+			},
+			"TestFlightInterop" :
+			{
 			},
 			"FlightDataRecorder_Engine" : 
 			{
@@ -1461,6 +1513,7 @@
 						"key = 2005.00 20.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 1005,
 				"CURVE_DEF" : "XLR99",
 				"configuration" : "XLR99"
 			},
@@ -1489,7 +1542,11 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "A-6"
+				"configuration" : "engineConfig = A-6:A-6",
+				"title" : "A-6"
+			},
+			"TestFlightInterop" :
+			{
 			},
 			"FlightDataRecorder_Engine" : 
 			{
@@ -1530,6 +1587,7 @@
 						"key = 237.50 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 160,
 				"CURVE_DEF" : "A-6",
 				"configuration" : "A-6"
 			},
@@ -1558,7 +1616,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "A-7",
+				"configuration" : "engineConfig = A-7:A-7",
+				"title" : "A-7",
 				"techTransfer" : "A-6:50",
 				"techTransferMax" : 2000
 			},
@@ -1601,6 +1660,7 @@
 						"key = 329.00 100.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 185,
 				"CURVE_DEF" : "A-7",
 				"configuration" : "A-7"
 			},
@@ -1629,7 +1689,11 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "LR-87-3"
+				"configuration" : "engineConfig = LR-87-3:LR-87-3",
+				"title" : "LR-87-3"
+			},
+			"TestFlightInterop" :
+			{
 			},
 			"FlightDataRecorder_Engine" : 
 			{
@@ -1670,6 +1734,7 @@
 						"key = 212.00 100.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 143,
 				"CURVE_DEF" : "LR-87-3",
 				"configuration" : "LR-87-3"
 			},
@@ -1698,7 +1763,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "LR-87-5",
+				"configuration" : "enineConfig = LR-87-5:LR-87-5",
+				"title" : "LR-87-5",
 				"techTransfer" : "LR-87-3:50",
 				"techTransferMax" : 2000
 			},
@@ -1741,6 +1807,7 @@
 						"key = 213.50 100.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 144,
 				"CURVE_DEF" : "LR-87-5",
 				"configuration" : "LR-87-5"
 			},
@@ -1769,7 +1836,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "LR-87-7",
+				"configuration" : "engineConfig = LR-87-7:LR-87-7",
+				"title" : "LR-87-7",
 				"techTransfer" : "LR-87-3,LR-87-5:50",
 				"techTransferMax" : 2000
 			},
@@ -1812,6 +1880,7 @@
 						"key = 213.50 100.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 144,
 				"CURVE_DEF" : "LR-87-7",
 				"configuration" : "LR-87-7"
 			},
@@ -1840,7 +1909,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "LR-87-9",
+				"configuration" : "engineConfig = LR-87-9:LR-87-9",
+				"title" : "LR-87-9",
 				"techTransfer" : "LR-87-3,LR-87-5,LR-87-7:50",
 				"techTransferMax" : 2000
 			},
@@ -1883,6 +1953,7 @@
 						"key = 225.50 100.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 152,
 				"CURVE_DEF" : "LR-87-9",
 				"configuration" : "LR-87-9"
 			},
@@ -1911,7 +1982,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "LR-87-11",
+				"configuration" : "engineConfig = LR-87-11:LR-87-11",
+				"title" : "LR-87-11",
 				"techTransfer" : "LR-87-3,LR-87-5,LR-87-7,LR-87-9:50",
 				"techTransferMax" : 2000
 			},
@@ -1954,6 +2026,7 @@
 						"key = 246.50 150.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 166,
 				"CURVE_DEF" : "LR-87-11",
 				"configuration" : "LR-87-11"
 			},
@@ -1982,7 +2055,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "LR-87-11A",
+				"configuration" : "engineConfig = LR-87-11A:LR-87-11A",
+				"title" : "LR-87-11A",
 				"techTransfer" : "LR-87-3,LR-87-5,LR-87-7,LR-87-9,LR-87-11:50",
 				"techTransferMax" : 2000
 			},
@@ -2025,6 +2099,7 @@
 						"key = 251.00 150.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 169,
 				"CURVE_DEF" : "LR-87-11A",
 				"configuration" : "LR-87-11A"
 			},
@@ -2053,7 +2128,11 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "RL10A-1"
+				"configuration" : "engineConfig = RL10A-1:RL10A-1",
+				"title" : "RL10A-1"
+			},
+			"TestFlightInterop" :
+			{
 			},
 			"FlightDataRecorder_Engine" : 
 			{
@@ -2094,6 +2173,7 @@
 						"key = 564.00 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 435,
 				"CURVE_DEF" : "RL10A-1",
 				"configuration" : "RL10A-1"
 			},
@@ -2122,7 +2202,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "RL10A-3-1"
+				"configuration" : "engineConfig = RL10A-3-1:RL10A-3-1",
+				"title" : "RL10A-3-1"
 			},
 			"FlightDataRecorder_Engine" : 
 			{
@@ -2163,6 +2244,7 @@
 						"key = 616.00 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 475,
 				"CURVE_DEF" : "RL10A-3-1",
 				"configuration" : "RL10A-3-1"
 			},
@@ -2191,7 +2273,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "RL10A-3-3",
+				"configuration" : "engineConfig = RL10A-3-3:RL10A-3-3",
+				"title" : "RL10A-3-3",
 				"techTransfer" : "RL10A-1:50",
 				"techTransferMax" : 2000
 			},
@@ -2234,6 +2317,7 @@
 						"key = 616.00 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 475,
 				"CURVE_DEF" : "RL10A-3-3",
 				"configuration" : "RL10A-3-3"
 			},
@@ -2262,7 +2346,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "RL10A-3-3A",
+				"configuration" : "engineConfig = RL10A-3-3A:RL10A-3-3A",
+				"title" : "RL10A-3-3A",
 				"techTransfer" : "RL10A-1,RL10A-3-3:50",
 				"techTransferMax" : 2000
 			},
@@ -2305,6 +2390,7 @@
 						"key = 616.00 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 475,
 				"CURVE_DEF" : "RL10A-3-3A",
 				"configuration" : "RL10A-3-3A"
 			},
@@ -2333,7 +2419,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "RL10A-4",
+				"configuration" : "engineConfig = RL10A-4",
+				"title" : "RL10A-4",
 				"techTransfer" : "RL10A-1,RL10A-3-3,RL10A-3-3A:50",
 				"techTransferMax" : 2000
 			},
@@ -2376,6 +2463,7 @@
 						"key = 514.60 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 397,
 				"CURVE_DEF" : "RL10A-4",
 				"configuration" : "RL10A-4"
 			},
@@ -2404,7 +2492,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "RL10A-4-1/2",
+				"configuration" : "engineConfig = RL10A-4-1/2:RL10A-4-1/2",
+				"title" : "RL10A-4-1/2",
 				"techTransfer" : "RL10A-1,RL10A-3-3,RL10A-3-3A,RL10A-4:50",
 				"techTransferMax" : 2000
 			},
@@ -2447,6 +2536,7 @@
 						"key = 967.00 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 745,
 				"CURVE_DEF" : "RL10A-4-1/2",
 				"configuration" : "RL10A-4-1/2"
 			},
@@ -2475,7 +2565,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "RL10B-2",
+				"configuration" : "engineConfig = RL10B-2:RL10B-2",
+				"title" : "RL10B-2",
 				"techTransfer" : "RL10A-1,RL10A-3-3,RL10A-3-3A,RL10A-4:50",
 				"techTransferMax" : 2000
 			},
@@ -2518,6 +2609,7 @@
 						"key = 915.00 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 705,
 				"CURVE_DEF" : "RL10B-2",
 				"configuration" : "RL10B-2"
 			},
@@ -2546,7 +2638,8 @@
 		{
 			"TestFlightCore" :
 			{
-				"configuration" : "RL10C-1",
+				"configuration" : "engineConfig = RL10C-1",
+				"title" : "RL10C-1",
 				"techTransfer" : "RL10A-1,RL10A-3-3,RL10A-3-3A,RL10A-4,RL10A-4-1/2,RL10B-2:50",
 				"techTransferMax" : 2000
 			},
@@ -2589,6 +2682,7 @@
 						"key = 614.70 200.00 0 0"
 					]
 				},
+				"ratedBurnTime" : 474,
 				"CURVE_DEF" : "RL10C-1",
 				"configuration" : "RL10C-1"
 			},
@@ -2644,7 +2738,7 @@
 		{
 			"patterns" : 
 			[
-				"@PART[liquidEngine2]NEEDS[!RP-0]:AFTER[RealismOverhaul]",
+				"@PART[liquidEngine2]:NEEDS[!RP-0]:AFTER[RealismOverhaul]",
 				"@PART[RO-LR-89]:AFTER[RP-0]",
 				"@PART[FASAMercuryAtlasEngBooster]:AFTER[RP-0]"
 			],

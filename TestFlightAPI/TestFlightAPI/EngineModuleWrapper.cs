@@ -246,6 +246,20 @@ public class EngineModuleWrapper : ScriptableObject
         }
     }
 
+    public float finalThrust
+    {
+        get
+        {
+            if (engineType == EngineModuleType.UNKNOWN)
+                return 0f;
+
+            if (engineType == EngineModuleType.ENGINE)
+                return engine.finalThrust;
+            else
+                return engineFX.finalThrust;
+        }
+    }
+
     public BaseEventList Events
     {
         get
@@ -269,11 +283,21 @@ public class EngineModuleWrapper : ScriptableObject
                 return EngineIgnitionState.UNKNOWN;
 
             if (flameout)
+            {
                 return EngineIgnitionState.NOT_IGNITED;
+            }
             if (requestedThrust <= 0f)
+            {
                 return EngineIgnitionState.NOT_IGNITED;
+            }
             if (!throttleLocked && Events.Contains("Shutdown Engine"))
+            {
                 return EngineIgnitionState.NOT_IGNITED;
+            }
+            if (finalThrust <= 0f)
+            {
+                return EngineIgnitionState.NOT_IGNITED;
+            }
 
             return EngineIgnitionState.IGNITED;
         }
@@ -315,38 +339,65 @@ public class EngineModuleWrapper : ScriptableObject
         }
     }
 
-    public EngineModuleWrapper(Part part, int index)
+    public EngineModuleWrapper(Part part, string engineID)
     {
-        List<ModuleEngines> engines = null;
-        List<ModuleEnginesFX> enginesFX = null;
-
         engineType = EngineModuleType.UNKNOWN;
-        engine = null;
-        engineFX = null;
 
-        if (part.Modules.Contains("ModuleEngines"))
-        {
-            engines = part.Modules.OfType<ModuleEngines>().ToList();
-            if (index < engines.Count)
-            {
-                engine = engines[index];
-                engineFX = null;
-                engineType = EngineModuleType.ENGINE;
-            }
-        }
         if (part.Modules.Contains("ModuleEnginesFX"))
         {
-            enginesFX = part.Modules.OfType<ModuleEnginesFX>().ToList();
-            if (index < enginesFX.Count)
+            List<ModuleEnginesFX> enginesFX = null;
+            enginesFX = part.Modules.OfType<ModuleEnginesFX>().Where(e => e.engineID == engineID).ToList();
+            // really should only ever be one by a given ID, so we just take the first.  If there really is more than one, then that is someone else fault
+            if (enginesFX.Count > 0)
             {
                 engine = null;
-                engineFX = enginesFX[index];
+                engineFX = enginesFX[0];
                 engineType = EngineModuleType.ENGINEFX;
             }
         }
     }
 
+    public EngineModuleWrapper(Part part, int index)
+    {
+        engineType = EngineModuleType.UNKNOWN;
+        engine = null;
+        engineFX = null;
+
+        PartModule pm = part.Modules.GetModule(index);
+        engine = pm as ModuleEngines;
+        engineFX = pm as ModuleEnginesFX;
+
+        if (engine != null)
+        {
+            engineFX = null;
+            engineType = EngineModuleType.ENGINE;
+        }
+        else if (engineFX != null)
+        {
+            engine = null;
+            engineType = EngineModuleType.ENGINEFX;
+        }
+    }
+
     ~EngineModuleWrapper()
     {
+    }
+
+    internal void Log(string message)
+    {
+        PartModule pm = this.Module;
+        if (pm == null)
+            return;
+        Part part = pm.part;
+        if (part == null)
+            return;
+        string meType = "UNKNOWN";
+        if (EngineType == EngineModuleType.ENGINE)
+            meType = "ENGINE";
+        if (EngineType == EngineModuleType.ENGINEFX)
+            meType = "ENGINEFX";
+
+        message = String.Format("TestFlight_EngineModuleWrapper({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(part), meType, message);
+        TestFlightUtil.Log(message, part);
     }
 }
