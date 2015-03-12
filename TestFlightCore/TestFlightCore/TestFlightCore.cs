@@ -29,6 +29,9 @@ namespace TestFlightCore
         public float techTransferMax = 1000;
         [KSPField(isPersistant=true)]
         public float techTransferGenerationPenalty = 0.05f;
+        [KSPField(isPersistant=true)]
+        public float operatingTime;
+
 
         // Base Failure Rate is stored per Scope internally
         private Dictionary<String, double> baseFailureRate;
@@ -39,7 +42,6 @@ namespace TestFlightCore
         private List<MomentaryFailureRate> momentaryFailureRates;
         private List<MomentaryFailureModifier> momentaryFailureModifiers;
         private List<String> disabledFailures;
-        private double operatingTime;
         private double lastMET;
         private double missionStartTime;
         private bool firstStaged;
@@ -872,11 +874,12 @@ namespace TestFlightCore
 
 
                 double currentMET = Planetarium.GetUniversalTime() - missionStartTime;
-//                LogFormatted("TestFlightCore: Current MET: " + currentMET + ", Last MET: " + lastMET);
+                Log("Operating Time: " + operatingTime);
+                Log("Current MET: " + currentMET + ", Last MET: " + lastMET);
                 if (operatingTime != -1 && IsPartOperating())
                 {
-//                    LogFormatted_DebugOnly("TestFlightCore: Adding " + (currentMET - lastMET) + " seconds to operatingTime");
-                    operatingTime += currentMET - lastMET;
+                    Log("Adding " + (currentMET - lastMET) + " seconds to operatingTime");
+                    operatingTime += (float)(currentMET - lastMET);
                 }
 
                 lastMET = currentMET;
@@ -897,7 +900,6 @@ namespace TestFlightCore
                 }
                 else
                     firstStaged = true;
-                operatingTime = 0;
                 lastMET = 0;
             }
         }
