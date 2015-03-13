@@ -67,7 +67,7 @@ namespace TestFlight
                         EngineModuleWrapper engine = new EngineModuleWrapper(this.part, id);
                         EngineHandler engineHandler = new EngineHandler();
                         engineHandler.engine = engine;
-                        engineHandler.ignitionState = EngineModuleWrapper.EngineIgnitionState.UNKNOWN;
+                        engineHandler.ignitionState = engine.IgnitionState;
                         engines.Add(engineHandler);
                     }
                 }
@@ -79,7 +79,7 @@ namespace TestFlight
                         EngineModuleWrapper engine = new EngineModuleWrapper(this.part, sEngineIndex);
                         EngineHandler engineHandler = new EngineHandler();
                         engineHandler.engine = engine;
-                        engineHandler.ignitionState = EngineModuleWrapper.EngineIgnitionState.UNKNOWN;
+                        engineHandler.ignitionState = engine.IgnitionState;
                         engines.Add(engineHandler);
                     }
                 }
@@ -89,7 +89,7 @@ namespace TestFlight
                     EngineModuleWrapper engine = new EngineModuleWrapper(this.part, index);
                     EngineHandler engineHandler = new EngineHandler();
                     engineHandler.engine = engine;
-                    engineHandler.ignitionState = EngineModuleWrapper.EngineIgnitionState.UNKNOWN;
+                    engineHandler.ignitionState = engine.IgnitionState;
                     engines.Add(engineHandler);
                 }
             }
@@ -109,7 +109,7 @@ namespace TestFlight
                             engine = new EngineModuleWrapper(this.part, i);
                             EngineHandler engineHandler = new EngineHandler();
                             engineHandler.engine = engine;
-                            engineHandler.ignitionState = EngineModuleWrapper.EngineIgnitionState.UNKNOWN;
+                            engineHandler.ignitionState = engine.IgnitionState;
                             engines.Add(engineHandler);
                         }
                     }
@@ -123,7 +123,7 @@ namespace TestFlight
                         EngineModuleWrapper engine = new EngineModuleWrapper(this.part, index);
                         EngineHandler engineHandler = new EngineHandler();
                         engineHandler.engine = engine;
-                        engineHandler.ignitionState = EngineModuleWrapper.EngineIgnitionState.UNKNOWN;
+                        engineHandler.ignitionState = engine.IgnitionState;
                         engines.Add(engineHandler);
                     }
                 }
@@ -133,7 +133,7 @@ namespace TestFlight
                     EngineModuleWrapper engine = new EngineModuleWrapper(this.part, index);
                     EngineHandler engineHandler = new EngineHandler();
                     engineHandler.engine = engine;
-                    engineHandler.ignitionState = EngineModuleWrapper.EngineIgnitionState.UNKNOWN;
+                    engineHandler.ignitionState = engine.IgnitionState;
                     engines.Add(engineHandler);
                 }
             }
@@ -142,7 +142,7 @@ namespace TestFlight
                 EngineModuleWrapper engine = new EngineModuleWrapper(this.part);
                 EngineHandler engineHandler = new EngineHandler();
                 engineHandler.engine = engine;
-                engineHandler.ignitionState = EngineModuleWrapper.EngineIgnitionState.UNKNOWN;
+                engineHandler.ignitionState = engine.IgnitionState;
                 engines.Add(engineHandler);
             }
         }
