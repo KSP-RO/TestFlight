@@ -123,6 +123,7 @@ namespace TestFlightCore
             Styles.InitStyles();
             Styles.InitSkins();
             SkinsLibrary.SetCurrent("SolarizedDark");
+            SkinsLibrary.CurrentSkin.label.wordWrap = false;
         }
 
         internal void CalculateWindowBounds()
@@ -145,7 +146,7 @@ namespace TestFlightCore
                 windowWidth -= 100f;
 
             float left = Screen.width - windowWidth;
-            float windowHeight = 10f;;
+            float windowHeight = 10f;
             float top = 40f;
 
             if (tfScenario.userSettings.currentMSDSize == 0)

@@ -1,6 +1,6 @@
 ﻿<Properties StartupItem="TestFlight.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="TestFlightAPI/TestFlightAPI/FlightDataConfig.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="TestFlightCore/TestFlightCore/TestFlightCore.cs">
     <Files>
       <File FileName="TestFlightAPI/TestFlightAPI/EngineModuleWrapper.cs" Line="1" Column="1" />
       <File FileName="TestFlightCore/TestFlightCore/TestFlight.cs" Line="1" Column="1" />
@@ -11,30 +11,30 @@
       <File FileName="TestFlightFailure_ResourceLeak.cs" Line="1" Column="1" />
       <File FileName="TestFlightFailure_LockGimbal.cs" Line="1" Column="1" />
       <File FileName="TestFlightAPI/TestFlightAPI/TestFlightFailure.cs" Line="1" Column="1" />
-      <File FileName="TestFlightFailure_IgnitionFail.cs" Line="102" Column="102" />
+      <File FileName="TestFlightFailure_IgnitionFail.cs" Line="1" Column="1" />
       <File FileName="TestFlightFailure_Engine.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/TestFlightCore.cs" Line="26" Column="26" />
+      <File FileName="TestFlightCore/TestFlightCore/TestFlightCore.cs" Line="1" Column="1" />
       <File FileName="TestFlightReliability.cs" Line="1" Column="1" />
       <File FileName="FlightDataRecorder_Engine.cs" Line="1" Column="1" />
       <File FileName="TestFlightCore/TestFlightCore/TestFlightWindow.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/TestFlightHUD.cs" Line="13" Column="13" />
-      <File FileName="TestFlightAPI/TestFlightAPI/TestFlightAPI.cs" Line="53" Column="53" />
-      <File FileName="TestFlightCore/TestFlightCore/TestFlightKSC.cs" Line="43" Column="43" />
+      <File FileName="TestFlightCore/TestFlightCore/TestFlightHUD.cs" Line="1" Column="1" />
+      <File FileName="TestFlightAPI/TestFlightAPI/TestFlightAPI.cs" Line="1" Column="1" />
+      <File FileName="TestFlightCore/TestFlightCore/TestFlightKSC.cs" Line="1" Column="1" />
       <File FileName="TestFlightCore/TestFlightCore/FrameworkExt/MonoBehaviourWindowPlus.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/UserSettings.cs" Line="42" Column="42" />
+      <File FileName="TestFlightCore/TestFlightCore/UserSettings.cs" Line="1" Column="1" />
       <File FileName="TestFlightCore/TestFlightCore/TestFlightInterface.cs" Line="1" Column="1" />
-      <File FileName="TestFlightAPI/TestFlightAPI/FlightDataConfig.cs" Line="32" Column="32" />
+      <File FileName="TestFlightAPI/TestFlightAPI/FlightDataConfig.cs" Line="32" Column="1" />
+      <File FileName="TestFlightAPI/TestFlightAPI/TestFlightReliability.cs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
           <Node name="TestFlight" expanded="True" />
-          <Node name="TestFlightAPI" expanded="True">
-            <Node name="FlightDataConfig.cs" selected="True" />
-          </Node>
+          <Node name="TestFlightAPI" expanded="True" />
           <Node name="TestFlightCore" expanded="True">
             <Node name="References" expanded="True" />
             <Node name="FrameworkExt" expanded="True" />
+            <Node name="TestFlightCore.cs" selected="True" />
           </Node>
         </State>
       </Pad>
