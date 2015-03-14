@@ -67,6 +67,7 @@ namespace TestFlightCore
             TooltipStatic = true;
             WindowCaption = "";
             StartCoroutine("AddToToolbar");
+            TestFlight.Resources.LoadTextures();
             List<string> views = new List<string>()
             {
                 "Visual Settings",
@@ -86,7 +87,7 @@ namespace TestFlightCore
             if (tfScenario == null)
                 return;
 
-            float windowWidth = 350f;
+            float windowWidth = 500f;
             float left = Screen.width - windowWidth - 75f;
             float windowHeight = 100f;
             float top = 40f;
@@ -116,7 +117,7 @@ namespace TestFlightCore
                     HoverOutButton,
                     null,
                     null,
-                    ApplicationLauncher.AppScenes.VAB | ApplicationLauncher.AppScenes.SPH,
+                    ApplicationLauncher.AppScenes.SPACECENTER,
                     iconTexture);
                 ApplicationLauncher.Instance.AddOnHideCallback(HideButton);
                 ApplicationLauncher.Instance.AddOnRepositionCallback(RepostionWindow);
@@ -145,7 +146,6 @@ namespace TestFlightCore
         void RepostionWindow()
         {
             CalculateWindowBounds();
-            Debug.Log("TestFlight MasterStatusDisplay: RepositionWindow");
         }
         void HoverInButton()
         {
@@ -159,9 +159,11 @@ namespace TestFlightCore
         }
         internal override void OnGUIOnceOnly()
         {
+            Log("Initializing GUI styles and skins");
             Styles.InitStyles();
             Styles.InitSkins();
             SkinsLibrary.SetCurrent("SolarizedDark");
+            SkinsLibrary.CurrentSkin.label.wordWrap = true;
         }
         internal override void DrawWindow(int id)
         {
@@ -176,8 +178,8 @@ namespace TestFlightCore
             {
                 case 0:
                     GUILayout.Label("Research & Development");
-                    GUILayout.Label("Here you can allocate R&D teams to working on improving your hardware. Mouse over for help.");
-                    tfScenario.userSettings.currentResearchScrollPosition = GUILayout.BeginScrollView(tfScenario.userSettings.currentResearchScrollPosition);
+                    GUILayout.Label("Here you can allocate R&D teams to working on improving your hardware.\nMouse over for help.");
+//                    tfScenario.userSettings.currentResearchScrollPosition = GUILayout.BeginScrollView(tfScenario.userSettings.currentResearchScrollPosition);
                     break;
                 case 1:
                     if (ddlSettingsPage == null)
