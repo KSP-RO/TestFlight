@@ -573,6 +573,19 @@ namespace TestFlightCore
             isReady = true;
         }
 
+        public string PartWithMostData()
+        {
+            return "";
+        }
+        public string PartWithLeastData()
+        {
+            return "";
+        }
+        public string PartWithNoData(string partList)
+        {
+            return "";
+        }
+
         public PartFlightData GetFlightDataForPartName(string partName)
         {
             foreach (PartFlightData data in partsFlightData)

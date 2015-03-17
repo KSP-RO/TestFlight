@@ -118,6 +118,7 @@ namespace TestFlightContracts
     {
         protected double requiredData;
         protected string requiredScope;
+        protected string requiredPartQuery;
 
         public override bool Load(ConfigNode configNode)
         {

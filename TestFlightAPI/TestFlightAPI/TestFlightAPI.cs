@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 using UnityEngine;
 
@@ -487,11 +488,6 @@ namespace TestFlightAPI
             return "";
         }
 
-        protected static float ProcPartsDiameter(Part part)
-        {
-            return 0f;
-        }
-
         public static void Log(string message, Part loggingPart)
         {
             ITestFlightCore core = TestFlightUtil.GetCore(loggingPart);
@@ -505,6 +501,84 @@ namespace TestFlightAPI
             if (debug)
                 Debug.Log("[TestFlight] " + message);
         }
+
+        // This block of methods allow for interrogating the scenario's data store in various ways
+        public static string PartWithMostData()
+        {
+            Type tfInterface = null;
+            bool connected = false;
+
+            try
+            {
+                tfInterface = Type.GetType("TestFlightCore.TestFlightInterface, TestFlightCore");
+            }
+            catch
+            {
+                return "";
+            }
+            connected = (bool)tfInterface.InvokeMember("TestFlightInstalled", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
+            if (connected)
+            {
+                connected = (bool)tfInterface.InvokeMember("TestFlightReady", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
+            }
+
+            if (!connected)
+                return "";
+            else
+                return (string)tfInterface.InvokeMember("PartWithMostData", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
+        }
+
+        public static string PartWithLeastData()
+        {
+            Type tfInterface = null;
+            bool connected = false;
+
+            try
+            {
+                tfInterface = Type.GetType("TestFlightCore.TestFlightInterface, TestFlightCore");
+            }
+            catch
+            {
+                return "";
+            }
+            connected = (bool)tfInterface.InvokeMember("TestFlightInstalled", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
+            if (connected)
+            {
+                connected = (bool)tfInterface.InvokeMember("TestFlightReady", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
+            }
+
+            if (!connected)
+                return "";
+            else
+                return (string)tfInterface.InvokeMember("PartWithLeastData", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
+        }
+
+        public static string PartWithNoData(string partList)
+        {
+            Type tfInterface = null;
+            bool connected = false;
+
+            try
+            {
+                tfInterface = Type.GetType("TestFlightCore.TestFlightInterface, TestFlightCore");
+            }
+            catch
+            {
+                return "";
+            }
+            connected = (bool)tfInterface.InvokeMember("TestFlightInstalled", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
+            if (connected)
+            {
+                connected = (bool)tfInterface.InvokeMember("TestFlightReady", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
+            }
+
+            if (!connected)
+                return "";
+            else
+                return (string)tfInterface.InvokeMember("PartWithNoData", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, new object[] {partList});
+        }
+
+        // TODO: dd a method to get how much data a part has, once the noscope refactor is done
     }
 
 	public struct TestFlightData

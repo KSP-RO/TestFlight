@@ -34,6 +34,28 @@ namespace TestFlightCore
                 return false;
         }
 
+        public static string PartWithMostData()
+        {
+            if (TestFlightManagerScenario.Instance == null || !TestFlightManagerScenario.Instance.isReady)
+                return "";
+
+            return TestFlightManagerScenario.Instance.PartWithMostData();
+        }
+        public static string PartWithLeastData()
+        {
+            if (TestFlightManagerScenario.Instance == null || !TestFlightManagerScenario.Instance.isReady)
+                return "";
+
+            return TestFlightManagerScenario.Instance.PartWithLeastData();
+        }
+        public static string PartWithNoData(string partList)
+        {
+            if (TestFlightManagerScenario.Instance == null || !TestFlightManagerScenario.Instance.isReady)
+                return "";
+
+            return TestFlightManagerScenario.Instance.PartWithNoData(partList);
+        }
+
         // Get a proper scope string for use in other parts of the API
         public static String GetScope()
         {
