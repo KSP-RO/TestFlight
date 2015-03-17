@@ -296,7 +296,7 @@ namespace TestFlightCore
                     Part part = vessel.Parts.Find(p => p.flightID == partStatus.partID);
                     if (part == null)
                     {
-                        Log("TestFlightManager: Could not find part. " + partStatus.partName + "(" + partStatus.partID + ") Marking it for deletion.");
+                        Log("TestFlightManager: Could not find part. " + partStatus.partName + "(" + partStatus.partID + ") Marking it for cleanup.");
                         partsToDelete.Add(partStatus);
                     }
                 }
@@ -488,7 +488,8 @@ namespace TestFlightCore
         new GameScenes[] 
         { 
             GameScenes.FLIGHT,
-            GameScenes.EDITOR
+            GameScenes.EDITOR,
+            GameScenes.SPACECENTER
         }
     )]
 	public class TestFlightManagerScenario : ScenarioModule

@@ -222,9 +222,6 @@ namespace TestFlightAPI
             if (!Failed)
                 return null;
 
-            if (!TestFlightEnabled)
-                return null;
-
             if (repairConfig == null)
                 return null;
 
@@ -329,6 +326,7 @@ namespace TestFlightAPI
             ITestFlightCore core = TestFlightUtil.GetCore(this.part);
             if (core != null)
                 core.ModifyFlightData(duFail, true);
+            FlightLogger.eventLog.Add(String.Format("[{0}] {1} failed: {2}", TestFlightUtil.FormatTime(this.vessel.missionTime), TestFlightUtil.GetPartTitle(this.part), failureTitle));
         }
         
         /// <summary>

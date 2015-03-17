@@ -105,18 +105,18 @@ PartConfigs:
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                    - '0 0.024 0 0'
-                    - '1000 0.0144 0 0'
-                    - '4000 0.0072 0 0'
-                    - '10000 0.0048 0 0'
+                    - '0 0.024'
+                    - '1000 0.0144'
+                    - '4000 0.0072'
+                    - '10000 0.0048'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'WAC-Corporal'
             ratedBurnTime: 125
             cycle:
-            - '0.00 5.00 0 0'
-            - '5.00 1.00 0 0'
-            - '125.00 1.00 0 0'
-            - '245.00 10.00 0 0'
+            - '0.00 5.00'
+            - '5.00 1.00 -0.8 0'
+            - '125.00 1.00 0 0.0375'
+            - '245.00 10.00'
         # When referencing a block like this for use in a module, the blocks have to come BEFORE the module itself.  They will then get folded down into it
         -   *ShutdownEngine        
         -   name: 'TestFlightFailure_ShutdownEngine'
@@ -128,9 +128,10 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'WAC-Corporal'
             restoreIgnitionCharge: false
-            ignitionFailureRate:
-                - '0 0.05'
-                - '5000 0.01'
+            baseIgnitionChance: 
+            - '0 0.90'
+            - '10000 0.95'
+            ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'WAC-Corporal'
@@ -156,18 +157,18 @@ PartConfigs:
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                    - '0 0.008372 0 0'
-                    - '1000 0.005023 0 0'
-                    - '4000 0.002512 0 0'
-                    - '10000 0.000419 0 0'
+                    - '0 0.008372'
+                    - '1000 0.005023'
+                    - '4000 0.002512'
+                    - '10000 0.000419'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'Aerobee-Hi'
             ratedBurnTime: 125
             cycle:
-            - '0.00 5.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 5.00'
+            - '5.00 1.00 -0.8 0'
             - '105.00 1.00 0 0'
-            - '155.00 10.00 0 0'
+            - '155.00 10.00'
         # When referencing a block like this for use in a module, the blocks have to come BEFORE the module itself.  They will then get folded down into it
         -   *ShutdownEngine        
         -   name: 'TestFlightFailure_ShutdownEngine'
@@ -179,9 +180,10 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'Aerobee-Hi'
             restoreIgnitionCharge: false
-            ignitionFailureRate:
-                - '0 0.05'
-                - '5000 0.01'
+            baseIgnitionChance: 
+            - '0 0.95'
+            - '10000 0.995'
+            ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'Aerobee-Hi'
@@ -207,19 +209,27 @@ PartConfigs:
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                    - '0 0.001036 0 0'
-                    - '1000 0.000777 0 0'
-                    - '3000 00.000518 0 0'
-                    - '10000 0.000362 0 0'
+                    - '0 0.001036'
+                    - '1000 0.000777'
+                    - '3000 00.000518'
+                    - '10000 0.000362'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'Aerobee-150'
             ratedBurnTime: 125
             cycle:
-            - '0.00 5.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 5.00'
+            - '5.00 1.00 -0.8 0'
             - '105.00 1.00 0 0'
-            - '155.00 10.00 0 0'
+            - '155.00 10.00'
         # When referencing a block like this for use in a module, the blocks have to come BEFORE the module itself.  They will then get folded down into it
+        -   *IgnitionFail
+        -   name: 'TestFlightFailure_IgnitionFail'
+            configuration: 'Aerobee-150'
+            restoreIgnitionCharge: false
+            baseIgnitionChance:
+            - '0 0.95'
+            - '10000 0.998'
+            ignorePressureOnPad: true
         -   *ShutdownEngine        
         -   name: 'TestFlightFailure_ShutdownEngine'
             configuration: 'Aerobee-150'
@@ -251,18 +261,18 @@ PartConfigs:
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.000575 0 0'
-                - '1000 0.000287 0 0'
-                - '4000 0.000172 0 0'
-                - '10000 0.000115 0 0'
+                - '0 0.000575'
+                - '1000 0.000287'
+                - '4000 0.000172'
+                - '10000 0.000115'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'X-405'
             ratedBurnTime: 145
             cycle:
-            - '0.00 10.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
             - '150.00 1.00 0 0'
-            - '222.50 200.00 0 0'
+            - '222.50 200.00'
         # When referencing a block like this for use in a module, the blocks have to come BEFORE the module itself.  They will then get folded down into it
         -   *ShutdownEngine        
         -   name: 'TestFlightFailure_ShutdownEngine'
@@ -273,10 +283,15 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'X-405'
-            restoreIgnitionCharge: true
-            ignitionFailureRate:
-                - '0 0.1'
-                - '5000 0.001'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.70'
+            - '10000 0.9'
+            ignorePressureOnPad: true
+            pressureCurve:
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'X-405'
@@ -293,7 +308,7 @@ PartConfigs:
         -   name: 'TestFlightCore'
             configuration: 'engineConfig = AJ10-37:AJ10-37'
             title: 'AJ10-37'
-            techTransfer: 'Aerobee-Hi:10'
+            techTransfer: 'WAC-Corporal,Aerobee-Hi,Aerobee-150:10'
             techTransferMax: 1000
         -   name: 'FlightDataRecorder_Engine'
             configuration: 'AJ10-37'
@@ -304,18 +319,18 @@ PartConfigs:
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.002174 0 0'
-                - '1000 0.001304 0 0'
-                - '3000 0.000543 0 0'
-                - '10000 0.000217 0 0'
+                - '0 0.002174'
+                - '1000 0.001304'
+                - '3000 0.000543'
+                - '10000 0.000217'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'AJ10-37'
             ratedBurnTime: 115
             cycle:
-            - '0.00 5.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 5.00'
+            - '5.00 1.00 -0.8 0'
             - '120.00 1.00 0 0'
-            - '154.50 50.00 0 0'
+            - '154.50 50.00'
         # When referencing a block like this for use in a module, the blocks have to come BEFORE the module itself.  They will then get folded down into it
         -   *ShutdownEngine        
         -   name: 'TestFlightFailure_ShutdownEngine'
@@ -327,9 +342,10 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'AJ10-37'
             restoreIgnitionCharge: false
-            ignitionFailureRate:
-                - '0 0.1'
-                - '5000 0.01'
+            baseIgnitionChance: 
+            - '0 0.70'
+            - '10000 0.85'
+            ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'AJ10-37'
@@ -355,18 +371,18 @@ PartConfigs:
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.001449 0 0'
-                - '2000 0.000870 0 0'
-                - '4000 0.000580 0 0'
-                - '10000 0.000362 0 0'
+                - '0 0.001449'
+                - '2000 0.000870'
+                - '4000 0.000580'
+                - '10000 0.000362'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'AJ10-42'
             ratedBurnTime: 150
             cycle:
-            - '0.00 10.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
             - '155.00 1.00 0 0'
-            - '267.50 100.00 0 0'
+            - '267.50 100.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
@@ -379,9 +395,10 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'AJ10-42'
             restoreIgnitionCharge: false
-            ignitionFailureRate:
-                - '0 0.1'
-                - '5000 0.01'
+            baseIgnitionChance:
+            - '0 0.85'
+            - '10000 0.95'
+            ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'AJ10-42'
@@ -407,18 +424,18 @@ PartConfigs:
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.000471 0 0'
-                - '2000 0.000376 0 0'
-                - '4000 0.000235 0 0'
-                - '10000 0.000094 0 0'
+                - '0 0.000471'
+                - '2000 0.000376'
+                - '4000 0.000235'
+                - '10000 0.000094'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'AJ10-142'
             ratedBurnTime: 240
             cycle:
-            - '0.00 10.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
             - '245.00 1.00 0 0'
-            - '485.00 200.00 0 0'
+            - '485.00 200.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
@@ -431,9 +448,10 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'AJ10-142'
             restoreIgnitionCharge: false
-            ignitionFailureRate:
-                - '0 0.1'
-                - '5000 0.01'
+            baseIgnitionChance: 
+            - '0 0.95'
+            - '10000 0.995'
+            ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'AJ10-142'
@@ -459,18 +477,18 @@ PartConfigs:
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.000419 0 0'
-                - '2000 0.000188 0 0'
-                - '4000 0.000126 0 0'
-                - '10000 0.000021 0 0'
+                - '0 0.000419'
+                - '2000 0.000188'
+                - '4000 0.000126'
+                - '10000 0.000021'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'AJ10-104D'
             ratedBurnTime: 377
             cycle:
-            - '0.00 10.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
             - '382.00 1.00 0 0'
-            - '457.40 200.00 0 0'
+            - '457.40 200.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
@@ -483,9 +501,10 @@ PartConfigs:
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'AJ10-104D'
             restoreIgnitionCharge: false
-            ignitionFailureRate:
-                - '0 0.1'
-                - '5000 0.01'
+            baseIgnitionChance: 
+            - '0 0.98'
+            - '0 0.998'
+            ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'AJ10-104D'
@@ -512,18 +531,18 @@ PartConfigs:
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.000521 0 0'
-                - '1000 0.000260 0 0'
-                - '4000 0.000104 0 0'
-                - '10000 0.000052 0 0'
+                - '0 0.000521'
+                - '1000 0.000260'
+                - '4000 0.000104'
+                - '10000 0.000052'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'LR-89-NA-3'
             ratedBurnTime: 215
             cycle:
-            - '0.00 10.00 0 0'
-            - '5.00 1.00 0 0'
-            - '220.00 1.00 0 0'
-            - '284.50 200.00 0 0'
+            - '0 10 0 -1.8'
+            - '5 1 -1.8 0'
+            - '220 1'
+            - '284.5 200 3.085271 0'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
@@ -535,10 +554,15 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'LR-89-NA-3'
-            restoreIgnitionCharge: true
-            ignitionFailureRate:
-                - '0 0.1'
-                - '5000 0.01'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.80'
+            - '10000 0.90'
+            ignorePressureOnPad: true
+            pressureCurve:
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'LR-89-NA-3'
@@ -564,18 +588,18 @@ PartConfigs:
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.000101 0 0'
-                - '2000 0.000061 0 0'
-                - '4000 0.000040 0 0'
-                - '10000 0.000015 0 0'
+                - '0 0.000101'
+                - '2000 0.000061'
+                - '4000 0.000040'
+                - '10000 0.000015'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'LR-105-NA-5'
             ratedBurnTime: 309
             cycle:
-            - '0.00 20.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 20.00'
+            - '5.00 1.00 -0.8 0'
             - '314.00 1.00 0 0'
-            - '406.70 1000.00 0 0'
+            - '406.70 1000.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
@@ -587,10 +611,15 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'LR-105-NA-5'
-            restoreIgnitionCharge: true
-            ignitionFailureRate:
-                - '0 0.1'
-                - '5000 0.01'
+            restoreIgnitionCharge: false
+            baseIgnitionChance:
+            - '0 0.90'
+            - '10000 0.98'
+            ignorePressureOnPad: true
+            pressureCurve:
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'LR-105-NA-5'
@@ -616,18 +645,18 @@ PartConfigs:
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.000763 0 0'
-                - '1000 0.000534 0 0'
-                - '4000 0.000381 0 0'
-                - '10000 0.000267 0 0'
+                - '0 0.000763'
+                - '1000 0.000534'
+                - '4000 0.000381'
+                - '10000 0.000267'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'Bell-8048'
             ratedBurnTime: 276
             cycle:
-            - '0.00 10.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
             - '281.00 1.00 0 0'
-            - '363.80 200.00 0 0'
+            - '363.80 200.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
@@ -639,10 +668,11 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'Bell-8048'
-            restoreIgnitionCharge: true
-            ignitionFailureRate:
-                - '0 0.1'
-                - '5000 0.01'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.625'
+            - '10000 0.75'
+            ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'Bell-8048'
@@ -668,18 +698,18 @@ PartConfigs:
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.000469 0 0'
-                - '2000 0.000282 0 0'
-                - '4000 0.000211 0 0'
-                - '10000 0.000141 0 0'
+                - '0 0.000469'
+                - '2000 0.000282'
+                - '4000 0.000211'
+                - '10000 0.000141'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'Bell-8081'
             ratedBurnTime: 300
             cycle:
-            - '0.00 20.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 20.00'
+            - '5.00 1.00 -0.8 0'
             - '305.00 1.00 0 0'
-            - '395.00 200.00 0 0'
+            - '395.00 200.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
@@ -691,10 +721,11 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'Bell-8081'
-            restoreIgnitionCharge: true
-            ignitionFailureRate:
-                - '0 0.1'
-                - '5000 0.01'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.90'
+            - '10000 0.95'
+            ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'Bell-8081'
@@ -720,18 +751,18 @@ PartConfigs:
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.000595 0 0'
-                - '2000 0.000298 0 0'
-                - '4000 0.000208 0 0'
-                - '10000 0.000060 0 0'
+                - '0 0.000595'
+                - '2000 0.000298'
+                - '4000 0.000208'
+                - '10000 0.000060'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'Bell-8247'
             ratedBurnTime: 360
             cycle:
-            - '0.00 10.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
             - '365.00 1.00 0 0'
-            - '545.00 150.00 0 0'
+            - '545.00 150.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
@@ -743,10 +774,11 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'Bell-8247'
-            restoreIgnitionCharge: true
-            ignitionFailureRate:
-                - '0 0.1'
-                - '5000 0.01'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.98'
+            - '10000 0.9995'
+            ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'Bell-8247'
@@ -772,18 +804,18 @@ PartConfigs:
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.001150 0 0'
-                - '1000 0.000920 0 0'
-                - '4000 0.000747 0 0'
-                - '10000 0.000632 0 0'
+                - '0 0.001150'
+                - '1000 0.000920'
+                - '4000 0.000747'
+                - '10000 0.000632'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'XLR11'
             ratedBurnTime: 600
             cycle:
-            - '0.00 10.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
             - '605.00 1.00 0 0'
-            - '665.00 200.00 0 0'
+            - '665.00 200.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
@@ -795,10 +827,11 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'XLR11'
-            restoreIgnitionCharge: true
-            ignitionFailureRate:
-                - '0 0.2'
-                - '5000 0.05'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.8'
+            - '10000 0.9'
+            ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'XLR11'
@@ -824,18 +857,18 @@ PartConfigs:
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.000303 0 0'
-                - '2000 0.000121 0 0'
-                - '4000 0.000061 0 0'
-                - '10000 0.000030 0 0'
+                - '0 0.000303'
+                - '2000 0.000121'
+                - '4000 0.000061'
+                - '10000 0.000030'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'XLR99'
             ratedBurnTime: 1000
             cycle:
-            - '0.00 10.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
             - '1005.00 1.00 0 0'
-            - '1105.00 100.00 0 0'
+            - '1105.00 100.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
@@ -847,10 +880,11 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'XLR99'
-            restoreIgnitionCharge: true
-            ignitionFailureRate:
-                - '0 0.2'
-                - '5000 0.05'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.85'
+            - '10000 0.95'
+            ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'XLR99'
@@ -877,18 +911,18 @@ PartConfigs:
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.000691 0 0'
-                - '1000 0.000553 0 0'
-                - '4000 0.000415 0 0'
-                - '10000 0.000346 0 0'
+                - '0 0.000691'
+                - '1000 0.000553'
+                - '4000 0.000415'
+                - '10000 0.000346'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'A-6'
             ratedBurnTime: 180
             cycle:
-            - '0.00 15.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 15.00'
+            - '5.00 1.00 -0.8 0'
             - '185.00 1.00 0 0'
-            - '275.00 200.00 0 0'
+            - '275.00 200.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
@@ -900,10 +934,15 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'A-6'
-            restoreIgnitionCharge: true
-            ignitionFailureRate:
-                - '0 0.1'
-                - '5000 0.05'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.70'
+            - '10000 0.9'
+            ignorePressureOnPad: true
+            pressureCurve:
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'A-6'
@@ -929,18 +968,18 @@ PartConfigs:
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.000717 0 0'
-                - '2000 0.000502 0 0'
-                - '4000 0.000358 0 0'
-                - '10000 0.000251 0 0'
+                - '0 0.000717'
+                - '2000 0.000502'
+                - '4000 0.000358'
+                - '10000 0.000251'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'A-7'
             ratedBurnTime: 180
             cycle:
-            - '0.00 8.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 8.00'
+            - '5.00 1.00 -0.8 0'
             - '185.00 1.00 0 0'
-            - '329.00 100.00 0 0'
+            - '329.00 100.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
@@ -952,10 +991,15 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'A-7'
-            restoreIgnitionCharge: true
-            ignitionFailureRate:
-                - '0 0.25'
-                - '5000 0.005'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.80'
+            - '10000 0.95'
+            ignorePressureOnPad: true
+            pressureCurve:
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'A-7'
@@ -981,18 +1025,18 @@ PartConfigs:
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.000414 0 0'
-                - '1000 0.000331 0 0'
-                - '4000 0.000248 0 0'
-                - '10000 0.000124 0 0'
+                - '0 0.000414'
+                - '1000 0.000331'
+                - '4000 0.000248'
+                - '10000 0.000124'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'LR-87-3'
             ratedBurnTime: 138
             cycle:
-            - '0.00 10.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
             - '143.00 1.00 0 0'
-            - '212.00 100.00 0 0'
+            - '212.00 100.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
@@ -1004,10 +1048,15 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'LR-87-3'
-            restoreIgnitionCharge: true
-            ignitionFailureRate:
-                - '0 0.1'
-                - '5000 0.01'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.80'
+            - '10000 0.875'
+            ignorePressureOnPad: true
+            pressureCurve:
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'LR-87-3'
@@ -1033,18 +1082,18 @@ PartConfigs:
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.000360 0 0'
-                - '2000 0.000252 0 0'
-                - '4000 0.000180 0 0'
-                - '10000 0.000090 0 0'
+                - '0 0.000360'
+                - '2000 0.000252'
+                - '4000 0.000180'
+                - '10000 0.000090'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'LR-87-5'
             ratedBurnTime: 139
             cycle:
-            - '0.00 10.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
             - '144.00 1.00 0 0'
-            - '213.50 100.00 0 0'
+            - '213.50 100.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
@@ -1056,10 +1105,15 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'LR-87-5'
-            restoreIgnitionCharge: true
-            ignitionFailureRate:
-                - '0 0.1'
-                - '5000 0.01'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.90'
+            - '10000 0.95'
+            ignorePressureOnPad: true
+            pressureCurve:
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'LR-87-5'
@@ -1085,18 +1139,18 @@ PartConfigs:
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.000360 0 0'
-                - '2000 0.000216 0 0'
-                - '4000 0.000126 0 0'
-                - '10000 0.000072 0 0'
+                - '0 0.000360'
+                - '2000 0.000216'
+                - '4000 0.000126'
+                - '10000 0.000072'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'LR-87-7'
             ratedBurnTime: 139
             cycle:
-            - '0.00 10.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
             - '144.00 1.00 0 0'
-            - '213.50 100.00 0 0'
+            - '213.50 100.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
@@ -1108,10 +1162,15 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'LR-87-7'
-            restoreIgnitionCharge: true
-            ignitionFailureRate:
-                - '0 0.1'
-                - '5000 0.01'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.90'
+            - '10000 0.975'
+            ignorePressureOnPad: true
+            pressureCurve:
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'LR-87-7'
@@ -1137,18 +1196,18 @@ PartConfigs:
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.000309 0 0'
-                - '2000 0.000170 0 0'
-                - '4000 0.000093 0 0'
-                - '10000 0.000062 0 0'
+                - '0 0.000309'
+                - '2000 0.000170'
+                - '4000 0.000093'
+                - '10000 0.000062'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'LR-87-9'
             ratedBurnTime: 147
             cycle:
-            - '0.00 10.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
             - '152.00 1.00 0 0'
-            - '225.50 100.00 0 0'
+            - '225.50 100.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
@@ -1160,10 +1219,15 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'LR-87-9'
-            restoreIgnitionCharge: true
-            ignitionFailureRate:
-                - '0 0.1'
-                - '5000 0.01'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.98'
+            - '10000 0.995'
+            ignorePressureOnPad: true
+            pressureCurve:
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'LR-87-9'
@@ -1189,18 +1253,18 @@ PartConfigs:
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.000166 0 0'
-                - '2000 0.000099 0 0'
-                - '4000 0.000050 0 0'
-                - '10000 0.000017 0 0'
+                - '0 0.000166'
+                - '2000 0.000099'
+                - '4000 0.000050'
+                - '10000 0.000017'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'LR-87-11'
             ratedBurnTime: 161
             cycle:
-            - '0.00 10.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
             - '166.00 1.00 0 0'
-            - '246.50 150.00 0 0'
+            - '246.50 150.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
@@ -1212,10 +1276,15 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'LR-87-11'
-            restoreIgnitionCharge: true
-            ignitionFailureRate:
-                - '0 0.1'
-                - '5000 0.01'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.98'
+            - '10000 0.99975'
+            ignorePressureOnPad: true
+            pressureCurve:
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'LR-87-11'
@@ -1241,18 +1310,18 @@ PartConfigs:
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.000081 0 0'
-                - '2000 0.000041 0 0'
-                - '4000 0.000016 0 0'
-                - '10000 0.000004 0 0'
+                - '0 0.000081'
+                - '2000 0.000041'
+                - '4000 0.000016'
+                - '10000 0.000004'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'LR-87-11A'
             ratedBurnTime: 164
             cycle:
-            - '0.00 10.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
             - '169.00 1.00 0 0'
-            - '251.00 150.00 0 0'
+            - '251.00 150.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
@@ -1264,10 +1333,15 @@ PartConfigs:
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
             configuration: 'LR-87-11A'
-            restoreIgnitionCharge: true
-            ignitionFailureRate:
-                - '0 0.1'
-                - '5000 0.01'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.98'
+            - '10000 0.9999'
+            ignorePressureOnPad: true
+            pressureCurve:
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'LR-87-11A'
@@ -1281,57 +1355,83 @@ PartConfigs:
     # RL10 Series Vacuum Engine
     RL10A-1: &RL10A-1
         -   name: 'TestFlightInterop'
-        -   name: 'TestFlightCore'
+        -   &RL10A-1-Core
+            name: 'TestFlightCore'
             configuration: 'engineConfig = RL10A-1:RL10A-1'
             title: 'RL10A-1'
         -   name: 'FlightDataRecorder_Engine'
             configuration: 'RL10A-1'
             flightDataMultiplier: 1.16
             flightDataEngineerModifier: 0.2
-        -   name: 'TestFlightReliability'
+        -   &RL10A-1-Reliability
+            name: 'TestFlightReliability'
             configuration: 'RL10A-1'
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.000423 0 0'
-                - '1000 0.000338 0 0'
-                - '4000 0.000254 0 0'
-                - '10000 0.000127 0 0'
-        -   name: 'TestFlightReliability_EngineCycle'
+                - '0 0.000423'
+                - '1000 0.000338'
+                - '4000 0.000254'
+                - '10000 0.000127'
+        -   &RL10A-1-EngineCycle
+            name: 'TestFlightReliability_EngineCycle'
             configuration: 'RL10A-1'
             ratedBurnTime: 430
             cycle:
-            - '0.00 10.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
             - '435.00 1.00 0 0'
-            - '564.00 200.00 0 0'
+            - '564.00 200.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
-        -   *ShutdownEngine        
-        -   name: 'TestFlightFailure_ShutdownEngine'
+        -   *ShutdownEngine 
+        -   &RL10A-1-ShutdownEngine       
+            name: 'TestFlightFailure_ShutdownEngine'
             configuration: 'RL10A-1'
             weight: 32
             REPAIR:
             - *EasySoftware
         -   *IgnitionFail
-        -   name: 'TestFlightFailure_IgnitionFail'
+        -   &RL10A-1-IgnitionFail
+            name: 'TestFlightFailure_IgnitionFail'
             configuration: 'RL10A-1'
-            restoreIgnitionCharge: true
-            ignitionFailureRate:
-                - '0 0.1'
-                - '5000 0.01'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.70'
+            - '10000 0.85'
+            ignorePressureOnPad: true
         -   *ReducedMaxThrust
-        -   name: 'TestFlightFailure_ReducedMaxThrust'
+        -   &RL10A-1-ReducedMaxThrust
+            name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'RL10A-1'
             weight: 16
             REPAIR:
             - *EasyMechanical
         -   *Explode
-        -   name: 'TestFlightFailure_Explode'
+        -   &RL10A-1-Explode
+            name: 'TestFlightFailure_Explode'
             configuration: 'RL10A-1'
             weight: 2
+    RL10A-1x2: &RL10A-1x2
+        -   name: 'TestFlightInterop'
+        -   *RL10A-1-Core
+        -   *RL10A-1-Reliability
+        -   *RL10A-1-EngineCycle
+        -   name: 'FlightDataRecorder_Engine'
+            configuration: 'RL10A-1'
+            flightDataMultiplier: 2.32
+            flightDataEngineerModifier: 0.2
+        -   *ShutdownEngine        
+        -   *RL10A-1-ShutdownEngine
+        -   *IgnitionFail
+        -   *RL10A-1-IgnitionFail
+        -   *ReducedMaxThrust
+        -   *RL10A-1-ReducedMaxThrust
+        -   *Explode
+        -   *RL10A-1-Explode
     RL10A-3-1: &RL10A-3-1
-        -   name: 'TestFlightCore'
+        -   &RL10A-3-1-Core
+            name: 'TestFlightCore'
             configuration: 'engineConfig = RL10A-3-1:RL10A-3-1'
             title: 'RL10A-3-1'
             techTransfer: 'RL10A-1:50'
@@ -1340,50 +1440,75 @@ PartConfigs:
             configuration: 'RL10A-3-1'
             flightDataMultiplier: 1.06
             flightDataEngineerModifier: 0.2
-        -   name: 'TestFlightReliability'
+        -   &RL10A-3-1-Reliability
+            name: 'TestFlightReliability'
             configuration: 'RL10A-3-1'
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.000304 0 0'
-                - '2000 0.000213 0 0'
-                - '4000 0.000152 0 0'
-                - '10000 0.000076 0 0'
-        -   name: 'TestFlightReliability_EngineCycle'
+                - '0 0.000304'
+                - '2000 0.000213'
+                - '4000 0.000152'
+                - '10000 0.000076'
+        -   &RL10A-3-1-EngineCycle
+            name: 'TestFlightReliability_EngineCycle'
             configuration: 'RL10A-3-1'
             ratedBurnTime: 470
             cycle:
-            - '0.00 10.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
             - '475.00 1.00 0 0'
-            - '616.00 200.00 0 0'
+            - '616.00 200.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
-        -   name: 'TestFlightFailure_ShutdownEngine'
+        -   &RL10A-3-1-ShutdownEngine
+            name: 'TestFlightFailure_ShutdownEngine'
             configuration: 'RL10A-3-1'
             weight: 32
             REPAIR:
             - *EasySoftware
         -   *IgnitionFail
-        -   name: 'TestFlightFailure_IgnitionFail'
+        -   &RL10A-3-1-IgnitionFail
+            name: 'TestFlightFailure_IgnitionFail'
             configuration: 'RL10A-3-1'
-            restoreIgnitionCharge: true
-            ignitionFailureRate:
-                - '0 0.1'
-                - '5000 0.01'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.80'
+            - '10000 0.9'
+            ignorePressureOnPad: true
         -   *ReducedMaxThrust
-        -   name: 'TestFlightFailure_ReducedMaxThrust'
+        -   &RL10A-3-1-ReducedMaxThrust
+            name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'RL10A-3-1'
             weight: 16
             REPAIR:
             - *EasyMechanical
         -   *Explode
-        -   name: 'TestFlightFailure_Explode'
+        -   &RL10A-3-1-Explode
+            name: 'TestFlightFailure_Explode'
             configuration: 'RL10A-3-1'
             weight: 2
+    RL10A-3-1x2: &RL10A-3-1x2
+        -   name: 'TestFlightInterop'
+        -   *RL10A-3-1-Core
+        -   *RL10A-3-1-Reliability
+        -   *RL10A-3-1-EngineCycle
+        -   name: 'FlightDataRecorder_Engine'
+            configuration: 'RL10A-3-1'
+            flightDataMultiplier: 2.32
+            flightDataEngineerModifier: 0.2
+        -   *ShutdownEngine        
+        -   *RL10A-3-1-ShutdownEngine
+        -   *IgnitionFail
+        -   *RL10A-3-1-IgnitionFail
+        -   *ReducedMaxThrust
+        -   *RL10A-3-1-ReducedMaxThrust
+        -   *Explode
+        -   *RL10A-3-1-Explode
     RL10A-3-3: &RL10A-3-3
-        -   name: 'TestFlightCore'
+        -   &RL10A-3-3-Core
+            name: 'TestFlightCore'
             configuration: 'engineConfig = RL10A-3-3:RL10A-3-3'
             title: 'RL10A-3-3'
             techTransfer: 'RL10A-1,RL10A-3-1:50'
@@ -1392,50 +1517,75 @@ PartConfigs:
             configuration: 'RL10A-3-3'
             flightDataMultiplier: 1.06
             flightDataEngineerModifier: 0.2
-        -   name: 'TestFlightReliability'
+        -   &RL10A-3-3-Reliability
+            name: 'TestFlightReliability'
             configuration: 'RL10A-3-3'
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.000170 0 0'
-                - '2000 0.000102 0 0'
-                - '4000 0.000060 0 0'
-                - '10000 0.000034 0 0'
-        -   name: 'TestFlightReliability_EngineCycle'
+                - '0 0.000170'
+                - '2000 0.000102'
+                - '4000 0.000060'
+                - '10000 0.000034'
+        -   &RL10A-3-3-EngineCycle
+            name: 'TestFlightReliability_EngineCycle'
             configuration: 'RL10A-3-3'
             ratedBurnTime: 470
             cycle:
-            - '0.00 10.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
             - '475.00 1.00 0 0'
-            - '616.00 200.00 0 0'
+            - '616.00 200.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
-        -   name: 'TestFlightFailure_ShutdownEngine'
+        -   &RL10A-3-3-ShutdownEngine
+            name: 'TestFlightFailure_ShutdownEngine'
             configuration: 'RL10A-3-3'
             weight: 32
             REPAIR:
             - *EasySoftware
         -   *IgnitionFail
-        -   name: 'TestFlightFailure_IgnitionFail'
+        -   &RL10A-3-3-IgnitionFail
+            name: 'TestFlightFailure_IgnitionFail'
             configuration: 'RL10A-3-3'
-            restoreIgnitionCharge: true
-            ignitionFailureRate:
-                - '0 0.1'
-                - '5000 0.01'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.90'
+            - '10000 0.95'
+            ignorePressureOnPad: true
         -   *ReducedMaxThrust
-        -   name: 'TestFlightFailure_ReducedMaxThrust'
+        -   &RL10A-3-3-ReducedMaxThrust
+            name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'RL10A-3-3'
             weight: 16
             REPAIR:
             - *EasyMechanical
         -   *Explode
-        -   name: 'TestFlightFailure_Explode'
+        -   &RL10A-3-3-Explode
+            name: 'TestFlightFailure_Explode'
             configuration: 'RL10A-3-3'
             weight: 2
+    RL10A-3-3x2: &RL10A-3-3x2
+        -   name: 'TestFlightInterop'
+        -   *RL10A-3-3-Core
+        -   *RL10A-3-3-Reliability
+        -   *RL10A-3-3-EngineCycle
+        -   name: 'FlightDataRecorder_Engine'
+            configuration: 'RL10A-3-3'
+            flightDataMultiplier: 2.32
+            flightDataEngineerModifier: 0.2
+        -   *ShutdownEngine        
+        -   *RL10A-3-3-ShutdownEngine
+        -   *IgnitionFail
+        -   *RL10A-3-3-IgnitionFail
+        -   *ReducedMaxThrust
+        -   *RL10A-3-3-ReducedMaxThrust
+        -   *Explode
+        -   *RL10A-3-3-Explode
     RL10A-3-3A: &RL10A-3-3A
-        -   name: 'TestFlightCore'
+        -   &RL10A-3-3A-Core
+            name: 'TestFlightCore'
             configuration: 'engineConfig = RL10A-3-3A:RL10A-3-3A'
             title: 'RL10A-3-3A'
             techTransfer: 'RL10A-1,RL10A-3-1,RL10A-3-3:50'
@@ -1444,50 +1594,75 @@ PartConfigs:
             configuration: 'RL10A-3-3A'
             flightDataMultiplier: 1.06
             flightDataEngineerModifier: 0.2
-        -   name: 'TestFlightReliability'
+        -   &RL10A-3-3A-Reliability
+            name: 'TestFlightReliability'
             configuration: 'RL10A-3-3A'
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.000152 0 0'
-                - '2000 0.000076 0 0'
-                - '4000 0.000046 0 0'
-                - '10000 0.000030 0 0'
-        -   name: 'TestFlightReliability_EngineCycle'
+                - '0 0.000152'
+                - '2000 0.000076'
+                - '4000 0.000046'
+                - '10000 0.000030'
+        -   &RL10A-3-3A-EngineCycle
+            name: 'TestFlightReliability_EngineCycle'
             configuration: 'RL10A-3-3A'
             ratedBurnTime: 470
             cycle:
-            - '0.00 10.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
             - '475.00 1.00 0 0'
-            - '616.00 200.00 0 0'
+            - '616.00 200.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
-        -   name: 'TestFlightFailure_ShutdownEngine'
+        -   &RL10A-3-3A-ShutdownEngine
+            name: 'TestFlightFailure_ShutdownEngine'
             configuration: 'RL10A-3-3A'
             weight: 32
             REPAIR:
             - *EasySoftware
         -   *IgnitionFail
-        -   name: 'TestFlightFailure_IgnitionFail'
+        -   &RL10A-3-3A-IgnitionFail
+            name: 'TestFlightFailure_IgnitionFail'
             configuration: 'RL10A-3-3A'
-            restoreIgnitionCharge: true
-            ignitionFailureRate:
-                - '0 0.1'
-                - '5000 0.01'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.98'
+            - '10000 0.9995'
+            ignorePressureOnPad: true
         -   *ReducedMaxThrust
-        -   name: 'TestFlightFailure_ReducedMaxThrust'
+        -   &RL10A-3-3A-ReducedMaxThrust
+            name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'RL10A-3-3A'
             weight: 16
             REPAIR:
             - *EasyMechanical
         -   *Explode
-        -   name: 'TestFlightFailure_Explode'
+        -   &RL10A-3-3A-Explode
+            name: 'TestFlightFailure_Explode'
             configuration: 'RL10A-3-3A'
             weight: 2
+    RL10A-3-3Ax2: &RL10A-3-3Ax2
+        -   name: 'TestFlightInterop'
+        -   *RL10A-3-3A-Core
+        -   *RL10A-3-3A-Reliability
+        -   *RL10A-3-3A-EngineCycle
+        -   name: 'FlightDataRecorder_Engine'
+            configuration: 'RL10A-3-3A'
+            flightDataMultiplier: 2.32
+            flightDataEngineerModifier: 0.2
+        -   *ShutdownEngine        
+        -   *RL10A-3-3A-ShutdownEngine
+        -   *IgnitionFail
+        -   *RL10A-3-3A-IgnitionFail
+        -   *ReducedMaxThrust
+        -   *RL10A-3-3A-ReducedMaxThrust
+        -   *Explode
+        -   *RL10A-3-3A-Explode
     RL10A-4: &RL10A-4
-        -   name: 'TestFlightCore'
+        -   &RL10A-4-Core
+            name: 'TestFlightCore'
             configuration: 'engineConfig = RL10A-4:RL10A-4'
             title: 'RL10A-4'
             techTransfer: 'RL10A-1,RL10A-3-1,RL10A-3-3,RL10A-3-3A:50'
@@ -1496,50 +1671,75 @@ PartConfigs:
             configuration: 'RL10A-4'
             flightDataMultiplier: 1.28
             flightDataEngineerModifier: 0.2
-        -   name: 'TestFlightReliability'
+        -   &RL10A-4-Reliability
+            name: 'TestFlightReliability'
             configuration: 'RL10A-4'
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.000096 0 0'
-                - '2000 0.000072 0 0'
-                - '4000 0.000029 0 0'
-                - '10000 0.000014 0 0'
-        -   name: 'TestFlightReliability_EngineCycle'
+                - '0 0.000096'
+                - '2000 0.000072'
+                - '4000 0.000029'
+                - '10000 0.000014'
+        -   &RL10A-4-EngineCycle
+            name: 'TestFlightReliability_EngineCycle'
             configuration: 'RL10A-4'
             ratedBurnTime: 392
             cycle:
-            - '0.00 8.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 8.00'
+            - '5.00 1.00 -0.8 0'
             - '397.00 1.00 0 0'
-            - '514.60 200.00 0 0'
+            - '514.60 200.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
-        -   name: 'TestFlightFailure_ShutdownEngine'
+        -   &RL10A-4-ShutdownEngine
+            name: 'TestFlightFailure_ShutdownEngine'
             configuration: 'RL10A-4'
             weight: 32
             REPAIR:
             - *EasySoftware
         -   *IgnitionFail
-        -   name: 'TestFlightFailure_IgnitionFail'
+        -   &RL10A-4-IgnitionFail
+            name: 'TestFlightFailure_IgnitionFail'
             configuration: 'RL10A-4'
-            restoreIgnitionCharge: true
-            ignitionFailureRate:
-                - '0 0.1'
-                - '5000 0.01'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.98'
+            - '10000 0.9995'
+            ignorePressureOnPad: true
         -   *ReducedMaxThrust
-        -   name: 'TestFlightFailure_ReducedMaxThrust'
+        -   &RL10A-4-ReducedMaxThrust
+            name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'RL10A-4'
             weight: 16
             REPAIR:
             - *EasyMechanical
         -   *Explode
-        -   name: 'TestFlightFailure_Explode'
+        -   &RL10A-4-Explode
+            name: 'TestFlightFailure_Explode'
             configuration: 'RL10A-4'
             weight: 2
+    RL10A-4x2: &RL10A-4x2
+        -   name: 'TestFlightInterop'
+        -   *RL10A-4-Core
+        -   *RL10A-4-Reliability
+        -   *RL10A-4-EngineCycle
+        -   name: 'FlightDataRecorder_Engine'
+            configuration: 'RL10A-4'
+            flightDataMultiplier: 2.56
+            flightDataEngineerModifier: 0.2
+        -   *ShutdownEngine        
+        -   *RL10A-4-ShutdownEngine
+        -   *IgnitionFail
+        -   *RL10A-4-IgnitionFail
+        -   *ReducedMaxThrust
+        -   *RL10A-4-ReducedMaxThrust
+        -   *Explode
+        -   *RL10A-4-Explode
     RL10A-4-1-2: &RL10A-4-1-2
-        -   name: 'TestFlightCore'
+        -   &RL10A-4-1-2-Core
+            name: 'TestFlightCore'
             configuration: 'engineConfig = RL10A-4-1-2:RL10A-4-1-2'
             title: 'RL10A-4-1-2'
             techTransfer: 'RL10A-1,RL10A-3-1,RL10A-3-3,RL10A-3-3A,RL10A-4:50'
@@ -1548,50 +1748,75 @@ PartConfigs:
             configuration: 'RL10A-4-1-2'
             flightDataMultiplier: 0.68
             flightDataEngineerModifier: 0.2
-        -   name: 'TestFlightReliability'
+        -   &RL10A-4-1-2-Reliability
+            name: 'TestFlightReliability'
             configuration: 'RL10A-4-1-2'
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.000068 0 0'
-                - '2000 0.000054 0 0'
-                - '4000 0.000034 0 0'
-                - '10000 0.000020 0 0'
-        -   name: 'TestFlightReliability_EngineCycle'
+                - '0 0.000068'
+                - '2000 0.000054'
+                - '4000 0.000034'
+                - '10000 0.000020'
+        -   &RL10A-4-1-2-EngineCycle
+            name: 'TestFlightReliability_EngineCycle'
             configuration: 'RL10A-4-1-2'
             ratedBurnTime: 740
             cycle:
-            - '0.00 10.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
             - '745.00 1.00 0 0'
-            - '967.00 200.00 0 0'
+            - '967.00 200.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
-        -   name: 'TestFlightFailure_ShutdownEngine'
+        -   &RL10A-4-1-2-ShutdownEngine
+            name: 'TestFlightFailure_ShutdownEngine'
             configuration: 'RL10A-4-1-2'
             weight: 32
             REPAIR:
             - *EasySoftware
         -   *IgnitionFail
-        -   name: 'TestFlightFailure_IgnitionFail'
+        -   &RL10A-4-1-2-IgnitionFail
+            name: 'TestFlightFailure_IgnitionFail'
             configuration: 'RL10A-4-1-2'
-            restoreIgnitionCharge: true
-            ignitionFailureRate:
-                - '0 0.1'
-                - '5000 0.01'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.98'
+            - '10000 0.9995'
+            ignorePressureOnPad: true
         -   *ReducedMaxThrust
-        -   name: 'TestFlightFailure_ReducedMaxThrust'
+        -   &RL10A-4-1-2-ReducedMaxThrust
+            name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'RL10A-4-1-2'
             weight: 16
             REPAIR:
             - *EasyMechanical
         -   *Explode
-        -   name: 'TestFlightFailure_Explode'
+        -   &RL10A-4-1-2-Explode
+            name: 'TestFlightFailure_Explode'
             configuration: 'RL10A-4-1-2'
             weight: 2
+    RL10A-4-1-2x2: &RL10A-4-1-2x2
+        -   name: 'TestFlightInterop'
+        -   *RL10A-4-1-2-Core
+        -   *RL10A-4-1-2-Reliability
+        -   *RL10A-4-1-2-EngineCycle
+        -   name: 'FlightDataRecorder_Engine'
+            configuration: 'RL10A-4-1-2'
+            flightDataMultiplier: 1.36
+            flightDataEngineerModifier: 0.2
+        -   *ShutdownEngine        
+        -   *RL10A-4-1-2-ShutdownEngine
+        -   *IgnitionFail
+        -   *RL10A-4-1-2-IgnitionFail
+        -   *ReducedMaxThrust
+        -   *RL10A-4-1-2-ReducedMaxThrust
+        -   *Explode
+        -   *RL10A-4-1-2-Explode
     RL10B-2: &RL10B-2
-        -   name: 'TestFlightCore'
+        -   &RL10B-2-Core
+            name: 'TestFlightCore'
             configuration: 'engineConfig = RL10B-2:RL10B-2'
             title: 'RL10B-2'
             techTransfer: 'RL10A-1,RL10A-3-1,RL10A-3-3,RL10A-3-3A,RL10A-4:50'
@@ -1600,50 +1825,75 @@ PartConfigs:
             configuration: 'RL10B-2'
             flightDataMultiplier: 0.71
             flightDataEngineerModifier: 0.2
-        -   name: 'TestFlightReliability'
+        -   &RL10B-2-Reliability
+            name: 'TestFlightReliability'
             configuration: 'RL10B-2'
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.000051 0 0'
-                - '2000 0.000026 0 0'
-                - '4000 0.000015 0 0'
-                - '10000 0.000003 0 0'
-        -   name: 'TestFlightReliability_EngineCycle'
+                - '0 0.000051'
+                - '2000 0.000026'
+                - '4000 0.000015'
+                - '10000 0.000003'
+        -   &RL10B-2-EngineCycle
+            name: 'TestFlightReliability_EngineCycle'
             configuration: 'RL10B-2'
             ratedBurnTime: 700
             cycle:
-            - '0.00 10.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
             - '705.00 1.00 0 0'
-            - '915.00 200.00 0 0'
+            - '915.00 200.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
-        -   name: 'TestFlightFailure_ShutdownEngine'
+        -   &RL10B-2-ShutdownEngine
+            name: 'TestFlightFailure_ShutdownEngine'
             configuration: 'RL10B-2'
             weight: 32
             REPAIR:
             - *EasySoftware
         -   *IgnitionFail
-        -   name: 'TestFlightFailure_IgnitionFail'
+        -   &RL10B-2-IgnitionFail
+            name: 'TestFlightFailure_IgnitionFail'
             configuration: 'RL10B-2'
-            restoreIgnitionCharge: true
-            ignitionFailureRate:
-                - '0 0.1'
-                - '5000 0.01'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.98'
+            - '10000 0.9995'
+            ignorePressureOnPad: true
         -   *ReducedMaxThrust
-        -   name: 'TestFlightFailure_ReducedMaxThrust'
+        -   &RL10B-2-ReducedMaxThrust
+            name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'RL10B-2'
             weight: 16
             REPAIR:
             - *EasyMechanical
         -   *Explode
-        -   name: 'TestFlightFailure_Explode'
+        -   &RL10B-2-Explode
+            name: 'TestFlightFailure_Explode'
             configuration: 'RL10B-2'
             weight: 2
+    RL10B-2x2: &RL10B-2x2
+        -   name: 'TestFlightInterop'
+        -   *RL10B-2-Core
+        -   *RL10B-2-Reliability
+        -   *RL10B-2-EngineCycle
+        -   name: 'FlightDataRecorder_Engine'
+            configuration: 'RL10B-2'
+            flightDataMultiplier: 1.42
+            flightDataEngineerModifier: 0.2
+        -   *ShutdownEngine        
+        -   *RL10B-2-ShutdownEngine
+        -   *IgnitionFail
+        -   *RL10B-2-IgnitionFail
+        -   *ReducedMaxThrust
+        -   *RL10B-2-ReducedMaxThrust
+        -   *Explode
+        -   *RL10B-2-Explode
     RL10C-1: &RL10C-1
-        -   name: 'TestFlightCore'
+        -   &RL10C-1-Core
+            name: 'TestFlightCore'
             configuration: 'engineConfig = RL10C-1:RL10C-1'
             title: 'RL10C-1'
             techTransfer: 'RL10A-1,RL10A-3-3,RL10A-3-3A,RL10A-4,RL10A-4-1-2,RL10B-2:50'
@@ -1652,48 +1902,72 @@ PartConfigs:
             configuration: 'RL10C-1'
             flightDataMultiplier: 1.07
             flightDataEngineerModifier: 0.2
-        -   name: 'TestFlightReliability'
+        -   &RL10C-1-Reliability
+            name: 'TestFlightReliability'
             configuration: 'RL10C-1'
             RELIABILITY_BODY:
             -   scope: 'default'
                 reliabilityCurve:
-                - '0 0.000041 0 0'
-                - '2000 0.000025 0 0'
-                - '4000 0.000008 0 0'
-                - '10000 0.000002 0 0'
-        -   name: 'TestFlightReliability_EngineCycle'
+                - '0 0.000041'
+                - '2000 0.000025'
+                - '4000 0.000008'
+                - '10000 0.000002'
+        -   &RL10C-1-EngineCycle
+            name: 'TestFlightReliability_EngineCycle'
             configuration: 'RL10C-1'
             ratedBurnTime: 469
             cycle:
-            - '0.00 5.00 0 0'
-            - '5.00 1.00 0 0'
+            - '0.00 5.00'
+            - '5.00 1.00 -0.8 0'
             - '474.00 1.00 0 0'
-            - '614.70 200.00 0 0'
+            - '614.70 200.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
-        -   name: 'TestFlightFailure_ShutdownEngine'
+        -   &RL10C-1-ShutdownEngine
+            name: 'TestFlightFailure_ShutdownEngine'
             configuration: 'RL10C-1'
             weight: 32
             REPAIR:
             - *EasySoftware
         -   *IgnitionFail
-        -   name: 'TestFlightFailure_IgnitionFail'
+        -   &RL10C-1-IgnitionFail
+            name: 'TestFlightFailure_IgnitionFail'
             configuration: 'RL10C-1'
-            restoreIgnitionCharge: true
-            ignitionFailureRate:
-                - '0 0.1'
-                - '5000 0.01'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.98'
+            - '10000 0.9995'
+            ignorePressureOnPad: true
         -   *ReducedMaxThrust
-        -   name: 'TestFlightFailure_ReducedMaxThrust'
+        -   &RL10C-1-ReducedMaxThrust
+            name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'RL10C-1'
             weight: 16
             REPAIR:
             - *EasyMechanical
         -   *Explode
-        -   name: 'TestFlightFailure_Explode'
+        -   &RL10C-1-Explode
+            name: 'TestFlightFailure_Explode'
             configuration: 'RL10C-1'
             weight: 2
+    RL10C-1x2: &RL10C-1x2
+        -   name: 'TestFlightInterop'
+        -   *RL10C-1-Core
+        -   *RL10C-1-Reliability
+        -   *RL10C-1-EngineCycle
+        -   name: 'FlightDataRecorder_Engine'
+            configuration: 'RL10C-1'
+            flightDataMultiplier: 2.14
+            flightDataEngineerModifier: 0.2
+        -   *ShutdownEngine        
+        -   *RL10C-1-ShutdownEngine
+        -   *IgnitionFail
+        -   *RL10C-1-IgnitionFail
+        -   *ReducedMaxThrust
+        -   *RL10C-1-ReducedMaxThrust
+        -   *Explode
+        -   *RL10C-1-Explode
 # And here we actually take all the stuff defined above and apply it to actual parts
 Parts:
 -   part: 'WAC-Corporal'
@@ -1766,7 +2040,6 @@ Parts:
 -   part: 'RL10'
     patterns:
     - '@PART[engineLargeSkipper]:AFTER[RealismOverhaul]'
-    - '@PART[KW1mengineMaverick1D]:AFTER[RealismOverhaul]'
     - '@PART[KW1mengineWildCatV]:AFTER[RealismOverhaul]'
     - '@PART[FASAApolloLFERL10]:AFTER[RealismOverhaul]'
     configs:
@@ -1778,3 +2051,15 @@ Parts:
     - *RL10A-4-1-2
     - *RL10B-2
     - *RL10C-1
+-   part: 'RL10x2'
+    patterns:
+    - '@PART[KW1mengineMaverick1D]:AFTER[RealismOverhaul]'
+    configs:
+    - *RL10A-1x2
+    - *RL10A-3-1x2
+    - *RL10A-3-3x2
+    - *RL10A-3-3Ax2
+    - *RL10A-4x2
+    - *RL10A-4-1-2x2
+    - *RL10B-2x2
+    - *RL10C-1x2

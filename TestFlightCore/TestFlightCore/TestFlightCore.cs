@@ -29,6 +29,12 @@ namespace TestFlightCore
         public float techTransferMax = 1000;
         [KSPField(isPersistant=true)]
         public float techTransferGenerationPenalty = 0.05f;
+        [KSPField(isPersistant=true)]
+        public float operatingTime;
+        [KSPField(isPersistant=true)]
+        public float lastMET;
+        [KSPField(isPersistant=true)]
+        public bool initialized = false;
 
         // Base Failure Rate is stored per Scope internally
         private Dictionary<String, double> baseFailureRate;
@@ -39,8 +45,6 @@ namespace TestFlightCore
         private List<MomentaryFailureRate> momentaryFailureRates;
         private List<MomentaryFailureModifier> momentaryFailureModifiers;
         private List<String> disabledFailures;
-        private double operatingTime;
-        private double lastMET;
         private double missionStartTime;
         private bool firstStaged;
 
@@ -768,10 +772,10 @@ namespace TestFlightCore
                         {
                             activeFailure = fm;
                             failureAcknowledged = false;
-                            fm.DoFailure();
                             operatingTime = -1;
-                            return fm;
                         }
+                        fm.DoFailure();
+                        return fm;
                     }
                 }
             }
@@ -871,11 +875,12 @@ namespace TestFlightCore
                 }
 
 
-                double currentMET = Planetarium.GetUniversalTime() - missionStartTime;
-//                LogFormatted("TestFlightCore: Current MET: " + currentMET + ", Last MET: " + lastMET);
+                float currentMET = (float)Planetarium.GetUniversalTime() - (float)missionStartTime;
+                Log("Operating Time: " + operatingTime);
+                Log("Current MET: " + currentMET + ", Last MET: " + lastMET);
                 if (operatingTime != -1 && IsPartOperating())
                 {
-//                    LogFormatted_DebugOnly("TestFlightCore: Adding " + (currentMET - lastMET) + " seconds to operatingTime");
+                    Log("Adding " + (currentMET - lastMET) + " seconds to operatingTime");
                     operatingTime += currentMET - lastMET;
                 }
 
@@ -896,9 +901,10 @@ namespace TestFlightCore
                     firstStaged = false;
                 }
                 else
+                {
                     firstStaged = true;
-                operatingTime = 0;
-                lastMET = 0;
+                    missionStartTime = Planetarium.GetUniversalTime();
+                }
             }
         }
 
@@ -925,8 +931,6 @@ namespace TestFlightCore
 
             if (disabledFailures == null)
                 disabledFailures = new List<string>();
-
-            operatingTime = 0;
         }
 
         public void InitializeFlightData(List<TestFlightData> allFlightData)
@@ -942,7 +946,8 @@ namespace TestFlightCore
                 baseFlightData.AddFlightData(data.scope, data.flightData, data.flightTime);
                 flightData.AddFlightData(data.scope, data.flightData, data.flightTime);
             }
-            missionStartTime = 0;
+            missionStartTime = Planetarium.GetUniversalTime();
+            initialized = true;
             return;
         }
 

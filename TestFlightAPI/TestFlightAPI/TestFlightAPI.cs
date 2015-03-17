@@ -37,7 +37,16 @@ namespace TestFlightAPI
             INVALID
         };
 
-
+        // Taken from DeadlyReentry with NathanKell's permission
+        public static string FormatTime(double time)
+        {
+            int iTime = (int) time % 3600;
+            int seconds = iTime % 60;
+            int minutes = (iTime / 60) % 60;
+            int hours = (iTime / 3600);
+            return hours.ToString ("D2") 
+                + ":" + minutes.ToString ("D2") + ":" + seconds.ToString ("D2");
+        }
         // Methods for accessing the TestFlight modules on a given part
 
         public static string GetFullPartName(Part part)

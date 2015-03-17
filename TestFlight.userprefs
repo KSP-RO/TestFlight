@@ -17,6 +17,8 @@
           </Node>
           <Node name="TestFlightCore" expanded="True">
             <Node name="References" expanded="True" />
+            <Node name="FrameworkExt" expanded="True" />
+            <Node name="TestFlightCore.cs" selected="True" />
           </Node>
         </State>
       </Pad>
