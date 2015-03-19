@@ -27,7 +27,7 @@ namespace TestFlight
             }
         }
 
-        public override double DoRepair()
+        public override float DoRepair()
         {
             base.DoRepair();
             List<ModuleGimbal> gimbals = this.part.Modules.OfType<ModuleGimbal>().ToList();

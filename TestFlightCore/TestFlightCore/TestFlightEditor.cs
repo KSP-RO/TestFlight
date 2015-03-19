@@ -134,23 +134,7 @@ namespace TestFlightCore
             float left = Screen.width - windowWidth - 75f;
             float windowHeight = 50f;
 
-            float numItems = 0;
-            ITestFlightCore core = TestFlightUtil.GetCore(SelectedPart);
-            if (core != null)
-            {
-                List<TestFlightData> flightData = null;
-                PartFlightData partData = tfScenario.GetFlightDataForPartName(TestFlightUtil.GetFullPartName(SelectedPart));
-                if (partData == null)
-                    numItems = 0;
-                else
-                {
-                    flightData = partData.GetFlightData();
-                    if (flightData != null)
-                        numItems = flightData.Count;
-                }
-            }
-
-            windowHeight += numItems * 20f;
+            windowHeight += 20f;
             float top = Screen.height - windowHeight - 60f;
 
             if (!tfScenario.userSettings.editorWindowLocked)
@@ -266,25 +250,21 @@ namespace TestFlightCore
             GUILayout.Label(String.Format("Selected Part: {0}", TestFlightUtil.GetFullPartName(SelectedPart)), Styles.styleEditorTitle);
 
             tfScenario.userSettings.currentEditorScrollPosition = GUILayout.BeginScrollView(tfScenario.userSettings.currentEditorScrollPosition);
-            PartFlightData partData = tfScenario.GetFlightDataForPartName(TestFlightUtil.GetFullPartName(SelectedPart));
+            TestFlightPartData partData = tfScenario.GetPartDataForPart(TestFlightUtil.GetFullPartName(SelectedPart));
             if (partData != null)
             {
+                float flightData = float.Parse(partData.GetValue("flightData"));
                 core = TestFlightUtil.GetCore(SelectedPart);
                 if (core != null)
                 {
-                    List<TestFlightData> flightData = partData.GetFlightData();
                     core.InitializeFlightData(flightData);
-                    foreach (TestFlightData data in flightData)
-                    {
-                        GUILayout.BeginHorizontal();
-                        double failureRate = core.GetBaseFailureRateForScope(data.scope);
-                        String mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
-                        // 10 characters for body max plus 10 characters for situation plus underscore = 21 characters needed for longest scope string
-                        GUILayout.Label(core.PrettyStringForScope(data.scope), GUILayout.Width(125));
-                        GUILayout.Label(String.Format("{0,-7:F2}<b>du</b>", data.flightData), GUILayout.Width(75));
-                        GUILayout.Label(String.Format("{0,-5:F2} MTBF", mtbfString), GUILayout.Width(125));
-                        GUILayout.EndHorizontal();
-                    }
+                    GUILayout.BeginHorizontal();
+                    float failureRate = core.GetBaseFailureRate();
+                    String mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
+                    // 10 characters for body max plus 10 characters for situation plus underscore = 21 characters needed for longest scope string
+                    GUILayout.Label(String.Format("{0,-7:F2}<b>du</b>", flightData), GUILayout.Width(75));
+                    GUILayout.Label(String.Format("{0,-5:F2} MTBF", mtbfString), GUILayout.Width(125));
+                    GUILayout.EndHorizontal();
                 }
             }
             GUILayout.EndScrollView();

@@ -157,7 +157,7 @@ namespace TestFlight
         {
             base.DoFailure();
         }
-        public override double DoRepair()
+        public override float DoRepair()
         {
             return base.DoRepair();
         }

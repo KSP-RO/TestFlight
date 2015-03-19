@@ -10,9 +10,10 @@ namespace TestFlightAPI
 
     public class FlightDataRecorderBase : PartModule, IFlightDataRecorder
     {
-        private double lastRecordedMet = 0;
         private ITestFlightCore core = null;
         #region KSPFields
+        [KSPField(isPersistant = true)]
+        public float lastRecordedMet = 0;
         [KSPField(isPersistant = true)]
         public float flightDataMultiplier = 10.0f;
         [KSPField(isPersistant = true)]
@@ -61,25 +62,23 @@ namespace TestFlightAPI
 
             base.OnUpdate();
 
-            double currentMet = core.GetOperatingTime();
+            float currentMet = core.GetOperatingTime();
             if (!IsRecordingFlightData())
             {
                 lastRecordedMet = currentMet;
                 return;
             }
 
-            string scope = core.GetScope();
-
             if (IsRecordingFlightData())
             {
-                double flightData = (currentMet - lastRecordedMet) * flightDataMultiplier;
-                double engineerBonus = core.GetEngineerDataBonus(flightDataEngineerModifier);
+                float flightData = (currentMet - lastRecordedMet) * flightDataMultiplier;
+                float engineerBonus = core.GetEngineerDataBonus(flightDataEngineerModifier);
                 flightData *= engineerBonus;
                 if (flightData >= 0)
-                    core.ModifyFlightDataForScope(flightData, scope, true);
+                    core.ModifyFlightData(flightData, true);
             }
 
-            core.ModifyFlightTimeForScope(currentMet - lastRecordedMet, scope, true);
+            core.ModifyFlightTime(currentMet - lastRecordedMet, true);
 
             lastRecordedMet = currentMet;
         }

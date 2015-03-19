@@ -53,12 +53,12 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestFlightAPI.cs" />
-    <Compile Include="FlightDataConfig.cs" />
     <Compile Include="FlightDataRecorder.cs" />
     <Compile Include="TestFlightReliability.cs" />
     <Compile Include="TestFlightFailure.cs" />
     <Compile Include="EngineModuleWrapper.cs" />
     <Compile Include="TestFlightInterop.cs" />
+    <Compile Include="TestFlightPartData.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

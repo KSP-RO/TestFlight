@@ -49,7 +49,7 @@ namespace TestFlight
             }
         }
 
-        public override double DoRepair()
+        public override float DoRepair()
         {
             base.DoRepair();
             // for each engine restore its thrust values
