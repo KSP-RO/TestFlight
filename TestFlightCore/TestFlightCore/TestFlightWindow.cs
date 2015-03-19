@@ -516,7 +516,7 @@ namespace TestFlightCore
                         "A setting of 1 is normal rate"),
                             GUILayout.Width(200)
                         );
-                        if (DrawHorizontalSlider(ref tfScenario.userSettings.flightDataMultiplier, 0.5, 2, GUILayout.Width(150)))
+                        if (DrawHorizontalSlider(ref tfScenario.userSettings.flightDataMultiplier, 0.5f, 2f, GUILayout.Width(150)))
                         {
                             tfScenario.userSettings.Save();
                         }
@@ -529,7 +529,7 @@ namespace TestFlightCore
                         "A setting of 1 is normal difficulty."),
                             GUILayout.Width(200)
                         );
-                        if (DrawHorizontalSlider(ref tfScenario.userSettings.flightDataEngineerMultiplier, 0.5, 2, GUILayout.Width(150)))
+                        if (DrawHorizontalSlider(ref tfScenario.userSettings.flightDataEngineerMultiplier, 0.5f, 2f, GUILayout.Width(150)))
                         {
                             tfScenario.userSettings.Save();
                         }

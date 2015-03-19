@@ -15,8 +15,13 @@ namespace TestFlightCore
     public class TestFlightCore : PartModuleExtended, ITestFlightCore
     {
         // New API
-        [KSPField(isPersistant = true)]
-        public FlightDataConfig flightData;
+
+        // New v1.3
+        [KSPField(isPersistant=true)]
+        public float currentFlightData;
+        [KSPField(isPersistant=true)]
+        public float initialFlightData;
+
         [KSPField(isPersistant = true)]
         public float deepSpaceThreshold = 10000000;
         [KSPField(isPersistant=true)]
@@ -37,20 +42,23 @@ namespace TestFlightCore
         public bool initialized = false;
 
         // Base Failure Rate is stored per Scope internally
-        private Dictionary<String, double> baseFailureRate;
+        // As of v1.3 we no longer have cope
+//        private Dictionary<String, float> baseFailureRate;
+        private float baseFailureRate;
         // We store the base, or initial, flight data for calculation of Base Failure Rate
-        private FlightDataConfig baseFlightData;
+        // Deprecated v1.3
+//        private FlightDataConfig baseFlightData;
         // Momentary Failure Rates are calculated based on modifiers.  Those modifiers
         // are stored per SCOPE and per TRIGGER
         private List<MomentaryFailureRate> momentaryFailureRates;
         private List<MomentaryFailureModifier> momentaryFailureModifiers;
         private List<String> disabledFailures;
-        private double missionStartTime;
+        private float missionStartTime;
         private bool firstStaged;
 
         // These were created for KCT integration but might have other uses
-        private double dataRateLimiter = 1.0;
-        private double dataCap = double.MaxValue;
+        private float dataRateLimiter = 1.0f;
+        private float dataCap = float.MaxValue;
 
         public bool TestFlightEnabled
         {
@@ -97,146 +105,28 @@ namespace TestFlightCore
             TestFlightUtil.Log(message, debug);
         }
 
-        // Get a proper scope string for use in other parts of the API
-        public String GetScope()
-        {
-            return GetScopeForSituationAndBody(this.vessel.situation, this.vessel.mainBody);
-        }
-        public String GetScopeForSituation(String situation)
-        {
-            return GetScopeForSituationAndBody(situation, this.vessel.mainBody);
-        }
-        public String GetScopeForSituation(Vessel.Situations situation)
-        {
-            return GetScopeForSituationAndBody(situation.ToString(), this.vessel.mainBody);
-        }
-        public String GetScopeForSituationAndBody(String situation, CelestialBody body)
-        {
-            return GetScopeForSituationAndBody(situation, body.GetName());
-        }
-        public String GetScopeForSituationAndBody(Vessel.Situations situation, String body)
-        {
-            return GetScopeForSituationAndBody(situation.ToString(), body);
-        }
-        public String GetScopeForSituationAndBody(Vessel.Situations situation, CelestialBody body)
-        {
-            return GetScopeForSituationAndBody(situation.ToString(), body.GetName());
-        }
-        public String GetScopeForSituationAndBody(String situation, String body)
-        {
-            if (TestFlightManagerScenario.Instance != null && TestFlightManagerScenario.Instance.userSettings != null)
-            {
-                if (TestFlightManagerScenario.Instance.userSettings.singleScope)
-                    return "default";
-            }
-            // Determine if we are recording data in SPACE or ATMOSHPHERE
-            situation = situation.ToLower().Trim();
-            body = body.ToLower().Trim();
-            if (situation == "sub_orbital" || situation == "orbiting" || situation == "escaping" || situation == "docked")
-            {
-                if (this.vessel.altitude > deepSpaceThreshold)
-                {
-                    situation = "deep-space";
-                    body = "none";
-                }
-                else
-                {
-                    situation = "space";
-                }
-            }
-            else if (situation == "flying" || situation == "landed" || situation == "splashed" || situation == "prelaunch")
-            {
-                situation = "atmosphere";
-            }
-            else
-            {
-                situation = "default";
-            }
-
-            return String.Format("{0}_{1}", body.ToLower(), situation.ToLower());
-        }
-        public String PrettyStringForScope(String scope)
-        {
-            string body;
-            string situation;
-            string[] split = scope.Split(new char[] { '_' });
-
-            // fall out if we have unexpected input
-            if (split.Length != 2)
-                return scope;
-
-            body = split[0].Substring(0,1).ToUpper() + split[0].Substring(1).ToLower();
-            situation = split[1].Substring(0,1).ToUpper() + split[1].Substring(1).ToLower();
-
-            // Try to get the alias for this body if at all possible
-            if (TestFlightManagerScenario.Instance != null)
-            {
-                if (TestFlightManagerScenario.Instance.bodySettings.bodyAliases.ContainsKey(body.ToLower()))
-                    body = TestFlightManagerScenario.Instance.bodySettings.bodyAliases[body.ToLower()];
-            }
-
-            return body + " " + situation;
-        }
-
         // Get the base or static failure rate
-        public double GetBaseFailureRate()
+        public float GetBaseFailureRate()
         {
-            return GetBaseFailureRateForScope(GetScope());
-        }
-        public double GetBaseFailureRateForScope(String scope)
-        {
-            // Since the Base Failure Rate does not change during the lifetime of a part
-            // we cache that data internally so as to not have to call the Reliability module
-            // constantly.  Therefore here we are returning what we have if we have it,
-            // or else getting it from the Reliability module and caching that for next time.
-            scope = scope.ToLower().Trim();
-//            LogFormatted_DebugOnly(String.Format("TestFlightCore: GetBaseFailureRateForScope({0})",scope));
-            if (baseFailureRate == null)
-            {
-//                LogFormatted_DebugOnly("BaseFailureRate data is invalid");
+            if (baseFailureRate != 0f)
+                return baseFailureRate;
+
+            float totalBFR = 0f;
+            List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part);
+            if (reliabilityModules == null)
                 return TestFlightUtil.MIN_FAILURE_RATE;
-            }
-            if (baseFlightData == null)
-            {
-//                LogFormatted_DebugOnly("baseFlightData is invalid");
-                return TestFlightUtil.MIN_FAILURE_RATE;
-            }
-            if (baseFailureRate.ContainsKey(scope))
-            {
-//                LogFormatted_DebugOnly("TestFlightCore: Returning cached Base Failure Rate");
-                return baseFailureRate[scope];
-            }
-            else
-            {
-//                LogFormatted_DebugOnly("TestFlightCore: Calculating Base Failure Rate from Reliability modules");
-                double totalBFR = 0;
-                double data = 0;
-                FlightDataBody body = baseFlightData.GetFlightData(scope);
-                if (body != null)
-                    data = body.flightData;
 
-                List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part);
-                if (reliabilityModules == null)
-                    return TestFlightUtil.MIN_FAILURE_RATE;
-
-                foreach (ITestFlightReliability rm in reliabilityModules)
-                {
-                    totalBFR += rm.GetBaseFailureRateForScope(data, scope);
-                }
-                totalBFR = Mathf.Max((float)totalBFR, (float)TestFlightUtil.MIN_FAILURE_RATE);
-                baseFailureRate.Add(scope, totalBFR);
-                return totalBFR;
+            foreach (ITestFlightReliability rm in reliabilityModules)
+            {
+                totalBFR += rm.GetBaseFailureRate(initialFlightData);
             }
-
+            totalBFR = Mathf.Max(totalBFR, TestFlightUtil.MIN_FAILURE_RATE);
+            baseFailureRate = totalBFR;
+            return baseFailureRate;
         }
         // Get the Reliability Curve for the part
         public FloatCurve GetBaseReliabilityCurve()
         {
-            return GetBaseReliabilityCurveForScope(GetScope());
-        }
-        public FloatCurve GetBaseReliabilityCurveForScope(String scope)
-        {
-            scope = scope.ToLower().Trim();
             FloatCurve curve;
 
             List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part);
@@ -245,7 +135,7 @@ namespace TestFlightCore
 
             foreach (ITestFlightReliability rm in reliabilityModules)
             {
-                curve = rm.GetReliabilityCurveForScope(scope);
+                curve = rm.GetReliabilityCurve();
                 if (curve != null)
                     return curve;
             }
@@ -256,19 +146,6 @@ namespace TestFlightCore
         // These  methods will let you get a list of all momentary rates or you can get the best (lowest chance of failure)/worst (highest chance of failure) rates
         public MomentaryFailureRate GetWorstMomentaryFailureRate()
         {
-            return GetWorstMomentaryFailureRateForScope(GetScope());
-        }
-        public MomentaryFailureRate GetBestMomentaryFailureRate()
-        {
-            return GetBestMomentaryFailureRateForScope(GetScope());
-        }
-        public List<MomentaryFailureRate> GetAllMomentaryFailureRates()
-        {
-            return GetAllMomentaryFailureRatesForScope(GetScope());
-        }
-        public MomentaryFailureRate GetWorstMomentaryFailureRateForScope(String scope)
-        {
-            scope = scope.ToLower().Trim();
             MomentaryFailureRate worstMFR;
 
             worstMFR = new MomentaryFailureRate();
@@ -277,7 +154,7 @@ namespace TestFlightCore
 
             foreach (MomentaryFailureRate mfr in momentaryFailureRates)
             {
-                if (mfr.scope == scope && mfr.failureRate > worstMFR.failureRate)
+                if (mfr.failureRate > worstMFR.failureRate)
                 {
                     worstMFR = mfr;
                 }
@@ -285,18 +162,17 @@ namespace TestFlightCore
 
             return worstMFR;
         }
-        public MomentaryFailureRate GetBestMomentaryFailureRateForScope(String scope)
+        public MomentaryFailureRate GetBestMomentaryFailureRate()
         {
-            scope = scope.ToLower().Trim();
             MomentaryFailureRate bestMFR;
 
             bestMFR = new MomentaryFailureRate();
             bestMFR.valid = false;
-            bestMFR.failureRate = Double.MaxValue;
+            bestMFR.failureRate = float.MaxValue;
 
             foreach (MomentaryFailureRate mfr in momentaryFailureRates)
             {
-                if (mfr.scope == scope && mfr.failureRate < bestMFR.failureRate)
+                if (mfr.failureRate < bestMFR.failureRate)
                 {
                     bestMFR = mfr;
                 }
@@ -304,43 +180,26 @@ namespace TestFlightCore
 
             return bestMFR;
         }
-        public List<MomentaryFailureRate> GetAllMomentaryFailureRatesForScope(String scope)
+        public List<MomentaryFailureRate> GetAllMomentaryFailureRates()
         {
-            scope = scope.ToLower().Trim();
-
-            List<MomentaryFailureRate> mfrList = new List<MomentaryFailureRate>();
-
-            foreach (MomentaryFailureRate mfr in momentaryFailureRates)
-            {
-                if (mfr.scope == scope)
-                {
-                    mfrList.Add(mfr);
-                }
-            }
-
-            return mfrList;
+            return momentaryFailureRates;
         }
-        public double GetMomentaryFailureRateForTrigger(String trigger)
+        public float GetMomentaryFailureRateForTrigger(String trigger)
         {
-            return GetMomentaryFailureRateForTriggerForScope(trigger, GetScope());
-        }
-        public double GetMomentaryFailureRateForTriggerForScope(String trigger, String scope)
-        {
-            return GetMomentaryFailureRate(trigger, scope).failureRate;
+            return GetMomentaryFailureRate(trigger).failureRate;
         }
         // The momentary failure rate is tracked per named "trigger" which allows multiple Reliability or FailureTrigger modules to cooperate
         // Returns the total modified failure rate back to the caller for convenience
         // IMPORTANT: For performance reasons a module should only set its Momentary Modifier WHEN IT CHANGES.  The core will cache the value.
         // Setting the same value multiple times will only force the core to recalculate the Momentary Rate over and over
-        internal MomentaryFailureModifier GetMomentaryFailureModifier(String trigger, String owner, String scope)
+        internal MomentaryFailureModifier GetMomentaryFailureModifier(String trigger, String owner)
         {
-            scope = scope.ToLower().Trim();
             trigger = trigger.ToLower().Trim();
             String ownerName = owner.ToLower().Trim();
 
             foreach (MomentaryFailureModifier mfMod in momentaryFailureModifiers)
             {
-                if (mfMod.scope == scope && mfMod.owner == ownerName && mfMod.triggerName == trigger)
+                if (mfMod.owner == ownerName && mfMod.triggerName == trigger)
                 {
                     return mfMod;
                 }
@@ -348,14 +207,13 @@ namespace TestFlightCore
 
             return new MomentaryFailureModifier();
         }
-        internal MomentaryFailureRate GetMomentaryFailureRate(String trigger, String scope)
+        internal MomentaryFailureRate GetMomentaryFailureRate(String trigger)
         {
-            scope = scope.ToLower().Trim();
             trigger = trigger.ToLower().Trim();
 
             foreach (MomentaryFailureRate mfRate in momentaryFailureRates)
             {
-                if (mfRate.scope == scope && mfRate.triggerName == trigger)
+                if (mfRate.triggerName == trigger)
                 {
                     return mfRate;
                 }
@@ -364,59 +222,50 @@ namespace TestFlightCore
             return new MomentaryFailureRate();
         }
 
-        public double SetTriggerMomentaryFailureModifier(String trigger, double multiplier, PartModule owner)
-        {
-            return SetTriggerMomentaryFailureModifierForScope(trigger, multiplier, owner, GetScope());
-        }
-        public double SetTriggerMomentaryFailureModifierForScope(String trigger, double multiplier, PartModule owner, String scope)
+        public float SetTriggerMomentaryFailureModifier(String trigger, float multiplier, PartModule owner)
         {
             // store the trigger, recalculate the final rate, and cache that as well
-            scope = scope.ToLower().Trim();
             trigger = trigger.ToLower().Trim();
             MomentaryFailureModifier mfm;
             String ownerName = owner.moduleName.ToLower();
 
-            mfm = GetMomentaryFailureModifier(trigger, ownerName, scope);
+            mfm = GetMomentaryFailureModifier(trigger, ownerName);
             if (mfm.valid)
             {
-//                LogFormatted_DebugOnly(String.Format("TestFlightCore:({0}): Updating MFT for {1} with a value of {2:F4}", Configuration, trigger, multiplier));
                 // recalculate new rate and cache everything
                 momentaryFailureModifiers.Remove(mfm);
                 mfm.modifier = multiplier;
                 momentaryFailureModifiers.Add(mfm);
-                return CalculateMomentaryFailureRate(trigger, scope);
+                return CalculateMomentaryFailureRate(trigger);
             }
             else
             {
                 // If didn't find a proper match in our existing list, add a new one
                 mfm.valid = true;
-                mfm.scope = scope;
                 mfm.owner = ownerName;
                 mfm.modifier = multiplier;
                 mfm.triggerName = trigger;
                 momentaryFailureModifiers.Add(mfm);
                 // recalculate new rate
-//                LogFormatted_DebugOnly(String.Format("TestFlightCore:({0}): Adding new MFT for {1} with a value of {2:F4}", Configuration, trigger, multiplier));
-                return CalculateMomentaryFailureRate(trigger, scope);
+                return CalculateMomentaryFailureRate(trigger);
             }
         }
-        internal double CalculateMomentaryFailureRate(String trigger, String scope)
+        internal float CalculateMomentaryFailureRate(String trigger)
         {
-            scope = scope.ToLower().Trim();
             trigger = trigger.ToLower().Trim();
-            double baseFailureRate = GetBaseFailureRateForScope(scope);
-            double totalModifiers = 1;
+            float baseFailureRate = GetBaseFailureRate();
+            float totalModifiers = 1;
 
             foreach (MomentaryFailureModifier mfm in momentaryFailureModifiers)
             {
-                if (mfm.scope == scope && mfm.triggerName == trigger)
+                if (mfm.triggerName == trigger)
                 {
                     totalModifiers *= mfm.modifier;
                 }
             }
-            double momentaryRate = baseFailureRate * totalModifiers;
+            float momentaryRate = baseFailureRate * totalModifiers;
             // Cache this value internally
-            MomentaryFailureRate mfr = GetMomentaryFailureRate(trigger, scope);
+            MomentaryFailureRate mfr = GetMomentaryFailureRate(trigger);
             if (mfr.valid)
             {
                 momentaryFailureRates.Remove(mfr);
@@ -426,7 +275,6 @@ namespace TestFlightCore
             else
             {
                 mfr.valid = true;
-                mfr.scope = scope;
                 mfr.triggerName = trigger;
                 mfr.failureRate = momentaryRate;
                 momentaryFailureRates.Add(mfr);
@@ -437,24 +285,24 @@ namespace TestFlightCore
         // Returned string will be of the format "123 units"
         // units should be one of:
         //  seconds, hours, days, years, 
-        public String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units)
+        public String FailureRateToMTBFString(float failureRate, TestFlightUtil.MTBFUnits units)
         {
             return FailureRateToMTBFString(failureRate, units, false, int.MaxValue);
         }
-        public String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, int maximum)
+        public String FailureRateToMTBFString(float failureRate, TestFlightUtil.MTBFUnits units, int maximum)
         {
             return FailureRateToMTBFString(failureRate, units, false, maximum);
         }
         // Short version of MTBFString uses a single letter to denote (s)econds, (m)inutes, (h)ours, (d)ays, (y)ears
         // The returned string will be of the format "12.00s" or "0.20d"
-        public String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, bool shortForm)
+        public String FailureRateToMTBFString(float failureRate, TestFlightUtil.MTBFUnits units, bool shortForm)
         {
             return FailureRateToMTBFString(failureRate, units, shortForm, int.MaxValue);
         }
-        public String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, bool shortForm, int maximum)
+        public String FailureRateToMTBFString(float failureRate, TestFlightUtil.MTBFUnits units, bool shortForm, int maximum)
         {
             int currentUnit = (int)TestFlightUtil.MTBFUnits.SECONDS;
-            double mtbf = FailureRateToMTBF(failureRate, (TestFlightUtil.MTBFUnits)currentUnit);
+            float mtbf = FailureRateToMTBF(failureRate, (TestFlightUtil.MTBFUnits)currentUnit);
             while (mtbf > maximum)
             {
                 currentUnit++;
@@ -491,10 +339,10 @@ namespace TestFlightCore
             }
         }
         // Simply converts the failure rate to a MTBF number, without any string formatting
-        public double FailureRateToMTBF(double failureRate, TestFlightUtil.MTBFUnits units)
+        public float FailureRateToMTBF(float failureRate, TestFlightUtil.MTBFUnits units)
         {
             failureRate = Mathf.Max((float)failureRate, (float)TestFlightUtil.MIN_FAILURE_RATE);
-            double mtbfSeconds = 1.0 / failureRate;
+            float mtbfSeconds = 1.0f / failureRate;
 
             switch (units)
             {
@@ -513,172 +361,120 @@ namespace TestFlightCore
             }
         }
         // Get the FlightData or FlightTime for the part
-        public double GetFlightData()
-        {
-            return GetFlightDataForScope(GetScope());
-        }
-        public double GetFlightDataForScope(String scope)
-        {
-            if (flightData == null)
-            {
-                Log("FlightData is invalid");
-                return 0;
-            }
-            FlightDataBody dataBody = flightData.GetFlightData(scope);
-            if (dataBody == null)
-            {
-                return 0;
-            }
-            else
-                return dataBody.flightData;
-        }
-        public double GetInitialFlightData()
-        {
-            return GetInitialFlightDataforScope(GetScope());
-        }
-        public double GetInitialFlightDataforScope(String scope)
-        {
-            if (baseFlightData == null)
-                return 0;
 
-            FlightDataBody dataBody = baseFlightData.GetFlightData(scope);
-            if (dataBody == null)
-                return 0;
-            else
-                return dataBody.flightData;
-        }
-        public double GetFlightTime()
+        // New v1.3 noscope
+        public float GetFlightData()
         {
-            return GetFlightTimeForScope(GetScope());
+            return currentFlightData;
         }
-        public double GetFlightTimeForScope(String scope)
+        public float GetInitialFlightData()
         {
-            FlightDataBody dataBody = flightData.GetFlightData(scope);
-            if (dataBody == null)
+            return initialFlightData;
+        }
+        public float GetFlightTime()
+        {
+            if (TestFlightManagerScenario.Instance != null)
             {
-                return 0;
+                TestFlightPartData partData = TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part));
+                return float.Parse(partData.GetValue("flightTime"));
             }
             else
-            {
-                return dataBody.flightTime;
-            }
+                return 0f;
         }
+
         // Methods to restrict the amount of data accumulated.  Useful for KCT or other "Simulation" mods to use
-        public double SetDataRateLimit(double limit)
+        public float SetDataRateLimit(float limit)
         {
-            double oldRate = dataRateLimiter;
+            float oldRate = dataRateLimiter;
             dataRateLimiter = limit;
             return oldRate;
         }
-        public double SetDataCap(double cap)
+        public float SetDataCap(float cap)
         {
-            double oldCap = dataCap;
+            float oldCap = dataCap;
             dataCap = cap;
             return oldCap;
         }
         // Set the FlightData for FlightTime or the part - this is an absolute set and replaces the previous FlightData.
         // This will NOT apply any global TestFlight modifiers!
         // Be sure these are the methods you want to use.  99% of the time you want to use ModifyFlightData instead
-        public void SetFlightData(double data)
+        public void SetFlightData(float data)
         {
-            SetFlightDataForScope(data, GetScope());
+            currentFlightData = data;
         }
-        public void SetFlightTime(double seconds)
+        public void SetFlightTime(float flightTime)
         {
-            SetFlightTimeForScope(seconds, GetScope());
-        }
-        // TODO
-        public void SetFlightDataForScope(double data, String scope)
-        {
-        }
-        // TODO
-        public void SetFlightTimeForScope(double seconds, String scope)
-        {
-        }
-        // Modify the FlightData or FlightTime for the part
-        // The given modifier is multiplied against the current FlightData unless additive is true
-        // Global TestFlight modifiers are applied here
-        public double ModifyFlightData(double modifier)
-        {
-            return ModifyFlightDataForScope(modifier, GetScope(), false);
-        }
-        public double ModifyFlightTime(double modifier)
-        {
-            return ModifyFlightTimeForScope(modifier, GetScope(), false);
-        }
-        public double ModifyFlightData(double modifier, bool additive)
-        {
-            return ModifyFlightDataForScope(modifier, GetScope(), additive);
-        }
-        public double ModifyFlightTime(double modifier, bool additive)
-        {
-            return ModifyFlightTimeForScope(modifier, GetScope(), additive);
-        }
-        public double ModifyFlightDataForScope(double modifier, String scope)
-        {
-            return ModifyFlightDataForScope(modifier, scope, false);
-        }
-        public double ModifyFlightTimeForScope(double modifier, String scope)
-        {
-            return ModifyFlightTimeForScope(modifier, scope, false);
-        }
-        public double ModifyFlightDataForScope(double modifier, String scope, bool additive)
-        {
-            if (flightData == null)
+            if (TestFlightManagerScenario.Instance != null)
             {
-                return 0;
+                TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part)).AddValue("flightTime", flightTime.ToString());
             }
+        }
 
-            FlightDataBody bodyData = flightData.GetFlightData(scope);
-            if (bodyData == null)
-            {
-                if (!additive)
-                    return 0;
-                modifier = ApplyFlightDataMultiplier(modifier);
+        // v1.3 noscope
+        public float ModifyFlightData(float modifier)
+        {
+            return ModifyFlightData(modifier, false);
+        }
 
-                if (modifier >= dataCap)
-                    modifier = dataCap;
-
-                flightData.AddFlightData(scope, modifier, 0);
-                return modifier;
-            }
+        public float ModifyFlightData(float modifier, bool additive)
+        {
+            float newFlightData = currentFlightData;
 
             if (additive)
             {
                 modifier = ApplyFlightDataMultiplier(modifier);
-                bodyData.flightData += modifier;
+                newFlightData += modifier;
             }
             else
             {
-                bodyData.flightData *= modifier;
+                newFlightData *= modifier;
+            }
+            if (newFlightData > dataCap)
+                newFlightData = dataCap;
+
+            currentFlightData = newFlightData;
+            return currentFlightData;
+        }
+        public float ModifyFlightTime(float flightTime)
+        {
+            return ModifyFlightTime(flightTime, false);
+        }
+        public float ModifyFlightTime(float flightTime, bool additive)
+        {
+            float newFlightTime = -1f;
+            if (TestFlightManagerScenario.Instance != null)
+            {
+                newFlightTime = float.Parse(TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part)).GetValue("flightTime"));
+                if (additive)
+                    newFlightTime += flightTime;
+                else
+                    newFlightTime *= flightTime;
+                TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part)).AddValue("flightTime", newFlightTime.ToString());
             }
 
-            if (bodyData.flightData >= dataCap)
-                bodyData.flightData = dataCap;
-
-            flightData.AddFlightData(scope, bodyData.flightData, bodyData.flightTime);
-            return bodyData.flightData;
+            return newFlightTime;
         }
-        public double GetEngineerDataBonus(double partEngineerBonus)
+
+        public float GetEngineerDataBonus(float partEngineerBonus)
         {
             if (TestFlightManagerScenario.Instance == null)
                 return 1;
-            double globalFlightDataEngineerMultiplier = TestFlightManagerScenario.Instance.userSettings.flightDataEngineerMultiplier;
+            float globalFlightDataEngineerMultiplier = TestFlightManagerScenario.Instance.userSettings.flightDataEngineerMultiplier;
 
             List<ProtoCrewMember> crew = this.part.vessel.GetVesselCrew().Where(c => c.experienceTrait.Title == "Engineer").ToList();
-            double totalEngineerBonus = 0;
+            float totalEngineerBonus = 0;
             foreach (ProtoCrewMember crewMember in crew)
             {
                 int engineerLevel = crewMember.experienceLevel;
                 totalEngineerBonus = totalEngineerBonus + (partEngineerBonus * engineerLevel * globalFlightDataEngineerMultiplier);
             }
-            double engineerModifier = 1.0 + totalEngineerBonus;
+            float engineerModifier = 1.0f + totalEngineerBonus;
 
             return engineerModifier;
         }
         // TODO
         // apply bodyconfig multiplier here
-        internal double ApplyFlightDataMultiplier(double baseData)
+        internal float ApplyFlightDataMultiplier(float baseData)
         {
             baseData *= dataRateLimiter;
 
@@ -686,11 +482,6 @@ namespace TestFlightCore
                 return baseData;
 
             return baseData * TestFlightManagerScenario.Instance.userSettings.flightDataMultiplier;
-        }
-        // TODO
-        public double ModifyFlightTimeForScope(double modifier, String scope, bool additive)
-        {
-            return 0;
         }
         // Cause a failure to occur, either a random failure or a specific one
         // If fallbackToRandom is true, then if the specified failure can't be found or can't be triggered, a random failure will be triggered instead
@@ -817,7 +608,7 @@ namespace TestFlightCore
         // If a part is currently in a failure state, return will be -1 and the part should not fail again
         // This counts from mission start time until a failure, at which point it is reset to the time the
         // failure is repaired.  It is important to understand this is NOT the total flight time of the part.
-        public double GetOperatingTime()
+        public float GetOperatingTime()
         {
             return operatingTime;
         }
@@ -827,7 +618,7 @@ namespace TestFlightCore
         {
             GameEvents.onStageActivate.Remove(OnStageActivate);
             firstStaged = true;
-            missionStartTime = Planetarium.GetUniversalTime();
+            missionStartTime = (float)Planetarium.GetUniversalTime();
             Log("First stage activated");
         }
         /// <summary>
@@ -864,7 +655,7 @@ namespace TestFlightCore
 
                 if (activeFailure != null)
                 {
-                    double repairStatus = activeFailure.GetSecondsUntilRepair();
+                    float repairStatus = activeFailure.GetSecondsUntilRepair();
                     if (repairStatus == 0)
                     {
                         Log("Part has been repaired");
@@ -903,7 +694,7 @@ namespace TestFlightCore
                 else
                 {
                     firstStaged = true;
-                    missionStartTime = Planetarium.GetUniversalTime();
+                    missionStartTime = (float)Planetarium.GetUniversalTime();
                 }
             }
         }
@@ -915,14 +706,7 @@ namespace TestFlightCore
                 partName = this.part.name;
             else
                 partName = "unknown";
-            if (baseFlightData == null)
-                baseFlightData = new FlightDataConfig();
-            if (flightData == null)
-                flightData = new FlightDataConfig();
-
-            if (baseFailureRate == null)
-                baseFailureRate = new Dictionary<string, double>();
-
+            
             if (momentaryFailureRates == null)
                 momentaryFailureRates = new List<MomentaryFailureRate>();
 
@@ -933,26 +717,23 @@ namespace TestFlightCore
                 disabledFailures = new List<string>();
         }
 
-        public void InitializeFlightData(List<TestFlightData> allFlightData)
+        public void InitializeFlightData(float flightData)
         {
-            if (allFlightData == null)
-                allFlightData = AttemptTechTransfer();
-            if (allFlightData == null)
+            if (currentFlightData > 0f)
                 return;
-            baseFlightData = new FlightDataConfig();
-            flightData = new FlightDataConfig();
-            foreach (TestFlightData data in allFlightData)
+            
+            if (flightData == 0f)
+                AttemptTechTransfer();
+            else
             {
-                baseFlightData.AddFlightData(data.scope, data.flightData, data.flightTime);
-                flightData.AddFlightData(data.scope, data.flightData, data.flightTime);
+                currentFlightData = flightData;
+                initialFlightData = flightData;
             }
-            missionStartTime = Planetarium.GetUniversalTime();
+            missionStartTime = (float)Planetarium.GetUniversalTime();
             initialized = true;
-            return;
         }
 
-
-        internal List<TestFlightData> AttemptTechTransfer()
+        internal void AttemptTechTransfer()
         {
             // attempts to transfer data from a predecessor part
             // parts can be referenced either by part name, full name, or configuration name
@@ -967,10 +748,9 @@ namespace TestFlightCore
             // defines two branches, one from the RS-27 branch and one from the LR-89 branch.  
 
             if (techTransfer.Trim() == "")
-                return null;
+                return;
 
-            List<TestFlightData> transferredFlightData;
-            Dictionary<string, double> dataToTransfer = null;
+            float dataToTransfer = 0f;
             string[] branches;
             string[] modifiers;
             int generation = 0;
@@ -985,49 +765,26 @@ namespace TestFlightCore
                 string[] partsInBranch = modifiers[0].Split(new char[1]{ ',' });
                 float branchModifier = float.Parse(modifiers[1]);
                 branchModifier /= 100f;
-                dataToTransfer = new Dictionary<string, double>();
-                foreach (string partNameFragment in partsInBranch)
+                foreach (string partName in partsInBranch)
                 {
-                    PartFlightData partData = TestFlightManagerScenario.Instance.GetFlightDataForPartNameFragment(partNameFragment);
-                    if (partData == null)
+                    float partFlightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(partName);
+                    if (partFlightData == 0f)
                         continue;
-                    List<TestFlightData> data = partData.GetFlightData();
-                    foreach (TestFlightData scopeData in data)
-                    {
-                        if (dataToTransfer.ContainsKey(scopeData.scope))
-                        {
-                            dataToTransfer[scopeData.scope] = dataToTransfer[scopeData.scope] + ((scopeData.flightData - (scopeData.flightData * generation * techTransferGenerationPenalty)) * branchModifier);
-                        }
-                        else
-                        {
-                            dataToTransfer.Add(scopeData.scope, ((scopeData.flightData - (scopeData.flightData * generation * techTransferGenerationPenalty))) * branchModifier);
-                        }
-                    }
+                    
+                    dataToTransfer = dataToTransfer + ((partFlightData - (partFlightData * generation * techTransferGenerationPenalty)) * branchModifier);
+//                    dataToTransfer.Add(scopeData.scope, ((scopeData.flightData - (scopeData.flightData * generation * techTransferGenerationPenalty))) * branchModifier);
                     generation++;
                 }
             }
-            // When that is all done we should have a bunch of data in our dictionary dataToTransfer sorted by scope.  Now we just need to pack it into proper TestFlightData structs
-            if (dataToTransfer == null || dataToTransfer.Count <= 0)
-                return null;
-            transferredFlightData = new List<TestFlightData>();
-            foreach (var scope in dataToTransfer)
-            {
-                TestFlightData data = new TestFlightData();
-                data.scope = scope.Key;
-                if (techTransferMax > 0 && scope.Value > techTransferMax)
-                    data.flightData = techTransferMax;
-                else
-                    data.flightData = scope.Value;
-                transferredFlightData.Add(data);
-            }
-            return transferredFlightData;
+            currentFlightData = dataToTransfer;
+            initialFlightData = dataToTransfer;
         }
 
 
         private ITestFlightFailure activeFailure = null;
         private bool failureAcknowledged = false;
 
-        public double GetRepairTime()
+        public float GetRepairTime()
         {
             if (activeFailure == null)
                 return 0;
@@ -1035,14 +792,14 @@ namespace TestFlightCore
                 return activeFailure.GetSecondsUntilRepair();
         }
 
-        public double AttemptRepair()
+        public float AttemptRepair()
         {
             if (activeFailure == null)
                 return 0;
 
             if (activeFailure.CanAttemptRepair())
             {
-                double repairStatus = activeFailure.AttemptRepair();
+                float repairStatus = activeFailure.AttemptRepair();
                 if (repairStatus == 0)
                 {
                     Log("Part has been repaired");
@@ -1056,12 +813,12 @@ namespace TestFlightCore
             }
             return -1;
         }
-        public double ForceRepair()
+        public float ForceRepair()
         {
             if (activeFailure == null)
                 return 0;
 
-            double repairStatus = activeFailure.ForceRepair();
+            float repairStatus = activeFailure.ForceRepair();
             if (repairStatus == 0)
             {
                 activeFailure = null;

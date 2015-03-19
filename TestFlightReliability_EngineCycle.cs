@@ -12,7 +12,7 @@ namespace TestFlight
     {
         public FloatCurve cycle;
         private bool engineOperating = false;
-        private double engineStartTime = 0;
+        private float engineStartTime = 0;
         [KSPField(isPersistant = true)]
         public float ratedBurnTime = 0f;
 
@@ -29,7 +29,7 @@ namespace TestFlight
                 }
             }
         }
-        public override double GetBaseFailureRateForScope(double flightData, String scope)
+        public override float GetBaseFailureRate(float flightData)
         {
             return 0;
         }
@@ -47,7 +47,7 @@ namespace TestFlight
             {
                 if (core.IsPartOperating())
                 {
-                    engineStartTime = Planetarium.GetUniversalTime();
+                    engineStartTime = (float)Planetarium.GetUniversalTime();
                     engineOperating = true;
                 }
             }
@@ -60,7 +60,7 @@ namespace TestFlight
                     engineOperating = false;
                     return;
                 }
-                double engineOperatingTime = Planetarium.GetUniversalTime() - engineStartTime;
+                float engineOperatingTime = (float)Planetarium.GetUniversalTime() - engineStartTime;
                 float penalty = cycle.Evaluate((float)engineOperatingTime);
 //                Debug.Log(String.Format("TestFlightFailure_EngineCycle: Applying modifier {0:F4} at cycle time {1:F4}", penalty, engineOperatingTime));
                 core.SetTriggerMomentaryFailureModifier("EngineCycle", penalty, this);
@@ -80,15 +80,6 @@ namespace TestFlight
             }
             else
                 cycle = null;
-        }
-        public override string GetTestFlightInfo()
-        {
-            if (cycle != null)
-            {
-                float burnThrough = cycle.Evaluate(cycle.maxTime);
-                return String.Format("Rated Burn Time: <color=#859900ff>{0:F2}</color> seconds\nBurn through penalty is <color=#dc322fff>{1:F2}</color> at {2:F2} seconds", ratedBurnTime, burnThrough, cycle.maxTime);
-            }
-            return "";
         }
         public override string GetInfo()
         {

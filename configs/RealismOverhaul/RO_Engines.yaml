@@ -102,13 +102,11 @@ PartConfigs:
             flightDataEngineerModifier: 0.25
         -   name: 'TestFlightReliability'
             configuration: 'WAC-Corporal'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
-                    - '0 0.024'
-                    - '1000 0.0144'
-                    - '4000 0.0072'
-                    - '10000 0.0048'
+            reliabilityCurve:
+                - '0 0.024'
+                - '1000 0.0144'
+                - '4000 0.0072'
+                - '10000 0.0048'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'WAC-Corporal'
             ratedBurnTime: 125

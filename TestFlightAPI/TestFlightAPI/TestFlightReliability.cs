@@ -40,12 +40,17 @@ namespace TestFlightAPI
     public class TestFlightReliabilityBase : PartModule, ITestFlightReliability
     {
         protected ITestFlightCore core = null;
-        protected List<ReliabilityBodyConfig> reliabilityBodies = null;
-        protected double lastCheck = 0;
-        protected double lastReliability = 1.0;
+        // As of v1.3 we no longer have scopes, and therefore don't need eliabilityBodies at all
+        // We simply store a base curve
+//        protected List<ReliabilityBodyConfig> reliabilityBodies = null;
+        protected FloatCurve reliabilityCurve = null;
 
         [KSPField(isPersistant=true)]
         public string configuration = "";
+        [KSPField(isPersistant=true)]
+        public float lastCheck = 0;
+        [KSPField(isPersistant=true)]
+        public float lastReliability = 1.0f;
 
         public bool TestFlightEnabled
         {
@@ -77,49 +82,62 @@ namespace TestFlightAPI
         // If this Reliability module's purpose is to supply Momentary Fialure Rates, then it MUST return 0 when asked for the Base Failure Rate
         // If it dosn't, then the Base Failure Rate of the part will not be correct.
         //
-        public virtual double GetBaseFailureRateForScope(double flightData, String scope)
+        // As of v1.3 we no longer have scopes!
+//        public virtual double GetBaseFailureRateForScope(double flightData, String scope)
+//        {
+//            if (!TestFlightEnabled)
+//                return 0;
+//                
+//            ReliabilityBodyConfig body = GetConfigForScope(scope);
+//            if (body == null)
+//                return TestFlightUtil.MIN_FAILURE_RATE;
+//
+//            FloatCurve curve = body.reliabilityCurve;
+//            if (curve == null)
+//                return TestFlightUtil.MIN_FAILURE_RATE;
+//
+//            double reliability = curve.Evaluate((float)flightData);
+//            Log(String.Format("Reporting BFR of {0:F4}", reliability));
+//            return reliability;
+//        }
+        // New v1.3 noscope implementation
+        public virtual float GetBaseFailureRate(float flightData)
         {
-            if (!TestFlightEnabled)
-                return 0;
-                
-            ReliabilityBodyConfig body = GetConfigForScope(scope);
-            if (body == null)
+            if (reliabilityCurve != null)
+                return reliabilityCurve.Evaluate(flightData);
+            else
                 return TestFlightUtil.MIN_FAILURE_RATE;
-
-            FloatCurve curve = body.reliabilityCurve;
-            if (curve == null)
-                return TestFlightUtil.MIN_FAILURE_RATE;
-
-            double reliability = curve.Evaluate((float)flightData);
-            Log(String.Format("Reporting BFR of {0:F4}", reliability));
-            return reliability;
         }
-
-        public FloatCurve GetReliabilityCurveForScope(String scope)
+        // As of v1.3 we no longer have scopes
+//        public FloatCurve GetReliabilityCurveForScope(String scope)
+//        {
+//            if (!TestFlightEnabled)
+//                return null;
+//
+//            ReliabilityBodyConfig body = GetConfigForScope(scope);
+//            if (body == null)
+//                return null;
+//
+//            FloatCurve curve = body.reliabilityCurve;
+//            return curve;
+//        }
+        public FloatCurve GetReliabilityCurve()
         {
-            if (!TestFlightEnabled)
-                return null;
-
-            ReliabilityBodyConfig body = GetConfigForScope(scope);
-            if (body == null)
-                return null;
-
-            FloatCurve curve = body.reliabilityCurve;
-            return curve;
+            return reliabilityCurve;
         }
-
 
         // INTERNAL methods
-        private ReliabilityBodyConfig GetConfigForScope(String scope)
-        {
-            if (reliabilityBodies == null)
-                return null;
-
-            ReliabilityBodyConfig returnBody = reliabilityBodies.Find(s => s.scope == scope);
-            if (returnBody == null)
-                returnBody = reliabilityBodies.Find(s => s.scope == "default");
-            return returnBody;
-        }
+        // As of v1.3 we don't need this anymore.  The removal of scopes means we don't need this complex data store
+//        private ReliabilityBodyConfig GetConfigForScope(String scope)
+//        {
+//            if (reliabilityBodies == null)
+//                return null;
+//
+//            ReliabilityBodyConfig returnBody = reliabilityBodies.Find(s => s.scope == scope);
+//            if (returnBody == null)
+//                returnBody = reliabilityBodies.Find(s => s.scope == "default");
+//            return returnBody;
+//        }
 
         IEnumerator Attach()
         {
@@ -144,15 +162,15 @@ namespace TestFlightAPI
             foreach (PartModule pm in prefab.Modules)
             {
                 TestFlightReliabilityBase modulePrefab = pm as TestFlightReliabilityBase;
-                if (modulePrefab != null)
-                    Log("Inspecting prefab with query: " + modulePrefab.Configuration);
+                // As of v1.3 this is simpler because we don't have scope or reliability bodies
                 if (modulePrefab != null && TestFlightUtil.EvaluateQuery(modulePrefab.Configuration, this.part))
                 {
                     Log("Found matching prefab");
-                    if (modulePrefab.reliabilityBodies != null && modulePrefab.reliabilityBodies.Count > 0)
+                    if (modulePrefab.reliabilityCurve != null && modulePrefab.reliabilityCurve.maxTime > 0)
                     {
-                        reliabilityBodies = modulePrefab.reliabilityBodies;
-                        Log("Loaded prefab data");
+                        Log(String.Format("Found reliabilityCurve with data point between {0:F2} and {1:F2}.  Loading curve from prefab", modulePrefab.reliabilityCurve.minTime, modulePrefab.reliabilityCurve.maxTime));
+                        reliabilityCurve = modulePrefab.reliabilityCurve;
+                        return;
                     }
                 }
             }
@@ -162,7 +180,6 @@ namespace TestFlightAPI
         {
             Log("Startup");
             LoadDataFromPrefab();
-//            UnityEngine.Random.seed = (int)Time.time;
             Log("Startup::DONE");
         }
 
@@ -175,17 +192,23 @@ namespace TestFlightAPI
 
         public override void OnLoad(ConfigNode node)
         {
-            if (node.HasNode("RELIABILITY_BODY"))
+            // As of v1.3 we dont' need to worry about reliability bodies anymore, just a simple FloatCurve
+            if (node.HasNode("reliabilityCurve"))
             {
-                if (reliabilityBodies == null)
-                    reliabilityBodies = new List<ReliabilityBodyConfig>();
-                foreach (ConfigNode bodyNode in node.GetNodes("RELIABILITY_BODY"))
-                {
-                    ReliabilityBodyConfig reliabilityBody = new ReliabilityBodyConfig();
-                    reliabilityBody.Load(bodyNode);
-                    reliabilityBodies.Add(reliabilityBody);
-                }
+                reliabilityCurve = new FloatCurve();
+                reliabilityCurve.Load(node.GetNode("reliabilityCurve"));
             }
+//            if (node.HasNode("RELIABILITY_BODY"))
+//            {
+//                if (reliabilityBodies == null)
+//                    reliabilityBodies = new List<ReliabilityBodyConfig>();
+//                foreach (ConfigNode bodyNode in node.GetNodes("RELIABILITY_BODY"))
+//                {
+//                    ReliabilityBodyConfig reliabilityBody = new ReliabilityBodyConfig();
+//                    reliabilityBody.Load(bodyNode);
+//                    reliabilityBodies.Add(reliabilityBody);
+//                }
+//            }
             base.OnLoad(node);
         }
 
@@ -198,7 +221,7 @@ namespace TestFlightAPI
                 return;
 
             // NEW RELIABILITY CODE
-            double operatingTime = core.GetOperatingTime();
+            float operatingTime = core.GetOperatingTime();
 //            Debug.Log(String.Format("TestFlightReliability: Operating Time = {0:F2}", operatingTime));
             if (operatingTime == -1)
                 lastCheck = 0;
@@ -207,9 +230,9 @@ namespace TestFlightAPI
                 return;
 
             lastCheck = operatingTime;
-            double baseFailureRate = core.GetBaseFailureRate();
+            float baseFailureRate = core.GetBaseFailureRate();
             MomentaryFailureRate momentaryFailureRate = core.GetWorstMomentaryFailureRate();
-            double currentFailureRate;
+            float currentFailureRate;
 
             if (momentaryFailureRate.valid && momentaryFailureRate.failureRate > baseFailureRate)
                 currentFailureRate = momentaryFailureRate.failureRate;
@@ -223,7 +246,7 @@ namespace TestFlightAPI
             // S() is survival chance, f is currentFailureRate
             // S(t) = e^(-f*t)
 
-            double reliability = Mathf.Exp((float)-currentFailureRate * (float)operatingTime);
+            float reliability = Mathf.Exp((float)-currentFailureRate * (float)operatingTime);
 //            double survivalChance = Mathf.Pow(Mathf.Exp(1), (float)currentFailureRate * (float)operatingTime * -0.693f);
             double survivalChance = reliability / lastReliability;
             lastReliability = reliability;
@@ -238,12 +261,6 @@ namespace TestFlightAPI
                 core.TriggerFailure();
             }
         }
-
-        public virtual string GetTestFlightInfo()
-        {
-            return "";
-        }
-
     }
 }
 
