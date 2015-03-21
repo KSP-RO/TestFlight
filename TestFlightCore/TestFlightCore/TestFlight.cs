@@ -553,14 +553,49 @@ namespace TestFlightCore
 
         public string PartWithMostData()
         {
-            return "";
+            if (partData == null)
+                return "";
+
+            float flightData = 0f;
+            string returnPart = "";
+            foreach (TestFlightPartData part in partData.Values)
+            {
+                float partFlightData = float.Parse(part.GetValue("flightData"));
+                if (partFlightData > flightData)
+                {
+                    flightData = partFlightData;
+                    returnPart = part.PartName;
+                }
+            }
+            return returnPart;
         }
         public string PartWithLeastData()
         {
-            return "";
+            if (partData == null)
+                return "";
+
+            float flightData = float.MaxValue;
+            string returnPart = "";
+            foreach (TestFlightPartData part in partData.Values)
+            {
+                float partFlightData = float.Parse(part.GetValue("flightData"));
+                if (partFlightData < flightData)
+                {
+                    flightData = partFlightData;
+                    returnPart = part.PartName;
+                }
+            }
+            return returnPart;
         }
         public string PartWithNoData(string partList)
         {
+            string[] parts = partList.Split(new char[1]{ ',' });
+            foreach (string partName in parts)
+            {
+                float partFlightData = GetFlightDataForPartName(partName);
+                if (partFlightData < 0f)
+                    return partName;
+            }
             return "";
         }
 
@@ -591,7 +626,7 @@ namespace TestFlightCore
             if (partData.ContainsKey(partName))
                 return float.Parse(partData[partName].GetValue("flightData"));
             else
-                return -1;
+                return -1f;
         }
 
         // New noscope Format

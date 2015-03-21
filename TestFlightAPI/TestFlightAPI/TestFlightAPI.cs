@@ -518,7 +518,31 @@ namespace TestFlightAPI
                 return (string)tfInterface.InvokeMember("PartWithNoData", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, new object[] {partList});
         }
 
-        // TODO: dd a method to get how much data a part has, once the noscope refactor is done
+        public static TestFlightPartData GetPartDataForPart(string partName)
+        {
+            Type tfInterface = null;
+            bool connected = false;
+            TestFlightPartData partData = null;
+
+            try
+            {
+                tfInterface = Type.GetType("TestFlightCore.TestFlightInterface, TestFlightCore");
+            }
+            catch
+            {
+                return null;
+            }
+            connected = (bool)tfInterface.InvokeMember("TestFlightInstalled", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
+            if (connected)
+            {
+                connected = (bool)tfInterface.InvokeMember("TestFlightReady", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
+            }
+
+            if (!connected)
+                return null;
+            else
+                return (TestFlightPartData)tfInterface.InvokeMember("GetPartDataForPart", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, new object[] {partName});
+        }
     }
 
 	public struct TestFlightFailureDetails

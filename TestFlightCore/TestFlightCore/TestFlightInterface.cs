@@ -55,7 +55,13 @@ namespace TestFlightCore
 
             return TestFlightManagerScenario.Instance.PartWithNoData(partList);
         }
+        public static TestFlightPartData GetPartDataForPart(string partName)
+        {
+            if (TestFlightManagerScenario.Instance == null || !TestFlightManagerScenario.Instance.isReady)
+                return null;
 
+            return TestFlightManagerScenario.Instance.GetPartDataForPart(partName);                       
+        }
         // Get a proper scope string for use in other parts of the API
         // PART methods
         // These API methods all operate on a specific part, and therefore the first parameter is always the Part to which it should be applied

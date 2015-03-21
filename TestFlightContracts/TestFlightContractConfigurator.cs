@@ -16,19 +16,27 @@ namespace TestFlightContracts
     /// <summary>
     /// Simple timer implementation.
     /// </summary>
-    public class FlightData : ContractConfiguratorParameter
+    public class CollectFlightData : VesselParameter
     {
-        protected double requiredData { get; set; }
-        protected double flightData { get; set; }
-        protected string requiredScope { get; set; }
+        protected float requiredData { get; set; }
+        protected float flightData { get; set; }
+        protected string partName { get; set; }
+
+        private double lastUpdate = 0;
+        private float lastData = 0f;
 
         private TitleTracker titleTracker = new TitleTracker();
 
-        public FlightData(double requiredData, string requiredScope)
+        public CollectFlightData(float requiredData, string partName)
         {
             this.requiredData = requiredData;
-            this.requiredScope = requiredScope;
+            this.partName = partName;
             disableOnStateChange = false;
+        }
+
+        protected override bool VesselMeetsCondition(Vessel vessel)
+        {
+            return true;
         }
 
         protected override string GetTitle()
@@ -57,15 +65,17 @@ namespace TestFlightContracts
         protected override void OnParameterSave(ConfigNode node)
         {
             node.AddValue("requiredData", requiredData);
-            node.AddValue("requiredScope", requiredScope);
             node.AddValue("flightData", flightData);
+            node.AddValue("lastData", lastData);
+            node.AddValue("partName", partName);
         }
 
         protected override void OnParameterLoad(ConfigNode node)
         {
-            requiredData = Convert.ToDouble(node.GetValue("duration"));
-            flightData = Convert.ToDouble(node.GetValue("endTime"));
-            requiredScope = node.GetValue("requiredScope");
+            requiredData = float.Parse(node.GetValue("requiredData"));
+            flightData = float.Parse(node.GetValue("flightData"));
+            lastData = float.Parse(node.GetValue("lastData"));
+            partName = node.GetValue("partName");
         }
 
         protected override void OnRegister()
@@ -82,11 +92,13 @@ namespace TestFlightContracts
 
         protected void OnContractAccepted(Contract contract)
         {
-            // Set the end time
             if (contract == Root)
             {
                 SetState(ParameterState.Incomplete);
                 flightData = 0;
+                TestFlightPartData partData = TestFlightUtil.GetPartDataForPart(partName);
+                if (partData != null)
+                    lastData = float.Parse(partData.GetValue("flightData"));
             }
         }
 
@@ -94,52 +106,140 @@ namespace TestFlightContracts
         {
             base.OnUpdate();
 
-            // Every time the clock ticks over, make an attempt to update the contract window
-            // title.  We do this because otherwise the window will only ever read the title once,
-            // so this is the only way to get our fancy timer to work.
-//            if (Planetarium.GetUniversalTime() - lastUpdate > 1.0f)
-//            {
-//                // Boom!
-//                if (Planetarium.GetUniversalTime() > endTime)
-//                {
-//                    SetState(ParameterState.Failed);
-//                }
-//                lastUpdate = Planetarium.GetUniversalTime();
-//
-//                titleTracker.UpdateContractWindow(this, GetTitle());
-//            }
+            float partCurrentFlightData;
+            float newFlightData;
+
+            TestFlightPartData partData = TestFlightUtil.GetPartDataForPart(partName);
+            if (partData == null)
+                return;
+
+            if (Planetarium.GetUniversalTime() - lastUpdate > 1.0f)
+            {
+                partCurrentFlightData = float.Parse(partData.GetValue("flightData"));
+                newFlightData = partCurrentFlightData - lastData;
+                lastData = partCurrentFlightData;
+                lastUpdate = Planetarium.GetUniversalTime();
+
+                if (ReadyToComplete())
+                {
+                    flightData = flightData + newFlightData;    
+                    titleTracker.UpdateContractWindow(this, GetTitle());
+                }
+            }
         }
     }
 
     /// <summary>
     /// ParameterFactory wrapper for FlightData ContractParameter.
     /// </summary>
-    public class TFFlightDataFactory : ParameterFactory
+    public class CollectFlightDataFactory : ParameterFactory
     {
-        protected double requiredData;
-        protected string requiredScope;
-        protected string requiredPartQuery;
+        protected float data;
+        protected string part;
 
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
             bool valid = base.Load(configNode);
 
-            // Get requiredData
-            string requiredDataStr = null;
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "requiredData", x => requiredDataStr = x, this, "");
-            if (requiredDataStr != null)
-            {
-                requiredData = requiredDataStr != "" ? DurationUtil.ParseDuration(requiredDataStr) : 0.0;
-            }
-            // Get requiredScope
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "requiredScope", x => this.requiredScope = x, this, "");
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "data", x => data = x, this, 0f);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "part", x => part = x, this, "+", ValidatePartQuery);
             return valid;
+        }
+
+        public bool ValidatePartQuery(string partQuery)
+        {
+            string part = SelectPart(partQuery);
+            if (String.IsNullOrWhiteSpace(part))
+                return false;
+            return true;
+        }
+
+        public string SelectPart(string partQuery)
+        {
+            // Part can be specified directly wth a part name, or through a query expression to dynamically select a part at runtime
+            // Lists of parts to choose from can be specified by a comma seperated list
+            // the + character prepended means choose the part from the list with the most data
+            // the - character prepended means choose the part from the list with the least data
+            // the ! character prepended means choose the first part from the list with no data
+            // The + and - options can also be used without a list, in which case they mean simply choose the part with the most or least data of all parts
+            // If no operator is specified, then a random part from the list is chosen
+            if (partQuery.Contains(","))
+            {
+                // we have a list
+                if (partQuery[0] == '+')
+                {
+                    string newQuery = partQuery.Substring(1);
+                    float maxData = 0f;
+                    string maxPart = "";
+                    TestFlightPartData partData = null;
+                    string[] parts = newQuery.Split(new char[1]{ ',' });
+                    foreach (string partName in parts)
+                    {
+                        partData = TestFlightUtil.GetPartDataForPart(partName);
+                        if (partData == null)
+                            continue;
+                        float partFlightData = float.Parse(partData.GetValue("flightData"));
+                        if (partFlightData > maxData)
+                        {
+                            maxData = partFlightData;
+                            maxPart = partData.PartName;
+                        }
+                    }
+                    return maxPart;
+                }
+                else if (partQuery[0] == '-')
+                {
+                    string newQuery = partQuery.Substring(1);
+                    float minData = float.MaxValue;
+                    string minPart = "";
+                    TestFlightPartData partData = null;
+                    string[] parts = newQuery.Split(new char[1]{ ',' });
+                    foreach (string partName in parts)
+                    {
+                        partData = TestFlightUtil.GetPartDataForPart(partName);
+                        if (partData == null)
+                            continue;
+                        float partFlightData = float.Parse(partData.GetValue("flightData"));
+                        if (partFlightData < minData)
+                        {
+                            minData = partFlightData;
+                            minPart = partData.PartName;
+                        }
+                    }
+                    return minPart;
+                }
+                else if (partQuery[0] == '!')
+                {
+                    return TestFlightUtil.PartWithNoData(partQuery.Substring(1));
+                }
+                else
+                {
+                    // TODO not yet implemented
+                    return "";
+                }
+            }
+            else
+            {
+                // no list, so this is either a direct part name, or a simple +/- operator
+                if (partQuery == "+")
+                    return TestFlightUtil.PartWithMostData();
+                else if (partQuery == "-")
+                    return TestFlightUtil.PartWithLeastData();
+                else
+                {
+                    TestFlightPartData partData = TestFlightUtil.GetPartDataForPart(partQuery);
+                    if (partData == null)
+                        return "";
+                    return partQuery;
+                }
+            }
         }
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new FlightData(requiredData, requiredScope);
+            string selectedPart = SelectPart(part);
+            return new CollectFlightData(data, selectedPart);
         }
     }
 }
