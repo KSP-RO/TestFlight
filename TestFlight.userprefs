@@ -1,36 +1,10 @@
 ﻿<Properties StartupItem="TestFlight.csproj">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="TestFlightAPI/TestFlightAPI/TestFlightAPI.cs">
     <Files>
-      <File FileName="TestFlightAPI/TestFlightAPI/EngineModuleWrapper.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/TestFlight.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/TestFlightEditor.cs" Line="1" Column="1" />
-      <File FileName="TestFlightFailure_ShutdownEngine.cs" Line="1" Column="1" />
-      <File FileName="TestFlightFailure_ReducedMaxThrust.cs" Line="1" Column="1" />
-      <File FileName="TestFlightReliability_EngineCycle.cs" Line="1" Column="1" />
-      <File FileName="TestFlightFailure_ResourceLeak.cs" Line="1" Column="1" />
-      <File FileName="TestFlightFailure_LockGimbal.cs" Line="1" Column="1" />
-      <File FileName="TestFlightAPI/TestFlightAPI/TestFlightFailure.cs" Line="1" Column="1" />
-      <File FileName="TestFlightFailure_IgnitionFail.cs" Line="1" Column="1" />
-      <File FileName="TestFlightFailure_Engine.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/TestFlightCore.cs" Line="1" Column="1" />
-      <File FileName="TestFlightReliability.cs" Line="1" Column="1" />
-      <File FileName="FlightDataRecorder_Engine.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/TestFlightWindow.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/TestFlightHUD.cs" Line="1" Column="1" />
-      <File FileName="TestFlightAPI/TestFlightAPI/TestFlightAPI.cs" Line="517" Column="17" />
-      <File FileName="TestFlightCore/TestFlightCore/TestFlightKSC.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/FrameworkExt/MonoBehaviourWindowPlus.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/UserSettings.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/TestFlightInterface.cs" Line="1" Column="1" />
-      <File FileName="TestFlightAPI/TestFlightAPI/TestFlightReliability.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/UserInterface.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/StylesAndSkins.cs" Line="1" Column="1" />
-      <File FileName="TestFlightAPI/TestFlightAPI/TestFlightPartData.cs" Line="1" Column="1" />
-      <File FileName="TestFlightAPI/TestFlightAPI/TestFlightInterop.cs" Line="1" Column="1" />
-      <File FileName="TestFlightAPI/TestFlightAPI/FlightDataRecorder.cs" Line="1" Column="1" />
-      <File FileName="TestFlightFailure_Explode.cs" Line="1" Column="1" />
-      <File FileName="TestFlightContracts/TestFlightContractConfigurator.cs" Line="1" Column="1" />
+      <File FileName="TestFlightCore/TestFlightCore/TestFlight.cs" Line="553" Column="13" />
+      <File FileName="TestFlightCore/TestFlightCore/TestFlightCore.cs" Line="40" Column="30" />
+      <File FileName="TestFlightAPI/TestFlightAPI/TestFlightAPI.cs" Line="3" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

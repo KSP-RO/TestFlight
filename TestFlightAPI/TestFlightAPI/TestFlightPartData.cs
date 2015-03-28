@@ -39,6 +39,82 @@ namespace TestFlightAPI
                 return "";
         }
 
+        public double GetDouble(string key)
+        {
+            double returnValue = 0;
+            key = key.ToLowerInvariant();
+            if (partData.ContainsKey(key))
+            {
+                double.TryParse(partData[key], out returnValue);
+            }
+            else
+                return 0;
+
+            return returnValue;
+        }
+
+        public float GetFloat(string key)
+        {
+            float returnValue = 0f;
+            key = key.ToLowerInvariant();
+            if (partData.ContainsKey(key))
+            {
+                float.TryParse(partData[key], out returnValue);
+            }
+            else
+                return 0f;
+
+            return returnValue;
+        }
+
+        public bool GetBool(string key)
+        {
+            bool returnValue = false;
+            key = key.ToLowerInvariant();
+            if (partData.ContainsKey(key))
+            {
+                bool.TryParse(partData[key], out returnValue);
+            }
+            else
+                return false;
+
+            return returnValue;
+        }
+
+        public int GetInt(string key)
+        {
+            int returnValue = 0;
+            key = key.ToLowerInvariant();
+            if (partData.ContainsKey(key))
+            {
+                int.TryParse(partData[key], out returnValue);
+            }
+            else
+                return 0;
+
+            return returnValue;
+        }
+
+        public void AddValue(string key, float value)
+        {
+            AddValue(key, value.ToString());
+        }
+
+        public void AddValue(string key, int value)
+        {
+            AddValue(key, value.ToString());
+        }
+
+        public void AddValue(string key, bool value)
+        {
+            AddValue(key, value.ToString());
+        }
+
+        public void AddValue(string key, double value)
+        {
+            AddValue(key, value.ToString());
+        }
+
         public void AddValue(string key, string value)
         {
             key = key.ToLowerInvariant();

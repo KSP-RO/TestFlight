@@ -253,7 +253,7 @@ namespace TestFlightCore
             TestFlightPartData partData = tfScenario.GetPartDataForPart(TestFlightUtil.GetFullPartName(SelectedPart));
             if (partData != null)
             {
-                float flightData = float.Parse(partData.GetValue("flightData"));
+                float flightData = partData.GetFloat("flightData");
                 core = TestFlightUtil.GetCore(SelectedPart);
                 if (core != null)
                 {

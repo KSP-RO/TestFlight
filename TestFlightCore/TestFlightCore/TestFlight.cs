@@ -254,7 +254,7 @@ namespace TestFlightCore
                     TestFlightPartData partData = tfScenario.GetPartDataForPart(TestFlightUtil.GetFullPartName(part));
                     if (partData != null)
                     {
-                        core.InitializeFlightData(float.Parse(partData.GetValue("flightData")));
+                        core.InitializeFlightData(partData.GetFloat("flightData"));
                     }
                     else
                         core.InitializeFlightData(0f);
@@ -551,6 +551,7 @@ namespace TestFlightCore
             isReady = true;
         }
 
+
         public string PartWithMostData()
         {
             if (partData == null)
@@ -599,6 +600,7 @@ namespace TestFlightCore
             return "";
         }
 
+
         // Get access to a part's data store for further set/get
         public TestFlightPartData GetPartDataForPart(string partName)
         {
@@ -624,7 +626,7 @@ namespace TestFlightCore
         public float GetFlightDataForPartName(string partName)
         {
             if (partData.ContainsKey(partName))
-                return float.Parse(partData[partName].GetValue("flightData"));
+                return partData[partName].GetFloat("flightData");
             else
                 return -1f;
         }
