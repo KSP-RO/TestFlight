@@ -376,7 +376,7 @@ namespace TestFlightCore
             if (TestFlightManagerScenario.Instance != null)
             {
                 TestFlightPartData partData = TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part));
-                return float.Parse(partData.GetValue("flightTime"));
+                return partData.GetFloat("flightTime");
             }
             else
                 return 0f;
@@ -406,7 +406,7 @@ namespace TestFlightCore
         {
             if (TestFlightManagerScenario.Instance != null)
             {
-                TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part)).AddValue("flightTime", flightTime.ToString());
+                TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part)).AddValue("flightTime", flightTime);
             }
         }
 
@@ -435,21 +435,23 @@ namespace TestFlightCore
             currentFlightData = newFlightData;
             return currentFlightData;
         }
+
         public float ModifyFlightTime(float flightTime)
         {
             return ModifyFlightTime(flightTime, false);
         }
+
         public float ModifyFlightTime(float flightTime, bool additive)
         {
             float newFlightTime = -1f;
             if (TestFlightManagerScenario.Instance != null)
             {
-                newFlightTime = float.Parse(TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part)).GetValue("flightTime"));
+                newFlightTime = TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part)).GetFloat("flightTime");
                 if (additive)
                     newFlightTime += flightTime;
                 else
                     newFlightTime *= flightTime;
-                TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part)).AddValue("flightTime", newFlightTime.ToString());
+                TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part)).AddValue("flightTime", newFlightTime);
             }
 
             return newFlightTime;
