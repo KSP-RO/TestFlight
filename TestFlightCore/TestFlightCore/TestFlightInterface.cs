@@ -23,13 +23,8 @@ namespace TestFlightCore
 
         public static bool TestFlightReady()
         {
-            if (HighLogic.LoadedSceneIsFlight || HighLogic.LoadedSceneIsEditor)
-            {
-                if (TestFlightManagerScenario.Instance != null && TestFlightManagerScenario.Instance.isReady)
-                    return true;
-                else
-                    return false;
-            }
+            if (TestFlightManagerScenario.Instance != null && TestFlightManagerScenario.Instance.isReady)
+                return true;
             else
                 return false;
         }
