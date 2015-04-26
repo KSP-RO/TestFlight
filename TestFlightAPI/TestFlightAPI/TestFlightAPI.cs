@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 using UnityEngine;
 
@@ -439,6 +440,107 @@ namespace TestFlightAPI
         {
             if (debug)
                 Debug.Log("[TestFlight] " + message);
+        }
+
+        // This block of methods allow for interrogating the scenario's data store in various ways
+        public static string PartWithMostData()
+        {
+            Type tfInterface = null;
+            bool connected = false;
+
+            try
+            {
+                tfInterface = Type.GetType("TestFlightCore.TestFlightInterface, TestFlightCore");
+            }
+            catch
+            {
+                return "";
+            }
+            connected = (bool)tfInterface.InvokeMember("TestFlightInstalled", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
+            if (connected)
+            {
+                connected = (bool)tfInterface.InvokeMember("TestFlightReady", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
+            }
+
+            if (!connected)
+                return "";
+            else
+                return (string)tfInterface.InvokeMember("PartWithMostData", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
+        }
+
+        public static string PartWithLeastData()
+        {
+            Type tfInterface = null;
+            bool connected = false;
+
+            try
+            {
+                tfInterface = Type.GetType("TestFlightCore.TestFlightInterface, TestFlightCore");
+            }
+            catch
+            {
+                return "";
+            }
+            connected = (bool)tfInterface.InvokeMember("TestFlightInstalled", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
+            if (connected)
+            {
+                connected = (bool)tfInterface.InvokeMember("TestFlightReady", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
+            }
+
+            if (!connected)
+                return "";
+            else
+                return (string)tfInterface.InvokeMember("PartWithLeastData", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
+        }
+
+        public static string PartWithNoData(string partList)
+        {
+            Type tfInterface = null;
+            bool connected = false;
+
+            try
+            {
+                tfInterface = Type.GetType("TestFlightCore.TestFlightInterface, TestFlightCore");
+            }
+            catch
+            {
+                return "";
+            }
+            connected = (bool)tfInterface.InvokeMember("TestFlightInstalled", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
+            if (connected)
+            {
+                connected = (bool)tfInterface.InvokeMember("TestFlightReady", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
+            }
+
+            if (!connected)
+                return "";
+            else
+                return (string)tfInterface.InvokeMember("PartWithNoData", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, new object[] {partList});
+        }
+
+        public static TestFlightPartData GetPartDataForPart(string partName)
+        {
+            Type tfInterface = null;
+            bool connected = false;
+
+            try
+            {
+                tfInterface = Type.GetType("TestFlightCore.TestFlightInterface, TestFlightCore");
+            }
+            catch
+            {
+                return null;
+            }
+            connected = (bool)tfInterface.InvokeMember("TestFlightInstalled", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
+            if (connected)
+            {
+                connected = (bool)tfInterface.InvokeMember("TestFlightReady", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
+            }
+
+            if (!connected)
+                return null;
+            else
+                return (TestFlightPartData)tfInterface.InvokeMember("GetPartDataForPart", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, new object[] {partName});
         }
     }
 

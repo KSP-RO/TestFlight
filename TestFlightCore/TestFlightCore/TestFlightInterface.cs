@@ -23,17 +23,40 @@ namespace TestFlightCore
 
         public static bool TestFlightReady()
         {
-            if (HighLogic.LoadedSceneIsFlight || HighLogic.LoadedSceneIsEditor)
-            {
-                if (TestFlightManagerScenario.Instance != null && TestFlightManagerScenario.Instance.isReady)
-                    return true;
-                else
-                    return false;
-            }
+            if (TestFlightManagerScenario.Instance != null && TestFlightManagerScenario.Instance.isReady)
+                return true;
             else
                 return false;
         }
 
+        public static string PartWithMostData()
+        {
+            if (TestFlightManagerScenario.Instance == null || !TestFlightManagerScenario.Instance.isReady)
+                return "";
+
+            return TestFlightManagerScenario.Instance.PartWithMostData();
+        }
+        public static string PartWithLeastData()
+        {
+            if (TestFlightManagerScenario.Instance == null || !TestFlightManagerScenario.Instance.isReady)
+                return "";
+
+            return TestFlightManagerScenario.Instance.PartWithLeastData();
+        }
+        public static string PartWithNoData(string partList)
+        {
+            if (TestFlightManagerScenario.Instance == null || !TestFlightManagerScenario.Instance.isReady)
+                return "";
+
+            return TestFlightManagerScenario.Instance.PartWithNoData(partList);
+        }
+        public static TestFlightPartData GetPartDataForPart(string partName)
+        {
+            if (TestFlightManagerScenario.Instance == null || !TestFlightManagerScenario.Instance.isReady)
+                return null;
+
+            return TestFlightManagerScenario.Instance.GetPartDataForPart(partName);                       
+        }
         // Get a proper scope string for use in other parts of the API
         // PART methods
         // These API methods all operate on a specific part, and therefore the first parameter is always the Part to which it should be applied
