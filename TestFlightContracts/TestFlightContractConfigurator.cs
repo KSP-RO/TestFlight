@@ -45,7 +45,7 @@ namespace TestFlightContracts
             {
                 return "All data collected";
             }
-            else if (flightData < requiredData)
+            else if (flightData > 0 && flightData < requiredData)
             {
                 string title = String.Format("Data remaining: {0:F2}", requiredData - flightData);
 
@@ -58,7 +58,7 @@ namespace TestFlightContracts
             }
             else
             {
-                return String.Format("Required Flight Data: {0:F2}", requiredData);
+                return String.Format("Flight Data: {1}: {0:F2}", requiredData, partName);
             }
         }
 
@@ -143,14 +143,14 @@ namespace TestFlightContracts
             bool valid = base.Load(configNode);
 
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "data", x => data = x, this, 0f);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "part", x => part = x, this, "+", ValidatePartQuery);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "part", x => part = x, this, "+");
             return valid;
         }
 
         public bool ValidatePartQuery(string partQuery)
         {
             string part = SelectPart(partQuery);
-            if (String.IsNullOrWhiteSpace(part))
+            if (String.IsNullOrEmpty(part.Trim()))
                 return false;
             return true;
         }
@@ -239,6 +239,12 @@ namespace TestFlightContracts
         public override ContractParameter Generate(Contract contract)
         {
             string selectedPart = SelectPart(part);
+            if (String.IsNullOrEmpty(selectedPart.Trim()))
+            {
+                Debug.Log(String.Format("TestFlightContracts: Unable to generate contract because the part query '{0}' could not be evaluted", part));
+                return null;
+            }
+            
             return new CollectFlightData(data, selectedPart);
         }
     }
