@@ -21,6 +21,8 @@ namespace TestFlightCore
         public float currentFlightData;
         [KSPField(isPersistant=true)]
         public float initialFlightData;
+        [KSPField(isPersistant=true)]
+        public float startFlightData;
 
         [KSPField(isPersistant = true)]
         public float deepSpaceThreshold = 10000000;
@@ -723,19 +725,21 @@ namespace TestFlightCore
         {
             if (currentFlightData > 0f)
                 return;
-            
+
             if (flightData == 0f)
-                AttemptTechTransfer();
-            else
-            {
-                currentFlightData = flightData;
-                initialFlightData = flightData;
-            }
+                flightData = AttemptTechTransfer();
+            
+            if (startFlightData > flightData)
+                flightData = startFlightData;
+
+            currentFlightData = flightData;
+            initialFlightData = flightData;
+
             missionStartTime = (float)Planetarium.GetUniversalTime();
             initialized = true;
         }
 
-        internal void AttemptTechTransfer()
+        internal float AttemptTechTransfer()
         {
             // attempts to transfer data from a predecessor part
             // parts can be referenced either by part name, full name, or configuration name
@@ -750,7 +754,7 @@ namespace TestFlightCore
             // defines two branches, one from the RS-27 branch and one from the LR-89 branch.  
 
             if (techTransfer.Trim() == "")
-                return;
+                return 0f;
 
             float dataToTransfer = 0f;
             string[] branches;
@@ -778,8 +782,8 @@ namespace TestFlightCore
                     generation++;
                 }
             }
-            currentFlightData = dataToTransfer;
-            initialFlightData = dataToTransfer;
+
+            return dataToTransfer;
         }
 
 
