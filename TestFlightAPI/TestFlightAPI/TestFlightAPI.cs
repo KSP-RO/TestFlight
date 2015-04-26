@@ -522,7 +522,6 @@ namespace TestFlightAPI
         {
             Type tfInterface = null;
             bool connected = false;
-            TestFlightPartData partData = null;
 
             try
             {
