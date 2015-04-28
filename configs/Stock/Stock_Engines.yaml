@@ -1,12 +1,12 @@
 # Predefined repair setups so they can be re-used later
 RepairConfigs:
 - &EasySoftware
-	canBeRepairedByRemote: true
-	canBeRepairedInFlight: true
-	canBeRepairedOnSplashed: true
-	dataScale: 1
-	dataSize: 1
-	repairChance: 75
+    canBeRepairedByRemote: true
+    canBeRepairedInFlight: true
+    canBeRepairedOnSplashed: true
+    dataScale: 1
+    dataSize: 1
+    repairChance: 75
 - &MediumHydraulic
     canBeRepairedByRemote: false
     canBeRepairedInFlight: false
@@ -87,7 +87,7 @@ FailureConfigs:
     severity: 'major'
     oneShot: true
 PartConfigs:
-	# Solids
+    # Solids
     RT5: &RT5
         # Should only ever be ONE Interop module for a unique PART in KSP.
         -   name: 'TestFlightInterop'
@@ -183,23 +183,23 @@ PartConfigs:
             configuration: 'WAC-Corporal'
             weight: 8
 Parts:
--	part: 'RT-5'
-	patterns:
-	- '@PART[solidBooster_sm]'
-	configs:
-	- *RT5
--	part: 'RT-10'
-	patterns:
-	- '@PART[solidBooster]'
-	configs:
-	- *RT10
--	part: 'BACC'
-	patterns:
-	- '@PART[solidBooster1-1]'
-	configs:
-	- *BACC
--	part: 'Kickback'
-	patterns:
-	- '@PART[MassiveBooster]'
-	configs:
-	- *Kickback	
+-   part: 'RT-5'
+    patterns:
+    - '@PART[solidBooster_sm]'
+    configs:
+    - *RT5
+-   part: 'RT-10'
+    patterns:
+    - '@PART[solidBooster]'
+    configs:
+    - *RT10
+-   part: 'BACC'
+    patterns:
+    - '@PART[solidBooster1-1]'
+    configs:
+    - *BACC
+-   part: 'Kickback'
+    patterns:
+    - '@PART[MassiveBooster]'
+    configs:
+    - *Kickback 

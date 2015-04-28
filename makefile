@@ -40,7 +40,7 @@ zip: configs meta
 clean:
 	-rm $(CONFIG_DIR)/RealismOverhaul/*.cfg
 	-rm $(CONFIG_DIR)/Stock/*.cfg
-	-rm GameData/TestFlight/Config*.cfg
+	-rm GameData/TestFlight/Config/*.cfg
 	-rm *.zip
 	-rm GameData/TestFlight/*.version
 	-rm GameData/TestFlight/*.ckan
