@@ -238,11 +238,8 @@ public class EngineModuleWrapper : ScriptableObject
         {
             if (engineType == EngineModuleType.UNKNOWN)
                 return 0f;
-
-            if (engineType == EngineModuleType.ENGINE)
-                return engine.requestedThrust;
-            else
-                return engineFX.requestedThrust;
+            
+            return 0f;
         }
     }
 
@@ -257,6 +254,19 @@ public class EngineModuleWrapper : ScriptableObject
                 return engine.finalThrust;
             else
                 return engineFX.finalThrust;
+        }
+    }
+
+    public bool EngineIgnited
+    {
+        get
+        {
+            if (engineType == EngineModuleType.ENGINE)
+                return engine.EngineIgnited;
+            else if (engineType == EngineModuleType.ENGINEFX)
+                return engineFX.EngineIgnited;
+
+            return false;
         }
     }
 
@@ -282,22 +292,8 @@ public class EngineModuleWrapper : ScriptableObject
             if (engineType == EngineModuleType.UNKNOWN)
                 return EngineIgnitionState.UNKNOWN;
 
-            if (flameout)
-            {
-                return EngineIgnitionState.NOT_IGNITED;
-            }
-            if (requestedThrust <= 0f)
-            {
-                return EngineIgnitionState.NOT_IGNITED;
-            }
-            if (!throttleLocked && Events.Contains("Shutdown Engine"))
-            {
-                return EngineIgnitionState.NOT_IGNITED;
-            }
-            if (finalThrust <= 0f)
-            {
-                return EngineIgnitionState.NOT_IGNITED;
-            }
+            if (EngineIgnited)
+                return EngineIgnitionState.IGNITED;
 
             return EngineIgnitionState.IGNITED;
         }
