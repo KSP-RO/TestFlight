@@ -23,22 +23,9 @@
       <File FileName="TestFlightCore/TestFlightCore/FrameworkExt/MonoBehaviourWindowPlus.cs" Line="1" Column="1" />
       <File FileName="TestFlightCore/TestFlightCore/UserSettings.cs" Line="1" Column="1" />
       <File FileName="TestFlightCore/TestFlightCore/TestFlightInterface.cs" Line="1" Column="1" />
-      <File FileName="TestFlightAPI/TestFlightAPI/FlightDataConfig.cs" Line="32" Column="1" />
+      <File FileName="TestFlightAPI/TestFlightAPI/FlightDataConfig.cs" Line="1" Column="1" />
       <File FileName="TestFlightAPI/TestFlightAPI/TestFlightReliability.cs" Line="1" Column="1" />
     </Files>
-    <Pads>
-      <Pad Id="ProjectPad">
-        <State expanded="True">
-          <Node name="TestFlight" expanded="True" />
-          <Node name="TestFlightAPI" expanded="True" />
-          <Node name="TestFlightCore" expanded="True">
-            <Node name="References" expanded="True" />
-            <Node name="FrameworkExt" expanded="True" />
-            <Node name="TestFlightCore.cs" selected="True" />
-          </Node>
-        </State>
-      </Pad>
-    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
