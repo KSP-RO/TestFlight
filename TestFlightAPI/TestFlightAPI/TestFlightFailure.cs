@@ -159,6 +159,8 @@ namespace TestFlightAPI
         {
             get
             {
+                if (string.IsNullOrEmpty(Configuration))
+                    return true;
                 return TestFlightUtil.EvaluateQuery(Configuration, this.part);
             }
         }

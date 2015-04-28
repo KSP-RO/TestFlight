@@ -36,6 +36,8 @@ namespace TestFlightAPI
                 // Verify we have a valid core attached
                 if (core == null)
                     return false;
+                if (string.IsNullOrEmpty(Configuration))
+                    return true;
                 return TestFlightUtil.EvaluateQuery(Configuration, this.part);
             }
         }
