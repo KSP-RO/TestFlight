@@ -66,7 +66,7 @@ namespace TestFlightCore
         {
             get
             {
-                if (configuration == "")
+                if (string.IsNullOrEmpty(Configuration))
                     return true;
                 
                 string[] ops = { "=", "!=", "<", "<=", ">", ">=", "<>", "<=>" };
@@ -92,7 +92,13 @@ namespace TestFlightCore
         }
         public string Title
         {
-            get { return title; }
+            get 
+            { 
+                if (String.IsNullOrEmpty(title))
+                    return part.partInfo.title;
+                
+                return title; 
+            }
         }
         public bool DebugEnabled
         {
