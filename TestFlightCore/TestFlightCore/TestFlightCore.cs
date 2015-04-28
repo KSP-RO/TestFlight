@@ -66,6 +66,22 @@ namespace TestFlightCore
         {
             get
             {
+                if (configuration == "")
+                    return true;
+                
+                string[] ops = { "=", "!=", "<", "<=", ">", ">=", "<>", "<=>" };
+                bool opFound = false;
+                foreach (string op in ops)
+                {
+                    if (Configuration.Contains(op))
+                        opFound = true;
+                }
+                if (!opFound)
+                {
+                    if (part.name.ToLower() == Configuration.ToLower())
+                        return true;
+                    return false;
+                }
                 return TestFlightUtil.EvaluateQuery(Configuration, this.part);
             }
         }
