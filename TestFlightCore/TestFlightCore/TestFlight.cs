@@ -251,13 +251,21 @@ namespace TestFlightCore
                 if (core != null)
                 {
                     Log("TestFlightManager: Found core.  Getting part data");
-                    TestFlightPartData partData = tfScenario.GetPartDataForPart(TestFlightUtil.GetFullPartName(part));
-                    if (partData != null)
+                    if (TestFlightManagerScenario.Instance.SettingsAlwaysMaxData)
                     {
-                        core.InitializeFlightData(partData.GetFloat("flightData"));
+                        Log("AlwaysMaxData is set, initializing part with max data");
+                        core.InitializeFlightData(float.MaxValue);
                     }
                     else
-                        core.InitializeFlightData(0f);
+                    {
+                        TestFlightPartData partData = tfScenario.GetPartDataForPart(TestFlightUtil.GetFullPartName(part));
+                        if (partData != null)
+                        {
+                            core.InitializeFlightData(partData.GetFloat("flightData"));
+                        }
+                        else
+                            core.InitializeFlightData(0f);
+                    }
                 }
             }
         }
@@ -500,6 +508,44 @@ namespace TestFlightCore
         // New noscope
         public Dictionary<string, TestFlightPartData> partData;
 
+        public bool SettingsEnabled
+        {
+            get
+            {
+                if (saveData.ContainsKey("settingsEnabled"))
+                {
+                    bool setting = true;
+                    bool.TryParse(saveData["settingsEnabled"], out setting);
+                    return setting;
+                }
+                else
+                    return userSettings.enabled;
+            }
+            set
+            {
+                saveData["settingsEnabled"] = value.ToString();
+            }
+        }
+
+        public bool SettingsAlwaysMaxData
+        {
+            get
+            {
+                if (saveData.ContainsKey("settingsAlwaysMaxData"))
+                {
+                    bool setting = true;
+                    bool.TryParse(saveData["settingsAlwaysMaxData"], out setting);
+                    return setting;
+                }
+                else
+                    return userSettings.alwaysMaxData;
+            }
+            set
+            {
+                saveData["settingsAlwaysMaxData"] = value.ToString();
+            }
+        }
+
         internal void Log(string message)
         {
             bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
@@ -609,7 +655,7 @@ namespace TestFlightCore
                 saveData.Add(key, value);
         }
 
-        private void decodeRawPartData()
+        private void decodeRawSaveData()
         {
             string[] propertyGroups = rawSaveData.Split(new char[1]{ ',' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string propertyGroup in propertyGroups)
@@ -619,7 +665,7 @@ namespace TestFlightCore
             }
         }
 
-        private void encodeRawPartData()
+        private void encodeRawSaveData()
         {
             rawSaveData = "";
             foreach (var entry in saveData)
@@ -641,6 +687,8 @@ namespace TestFlightCore
                 userSettings.Load();
             else
                 userSettings.Save();
+
+            InitDataStore();
 
             // TODO
             // The bodySettings don't currently work anyway, so commenting this out for now
@@ -674,7 +722,10 @@ namespace TestFlightCore
         {
             Log("Scenario Start");
             RandomGenerator = new System.Random();
-            isReady = true;
+            if (!SettingsEnabled)
+                isReady = false;
+            else
+                isReady = true; 
         }
 
 
@@ -781,6 +832,11 @@ namespace TestFlightCore
             }
             if (bodySettings != null)
                 bodySettings.Load();
+            
+            InitDataStore();
+            rawSaveData = node.GetValue("saveData");
+            decodeRawSaveData();
+
             if (partData == null)
                 partData = new Dictionary<String, TestFlightPartData>();
             else
@@ -831,6 +887,10 @@ namespace TestFlightCore
             }
             if (bodySettings != null)
                 bodySettings.Save();
+
+            encodeRawSaveData();
+            node.AddValue("saveData", rawSaveData);
+
             // new noscope format
             foreach (TestFlightPartData storedPartData in partData.Values)
             {

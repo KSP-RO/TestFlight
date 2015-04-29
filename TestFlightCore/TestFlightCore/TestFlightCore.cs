@@ -66,6 +66,11 @@ namespace TestFlightCore
         {
             get
             {
+                if (TestFlightManagerScenario.Instance != null)
+                {
+                    if (!TestFlightManagerScenario.Instance.SettingsEnabled)
+                        return false;
+                }
                 if (string.IsNullOrEmpty(Configuration))
                     return true;
                 

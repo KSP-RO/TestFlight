@@ -37,6 +37,9 @@ namespace TestFlightCore
         [Persistent] public bool showMSD = false;
         [Persistent] public bool singleScope = false;
 
+        [Persistent] public bool enabled = true;
+        [Persistent] public bool alwaysMaxData = true;
+
         [Persistent] public int kscWindowPage = 0;
         [Persistent] public PersistentVector2 currentResearchScrollPositionStored = new PersistentVector2();
         public Vector2 currentResearchScrollPosition = new Vector2(0,0);
