@@ -493,6 +493,9 @@ namespace TestFlightCore
         public static TestFlightManagerScenario Instance { get; private set; }
         public System.Random RandomGenerator { get; private set; }
         public bool isReady = false;
+        // For storing save specific arbitrary data
+        private string rawSaveData;
+        private Dictionary<string, string> saveData;
 
         // New noscope
         public Dictionary<string, TestFlightPartData> partData;
@@ -503,6 +506,128 @@ namespace TestFlightCore
             message = "TestFlightManagerScenario: " + message;
             TestFlightUtil.Log(message, debug);
         }
+
+        private void InitDataStore()
+        {
+            if (saveData == null)
+                saveData = new Dictionary<string, string>();
+            else
+                saveData.Clear();
+        }
+
+        public string GetValue(string key)
+        {
+            key = key.ToLowerInvariant();
+            if (saveData.ContainsKey(key))
+                return saveData[key];
+            else
+                return "";
+        }
+
+        public double GetDouble(string key)
+        {
+            double returnValue = 0;
+            key = key.ToLowerInvariant();
+            if (saveData.ContainsKey(key))
+            {
+                double.TryParse(saveData[key], out returnValue);
+            }
+            else
+                return 0;
+
+            return returnValue;
+        }
+
+        public float GetFloat(string key)
+        {
+            float returnValue = 0f;
+            key = key.ToLowerInvariant();
+            if (saveData.ContainsKey(key))
+            {
+                float.TryParse(saveData[key], out returnValue);
+            }
+            else
+                return 0f;
+
+            return returnValue;
+        }
+
+        public bool GetBool(string key)
+        {
+            bool returnValue = false;
+            key = key.ToLowerInvariant();
+            if (saveData.ContainsKey(key))
+            {
+                bool.TryParse(saveData[key], out returnValue);
+            }
+            else
+                return false;
+
+            return returnValue;
+        }
+
+        public int GetInt(string key)
+        {
+            int returnValue = 0;
+            key = key.ToLowerInvariant();
+            if (saveData.ContainsKey(key))
+            {
+                int.TryParse(saveData[key], out returnValue);
+            }
+            else
+                return 0;
+
+            return returnValue;
+        }
+
+        public void AddValue(string key, float value)
+        {
+            AddValue(key, value.ToString());
+        }
+
+        public void AddValue(string key, int value)
+        {
+            AddValue(key, value.ToString());
+        }
+
+        public void AddValue(string key, bool value)
+        {
+            AddValue(key, value.ToString());
+        }
+
+        public void AddValue(string key, double value)
+        {
+            AddValue(key, value.ToString());
+        }
+
+        public void AddValue(string key, string value)
+        {
+            key = key.ToLowerInvariant();
+            if (saveData.ContainsKey(key))
+                saveData[key] = value;
+            else
+                saveData.Add(key, value);
+        }
+
+        private void decodeRawPartData()
+        {
+            string[] propertyGroups = rawSaveData.Split(new char[1]{ ',' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string propertyGroup in propertyGroups)
+            {
+                string[] keyValuePair = propertyGroup.Split(new char[1]{ ':' });
+                AddValue(keyValuePair[0], keyValuePair[1]);
+            }
+        }
+
+        private void encodeRawPartData()
+        {
+            rawSaveData = "";
+            foreach (var entry in saveData)
+            {
+                rawSaveData += String.Format("{0}:{1},", entry.Key, entry.Value);
+            }
+        }
+
 
         public override void OnAwake()
         {
