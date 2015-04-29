@@ -11,6 +11,13 @@ ZIP_STOCK := TestFlightConfigStock-$(TRAVIS_TAG).zip
 all: clean configs meta
 	cp -r GameData/TestFlight/ ~/Dropbox/KSP/TestFlight/
 
+install: clean
+	-rm ~/Developer/KSP/1.0/TestFlightDEV/Dev/GameData/TestFlight/Config/*.cfg
+	cd $(CONFIG_DIR);python compileYamlConfigs.py Stock
+	cp $(CONFIG_DIR)/Stock/*.cfg GameData/TestFlight/Config
+	cp -r GameData/TestFlight/ ~/Dropbox/KSP/TestFlight/
+	cp -r GameData/TestFlight/ ~/Developer/KSP/1.0/TestFlightDEV/Dev/GameData/TestFlight/
+
 release: zip
 
 configs: $(CONFIG_DIR)/RealismOverhaul/%.cfg $(CONFIG_DIR)/Stock/%.cfg
@@ -35,7 +42,7 @@ meta:
 endif
 
 zip: configs meta
-	zip $(ZIP_CORE) GameData GameData/TestFlight GameData/TestFlight/Plugins/* GameData/TestFlight/Resources/* GameData/TestFlight/Resources/Textures/*
+	zip $(ZIP_CORE) GameData GameData/TestFlight/* GameData/TestFlight/Plugins/* GameData/TestFlight/Resources/* GameData/TestFlight/Resources/Textures/*
 
 clean:
 	-rm $(CONFIG_DIR)/RealismOverhaul/*.cfg
