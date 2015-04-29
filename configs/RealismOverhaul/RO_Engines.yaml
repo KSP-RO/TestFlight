@@ -96,6 +96,7 @@ PartConfigs:
         -   name: 'TestFlightCore'
             configuration: 'engineConfig = WAC-Corporal:WAC-Corporal'
             title: 'WAC Corporal'
+            startFlightData: 10000
         -   name: 'FlightDataRecorder_Engine'
             configuration: 'WAC-Corporal'
             flightDataMultiplier: 10
@@ -769,6 +770,7 @@ PartConfigs:
         -   name: 'TestFlightCore'
             configuration: 'engineConfig = XLR11:XLR11'
             title: 'XLR11'
+            startFlightData: 10000
         -   name: 'FlightDataRecorder_Engine'
             configuration: 'XLR11'
             flightDataMultiplier: 0.2
