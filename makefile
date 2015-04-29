@@ -15,10 +15,10 @@ release: zip
 
 configs: $(CONFIG_DIR)/RealismOverhaul/%.cfg $(CONFIG_DIR)/Stock/%.cfg
 	cp $(CONFIG_DIR)/RealismOverhaul/*.cfg GameData/TestFlight/Config
-	zip $(ZIP_RO) GameData/TestFlight/Config
+	zip $(ZIP_RO) GameData/TestFlight/Config/*
 	rm GameData/TestFlight/Config/*.cfg
 	cp $(CONFIG_DIR)/Stock/*.cfg GameData/TestFlight/Config
-	zip $(ZIP_STOCK) GameData/TestFlight/Config
+	zip $(ZIP_STOCK) GameData/TestFlight/Config/*
 
 $(CONFIG_DIR)/RealismOverhaul/%.cfg:
 	cd $(CONFIG_DIR);python compileYamlConfigs.py RealismOverhaul
@@ -35,7 +35,7 @@ meta:
 endif
 
 zip: configs meta
-	zip $(ZIP_CORE) GameData GameData/TestFlight GameData/TestFlight/Plugins/ GameData/TestFlight/Resources/ GameData/TestFlight/Resources/Textures/
+	zip $(ZIP_CORE) GameData GameData/TestFlight GameData/TestFlight/Plugins/* GameData/TestFlight/Resources/* GameData/TestFlight/Resources/Textures/*
 
 clean:
 	-rm $(CONFIG_DIR)/RealismOverhaul/*.cfg
