@@ -251,10 +251,21 @@ namespace TestFlightCore
                 if (core != null)
                 {
                     Log("TestFlightManager: Found core.  Getting part data");
+                    float maxData = 0f;
                     if (TestFlightManagerScenario.Instance.SettingsAlwaysMaxData)
                     {
+                        List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(part);
+                        foreach (ITestFlightReliability rm in reliabilityModules)
+                        {
+                            FloatCurve curve = rm.GetReliabilityCurve();
+                            maxData = 0f;
+                            if (curve != null)
+                                maxData = curve.maxTime;
+                            if (curve != null && maxData > 0f)
+                                break;    
+                        }
                         Log("AlwaysMaxData is set, initializing part with max data");
-                        core.InitializeFlightData(float.MaxValue);
+                        core.InitializeFlightData(maxData);
                     }
                     else
                     {
@@ -502,11 +513,11 @@ namespace TestFlightCore
         public System.Random RandomGenerator { get; private set; }
         public bool isReady = false;
         // For storing save specific arbitrary data
-        private string rawSaveData;
+        private string rawSaveData = "";
         private Dictionary<string, string> saveData;
 
         // New noscope
-        public Dictionary<string, TestFlightPartData> partData;
+        public Dictionary<string, TestFlightPartData> partData = null;
 
         public bool SettingsEnabled
         {
@@ -555,8 +566,12 @@ namespace TestFlightCore
 
         private void InitDataStore()
         {
+            Log("Init data store");
             if (saveData == null)
+            {
+                Log("Creating new dictionary instance for data store");
                 saveData = new Dictionary<string, string>();
+            }
             else
                 saveData.Clear();
         }
@@ -657,6 +672,9 @@ namespace TestFlightCore
 
         private void decodeRawSaveData()
         {
+            if (String.IsNullOrEmpty(rawSaveData))
+                return;
+            
             string[] propertyGroups = rawSaveData.Split(new char[1]{ ',' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string propertyGroup in propertyGroups)
             {
@@ -834,7 +852,10 @@ namespace TestFlightCore
                 bodySettings.Load();
             
             InitDataStore();
-            rawSaveData = node.GetValue("saveData");
+            if (node.HasValue("saveData"))
+                rawSaveData = node.GetValue("saveData");
+            else
+                rawSaveData = "";
             decodeRawSaveData();
 
             if (partData == null)
