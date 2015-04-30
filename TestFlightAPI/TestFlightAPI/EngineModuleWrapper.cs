@@ -284,7 +284,6 @@ public class EngineModuleWrapper : ScriptableObject
         }
     }
 
-    // "Shutdown Engine"
     public EngineIgnitionState IgnitionState
     {
         get
@@ -299,6 +298,7 @@ public class EngineModuleWrapper : ScriptableObject
         }
     }
 
+    // "Shutdown Engine"
     public void Shutdown()
     {
         if (engineType == EngineModuleType.UNKNOWN)
