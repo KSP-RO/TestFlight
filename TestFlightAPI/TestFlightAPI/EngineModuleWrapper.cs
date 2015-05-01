@@ -291,10 +291,10 @@ public class EngineModuleWrapper : ScriptableObject
             if (engineType == EngineModuleType.UNKNOWN)
                 return EngineIgnitionState.UNKNOWN;
 
-            if (EngineIgnited)
+            if (engine.finalThrust > 0f)
                 return EngineIgnitionState.IGNITED;
 
-            return EngineIgnitionState.IGNITED;
+            return EngineIgnitionState.NOT_IGNITED;
         }
     }
 
