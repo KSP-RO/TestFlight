@@ -509,40 +509,14 @@ namespace TestFlightCore
 
         public bool SettingsEnabled
         {
-            get
-            {
-                if (saveData.ContainsKey("settingsEnabled"))
-                {
-                    bool setting = true;
-                    bool.TryParse(saveData["settingsEnabled"], out setting);
-                    return setting;
-                }
-                else
-                    return userSettings.enabled;
-            }
-            set
-            {
-                saveData["settingsEnabled"] = value.ToString();
-            }
+            get { return GetBool("settingsenabled", true); }
+            set { AddValue("settingsenabled", value); }
         }
 
         public bool SettingsAlwaysMaxData
         {
-            get
-            {
-                if (saveData.ContainsKey("settingsAlwaysMaxData"))
-                {
-                    bool setting = true;
-                    bool.TryParse(saveData["settingsAlwaysMaxData"], out setting);
-                    return setting;
-                }
-                else
-                    return userSettings.alwaysMaxData;
-            }
-            set
-            {
-                saveData["settingsAlwaysMaxData"] = value.ToString();
-            }
+            get { return GetBool("settingsalwaysmaxdata", false); }
+            set { AddValue("settingsalwaysmaxdata", value); }
         }
 
         internal void Log(string message)
@@ -603,14 +577,20 @@ namespace TestFlightCore
 
         public bool GetBool(string key)
         {
+            return GetBool(key, false);
+        }
+
+        public bool GetBool(string key, bool defaultValue)
+        {
             bool returnValue = false;
             key = key.ToLowerInvariant();
             if (saveData.ContainsKey(key))
             {
-                bool.TryParse(saveData[key], out returnValue);
+                if (!bool.TryParse(saveData[key], out returnValue))
+                    return defaultValue;
             }
             else
-                return false;
+                return defaultValue;
 
             return returnValue;
         }
