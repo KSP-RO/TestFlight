@@ -92,7 +92,8 @@ PartConfigs:
         # Should only ever be ONE Interop module for a unique PART in KSP.
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
-            startFlightData: 10000
+            maxData: 10000
+            startFlightData: 5000
         -   name: 'FlightDataRecorder_Engine'
             flightDataMultiplier: 10
             flightDataEngineerModifier: 0.25
@@ -113,6 +114,7 @@ PartConfigs:
         # Should only ever be ONE Interop module for a unique PART in KSP.
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             techTransfer: 'solidBooster_sm:75'
             techTransferMax: 5000
         -   name: 'FlightDataRecorder_Engine'
@@ -135,6 +137,7 @@ PartConfigs:
         # Should only ever be ONE Interop module for a unique PART in KSP.
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             techTransfer: 'solidBooster:75'
             techTransferMax: 5000
         -   name: 'FlightDataRecorder_Engine'
@@ -157,6 +160,7 @@ PartConfigs:
         # Should only ever be ONE Interop module for a unique PART in KSP.
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             techTransfer: 'solidBooster1-1:75'
             techTransferMax: 5000
         -   name: 'FlightDataRecorder_Engine'
@@ -180,6 +184,7 @@ PartConfigs:
         # Should only ever be ONE Interop module for a unique PART in KSP.
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             startFlightData: 10000
         -   name: 'FlightDataRecorder_Engine'
             flightDataMultiplier: 5
@@ -205,6 +210,7 @@ PartConfigs:
         # Should only ever be ONE Interop module for a unique PART in KSP.
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             techTransfer: 'liquidEngine:50'
             techTransferMax: 5000
         -   name: 'FlightDataRecorder_Engine'
@@ -241,6 +247,7 @@ PartConfigs:
         # Should only ever be ONE Interop module for a unique PART in KSP.
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             techTransfer: 'liquidEngine2:50'
             techTransferMax: 5000
         -   name: 'FlightDataRecorder_Engine'
@@ -277,6 +284,7 @@ PartConfigs:
         # Should only ever be ONE Interop module for a unique PART in KSP.
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             techTransfer: 'liquidEngine2:50'
             techTransferMax: 5000
         -   name: 'FlightDataRecorder_Engine'
@@ -313,6 +321,7 @@ PartConfigs:
         # Should only ever be ONE Interop module for a unique PART in KSP.
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             techTransfer: 'liquidEngine3:50'
             techTransferMax: 5000
         -   name: 'FlightDataRecorder_Engine'
@@ -349,6 +358,7 @@ PartConfigs:
         # Should only ever be ONE Interop module for a unique PART in KSP.
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             techTransfer: 'liquidEngine3:50'
             techTransferMax: 5000
         -   name: 'FlightDataRecorder_Engine'
@@ -385,6 +395,7 @@ PartConfigs:
         # Should only ever be ONE Interop module for a unique PART in KSP.
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             techTransfer: 'engineLargeSkipper:50'
             techTransferMax: 5000
         -   name: 'FlightDataRecorder_Engine'
