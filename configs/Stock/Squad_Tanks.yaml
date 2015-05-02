@@ -106,6 +106,6 @@ PartConfigs:
 Parts:
 -   part: 'ResourceTank'
     patterns:
-    - '@PART[*]:HAS[@RESOURCE[*]]:FINAL'
+    - '@PART[*]:HAS[!MODULE[ModuleCommand],@RESOURCE[*]]'
     configs:
     - *HRTank
