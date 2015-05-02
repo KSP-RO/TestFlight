@@ -42,6 +42,8 @@ namespace TestFlightCore
         public float lastMET;
         [KSPField(isPersistant=true)]
         public bool initialized = false;
+        [KSPField(isPersistant=true)]
+        public float maxData = 0f;
 
         // Base Failure Rate is stored per Scope internally
         // As of v1.3 we no longer have cope
@@ -132,6 +134,36 @@ namespace TestFlightCore
             bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
             message = String.Format("TestFlightCore({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(this.part), Configuration, message);
             TestFlightUtil.Log(message, debug);
+        }
+
+        // Retrieves the maximum amount of data a part can gain
+        public float GetMaximumData()
+        {
+            float maxData = -1f;
+
+            if (!TestFlightEnabled)
+                return maxData;
+            
+            // If the maxData property was defined on this core, just return it
+            if (this.maxData > 0f)
+                return this.maxData;
+
+            // Otherwise we need to calculate it
+            List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part);
+            if (reliabilityModules == null)
+                return maxData;
+            if (reliabilityModules.Count < 1)
+                return maxData;
+            foreach (ITestFlightReliability rm in reliabilityModules)
+            {
+                FloatCurve curve = rm.GetReliabilityCurve();
+                if (curve != null)
+                {
+                    if (curve.maxTime > maxData)
+                        maxData = curve.maxTime;
+                }
+            }
+            return maxData;
         }
 
         // Get the base or static failure rate
