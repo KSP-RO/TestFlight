@@ -1,6 +1,8 @@
 language: python
 python:
 - '2.7'
+install: 
+- pip install -r requirements.txt
 script:
 - make clean
 - make release
@@ -9,7 +11,10 @@ deploy:
   api_key:
     secure: LRM8ZzPgJUALKL7/ls9RvqmFoksE+Gq7+ud+l5ha+by7ptb1FWRXEjIWoELC8ieFioAi2aXKcYASKnwkIqmcwkH556mK+E4xaohdqN1jndVYxbe/Dle+cHO0G6vRjQWPJdp17sLlKKBfrt0p+JblqVf5tS3GoR5MVMeZp5/xThY=
   file_glob: true    
-  file: TestFlight*.zip
+  file: 
+    - TestFlightCore*.zip
+    - TestFlightConfigRO*.zip
+    - TestFlightConfigStock*.zip
   skip_cleanup: true
   on:
     repo: jwvanderbeck/TestFlight

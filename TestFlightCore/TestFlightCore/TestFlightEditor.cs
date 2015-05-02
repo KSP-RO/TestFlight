@@ -17,7 +17,7 @@ namespace TestFlightCore
         internal static TestFlightEditorWindow Instance;
         private bool locked = false;
         private Part _selectedPart;
-        internal Part selectedPart
+        internal Part SelectedPart
         {
             set
             {
@@ -42,16 +42,16 @@ namespace TestFlightCore
             if (!locked)
             {
                 locked = true;
-                selectedPart = partToLock;
+                SelectedPart = partToLock;
                 return;
             }
 
-            if (partToLock == selectedPart)
+            if (partToLock == SelectedPart)
                 locked = false;
             else
             {
                 locked = false;
-                selectedPart = partToLock;
+                SelectedPart = partToLock;
                 locked = true;
             }
         }
@@ -61,9 +61,19 @@ namespace TestFlightCore
             locked = false;
         }
 
+        internal void Log(string message)
+        {
+            if (TestFlightManagerScenario.Instance == null || TestFlightManagerScenario.Instance.userSettings == null)
+                return;
+
+            bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
+            message = "TestFlightEditor: " + message;
+            TestFlightUtil.Log(message, debug);
+        }
+
         internal override void Start()
         {
-            LogFormatted_DebugOnly("TestFlightEditor: Initializing Editor Hook");
+            Log("TestFlightEditor: Initializing Editor Hook");
             EditorPartList.Instance.iconPrefab.gameObject.AddComponent<TestFlightEditorHook>();
             Instance = this;
             StartCoroutine("ConnectToScenario");
@@ -84,6 +94,20 @@ namespace TestFlightCore
             Startup();
         }
 
+        internal override void Update()
+        {
+            if (locked)
+                return;
+
+            Part selectedPart = EditorLogic.SelectedPart;
+
+            if (selectedPart == null)
+                selectedPart = EditorLogic.fetch.ship.parts.Find(p => p.stackIcon.highlightIcon);
+
+            if (selectedPart != null)
+                SelectedPart = selectedPart;
+        }
+
         internal void Startup()
         {
             CalculateWindowBounds();
@@ -99,30 +123,6 @@ namespace TestFlightCore
             isReady = true;
         }
 
-        internal ITestFlightCore GetCore()
-        {
-            if (selectedPart == null)
-                return null;
-            string configuration;
-
-            if (selectedPart.Modules.Contains("ModuleEngineConfigs"))
-            {
-                configuration = (string)(selectedPart.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(selectedPart.Modules["ModuleEngineConfigs"]));
-            }
-            else
-                configuration = "";
-
-            ITestFlightCore core = null;
-            foreach (PartModule pm in selectedPart.Modules)
-            {
-                core = pm as ITestFlightCore;
-                if (core != null && core.Configuration == configuration)
-                {
-                    return core;
-                }
-            }
-            return null;
-        }
         internal void CalculateWindowBounds()
         {
             if (appLauncherButton == null)
@@ -135,11 +135,11 @@ namespace TestFlightCore
             float windowHeight = 50f;
 
             float numItems = 0;
-            ITestFlightCore core = GetCore();
+            ITestFlightCore core = TestFlightUtil.GetCore(SelectedPart);
             if (core != null)
             {
                 List<TestFlightData> flightData = null;
-                PartFlightData partData = tfScenario.GetFlightDataForPartName(TestFlightUtil.GetFullPartName(selectedPart));
+                PartFlightData partData = tfScenario.GetFlightDataForPartName(TestFlightUtil.GetFullPartName(SelectedPart));
                 if (partData == null)
                     numItems = 0;
                 else
@@ -237,12 +237,12 @@ namespace TestFlightCore
             if (!isReady)
                 return;
 
-            if (selectedPart == null)
+            if (SelectedPart == null)
             {
                 GUILayout.BeginVertical();
                 GUILayout.Label("Select a part to display its details", Styles.styleEditorTitle);
-                GUILayout.Label("MouseOver part in bin to quickview", Styles.styleEditorText);
-                GUILayout.Label("RightClick part in bin to lock window", Styles.styleEditorText);
+                GUILayout.Label("MouseOver part in bin or 3D view to quickview", Styles.styleEditorText);
+                GUILayout.Label("RightClick part in bin (not 3D) to toggle window lock on that part", Styles.styleEditorText);
                 GUILayout.EndVertical();
                 if (DrawToggle(ref tfScenario.userSettings.editorWindowLocked, "Lock Window", Styles.styleToggle))
                 {
@@ -263,28 +263,13 @@ namespace TestFlightCore
 
             ITestFlightCore core = null;
             GUILayout.BeginVertical();
-            GUILayout.Label(String.Format("Selected Part: {0}", TestFlightUtil.GetFullPartName(selectedPart)), Styles.styleEditorTitle);
+            GUILayout.Label(String.Format("Selected Part: {0}", TestFlightUtil.GetFullPartName(SelectedPart)), Styles.styleEditorTitle);
 
             tfScenario.userSettings.currentEditorScrollPosition = GUILayout.BeginScrollView(tfScenario.userSettings.currentEditorScrollPosition);
-            PartFlightData partData = tfScenario.GetFlightDataForPartName(TestFlightUtil.GetFullPartName(selectedPart));
+            PartFlightData partData = tfScenario.GetFlightDataForPartName(TestFlightUtil.GetFullPartName(SelectedPart));
             if (partData != null)
             {
-                string configuration;
-
-                if (selectedPart.Modules.Contains("ModuleEngineConfigs"))
-                {
-                    configuration = (string)(selectedPart.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(selectedPart.Modules["ModuleEngineConfigs"]));
-                }
-                else
-                    configuration = "";
-                foreach (PartModule pm in selectedPart.Modules)
-                {
-                    core = pm as ITestFlightCore;
-                    if (core != null && core.Configuration == configuration)
-                    {
-                        break;
-                    }
-                }
+                core = TestFlightUtil.GetCore(SelectedPart);
                 if (core != null)
                 {
                     List<TestFlightData> flightData = partData.GetFlightData();
@@ -321,7 +306,7 @@ namespace TestFlightCore
         }
         void EditorWindow_OnWindowMoveComplete(MonoBehaviourWindow sender)
         {
-            LogFormatted_DebugOnly("Saving editor window position");
+            Log("Saving editor window position");
             tfScenario.userSettings.editorWindowPosition = WindowRect;
             tfScenario.userSettings.Save();
         }
@@ -337,11 +322,21 @@ namespace TestFlightCore
         AvailablePart selectedPart;
         bool mouseFlag = false;
 
+        internal void Log(string message)
+        {
+            if (TestFlightManagerScenario.Instance == null || TestFlightManagerScenario.Instance.userSettings == null)
+                return;
+
+            bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
+            message = "TestFlightEditor: " + message;
+            TestFlightUtil.Log(message, debug);
+        }
+
         internal override void Start()
         {
             GetComponent<UIButton>().AddInputDelegate(OnInput);
             selectedPart = GetComponent<EditorPartIcon>().partInfo;
-            LogFormatted_DebugOnly("TestFlightEditor: Added input delegate to " + TestFlightUtil.GetFullPartName(selectedPart.partPrefab));
+//            Log("TestFlightEditor: Added input delegate to " + TestFlightUtil.GetFullPartName(selectedPart.partPrefab));
         }
 
         internal void OnInput(ref POINTER_INFO ptr)
@@ -370,13 +365,13 @@ namespace TestFlightCore
                     if (!mouseFlag)
                     {
                         mouseFlag = true;
-                        TestFlightEditorWindow.Instance.selectedPart = selectedPart.partPrefab;
+                        TestFlightEditorWindow.Instance.SelectedPart = selectedPart.partPrefab;
 //                        TestFlightEditorWindow.Instance.Visible = true;
                     }
                     break;
                 case POINTER_INFO.INPUT_EVENT.MOVE_OFF:
                     mouseFlag = false;
-                    TestFlightEditorWindow.Instance.selectedPart = null;
+                    TestFlightEditorWindow.Instance.SelectedPart = null;
 //                    TestFlightEditorWindow.Instance.Visible = false;
                     break;
             }

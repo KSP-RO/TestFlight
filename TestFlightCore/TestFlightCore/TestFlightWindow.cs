@@ -8,6 +8,8 @@ using UnityEngine;
 
 using KSPPluginFramework;
 
+using TestFlightAPI;
+
 namespace TestFlightCore
 {
     [KSPAddon(KSPAddon.Startup.Flight, false)]
@@ -18,10 +20,19 @@ namespace TestFlightCore
         private ApplicationLauncherButton appLauncherButton;
         private TestFlightHUD hud;
         private bool stickyWindow;
-        private int lastPartCount = 0;
         private string[] guiSizes = { "Small", "Normal", "Large" };
 
         private DropDownList ddlSettingsPage = null;
+
+        internal void Log(string message)
+        {
+            if (TestFlightManagerScenario.Instance == null || TestFlightManagerScenario.Instance.userSettings == null)
+                return;
+
+            bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
+            message = "TestFlightWindow: " + message;
+            TestFlightUtil.Log(message, debug);
+        }
 
         internal override void Start()
         {
@@ -55,7 +66,7 @@ namespace TestFlightCore
             tfScenario = TestFlightManagerScenario.Instance;
             tfScenario.userSettings.Load();
             tfManager = TestFlightManager.Instance;
-            LogFormatted_DebugOnly("Starting coroutine to add toolbar icon");
+            Log("Starting coroutine to add toolbar icon");
             StartCoroutine("AddToToolbar");
             TestFlight.Resources.LoadTextures();
 
@@ -64,7 +75,7 @@ namespace TestFlightCore
                 hud = gameObject.AddComponent(typeof(TestFlightHUD)) as TestFlightHUD;
                 if (hud != null)
                 {
-                    LogFormatted_DebugOnly("Starting up TestFlightHUD");
+                    Log("Starting up TestFlightHUD");
                     hud.Startup(this);
                 }
                 GameEvents.onGameSceneLoadRequested.Add(Event_OnGameSceneLoadRequested);
@@ -88,15 +99,17 @@ namespace TestFlightCore
             ddlSettingsPage.OnSelectionChanged += SettingsPage_OnSelectionChanged;
             WindowMoveEventsEnabled = true;
             onWindowMoveComplete += MainWindow_OnWindowMoveComplete;
+            CalculateWindowBounds();
+            Visible = tfScenario.userSettings.showMSD;
         }
 
         public void Event_OnGameSceneLoadRequested(GameScenes scene)
         {
-            LogFormatted_DebugOnly("Destroying Flight HUD");
+            Log("Destroying Flight HUD");
             hud.Shutdown();
             Destroy(hud);
             hud = null;
-            LogFormatted_DebugOnly("Unhooking event");
+            Log("Unhooking event");
             GameEvents.onGameSceneLoadRequested.Remove(Event_OnGameSceneLoadRequested);
         }
 
@@ -110,11 +123,12 @@ namespace TestFlightCore
             Styles.InitStyles();
             Styles.InitSkins();
             SkinsLibrary.SetCurrent("SolarizedDark");
+            SkinsLibrary.CurrentSkin.label.wordWrap = false;
         }
 
         internal void CalculateWindowBounds()
         {
-            LogFormatted_DebugOnly("Calculating Window Bounds");
+            Log("Calculating Window Bounds");
             if (appLauncherButton == null)
                 return;
             if (tfScenario == null)
@@ -132,7 +146,7 @@ namespace TestFlightCore
                 windowWidth -= 100f;
 
             float left = Screen.width - windowWidth;
-            float windowHeight = 10f;;
+            float windowHeight = 10f;
             float top = 40f;
 
             if (tfScenario.userSettings.currentMSDSize == 0)
@@ -198,11 +212,15 @@ namespace TestFlightCore
             PrepareWindowState();
             Visible = true;
             stickyWindow = true;
+            tfScenario.userSettings.showMSD = true;
+            tfScenario.userSettings.Save();
         }
         void CloseWindow()
         {
             Visible = false;
             stickyWindow = false;
+            tfScenario.userSettings.showMSD = false;
+            tfScenario.userSettings.Save();
         }
         void HideButton()
         {
@@ -230,14 +248,13 @@ namespace TestFlightCore
                 return;
             // We update the window bounds here, around twice a second, instead of in the GUI draw
             // This way for one it will cause less overhead, and also shouldn't cause as much flashing
-            LogFormatted_DebugOnly("Recalculating Window Bounds");
+            Log("Recalculating Window Bounds");
             CalculateWindowBounds();
 
             base.RepeatingWorker();
         }
         internal override void DrawWindow(Int32 id)
         {
-            GUILayout.BeginVertical();
             Dictionary<Guid, MasterStatusItem> masterStatus = tfManager.GetMasterStatus();
             GUIContent settingsButton = new GUIContent(TestFlight.Resources.btnChevronDown, "Open Settings Panel");
             if (tfScenario.userSettings.displaySettingsWindow)
@@ -248,6 +265,7 @@ namespace TestFlightCore
 
             if (masterStatus == null)
             {
+                GUILayout.BeginVertical();
                 GUILayout.Space(10);
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("TestFlight is starting up...");
@@ -261,6 +279,7 @@ namespace TestFlightCore
             }
             else if (masterStatus.Count() <= 0)
             {
+                GUILayout.BeginVertical();
                 GUILayout.Space(10);
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("TestFlight is not currently tracking any vessels");
@@ -274,121 +293,106 @@ namespace TestFlightCore
             }
             else
             {
+                GUILayout.BeginVertical();
+                GUILayout.Space(10);
                 // Display information on active vessel
                 Guid currentVessel = FlightGlobals.ActiveVessel.id;
 
-                if (tfScenario.userSettings.showFailedPartsOnlyInMSD)
+                if (masterStatus.ContainsKey(currentVessel) && masterStatus[currentVessel].allPartsStatus.Count > 0)
                 {
-                    if (masterStatus[currentVessel].allPartsStatus.Count(ps => ps.activeFailure != null) < lastPartCount)
+                    tfScenario.userSettings.currentMSDScrollPosition = GUILayout.BeginScrollView(tfScenario.userSettings.currentMSDScrollPosition);
+                    foreach (PartStatus status in masterStatus[currentVessel].allPartsStatus)
                     {
-                        lastPartCount = masterStatus[currentVessel].allPartsStatus.Count(ps => ps.activeFailure != null);
-                        CalculateWindowBounds();
-                    }
-                }
-                else
-                {
-                    if (masterStatus[currentVessel].allPartsStatus.Count < lastPartCount)
-                    {
-                        lastPartCount = masterStatus[currentVessel].allPartsStatus.Count;
-                        CalculateWindowBounds();
-                    }
-                }
-                GUILayout.Space(10);
-                GUILayout.BeginHorizontal();
-                GUILayout.Label("MSD for " + masterStatus[currentVessel].vesselName);
-                GUILayout.EndHorizontal();
-                tfScenario.userSettings.currentMSDScrollPosition = GUILayout.BeginScrollView(tfScenario.userSettings.currentMSDScrollPosition);
-                foreach (PartStatus status in masterStatus[currentVessel].allPartsStatus)
-                {
-                    // Display part data
-//                    GUILayout.Label(String.Format("{0,50}", status.partName));
-//                    GUILayout.Label(String.Format("{0,7:F2}du", status.flightData));
-//                    GUILayout.Label(String.Format("{0,7:F2}%", status.reliability));
+                        // Display part data
+                        //                    GUILayout.Label(String.Format("{0,50}", status.partName));
+                        //                    GUILayout.Label(String.Format("{0,7:F2}du", status.flightData));
+                        //                    GUILayout.Label(String.Format("{0,7:F2}%", status.reliability));
 
-                    if (tfScenario.userSettings.showFailedPartsOnlyInMSD && status.activeFailure == null)
-                        continue;
-                    if (tfScenario.userSettings.showFailedPartsOnlyInMSD && status.acknowledged)
-                        continue;
+                        if (tfScenario.userSettings.showFailedPartsOnlyInMSD && status.activeFailure == null)
+                            continue;
+                        if (tfScenario.userSettings.showFailedPartsOnlyInMSD && status.acknowledged)
+                            continue;
 
-                    GUILayout.BeginHorizontal();
-                    string partDisplay;
-                    // Part Name
-                    string tooltip = status.repairRequirements;
-                    if (tfScenario.userSettings.shortenPartNameInMSD)
-                        GUILayout.Label(new GUIContent(status.partName, tooltip), GUILayout.Width(100));
-                    else
-                        GUILayout.Label(new GUIContent(status.partName, tooltip), GUILayout.Width(200));
-                    GUILayout.Space(10);
-                    // Flight Data
-                    if (tfScenario.userSettings.showFlightDataInMSD)
-                    {
-                        GUILayout.Label(String.Format("{0,-7:F2}<b>du</b>", status.flightData), GUILayout.Width(75));
-                        GUILayout.Space(10);
-                    }
-                    // Resting Reliability
-                    if (tfScenario.userSettings.showMTBFStringInMSD)
-                    {
-                        GUILayout.Label(String.Format("{0} <b>MTBF</b>", status.mtbfString), GUILayout.Width(130));
-                        GUILayout.Space(10);
-                    }
-                    // Momentary Reliability
-                    if (tfScenario.userSettings.showFailureRateInMSD)
-                    {
-                        GUILayout.Label(String.Format("{0:F6}", status.momentaryFailureRate), GUILayout.Width(60));
-                        GUILayout.Space(10);
-                    }
-                    // Part Status Text
-                    if (tfScenario.userSettings.showStatusTextInMSD)
-                    {
-                        if (status.activeFailure == null)
-                            partDisplay = String.Format("<color=#859900ff>{0,-30}</color>", "OK");
+                        GUILayout.BeginHorizontal();
+                        string partDisplay;
+                        // Part Name
+                        string tooltip = status.repairRequirements;
+                        if (tfScenario.userSettings.shortenPartNameInMSD)
+                            GUILayout.Label(new GUIContent(status.partName, tooltip), GUILayout.Width(100));
                         else
+                            GUILayout.Label(new GUIContent(status.partName, tooltip), GUILayout.Width(200));
+                        GUILayout.Space(10);
+                        // Flight Data
+                        if (tfScenario.userSettings.showFlightDataInMSD)
                         {
-                            if (status.timeToRepair > 0)
-                            {
-                                if (status.activeFailure.GetFailureDetails().severity == "major")
-                                    partDisplay = String.Format("<color=#dc322fff>{0,-30}</color>", GetColonFormattedTime(status.timeToRepair));
-                                else
-                                    partDisplay = String.Format("<color=#b58900ff>{0,-30}</color>", GetColonFormattedTime(status.timeToRepair));
-                            }
+                            GUILayout.Label(String.Format("{0,-7:F2}<b>du</b>", status.flightData), GUILayout.Width(75));
+                            GUILayout.Space(10);
+                        }
+                        // Resting Reliability
+                        if (tfScenario.userSettings.showMTBFStringInMSD)
+                        {
+                            GUILayout.Label(String.Format("{0} <b>MTBF</b>", status.mtbfString), GUILayout.Width(130));
+                            GUILayout.Space(10);
+                        }
+                        // Momentary Reliability
+                        if (tfScenario.userSettings.showFailureRateInMSD)
+                        {
+                            GUILayout.Label(String.Format("{0:F6}", status.momentaryFailureRate), GUILayout.Width(60));
+                            GUILayout.Space(10);
+                        }
+                        // Part Status Text
+                        if (tfScenario.userSettings.showStatusTextInMSD)
+                        {
+                            if (status.activeFailure == null)
+                                partDisplay = String.Format("<color=#859900ff>{0,-30}</color>", "OK");
                             else
                             {
-                                if (status.activeFailure.GetFailureDetails().severity == "major")
-                                    partDisplay = String.Format("<color=#dc322fff>{0,-30}</color>", status.activeFailure.GetFailureDetails().failureTitle);
+                                if (status.timeToRepair > 0)
+                                {
+                                    if (status.activeFailure.GetFailureDetails().severity == "major")
+                                        partDisplay = String.Format("<color=#dc322fff>{0,-30}</color>", GetColonFormattedTime(status.timeToRepair));
+                                    else
+                                        partDisplay = String.Format("<color=#b58900ff>{0,-30}</color>", GetColonFormattedTime(status.timeToRepair));
+                                }
                                 else
-                                    partDisplay = String.Format("<color=#b58900ff>{0,-30}</color>", status.activeFailure.GetFailureDetails().failureTitle);
+                                {
+                                    if (status.activeFailure.GetFailureDetails().severity == "major")
+                                        partDisplay = String.Format("<color=#dc322fff>{0,-30}</color>", status.activeFailure.GetFailureDetails().failureTitle);
+                                    else
+                                        partDisplay = String.Format("<color=#b58900ff>{0,-30}</color>", status.activeFailure.GetFailureDetails().failureTitle);
+                                }
                             }
+                            GUILayout.Label(partDisplay, GUILayout.Width(100));
                         }
-                        GUILayout.Label(partDisplay, GUILayout.Width(100));
-                    }
-                    if (status.activeFailure != null)
-                    {
-                        if (status.activeFailure.CanAttemptRepair() && status.timeToRepair <= 0)
+                        if (status.activeFailure != null)
                         {
-                            if (GUILayout.Button("R", GUILayout.Width(38)))
+                            if (status.activeFailure.CanAttemptRepair() && status.timeToRepair <= 0)
+                            {
+                                if (GUILayout.Button("R", GUILayout.Width(38)))
+                                {
+                                    // attempt repair
+                                    status.flightCore.AttemptRepair();
+                                }
+                            }
+                            if (GUILayout.Button("A", GUILayout.Width(38)))
                             {
                                 // attempt repair
-                                status.flightCore.AttemptRepair();
+                                status.flightCore.AcknowledgeFailure();
                             }
                         }
-                        if (GUILayout.Button("A", GUILayout.Width(38)))
-                        {
-                            // attempt repair
-                            status.flightCore.AcknowledgeFailure();
-                        }
+                        GUILayout.EndHorizontal();
                     }
-                    GUILayout.EndHorizontal();
-                }
-                GUILayout.EndScrollView();
+                    GUILayout.EndScrollView();
 
-                if (GUILayout.Button(settingsButton, GUILayout.Width(38)))
-                {
-                    tfScenario.userSettings.displaySettingsWindow = !tfScenario.userSettings.displaySettingsWindow;
-                    CalculateWindowBounds();
-                    tfScenario.userSettings.Save();
+                    if (GUILayout.Button(settingsButton, GUILayout.Width(38)))
+                    {
+                        tfScenario.userSettings.displaySettingsWindow = !tfScenario.userSettings.displaySettingsWindow;
+                        CalculateWindowBounds();
+                        tfScenario.userSettings.Save();
+                    }
                 }
             }
-
+              
             // Draw settings pane if opened
             if (tfScenario.userSettings.displaySettingsWindow)
             {
@@ -401,6 +405,7 @@ namespace TestFlightCore
                 }
                 ddlSettingsPage.styleListBox = Styles.styleDropDownListBoxUnity;
                 ddlSettingsPage.styleListBlocker = Styles.styleDropDownListBoxUnity;
+                ddlSettingsPage.SelectedIndex = tfScenario.userSettings.settingsPage;
                 ddlSettingsPage.DrawButton();
 
                 switch (tfScenario.userSettings.settingsPage)
@@ -463,9 +468,11 @@ namespace TestFlightCore
                                 CalculateWindowBounds();
                                 tfScenario.userSettings.mainWindowPosition = WindowRect;
                                 DragEnabled = false;
+                                tfScenario.userSettings.showMSD = false;
                             }
                             else
                             {
+                                tfScenario.userSettings.showMSD = Visible;
                                 DragEnabled = true;
                             }
                             tfScenario.userSettings.Save();
@@ -486,14 +493,14 @@ namespace TestFlightCore
                                 hud = gameObject.AddComponent(typeof(TestFlightHUD)) as TestFlightHUD;
                                 if (hud != null)
                                 {
-                                    LogFormatted_DebugOnly("Starting up Flight HUD");
+                                    Log("Starting up Flight HUD");
                                     hud.Startup(this);
                                 }
                                 GameEvents.onGameSceneLoadRequested.Add(Event_OnGameSceneLoadRequested);
                             }
                             else
                             {
-                                LogFormatted_DebugOnly("Destroying Flight HUD");
+                                Log("Destroying Flight HUD");
                                 hud.Shutdown();
                                 Destroy(hud);
                                 hud = null;
@@ -504,23 +511,9 @@ namespace TestFlightCore
                         break;
                     case 1:
                         GUILayout.BeginHorizontal();
-                        GUILayout.Label(new GUIContent("Minimum Update Rate", 
-                            "Define the time in seconds between updates to all parts.\n" +
-                            "Setting this lower will ensure you always have up to date data, but might be a performance issue on large craft.\n" +
-                            "Increase this if you find it affecting performance"),
-                            GUILayout.Width(200)
-                        );
-                        if (DrawHorizontalSlider(ref tfScenario.userSettings.minTimeBetweenDataPoll, 0, 1, GUILayout.Width(150)))
-                        {
-                            tfScenario.userSettings.Save();
-                        }
-                        GUILayout.Label(String.Format("{0,5:f2}", tfScenario.userSettings.minTimeBetweenDataPoll), GUILayout.Width(75));
-                        GUILayout.EndHorizontal();
-
-                        GUILayout.BeginHorizontal();
                         GUILayout.Label(new GUIContent("Flight Data Multiplier", "Overall difficulty slider.\n" +
-                            "Increase to make all parts accumuate flight data faster.  Decrease to make them accumulate flight data slower.\n" + 
-                            "A setting of 1 is normal rate"),
+                        "Increase to make all parts accumuate flight data faster.  Decrease to make them accumulate flight data slower.\n" +
+                        "A setting of 1 is normal rate"),
                             GUILayout.Width(200)
                         );
                         if (DrawHorizontalSlider(ref tfScenario.userSettings.flightDataMultiplier, 0.5, 2, GUILayout.Width(150)))
@@ -531,9 +524,9 @@ namespace TestFlightCore
                         GUILayout.EndHorizontal();
 
                         GUILayout.BeginHorizontal();
-                        GUILayout.Label(new GUIContent("Flight Data Engineer Multiplier", "Overall difficulty slider\n" + 
-                            "Increases or decreases the bonus applied to the accumulation of flight data from having Engineers in your crew.\n" + 
-                            "A setting of 1 is normal difficulty."),
+                        GUILayout.Label(new GUIContent("Flight Data Engineer Multiplier", "Overall difficulty slider\n" +
+                        "Increases or decreases the bonus applied to the accumulation of flight data from having Engineers in your crew.\n" +
+                        "A setting of 1 is normal difficulty."),
                             GUILayout.Width(200)
                         );
                         if (DrawHorizontalSlider(ref tfScenario.userSettings.flightDataEngineerMultiplier, 0.5, 2, GUILayout.Width(150)))
@@ -543,10 +536,16 @@ namespace TestFlightCore
                         GUILayout.Label(String.Format("{0,5:f2}", tfScenario.userSettings.flightDataEngineerMultiplier), GUILayout.Width(75));
                         GUILayout.EndHorizontal();
 
+                        GUILayout.BeginHorizontal();
+                        if (DrawToggle(ref tfScenario.userSettings.singleScope, "Use a single scope for all data", Styles.styleToggle))
+                        {
+                            tfScenario.userSettings.Save();
+                        }
+                        GUILayout.EndHorizontal();
                         break;
                     case 2:
                         GUILayout.BeginHorizontal();
-                        if (DrawToggle(ref tfScenario.userSettings.debugLog, "Eable Debugging", Styles.styleToggle))
+                        if (DrawToggle(ref tfScenario.userSettings.debugLog, "Enable Debugging", Styles.styleToggle))
                         {
                             tfScenario.userSettings.Save();
                         }
@@ -564,8 +563,8 @@ namespace TestFlightCore
             }
         }
 
-        // nicked from magico13's Kerbal Construction Time mod
-        // Hope he doesn't mind!  Just seemed silly to reimplement the wheel here
+        // nicked from magico13's Kerbal Construction Time mod with permission
+        // https://github.com/magico13/KCT/blob/master/Kerbal_Construction_Time/KCT_Utilities.cs#L46-L73
         public static string GetColonFormattedTime(double time)
         {
             if (time > 0)

@@ -8,6 +8,8 @@ using UnityEngine;
 
 using KSPPluginFramework;
 
+using TestFlightAPI;
+
 namespace TestFlightCore
 {
     public class TestFlightHUD : MonoBehaviourWindowPlus
@@ -21,9 +23,18 @@ namespace TestFlightCore
             onWindowMoveComplete += Window_OnWindowMoveComplete;
         }
 
+        internal void Log(string message)
+        {
+            if (TestFlightManagerScenario.Instance == null)
+                return;
+            bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
+            message = "TestFlightHUD: " + message;
+            TestFlightUtil.Log(message, debug);
+        }
+
         internal TestFlightHUD Startup(TestFlightWindow parent)
         {
-            LogFormatted_DebugOnly("TestFlightHUD Startup()");
+            Log("TestFlightHUD Startup()");
             parentWindow = parent;
             tfScenario = TestFlightManagerScenario.Instance;
             WindowMoveEventsEnabled = true;
@@ -60,13 +71,12 @@ namespace TestFlightCore
 
         internal void CalculateWindowBounds()
         {
-            LogFormatted_DebugOnly("TestFlightHUD Calculating Window Bounds");
+            Log("TestFlightHUD Calculating Window Bounds");
             WindowRect = new Rect(tfScenario.userSettings.flightHUDPosition.xMin, tfScenario.userSettings.flightHUDPosition.yMin, 50f, 50f);
         }
 
         internal override void DrawWindow(Int32 id)
         {
-            GUILayout.BeginVertical();
             Dictionary<Guid, MasterStatusItem> masterStatus = parentWindow.tfManager.GetMasterStatus();
 
             if (masterStatus == null || masterStatus.Count <= 0)
@@ -76,10 +86,12 @@ namespace TestFlightCore
             Guid currentVessl = FlightGlobals.ActiveVessel.id;
             if (masterStatus[currentVessl].allPartsStatus.Count(ps => ps.activeFailure != null) < lastPartCount)
             {
-                LogFormatted_DebugOnly("TestFlightHUD less parts to display than last time.  Need to recalculate window bounds");
+                Log("TestFlightHUD less parts to display than last time.  Need to recalculate window bounds");
                 CalculateWindowBounds();
             }
             lastPartCount = masterStatus[currentVessl].allPartsStatus.Count(ps => ps.activeFailure != null);
+
+            GUILayout.BeginVertical();
 
             foreach (PartStatus status in masterStatus[currentVessl].allPartsStatus)
             {
@@ -153,7 +165,7 @@ namespace TestFlightCore
         // GUI EVent Handlers
         void Window_OnWindowMoveComplete(MonoBehaviourWindow sender)
         {
-            LogFormatted_DebugOnly("TestFlightHUD Saving window position");
+            Log("TestFlightHUD Saving window position");
             tfScenario.userSettings.flightHUDPosition = WindowRect;
             tfScenario.userSettings.Save();
         }

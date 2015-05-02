@@ -21,22 +21,21 @@ namespace TestFlightAPI
         public string configuration = "";
         #endregion
 
+        internal void Log(string message)
+        {
+            message = String.Format("FlightDataRecorder({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(this.part), Configuration, message);
+            TestFlightUtil.Log(message, this.part);
+        }
+
+
         public bool TestFlightEnabled
         {
             get
             {
-                bool enabled = true;
                 // Verify we have a valid core attached
                 if (core == null)
-                    enabled = false;
-                // If this part has a ModuleEngineConfig then we need to verify we are assigned to the active configuration
-                if (this.part.Modules.Contains("ModuleEngineConfigs"))
-                {
-                    string currentConfig = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
-                    if (currentConfig != configuration)
-                        enabled = false;
-                }
-                return enabled;
+                    return false;
+                return TestFlightUtil.EvaluateQuery(Configuration, this.part);
             }
         }
         public string Configuration
@@ -129,6 +128,11 @@ namespace TestFlightAPI
         public override void OnSave(ConfigNode node)
         {
             base.OnSave(node);
+        }
+
+        public virtual string GetTestFlightInfo()
+        {
+            return "";
         }
     }
 }

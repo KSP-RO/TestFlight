@@ -20,7 +20,7 @@
     <CustomCommands>
       <CustomCommands>
         <Command type="AfterBuild" command="cp ${TargetFile} ${TargetDir}/../../../../GameData/TestFlight/Plugins" />
-        <Command type="AfterBuild" command="cp -r /USers/john/Developer/KSP/0.90/TestFlightDEV/Dev/_DEV/GitHub/TestFlight/GameData /Users/john/Developer/KSP/0.90/TestFlightDEV/Dev/" />
+        <Command type="AfterBuild" command="cp -r /Users/john/Developer/KSP/1.0/TestFlightDEV/Dev/_DEV/GitHub/TestFlight/GameData /Users/john/Developer/KSP/1.0/TestFlightDEV/Dev/" />
       </CustomCommands>
     </CustomCommands>
     <DebugSymbols>true</DebugSymbols>
@@ -34,8 +34,8 @@
     <ConsolePause>False</ConsolePause>
     <CustomCommands>
       <CustomCommands>
-        <Command type="AfterBuild" command="cp ${TargetFile} ${TargetDir}/../../../../../../../GameData/TestFlight/Plugins" />
-        <Command type="AfterBuild" command="cp -r /USers/john/Developer/KSP/0.90/TestFlightDEV/Dev/_DEV/GitHub/TestFlight/TestFlight /Users/john/Developer/KSP/0.90/TestFlightDEV/Dev/GameData/" />
+        <Command type="AfterBuild" command="cp ${TargetFile} ${TargetDir}/../../../../GameData/TestFlight/Plugins" />
+        <Command type="AfterBuild" command="cp -r /USers/john/Developer/KSP/0.90/TestFlightDEV/Dev/_DEV/GitHub/TestFlight/GameData /Users/john/Developer/KSP/0.90/TestFlightDEV/Dev/" />
       </CustomCommands>
     </CustomCommands>
   </PropertyGroup>
@@ -74,6 +74,7 @@
     <Compile Include="BodySettings.cs" />
     <Compile Include="TestFlightInterface.cs" />
     <Compile Include="UserSettings.cs" />
+    <Compile Include="TestFlightKSC.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

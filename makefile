@@ -4,50 +4,45 @@ CONFIG_DIR = configs
 VERSION = $(shell git describe --tags)
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD 2>&1)
 
-ifdef TRAVIS_TAG
-BUILD := $(shell echo $(TRAVIS_TAG) | cut -d - -f 2)
-else
-BUILD := $(BRANCH)
-endif
+ZIP_CORE := TestFlightCore-$(TRAVIS_TAG).zip
+ZIP_RO := TestFlightConfigRO-$(TRAVIS_TAG).zip
+ZIP_STOCK := TestFlightConfigStock-$(TRAVIS_TAG).zip
 
-ZIPFILE := $(PROJ_NAME)-$(TRAVIS_TAG).zip
-
-all: configs
+all: clean configs meta
+	cp -r GameData/TestFlight/ ~/Dropbox/KSP/TestFlight/
 
 release: zip
-	echo BUILD IS $(BUILD)
-	
-configs_master: configs_HEAD
 
-configs_HEAD: configs_Stock configs_RealismOverhaul
-
-configs_Stock: $(CONFIG_DIR)/Stock/%.cfg
-	cp $(CONFIG_DIR)/Stock/*.cfg GameData/TestFlight
-
-configs_RealismOverhaul: $(CONFIG_DIR)/RealismOverhaul/%.cfg
-	cp $(CONFIG_DIR)/RealismOverhaul/*.cfg GameData/TestFlight
-
-$(CONFIG_DIR)/Stock/%.cfg:
-	cd $(CONFIG_DIR);python compileConfigs.py Stock
+configs: $(CONFIG_DIR)/RealismOverhaul/%.cfg $(CONFIG_DIR)/Stock/%.cfg
+	cp $(CONFIG_DIR)/RealismOverhaul/*.cfg GameData/TestFlight/Config
+	zip $(ZIP_RO) GameData/TestFlight/Config
+	rm GameData/TestFlight/Config/*.cfg
+	cp $(CONFIG_DIR)/Stock/*.cfg GameData/TestFlight/Config
+	zip $(ZIP_STOCK) GameData/TestFlight/Config
 
 $(CONFIG_DIR)/RealismOverhaul/%.cfg:
-	cd $(CONFIG_DIR);python compileConfigs.py RealismOverhaul
+	cd $(CONFIG_DIR);python compileYamlConfigs.py RealismOverhaul
 
-zip: configs_$(BUILD)
-	zip -r $(ZIPFILE) GameData
+$(CONFIG_DIR)/Stock/%.cfg:
+	cd $(CONFIG_DIR);python compileYamlConfigs.py Stock
 
-clean: clean_$(BUILD)
-	echo Build is $(BUILD)
-	-rm GameData/TestFlight/*.cfg
-	-rm *.zip
+ifdef TRAVIS_TAG
+meta:
+	python makeMeta.py $(TRAVIS_TAG)
+	cp TestFlight.version GameData/TestFlight/TestFlight.version
+else
+meta:
+endif
 
-clean_master: clean_HEAD
+zip: configs meta
+	zip $(ZIP_CORE) GameData GameData/TestFlight GameData/TestFlight/Plugins/ GameData/TestFlight/Resources/ GameData/TestFlight/Resources/Textures/
 
-clean_HEAD: clean_Stock clean_RealismOverhaul
-
-clean_Stock:
-	-rm $(CONFIG_DIR)/Stock/*.cfg
-
-clean_RealismOverhaul:
+clean:
 	-rm $(CONFIG_DIR)/RealismOverhaul/*.cfg
-
+	-rm $(CONFIG_DIR)/Stock/*.cfg
+	-rm GameData/TestFlight/Config*.cfg
+	-rm *.zip
+	-rm GameData/TestFlight/*.version
+	-rm GameData/TestFlight/*.ckan
+	-rm *.version
+	-rm *.ckan

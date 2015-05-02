@@ -34,6 +34,12 @@ namespace TestFlightCore
         [Persistent] public bool flightHUDEnabled = false;
         [Persistent] public bool editorShowGraph = false;
         [Persistent] public bool editorShowOnDemand = true;
+        [Persistent] public bool showMSD = false;
+        [Persistent] public bool singleScope = false;
+
+        [Persistent] public int kscWindowPage = 0;
+        [Persistent] public PersistentVector2 currentResearchScrollPositionStored = new PersistentVector2();
+        public Vector2 currentResearchScrollPosition = new Vector2(0,0);
 
         // Unity/KSP can't store some more complex data types so we provide classes to convert
         [Persistent] public PersistentRect mainWindowPositionStored = new PersistentRect();

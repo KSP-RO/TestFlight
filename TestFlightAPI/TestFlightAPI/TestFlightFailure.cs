@@ -94,6 +94,9 @@ namespace TestFlightAPI
         
         public static RepairConfig FromString(string s)
         {
+            if (String.IsNullOrEmpty(s))
+                return null;
+
             RepairConfig repairConfig = null;
             string[] sections = s.Split(new char[1] { ',' });
             if (sections.Length == 10)
@@ -135,9 +138,9 @@ namespace TestFlightAPI
         [KSPField(isPersistant=true)]
         public string configuration = "";
         [KSPField(isPersistant = true)]
-        public double duFail = 0;
+        public float duFail = 0f;
         [KSPField(isPersistant = true)]
-        public double duRepair = 0;
+        public float duRepair = 0f;
         [KSPField(isPersistant = true)]
         public bool oneShot = false;
 
@@ -156,15 +159,7 @@ namespace TestFlightAPI
         {
             get
             {
-                bool enabled = true;
-                // If this part has a ModuleEngineConfig then we need to verify we are assigned to the active configuration
-                if (this.part.Modules.Contains("ModuleEngineConfigs"))
-                {
-                    string currentConfig = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
-                    if (currentConfig != configuration)
-                        enabled = false;
-                }
-                return enabled;
+                return TestFlightUtil.EvaluateQuery(Configuration, this.part);
             }
         }
         public string Configuration
@@ -176,6 +171,12 @@ namespace TestFlightAPI
         public bool OneShot
         {
             get { return oneShot; }
+        }
+
+        protected void Log(string message)
+        {
+            message = String.Format("TestFlightFailure({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(this.part), Configuration, message);
+            TestFlightUtil.Log(message, this.part);
         }
 
         /// <summary>
@@ -219,9 +220,6 @@ namespace TestFlightAPI
         {
 
             if (!Failed)
-                return null;
-
-            if (!TestFlightEnabled)
                 return null;
 
             if (repairConfig == null)
@@ -328,6 +326,7 @@ namespace TestFlightAPI
             ITestFlightCore core = TestFlightUtil.GetCore(this.part);
             if (core != null)
                 core.ModifyFlightData(duFail, true);
+            FlightLogger.eventLog.Add(String.Format("[{0}] {1} failed: {2}", TestFlightUtil.FormatTime(this.vessel.missionTime), TestFlightUtil.GetPartTitle(this.part), failureTitle));
         }
         
         /// <summary>
@@ -396,6 +395,11 @@ namespace TestFlightAPI
             return 0;
         }
 
+        public virtual string GetTestFlightInfo()
+        {
+            return "";
+        }
+
         public override void OnAwake()
         {
             Failed = false;
@@ -404,11 +408,10 @@ namespace TestFlightAPI
         
         public override void OnStart(StartState state)
         {
-            if (repairConfig == null && repairConfigString.Length > 0)
+            if (repairConfig == null && !String.IsNullOrEmpty(repairConfigString))
             {
                 repairConfig = RepairConfig.FromString(repairConfigString);
             }
-            base.OnStart(state);
         }
         
         public override void OnLoad(ConfigNode node)

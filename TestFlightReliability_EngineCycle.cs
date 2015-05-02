@@ -13,7 +13,9 @@ namespace TestFlight
         public FloatCurve cycle;
         private bool engineOperating = false;
         private double engineStartTime = 0;
-//        private ITestFlightCore core = null;
+        [KSPField(isPersistant = true)]
+        public float ratedBurnTime = 0f;
+
         public override void OnStart(StartState state)
         {
             base.OnStart(state);
@@ -60,6 +62,7 @@ namespace TestFlight
                 }
                 double engineOperatingTime = Planetarium.GetUniversalTime() - engineStartTime;
                 float penalty = cycle.Evaluate((float)engineOperatingTime);
+//                Debug.Log(String.Format("TestFlightFailure_EngineCycle: Applying modifier {0:F4} at cycle time {1:F4}", penalty, engineOperatingTime));
                 core.SetTriggerMomentaryFailureModifier("EngineCycle", penalty, this);
             }
             // We intentionally do NOT call our base class OnUpdate() because that would kick off a second round of 
@@ -77,6 +80,24 @@ namespace TestFlight
             }
             else
                 cycle = null;
+        }
+        public override string GetTestFlightInfo()
+        {
+            if (cycle != null)
+            {
+                float burnThrough = cycle.Evaluate(cycle.maxTime);
+                return String.Format("Rated Burn Time: <color=#859900ff>{0:F2}</color> seconds\nBurn through penalty is <color=#dc322fff>{1:F2}</color> at {2:F2} seconds", ratedBurnTime, burnThrough, cycle.maxTime);
+            }
+            return "";
+        }
+        public override string GetInfo()
+        {
+            if (cycle != null)
+            {
+                float burnThrough = cycle.Evaluate(cycle.maxTime);
+                return String.Format("Engine Cycle Information for: \n{3}: Rated Burn Time: <color=#859900ff>{0:F2}</color> seconds\nBurn through penalty is <color=#dc322fff>{1:F2}</color> at {2:F2} seconds", ratedBurnTime, burnThrough, cycle.maxTime, Configuration);
+            }
+            return base.GetInfo();
         }
     }
 }

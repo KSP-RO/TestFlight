@@ -51,18 +51,11 @@ namespace TestFlightAPI
         {
             get
             {
-                bool enabled = true;
                 // Verify we have a valid core attached
                 if (core == null)
-                    enabled = false;
-                // If this part has a ModuleEngineConfig then we need to verify we are assigned to the active configuration
-                if (this.part.Modules.Contains("ModuleEngineConfigs"))
-                {
-                    string currentConfig = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
-                    if (currentConfig != configuration)
-                        enabled = false;
-                }
-                return enabled;
+                    return false;
+
+                return TestFlightUtil.EvaluateQuery(Configuration, this.part);
             }
         }
 
@@ -70,6 +63,12 @@ namespace TestFlightAPI
         {
             get { return configuration; }
             set { configuration = value; }
+        }
+
+        internal void Log(string message)
+        {
+            message = String.Format("TestFlightReliability({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(this.part), Configuration, message);
+            TestFlightUtil.Log(message, this.part);
         }
 
         // New API
@@ -92,7 +91,7 @@ namespace TestFlightAPI
                 return TestFlightUtil.MIN_FAILURE_RATE;
 
             double reliability = curve.Evaluate((float)flightData);
-            Debug.Log(String.Format("TestFlightFailure: {0}|{1} reporting BFR of {2:F4}", TestFlightUtil.GetFullPartName(this.part), configuration, reliability));
+            Log(String.Format("Reporting BFR of {0:F4}", reliability));
             return reliability;
         }
 
@@ -140,19 +139,31 @@ namespace TestFlightAPI
 
         protected void LoadDataFromPrefab()
         {
+            Log("Loading data from prefab");
             Part prefab = this.part.partInfo.partPrefab;
             foreach (PartModule pm in prefab.Modules)
             {
                 TestFlightReliabilityBase modulePrefab = pm as TestFlightReliabilityBase;
-                if (modulePrefab != null && modulePrefab.Configuration == configuration)
-                    reliabilityBodies = modulePrefab.reliabilityBodies;
+                if (modulePrefab != null)
+                    Log("Inspecting prefab with query: " + modulePrefab.Configuration);
+                if (modulePrefab != null && TestFlightUtil.EvaluateQuery(modulePrefab.Configuration, this.part))
+                {
+                    Log("Found matching prefab");
+                    if (modulePrefab.reliabilityBodies != null && modulePrefab.reliabilityBodies.Count > 0)
+                    {
+                        reliabilityBodies = modulePrefab.reliabilityBodies;
+                        Log("Loaded prefab data");
+                    }
+                }
             }
         }
 
         protected void Startup()
         {
+            Log("Startup");
             LoadDataFromPrefab();
 //            UnityEngine.Random.seed = (int)Time.time;
+            Log("Startup::DONE");
         }
 
         // PARTMODULE Implementation
@@ -218,15 +229,21 @@ namespace TestFlightAPI
             lastReliability = reliability;
 //            float failureRoll = Mathf.Min(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f));
 //            float failureRoll = UnityEngine.Random.Range(0f, 1f);
-            double failureRoll = TestFlightUtil.GetCore(this.part).RandomGenerator.NextDouble();
-            Debug.Log(String.Format("TestFlightReliability: Survival Chance at Time {0:F2} is {1:f4}.  Rolled {2:f4}", (float)operatingTime, survivalChance, failureRoll));
+            double failureRoll = core.RandomGenerator.NextDouble();
+            Log(String.Format("Survival Chance at Time {0:F2} is {1:f4}.  Rolled {2:f4}", (float)operatingTime, survivalChance, failureRoll));
             if (failureRoll > survivalChance)
             {
 //                Debug.Log(String.Format("TestFlightReliability: Survival Chance at Time {0:F2} is {1:f4} -- {2:f4}^({3:f4}*{0:f2}*-1.0)", (float)operatingTime, survivalChance, Mathf.Exp(1), (float)currentFailureRate));
-                Debug.Log(String.Format("TestFlightReliability: Part has failed after {1:F1} secodns of operation at MET T+{2:F2} seconds with roll of {0:F4}", failureRoll, operatingTime, this.vessel.missionTime));
+                Log(String.Format("Part has failed after {1:F1} secodns of operation at MET T+{2:F2} seconds with roll of {0:F4}", failureRoll, operatingTime, this.vessel.missionTime));
                 core.TriggerFailure();
             }
         }
+
+        public virtual string GetTestFlightInfo()
+        {
+            return "";
+        }
+
     }
 }
 

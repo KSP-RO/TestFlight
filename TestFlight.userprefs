@@ -1,44 +1,31 @@
 ﻿<Properties StartupItem="TestFlight.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="TestFlightCore/TestFlightCore/TestFlightInterface.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="TestFlightAPI/TestFlightAPI/EngineModuleWrapper.cs">
     <Files>
-      <File FileName="TestFlightCore/TestFlightCore/TestFlightCore.cs" Line="1" Column="1" />
-      <File FileName="TestFlightAPI/TestFlightAPI/TestFlightReliability.cs" Line="1" Column="1" />
-      <File FileName="TestFlightAPI/TestFlightAPI/TestFlightFailure.cs" Line="1" Column="1" />
-      <File FileName="TestFlightAPI/TestFlightAPI/FlightDataRecorder.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/TestFlightEditor.cs" Line="1" Column="1" />
-      <File FileName="TestFlightAPI/TestFlightAPI/TestFlightAPI.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/TestFlightWindow.cs" Line="1" Column="1" />
-      <File FileName="TestFlightAPI/TestFlightAPI/FlightDataConfig.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/UserSettings.cs" Line="1" Column="1" />
+      <File FileName="TestFlightAPI/TestFlightAPI/EngineModuleWrapper.cs" Line="272" Column="5" />
       <File FileName="TestFlightCore/TestFlightCore/TestFlight.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/Framework/ConfigNodeStorage.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/StylesAndSkins.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/Framework/MonoBehaviourExtended.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/Framework/PartModuleExtended.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/Framework/MonoBehaviourWindow.cs" Line="1" Column="1" />
+      <File FileName="TestFlightCore/TestFlightCore/TestFlightEditor.cs" Line="1" Column="1" />
       <File FileName="TestFlightFailure_ShutdownEngine.cs" Line="1" Column="1" />
-      <File FileName="TestFlightFailure_ResourceLeak.cs" Line="1" Column="1" />
       <File FileName="TestFlightFailure_ReducedMaxThrust.cs" Line="1" Column="1" />
+      <File FileName="TestFlightReliability_EngineCycle.cs" Line="1" Column="1" />
+      <File FileName="TestFlightFailure_ResourceLeak.cs" Line="1" Column="1" />
       <File FileName="TestFlightFailure_LockGimbal.cs" Line="1" Column="1" />
-      <File FileName="TestFlightFailure_Explode.cs" Line="1" Column="1" />
+      <File FileName="TestFlightAPI/TestFlightAPI/TestFlightFailure.cs" Line="1" Column="1" />
+      <File FileName="TestFlightFailure_IgnitionFail.cs" Line="1" Column="1" />
+      <File FileName="TestFlightFailure_Engine.cs" Line="1" Column="1" />
+      <File FileName="TestFlightCore/TestFlightCore/TestFlightCore.cs" Line="1" Column="1" />
+      <File FileName="TestFlightReliability.cs" Line="1" Column="1" />
+      <File FileName="FlightDataRecorder_Engine.cs" Line="1" Column="1" />
+      <File FileName="TestFlightCore/TestFlightCore/TestFlightWindow.cs" Line="1" Column="1" />
       <File FileName="TestFlightCore/TestFlightCore/TestFlightHUD.cs" Line="1" Column="1" />
+      <File FileName="TestFlightAPI/TestFlightAPI/TestFlightAPI.cs" Line="1" Column="1" />
+      <File FileName="TestFlightCore/TestFlightCore/TestFlightKSC.cs" Line="1" Column="1" />
       <File FileName="TestFlightCore/TestFlightCore/FrameworkExt/MonoBehaviourWindowPlus.cs" Line="1" Column="1" />
+      <File FileName="TestFlightCore/TestFlightCore/UserSettings.cs" Line="1" Column="1" />
       <File FileName="TestFlightCore/TestFlightCore/TestFlightInterface.cs" Line="1" Column="1" />
+      <File FileName="TestFlightAPI/TestFlightAPI/FlightDataConfig.cs" Line="1" Column="1" />
+      <File FileName="TestFlightAPI/TestFlightAPI/TestFlightReliability.cs" Line="1" Column="1" />
     </Files>
-    <Pads>
-      <Pad Id="ProjectPad">
-        <State expanded="True" selected="True">
-          <Node name="TestFlight" expanded="True">
-            <Node name="Properties" expanded="True" />
-          </Node>
-          <Node name="TestFlightAPI" expanded="True">
-            <Node name="References" expanded="True" />
-          </Node>
-          <Node name="TestFlightCore" expanded="True" />
-        </State>
-      </Pad>
-    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />

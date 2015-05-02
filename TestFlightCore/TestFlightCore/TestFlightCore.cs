@@ -18,18 +18,23 @@ namespace TestFlightCore
         [KSPField(isPersistant = true)]
         public FlightDataConfig flightData;
         [KSPField(isPersistant = true)]
-        public double deepSpaceThreshold = 10000000;
+        public float deepSpaceThreshold = 10000000;
         [KSPField(isPersistant=true)]
         public string configuration = "";
+        [KSPField(isPersistant=true)]
+        public string title = "";
         [KSPField(isPersistant=true)]
         public string techTransfer = "";
         [KSPField(isPersistant=true)]
         public float techTransferMax = 1000;
         [KSPField(isPersistant=true)]
         public float techTransferGenerationPenalty = 0.05f;
-
-
-
+        [KSPField(isPersistant=true)]
+        public float operatingTime;
+        [KSPField(isPersistant=true)]
+        public float lastMET;
+        [KSPField(isPersistant=true)]
+        public bool initialized = false;
 
         // Base Failure Rate is stored per Scope internally
         private Dictionary<String, double> baseFailureRate;
@@ -40,8 +45,6 @@ namespace TestFlightCore
         private List<MomentaryFailureRate> momentaryFailureRates;
         private List<MomentaryFailureModifier> momentaryFailureModifiers;
         private List<String> disabledFailures;
-        private double operatingTime;
-        private double lastMET;
         private double missionStartTime;
         private bool firstStaged;
 
@@ -53,21 +56,27 @@ namespace TestFlightCore
         {
             get
             {
-                bool enabled = true;
-                // If this part has a ModuleEngineConfig then we need to verify we are assigned to the active configuration
-                if (this.part.Modules.Contains("ModuleEngineConfigs"))
-                {
-                    string currentConfig = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
-                    if (currentConfig != configuration)
-                        enabled = false;
-                }
-                return enabled;
+                return TestFlightUtil.EvaluateQuery(Configuration, this.part);
             }
         }
         public string Configuration
         {
             get { return configuration; }
             set { configuration = value; }
+        }
+        public string Title
+        {
+            get { return title; }
+        }
+        public bool DebugEnabled
+        {
+            get 
+            { 
+                if (TestFlightManagerScenario.Instance != null)
+                    return TestFlightManagerScenario.Instance.userSettings.debugLog;
+                else
+                    return false;
+            }
         }
 
         public System.Random RandomGenerator
@@ -76,6 +85,16 @@ namespace TestFlightCore
             {
                 return TestFlightManagerScenario.Instance.RandomGenerator;
             }
+        }
+
+        internal void Log(string message)
+        {
+            if (TestFlightManagerScenario.Instance == null)
+                return;
+
+            bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
+            message = String.Format("TestFlightCore({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(this.part), Configuration, message);
+            TestFlightUtil.Log(message, debug);
         }
 
         // Get a proper scope string for use in other parts of the API
@@ -105,6 +124,11 @@ namespace TestFlightCore
         }
         public String GetScopeForSituationAndBody(String situation, String body)
         {
+            if (TestFlightManagerScenario.Instance != null && TestFlightManagerScenario.Instance.userSettings != null)
+            {
+                if (TestFlightManagerScenario.Instance.userSettings.singleScope)
+                    return "default";
+            }
             // Determine if we are recording data in SPACE or ATMOSHPHERE
             situation = situation.ToLower().Trim();
             body = body.ToLower().Trim();
@@ -355,6 +379,7 @@ namespace TestFlightCore
             mfm = GetMomentaryFailureModifier(trigger, ownerName, scope);
             if (mfm.valid)
             {
+//                LogFormatted_DebugOnly(String.Format("TestFlightCore:({0}): Updating MFT for {1} with a value of {2:F4}", Configuration, trigger, multiplier));
                 // recalculate new rate and cache everything
                 momentaryFailureModifiers.Remove(mfm);
                 mfm.modifier = multiplier;
@@ -371,6 +396,7 @@ namespace TestFlightCore
                 mfm.triggerName = trigger;
                 momentaryFailureModifiers.Add(mfm);
                 // recalculate new rate
+//                LogFormatted_DebugOnly(String.Format("TestFlightCore:({0}): Adding new MFT for {1} with a value of {2:F4}", Configuration, trigger, multiplier));
                 return CalculateMomentaryFailureRate(trigger, scope);
             }
         }
@@ -495,7 +521,7 @@ namespace TestFlightCore
         {
             if (flightData == null)
             {
-                LogFormatted_DebugOnly("FlightData is invalid");
+                Log("FlightData is invalid");
                 return 0;
             }
             FlightDataBody dataBody = flightData.GetFlightData(scope);
@@ -741,15 +767,15 @@ namespace TestFlightCore
                         return null;
                     else
                     {
-                        LogFormatted_DebugOnly("TestFlightCore: Triggering Failure: " + pm.moduleName);
+                        Log("Triggering Failure: " + pm.moduleName);
                         if (!fm.OneShot)
                         {
                             activeFailure = fm;
                             failureAcknowledged = false;
-                            fm.DoFailure();
                             operatingTime = -1;
-                            return fm;
                         }
+                        fm.DoFailure();
+                        return fm;
                     }
                 }
             }
@@ -802,7 +828,7 @@ namespace TestFlightCore
             GameEvents.onStageActivate.Remove(OnStageActivate);
             firstStaged = true;
             missionStartTime = Planetarium.GetUniversalTime();
-            LogFormatted_DebugOnly("TestFlightCore: First stage activated");
+            Log("First stage activated");
         }
         /// <summary>
         /// Determines whether the part is considered operating or not.
@@ -841,7 +867,7 @@ namespace TestFlightCore
                     double repairStatus = activeFailure.GetSecondsUntilRepair();
                     if (repairStatus == 0)
                     {
-                        LogFormatted_DebugOnly("TestFlightCore: Part has been repaired");
+                        Log("Part has been repaired");
                         activeFailure = null;
                         failureAcknowledged = false;
                         operatingTime = 0;
@@ -849,11 +875,12 @@ namespace TestFlightCore
                 }
 
 
-                double currentMET = Planetarium.GetUniversalTime() - missionStartTime;
-//                LogFormatted("TestFlightCore: Current MET: " + currentMET + ", Last MET: " + lastMET);
+                float currentMET = (float)Planetarium.GetUniversalTime() - (float)missionStartTime;
+                Log("Operating Time: " + operatingTime);
+                Log("Current MET: " + currentMET + ", Last MET: " + lastMET);
                 if (operatingTime != -1 && IsPartOperating())
                 {
-//                    LogFormatted_DebugOnly("TestFlightCore: Adding " + (currentMET - lastMET) + " seconds to operatingTime");
+                    Log("Adding " + (currentMET - lastMET) + " seconds to operatingTime");
                     operatingTime += currentMET - lastMET;
                 }
 
@@ -863,6 +890,9 @@ namespace TestFlightCore
 
         public override void Start()
         {
+            if (!TestFlightEnabled)
+                return;
+
             if (HighLogic.LoadedSceneIsFlight)
             {
                 if (this.vessel.situation == Vessel.Situations.PRELAUNCH)
@@ -871,9 +901,10 @@ namespace TestFlightCore
                     firstStaged = false;
                 }
                 else
+                {
                     firstStaged = true;
-                operatingTime = 0;
-                lastMET = 0;
+                    missionStartTime = Planetarium.GetUniversalTime();
+                }
             }
         }
 
@@ -884,7 +915,6 @@ namespace TestFlightCore
                 partName = this.part.name;
             else
                 partName = "unknown";
-            LogFormatted_DebugOnly("TestFlightCore: OnAwake(" + partName + ")");
             if (baseFlightData == null)
                 baseFlightData = new FlightDataConfig();
             if (flightData == null)
@@ -901,9 +931,6 @@ namespace TestFlightCore
 
             if (disabledFailures == null)
                 disabledFailures = new List<string>();
-
-            operatingTime = 0;
-            LogFormatted_DebugOnly("TestFlightCore: OnWake(" + partName + "):DONE");
         }
 
         public void InitializeFlightData(List<TestFlightData> allFlightData)
@@ -919,7 +946,8 @@ namespace TestFlightCore
                 baseFlightData.AddFlightData(data.scope, data.flightData, data.flightTime);
                 flightData.AddFlightData(data.scope, data.flightData, data.flightTime);
             }
-            missionStartTime = 0;
+            missionStartTime = Planetarium.GetUniversalTime();
+            initialized = true;
             return;
         }
 
@@ -1017,7 +1045,7 @@ namespace TestFlightCore
                 double repairStatus = activeFailure.AttemptRepair();
                 if (repairStatus == 0)
                 {
-                    LogFormatted_DebugOnly("TestFlightCore: Part has been repaired");
+                    Log("Part has been repaired");
                     activeFailure = null;
                     failureAcknowledged = false;
                     operatingTime = 0;
@@ -1139,7 +1167,24 @@ namespace TestFlightCore
 
             return tooltip;
         }
-
+        public string GetTestFlightInfo()
+        {
+            string info = "";
+//            List<ITestFlightFailure> failureModules = TestFlightUtil.GetFailureModules(this.part);
+//            List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part);
+//            IFlightDataRecorder dataRecorder = TestFlightUtil.GetDataRecorder(this.part);
+//
+//            foreach (ITestFlightFailure fm in failureModules)
+//            {
+//                info += fm.GetTestFlightInfo();
+//            }
+//            foreach (ITestFlightReliability rm in reliabilityModules)
+//            {
+//                info += rm.GetTestFlightInfo();
+//            }
+//            info += dataRecorder.GetTestFlightInfo();
+            return info;
+        }
     }
 }
 

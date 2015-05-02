@@ -8,52 +8,53 @@ using TestFlightAPI;
 
 namespace TestFlight
 {
-    public class TestFlightFailure_ShutdownEngine : TestFlightFailureBase
+    public class TestFlightFailure_ShutdownEngine : TestFlightFailure_Engine
     {
-        private bool allowShutdown;
+        protected struct CachedEngineState
+        {
+            public bool allowShutdown;
+        }
+
+        Dictionary<int, CachedEngineState> engineStates;
+
+        public override void OnStart(StartState state)
+        {
+            base.OnStart(state);
+            base.Startup();
+        }
         /// <summary>
         /// Triggers the failure controlled by the failure module
         /// </summary>
         public override void DoFailure()
         {
             base.DoFailure();
-            Debug.Log("TestFlightFailure_ShutdownEngine: Failing part");
-            List<ModuleEngines> partEngines = this.part.Modules.OfType<ModuleEngines>().ToList();
-            List<ModuleEnginesFX> partEnginesFX = this.part.Modules.OfType<ModuleEnginesFX>().ToList();
-            foreach (ModuleEngines engine in partEngines)
+            if (engineStates == null)
+                engineStates = new Dictionary<int, CachedEngineState>();
+            engineStates.Clear();
+            foreach (EngineHandler engine in engines)
             {
-                allowShutdown = engine.allowShutdown;
-                engine.allowShutdown = true;
-                engine.Shutdown();
-                engine.DeactivateRunningFX();
-                engine.DeactivatePowerFX();
-                engine.enabled = false;
-            }
-            foreach (ModuleEnginesFX engineFX in partEnginesFX)
-            {
-                allowShutdown = engineFX.allowShutdown;
-                engineFX.allowShutdown = true;
-                engineFX.Shutdown();
-                engineFX.DeactivateLoopingFX();
-                engineFX.enabled = false;
+                int id = engine.engine.Module.GetInstanceID();
+                CachedEngineState engineState = new CachedEngineState();
+                engineState.allowShutdown = engine.engine.allowShutdown;
+                engine.engine.Shutdown();
+                engineStates.Add(id, engineState);
             }
         }
 
         public override double DoRepair()
         {
             base.DoRepair();
-            List<ModuleEngines> partEngines = this.part.Modules.OfType<ModuleEngines>().ToList();
-            List<ModuleEnginesFX> partEnginesFX = this.part.Modules.OfType<ModuleEnginesFX>().ToList();
-            foreach (ModuleEngines engine in partEngines)
+            // for each engine restore it
+            foreach (EngineHandler engine in engines)
             {
-                engine.enabled = true;
-                engine.allowShutdown = allowShutdown;
+                int id = engine.engine.Module.GetInstanceID();
+                if (engineStates.ContainsKey(id))
+                {
+                    engine.engine.enabled = true;
+                    engine.engine.allowShutdown = engineStates[id].allowShutdown;
+                }
             }
-            foreach (ModuleEnginesFX engineFX in partEnginesFX)
-            {
-                engineFX.enabled = true;
-                engineFX.allowShutdown = allowShutdown;
-            }
+            engineStates.Clear();
             return 0;
         }
     }
