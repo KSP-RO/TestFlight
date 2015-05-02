@@ -29,7 +29,7 @@ namespace TestFlight
             return false;
         }
 
-        public override double DoRepair()
+        public override float DoRepair()
         {
             return -1;
         }

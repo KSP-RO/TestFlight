@@ -226,7 +226,7 @@ namespace TestFlight
             }
 
         }
-        public override double DoRepair()
+        public override float DoRepair()
         {
             base.DoRepair();
             for (int i = 0; i < engines.Count; i++)

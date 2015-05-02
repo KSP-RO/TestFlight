@@ -1,0 +1,481 @@
+# Predefined repair setups so they can be re-used later
+RepairConfigs:
+- &EasySoftware
+    canBeRepairedByRemote: true
+    canBeRepairedInFlight: true
+    canBeRepairedOnSplashed: true
+    dataScale: 1
+    dataSize: 1
+    repairChance: 75
+- &MediumHydraulic
+    canBeRepairedByRemote: false
+    canBeRepairedInFlight: false
+    canBeRepairedOnSplashed: false
+    repairChance: 50
+    replacementPart: 'HydraulicGizmo'
+    replacementPartOptional: true
+    replacementPartBonus: 0.10
+- &EasyMechanical
+    canBeRepairedByRemote: false
+    canBeRepairedInFlight: false
+    canBeRepairedOnSplashed: false
+    repairChance: 75
+FailureConfigs:
+- &ShutdownEngine
+    failureTitle: 'Engine Shutdown'
+    failureType: 'software'
+    duFail: 100
+    duRepair: 50
+    severity: 'failure'
+- &LockGimbal
+    failureTitle: 'Gimbal Failure'
+    failureType: 'mechanical'
+    duFail: 100
+    duRepair: 250
+    severity: 'failure'
+- &ReducedMaxThrust
+    failureTitle: 'Loss of Thrust'
+    failureType: 'mechanical'
+    duFail: 100
+    duRepair: 250
+    severity: 'failure'
+- &Explode
+    failureTitle: 'Explosion!'
+    failureType: 'mechanical'
+    duFail: 400
+    severity: 'major'
+- &ResourceLeak_LiquidFuel
+    failureTitle: 'Liquid Fuel Leaking'
+    failureType: 'mechanical'
+    duFail: 25
+    duRepair: 50
+    severity: 'failure'
+    resourceToLeak: 'LiquidFuel'
+    initialAmount: 10
+    perSecondAmount: 1
+- &ResourceLeak_Oxidizer
+    failureTitle: 'Oxidizer Leaking'
+    failureType: 'mechanical'
+    duFail: 25
+    duRepair: 50
+    severity: 'failure'
+    resourceToLeak: 'Oxidizer'
+    initialAmount: 10
+    perSecondAmount: 1
+- &ResourceLeak_MonoPropellant
+    failureTitle: 'MonoPropellant Leaking'
+    failureType: 'mechanical'
+    duFail: 25
+    duRepair: 50
+    severity: 'failure'
+    resourceToLeak: 'MonoPropellant'
+    initialAmount: 1
+    perSecondAmount: 0.1
+- &ResourceLeak_Random
+    failureTitle: 'Tank is leaking'
+    failureType: 'mechanical'
+    duFail: 25
+    duRepair: 50
+    severity: 'failure'
+    resourceToLeak: 'random'
+    initialAmount: 5
+    perSecondAmount: 1
+- &IgnitionFail
+    failureTitle: 'Failed to ignite'
+    failureType: 'mechanical'
+    duFail: 300
+    severity: 'major'
+    oneShot: true
+PartConfigs:
+    # Solids
+    RT5: &RT5
+        # Should only ever be ONE Interop module for a unique PART in KSP.
+        -   name: 'TestFlightInterop'
+        -   name: 'TestFlightCore'
+            maxData: 10000
+            startFlightData: 5000
+        -   name: 'FlightDataRecorder_Engine'
+            flightDataMultiplier: 10
+            flightDataEngineerModifier: 0.25
+        -   name: 'TestFlightReliability'
+            reliabilityCurve:
+                - '0 0.005'
+                - '10000 0.002'
+        # When referencing a block like this for use in a module, the blocks have to come BEFORE the module itself.  They will then get folded down into it
+        -   *ReducedMaxThrust
+        -   name: 'TestFlightFailure_ReducedMaxThrust'
+            weight: 32
+            REPAIR:
+            - *EasyMechanical
+        -   *Explode
+        -   name: 'TestFlightFailure_Explode'
+            weight: 8
+    RT10: &RT10
+        # Should only ever be ONE Interop module for a unique PART in KSP.
+        -   name: 'TestFlightInterop'
+        -   name: 'TestFlightCore'
+            maxData: 10000
+            techTransfer: 'solidBooster_sm:75'
+            techTransferMax: 5000
+        -   name: 'FlightDataRecorder_Engine'
+            flightDataMultiplier: 5
+            flightDataEngineerModifier: 0.25
+        -   name: 'TestFlightReliability'
+            reliabilityCurve:
+                - '0 0.002'
+                - '10000 0.001'
+        # When referencing a block like this for use in a module, the blocks have to come BEFORE the module itself.  They will then get folded down into it
+        -   *ReducedMaxThrust
+        -   name: 'TestFlightFailure_ReducedMaxThrust'
+            weight: 32
+            REPAIR:
+            - *EasyMechanical
+        -   *Explode
+        -   name: 'TestFlightFailure_Explode'
+            weight: 8
+    BACC: &BACC
+        # Should only ever be ONE Interop module for a unique PART in KSP.
+        -   name: 'TestFlightInterop'
+        -   name: 'TestFlightCore'
+            maxData: 10000
+            techTransfer: 'solidBooster:75'
+            techTransferMax: 5000
+        -   name: 'FlightDataRecorder_Engine'
+            flightDataMultiplier: 5
+            flightDataEngineerModifier: 0.25
+        -   name: 'TestFlightReliability'
+            reliabilityCurve:
+                - '0 0.001'
+                - '10000 0.00005'
+        # When referencing a block like this for use in a module, the blocks have to come BEFORE the module itself.  They will then get folded down into it
+        -   *ReducedMaxThrust
+        -   name: 'TestFlightFailure_ReducedMaxThrust'
+            weight: 32
+            REPAIR:
+            - *EasyMechanical
+        -   *Explode
+        -   name: 'TestFlightFailure_Explode'
+            weight: 8
+    Kickback: &Kickback
+        # Should only ever be ONE Interop module for a unique PART in KSP.
+        -   name: 'TestFlightInterop'
+        -   name: 'TestFlightCore'
+            maxData: 10000
+            techTransfer: 'solidBooster1-1:75'
+            techTransferMax: 5000
+        -   name: 'FlightDataRecorder_Engine'
+            flightDataMultiplier: 5
+            flightDataEngineerModifier: 0.25
+        -   name: 'TestFlightReliability'
+            reliabilityCurve:
+                - '0 0.001'
+                - '10000 0.00005'
+        # When referencing a block like this for use in a module, the blocks have to come BEFORE the module itself.  They will then get folded down into it
+        -   *ReducedMaxThrust
+        -   name: 'TestFlightFailure_ReducedMaxThrust'
+            weight: 32
+            REPAIR:
+            - *EasyMechanical
+        -   *Explode
+        -   name: 'TestFlightFailure_Explode'
+            weight: 8
+    # Standard liquid engines
+    LV-T30: &LV-T30
+        # Should only ever be ONE Interop module for a unique PART in KSP.
+        -   name: 'TestFlightInterop'
+        -   name: 'TestFlightCore'
+            maxData: 10000
+            startFlightData: 10000
+        -   name: 'FlightDataRecorder_Engine'
+            flightDataMultiplier: 5
+            flightDataEngineerModifier: 0.25
+        -   name: 'TestFlightReliability'
+            reliabilityCurve:
+                - '0 0.0005'
+                - '10000 0.0001'
+        # When referencing a block like this for use in a module, the blocks have to come BEFORE the module itself.  They will then get folded down into it
+        -   *ShutdownEngine        
+        -   name: 'TestFlightFailure_ShutdownEngine'
+            weight: 16
+            REPAIR:
+        -   *ReducedMaxThrust
+        -   name: 'TestFlightFailure_ReducedMaxThrust'
+            weight: 32
+            REPAIR:
+            - *EasyMechanical
+        -   *Explode
+        -   name: 'TestFlightFailure_Explode'
+            weight: 2
+    LV-T45: &LV-T45
+        # Should only ever be ONE Interop module for a unique PART in KSP.
+        -   name: 'TestFlightInterop'
+        -   name: 'TestFlightCore'
+            maxData: 10000
+            techTransfer: 'liquidEngine:50'
+            techTransferMax: 5000
+        -   name: 'FlightDataRecorder_Engine'
+            flightDataMultiplier: 5
+            flightDataEngineerModifier: 0.25
+        -   name: 'TestFlightReliability'
+            reliabilityCurve:
+                - '0 0.0002'
+                - '10000 0.00008'
+        # When referencing a block like this for use in a module, the blocks have to come BEFORE the module itself.  They will then get folded down into it
+        -   *IgnitionFail
+        -   name: 'TestFlightFailure_IgnitionFail'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.8'
+            - '10000 0.9'
+            ignorePressureOnPad: true
+            pressureCurve:
+            - '0 1.0'
+            - '50000 1.0'
+        -   *ShutdownEngine        
+        -   name: 'TestFlightFailure_ShutdownEngine'
+            weight: 16
+            REPAIR:
+        -   *ReducedMaxThrust
+        -   name: 'TestFlightFailure_ReducedMaxThrust'
+            weight: 32
+            REPAIR:
+            - *EasyMechanical
+        -   *Explode
+        -   name: 'TestFlightFailure_Explode'
+            weight: 2
+    LV-909: &LV-909
+        # Should only ever be ONE Interop module for a unique PART in KSP.
+        -   name: 'TestFlightInterop'
+        -   name: 'TestFlightCore'
+            maxData: 10000
+            techTransfer: 'liquidEngine2:50'
+            techTransferMax: 5000
+        -   name: 'FlightDataRecorder_Engine'
+            flightDataMultiplier: 3
+            flightDataEngineerModifier: 0.25
+        -   name: 'TestFlightReliability'
+            reliabilityCurve:
+                - '0 0.00008'
+                - '10000 0.00001'
+        # When referencing a block like this for use in a module, the blocks have to come BEFORE the module itself.  They will then get folded down into it
+        -   *IgnitionFail
+        -   name: 'TestFlightFailure_IgnitionFail'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.9'
+            - '10000 0.9'
+            ignorePressureOnPad: true
+            pressureCurve:
+            - '0 1.0'
+            - '50000 1.0'
+        -   *ShutdownEngine        
+        -   name: 'TestFlightFailure_ShutdownEngine'
+            weight: 16
+            REPAIR:
+        -   *ReducedMaxThrust
+        -   name: 'TestFlightFailure_ReducedMaxThrust'
+            weight: 32
+            REPAIR:
+            - *EasyMechanical
+        -   *Explode
+        -   name: 'TestFlightFailure_Explode'
+            weight: 2
+    MK55: &MK55
+        # Should only ever be ONE Interop module for a unique PART in KSP.
+        -   name: 'TestFlightInterop'
+        -   name: 'TestFlightCore'
+            maxData: 10000
+            techTransfer: 'liquidEngine2:50'
+            techTransferMax: 5000
+        -   name: 'FlightDataRecorder_Engine'
+            flightDataMultiplier: 3
+            flightDataEngineerModifier: 0.25
+        -   name: 'TestFlightReliability'
+            reliabilityCurve:
+                - '0 0.0001'
+                - '10000 0.00003'
+        # When referencing a block like this for use in a module, the blocks have to come BEFORE the module itself.  They will then get folded down into it
+        -   *IgnitionFail
+        -   name: 'TestFlightFailure_IgnitionFail'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.9'
+            - '10000 0.98'
+            ignorePressureOnPad: true
+            pressureCurve:
+            - '0 1.0'
+            - '50000 1.0'
+        -   *ShutdownEngine        
+        -   name: 'TestFlightFailure_ShutdownEngine'
+            weight: 32
+            REPAIR:
+        -   *ReducedMaxThrust
+        -   name: 'TestFlightFailure_ReducedMaxThrust'
+            weight: 32
+            REPAIR:
+            - *EasyMechanical
+        -   *Explode
+        -   name: 'TestFlightFailure_Explode'
+            weight: 2
+    Skipper: &Skipper
+        # Should only ever be ONE Interop module for a unique PART in KSP.
+        -   name: 'TestFlightInterop'
+        -   name: 'TestFlightCore'
+            maxData: 10000
+            techTransfer: 'liquidEngine3:50'
+            techTransferMax: 5000
+        -   name: 'FlightDataRecorder_Engine'
+            flightDataMultiplier: 2
+            flightDataEngineerModifier: 0.25
+        -   name: 'TestFlightReliability'
+            reliabilityCurve:
+                - '0 0.00005'
+                - '10000 0.00001'
+        # When referencing a block like this for use in a module, the blocks have to come BEFORE the module itself.  They will then get folded down into it
+        -   *IgnitionFail
+        -   name: 'TestFlightFailure_IgnitionFail'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.9'
+            - '10000 0.98'
+            ignorePressureOnPad: true
+            pressureCurve:
+            - '0 1.0'
+            - '50000 1.0'
+        -   *ShutdownEngine        
+        -   name: 'TestFlightFailure_ShutdownEngine'
+            weight: 16
+            REPAIR:
+        -   *ReducedMaxThrust
+        -   name: 'TestFlightFailure_ReducedMaxThrust'
+            weight: 32
+            REPAIR:
+            - *EasyMechanical
+        -   *Explode
+        -   name: 'TestFlightFailure_Explode'
+            weight: 2
+    Poodle: &Poodle
+        # Should only ever be ONE Interop module for a unique PART in KSP.
+        -   name: 'TestFlightInterop'
+        -   name: 'TestFlightCore'
+            maxData: 10000
+            techTransfer: 'liquidEngine3:50'
+            techTransferMax: 5000
+        -   name: 'FlightDataRecorder_Engine'
+            flightDataMultiplier: 2
+            flightDataEngineerModifier: 0.25
+        -   name: 'TestFlightReliability'
+            reliabilityCurve:
+                - '0 0.00005'
+                - '10000 0.00001'
+        # When referencing a block like this for use in a module, the blocks have to come BEFORE the module itself.  They will then get folded down into it
+        -   *IgnitionFail
+        -   name: 'TestFlightFailure_IgnitionFail'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.9'
+            - '10000 0.98'
+            ignorePressureOnPad: true
+            pressureCurve:
+            - '0 1.0'
+            - '50000 1.0'
+        -   *ShutdownEngine        
+        -   name: 'TestFlightFailure_ShutdownEngine'
+            weight: 16
+            REPAIR:
+        -   *ReducedMaxThrust
+        -   name: 'TestFlightFailure_ReducedMaxThrust'
+            weight: 32
+            REPAIR:
+            - *EasyMechanical
+        -   *Explode
+        -   name: 'TestFlightFailure_Explode'
+            weight: 2
+    Mainsail: &Mainsail
+        # Should only ever be ONE Interop module for a unique PART in KSP.
+        -   name: 'TestFlightInterop'
+        -   name: 'TestFlightCore'
+            maxData: 10000
+            techTransfer: 'engineLargeSkipper:50'
+            techTransferMax: 5000
+        -   name: 'FlightDataRecorder_Engine'
+            flightDataMultiplier: 2
+            flightDataEngineerModifier: 0.25
+        -   name: 'TestFlightReliability'
+            reliabilityCurve:
+                - '0 0.00005'
+                - '10000 0.00001'
+        # When referencing a block like this for use in a module, the blocks have to come BEFORE the module itself.  They will then get folded down into it
+        -   *IgnitionFail
+        -   name: 'TestFlightFailure_IgnitionFail'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.95'
+            - '10000 0.99'
+            ignorePressureOnPad: true
+            pressureCurve:
+            - '0 1.0'
+            - '50000 1.0'
+        -   *ShutdownEngine        
+        -   name: 'TestFlightFailure_ShutdownEngine'
+            weight: 8
+            REPAIR:
+        -   *ReducedMaxThrust
+        -   name: 'TestFlightFailure_ReducedMaxThrust'
+            weight: 32
+            REPAIR:
+            - *EasyMechanical
+        -   *Explode
+        -   name: 'TestFlightFailure_Explode'
+            weight: 2
+Parts:
+-   part: 'RT-5'
+    patterns:
+    - '@PART[solidBooster_sm]'
+    configs:
+    - *RT5
+-   part: 'RT-10'
+    patterns:
+    - '@PART[solidBooster]'
+    configs:
+    - *RT10
+-   part: 'BACC'
+    patterns:
+    - '@PART[solidBooster1-1]'
+    configs:
+    - *BACC
+-   part: 'Kickback'
+    patterns:
+    - '@PART[MassiveBooster]'
+    configs:
+    - *Kickback 
+-   part: 'LV-T30'
+    patterns:
+    - '@PART[liquidEngine]'
+    configs:
+    - *LV-T30 
+-   part: 'LV-T45'
+    patterns:
+    - '@PART[liquidEngine2]'
+    configs:
+    - *LV-T45 
+-   part: 'LV-909'
+    patterns:
+    - '@PART[liquidEngine3]'
+    configs:
+    - *LV-909
+-   part: 'Skipper'
+    patterns:
+    - '@PART[engineLargeSkipper]'
+    configs:
+    - *Skipper
+-   part: 'Poodle'
+    patterns:
+    - '@PART[liquidEngine2-2]'
+    configs:
+    - *Poodle 
+-   part: 'Mainsail'
+    patterns:
+    - '@PART[liquidEngine1-2]'
+    configs:
+    - *Mainsail 

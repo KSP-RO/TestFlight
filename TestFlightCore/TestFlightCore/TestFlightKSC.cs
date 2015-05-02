@@ -72,7 +72,8 @@ namespace TestFlightCore
             {
                 "Visual Settings",
                 "Difficulty/Performance Settings",
-                "Miscellaneous"
+                "Miscellaneous",
+                "SaveGame Settings"
             };
             ddlSettingsPage = new DropDownList(views, this);
             ddlManager.AddDDL(ddlSettingsPage);
@@ -205,7 +206,7 @@ namespace TestFlightCore
                                 "A setting of 1 is normal rate"),
                                 GUILayout.Width(200)
                             );
-                            if (DrawHorizontalSlider(ref tfScenario.userSettings.flightDataMultiplier, 0.5, 2, GUILayout.Width(150)))
+                            if (DrawHorizontalSlider(ref tfScenario.userSettings.flightDataMultiplier, 0.5f, 2f, GUILayout.Width(150)))
                             {
                                 tfScenario.userSettings.Save();
                             }
@@ -218,7 +219,7 @@ namespace TestFlightCore
                                 "A setting of 1 is normal difficulty."),
                                 GUILayout.Width(200)
                             );
-                            if (DrawHorizontalSlider(ref tfScenario.userSettings.flightDataEngineerMultiplier, 0.5, 2, GUILayout.Width(150)))
+                            if (DrawHorizontalSlider(ref tfScenario.userSettings.flightDataEngineerMultiplier, 0.5f, 2f, GUILayout.Width(150)))
                             {
                                 tfScenario.userSettings.Save();
                             }
@@ -237,6 +238,22 @@ namespace TestFlightCore
                             if (DrawToggle(ref tfScenario.userSettings.debugLog, "Enable Debugging", Styles.styleToggle))
                             {
                                 tfScenario.userSettings.Save();
+                            }
+                            GUILayout.EndHorizontal();
+                            break;
+                        case 3:
+                            GUILayout.BeginHorizontal();
+                            bool saveEnabled = tfScenario.SettingsEnabled;
+                            if (DrawToggle(ref saveEnabled, "TestFlight Enabled", Styles.styleToggle))
+                            {
+                                tfScenario.SettingsEnabled = saveEnabled;
+                            }
+                            GUILayout.EndHorizontal();
+                            GUILayout.BeginHorizontal();
+                            bool saveMaxData = tfScenario.SettingsAlwaysMaxData;
+                            if (DrawToggle(ref saveMaxData, "Parts always have Maximum Data", Styles.styleToggle))
+                            {
+                                tfScenario.SettingsAlwaysMaxData = saveMaxData;
                             }
                             GUILayout.EndHorizontal();
                             break;
