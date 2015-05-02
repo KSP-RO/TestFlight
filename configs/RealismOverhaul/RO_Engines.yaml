@@ -94,6 +94,7 @@ PartConfigs:
         # Should only ever be ONE Interop module for a unique PART in KSP.
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = WAC-Corporal:WAC-Corporal'
             title: 'WAC Corporal'
             startFlightData: 10000
@@ -143,6 +144,7 @@ PartConfigs:
             weight: 4
     Aerobee-Hi: &Aerobee-Hi
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = Aerobee-Hi:Aerobee-Hi'
             title: 'Aerobee Hi'
             techTransfer: 'WAC-Corporal:50'
@@ -193,6 +195,7 @@ PartConfigs:
             weight: 4
     Aerobee-150: &Aerobee-150
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = Aerobee-150:Aerobee-150'
             title: 'Aerobee 150'
             techTransfer: 'WAC-Corporal,Aerobee-Hi:50'
@@ -245,6 +248,7 @@ PartConfigs:
     X-405: &X-405
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = X-405:X-405'
             title: 'X-405'
         -   name: 'FlightDataRecorder_Engine'
@@ -299,6 +303,7 @@ PartConfigs:
     AJ10-37: &AJ10-37
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = AJ10-37:AJ10-37'
             title: 'AJ10-37'
             techTransfer: 'WAC-Corporal,Aerobee-Hi,Aerobee-150:10'
@@ -349,6 +354,7 @@ PartConfigs:
             weight: 4
     AJ10-42: &AJ10-42
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = AJ10-42:AJ10-42'
             title: 'AJ10-42'
             techTransfer: 'AJ10-37:50'
@@ -400,6 +406,7 @@ PartConfigs:
             weight: 4
     AJ10-142: &AJ10-142
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = AJ10-142:AJ10-142'
             title: 'AJ10-142'
             techTransfer: 'AJ10-37,AJ10-42:50'
@@ -451,6 +458,7 @@ PartConfigs:
             weight: 4
     AJ10-104D: &AJ10-104D
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = AJ10-104D:AJ10-104D'
             title: 'AJ10-104D'
             techTransfer: 'AJ10-37,AJ10-42,AJ10-142:50'
@@ -505,6 +513,7 @@ PartConfigs:
     LR-89-NA-3: &LR-89-NA-3
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = LR-89-NA-3:LR-89-NA-3'
             title: 'LR-89-NA-3'
         -   name: 'FlightDataRecorder_Engine'
@@ -560,6 +569,7 @@ PartConfigs:
     LR-105-NA-5: &LR-105-NA-5
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = LR-105-NA-5:LR-105-NA-5'
             title: 'LR-105-NA-5'
         -   name: 'FlightDataRecorder_Engine'
@@ -615,6 +625,7 @@ PartConfigs:
     Bell-8048: &Bell-8048
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = Bell-8048:Bell-8048'
             title: 'Bell-8048'
         -   name: 'FlightDataRecorder_Engine'
@@ -664,6 +675,7 @@ PartConfigs:
             weight: 4
     Bell-8081: &Bell-8081
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = Bell-8081:Bell-8081'
             title: 'Bell-8081'
             techTransfer: 'Bell-8048:50'
@@ -715,6 +727,7 @@ PartConfigs:
             weight: 4
     Bell-8247: &Bell-8247
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = Bell-8247:Bell-8247'
             title: 'Bell-8247'
             techTransfer: 'Bell-8048,Bell-8081:50'
@@ -768,6 +781,7 @@ PartConfigs:
     XLR11: &XLR11
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = XLR11:XLR11'
             title: 'XLR11'
             startFlightData: 10000
@@ -820,6 +834,7 @@ PartConfigs:
     XLR99: &XLR99
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = XLR99:XLR99'
             title: 'XLR99'
         -   name: 'FlightDataRecorder_Engine'
@@ -872,6 +887,7 @@ PartConfigs:
     A-6: &A-6
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = A-6:A-6'
             title: 'A-6'
         -   name: 'FlightDataRecorder_Engine'
@@ -925,6 +941,7 @@ PartConfigs:
             weight: 2
     A-7: &A-7
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = A-7:A-7'
             title: 'A-7'
             techTransfer: 'A-6:30'
@@ -982,6 +999,7 @@ PartConfigs:
     LR-87-3: &LR-87-3
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = LR-87-3:LR-87-3'
             title: 'LR-87-3'
         -   name: 'FlightDataRecorder_Engine'
@@ -1035,6 +1053,7 @@ PartConfigs:
             weight: 2
     LR-87-5: &LR-87-5
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = LR-87-5:LR-87-5'
             title: 'LR-87-5'
             techTransfer: 'LR-87-3:50'
@@ -1090,6 +1109,7 @@ PartConfigs:
             weight: 2
     LR-87-7: &LR-87-7
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = LR-87-7:LR-87-7'
             title: 'LR-87-7'
             techTransfer: 'LR-87-3,LR-87-5:50'
@@ -1145,6 +1165,7 @@ PartConfigs:
             weight: 2
     LR-87-9: &LR-87-9
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = LR-87-9:LR-87-9'
             title: 'LR-87-9'
             techTransfer: 'LR-87-3,LR-87-5,LR-87-7:50'
@@ -1200,6 +1221,7 @@ PartConfigs:
             weight: 2
     LR-87-11: &LR-87-11
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = LR-87-11:LR-87-11'
             title: 'LR-87-11'
             techTransfer: 'LR-87-3,LR-87-5,LR-87-7,LR-87-9:50'
@@ -1255,6 +1277,7 @@ PartConfigs:
             weight: 2
     LR-87-11A: &LR-87-11A
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = LR-87-11A:LR-87-11A'
             title: 'LR-87-11A'
             techTransfer: 'LR-87-3,LR-87-5,LR-87-7,LR-87-9,LR-87-11:50'
@@ -1313,6 +1336,7 @@ PartConfigs:
         -   name: 'TestFlightInterop'
         -   &RL10A-1-Core
             name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = RL10A-1:RL10A-1'
             title: 'RL10A-1'
         -   name: 'FlightDataRecorder_Engine'
@@ -1386,6 +1410,7 @@ PartConfigs:
     RL10A-3-1: &RL10A-3-1
         -   &RL10A-3-1-Core
             name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = RL10A-3-1:RL10A-3-1'
             title: 'RL10A-3-1'
             techTransfer: 'RL10A-1:50'
@@ -1461,6 +1486,7 @@ PartConfigs:
     RL10A-3-3: &RL10A-3-3
         -   &RL10A-3-3-Core
             name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = RL10A-3-3:RL10A-3-3'
             title: 'RL10A-3-3'
             techTransfer: 'RL10A-1,RL10A-3-1:50'
@@ -1536,6 +1562,7 @@ PartConfigs:
     RL10A-3-3A: &RL10A-3-3A
         -   &RL10A-3-3A-Core
             name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = RL10A-3-3A:RL10A-3-3A'
             title: 'RL10A-3-3A'
             techTransfer: 'RL10A-1,RL10A-3-1,RL10A-3-3:50'
@@ -1611,6 +1638,7 @@ PartConfigs:
     RL10A-4: &RL10A-4
         -   &RL10A-4-Core
             name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = RL10A-4:RL10A-4'
             title: 'RL10A-4'
             techTransfer: 'RL10A-1,RL10A-3-1,RL10A-3-3,RL10A-3-3A:50'
@@ -1686,6 +1714,7 @@ PartConfigs:
     RL10A-4-1-2: &RL10A-4-1-2
         -   &RL10A-4-1-2-Core
             name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = RL10A-4-1-2:RL10A-4-1-2'
             title: 'RL10A-4-1-2'
             techTransfer: 'RL10A-1,RL10A-3-1,RL10A-3-3,RL10A-3-3A,RL10A-4:50'
@@ -1761,6 +1790,7 @@ PartConfigs:
     RL10B-2: &RL10B-2
         -   &RL10B-2-Core
             name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = RL10B-2:RL10B-2'
             title: 'RL10B-2'
             techTransfer: 'RL10A-1,RL10A-3-1,RL10A-3-3,RL10A-3-3A,RL10A-4:50'
@@ -1836,6 +1866,7 @@ PartConfigs:
     RL10C-1: &RL10C-1
         -   &RL10C-1-Core
             name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = RL10C-1:RL10C-1'
             title: 'RL10C-1'
             techTransfer: 'RL10A-1,RL10A-3-3,RL10A-3-3A,RL10A-4,RL10A-4-1-2,RL10B-2:50'
