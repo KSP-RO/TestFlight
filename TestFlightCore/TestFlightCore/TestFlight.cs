@@ -547,30 +547,47 @@ namespace TestFlightCore
                 return "";
         }
 
+        public string GetString(string key)
+        {
+            return GetString(key, "");
+        }
+
+        public string GetString(string key, string defaultValue)
+        {
+            if (!String.IsNullOrEmpty(GetValue(key)))
+                return GetValue(key);
+            else
+                return defaultValue;
+        }
+
         public double GetDouble(string key)
         {
-            double returnValue = 0;
-            key = key.ToLowerInvariant();
-            if (saveData.ContainsKey(key))
-            {
-                double.TryParse(saveData[key], out returnValue);
-            }
-            else
-                return 0;
+            return GetDouble(key, 0);
+        }
+
+        public double GetDouble(string key, double defaultValue)
+        {
+            double returnValue = defaultValue;
+
+            string value = GetValue(key);
+            if (!double.TryParse(value, out returnValue))
+                return defaultValue;
 
             return returnValue;
         }
 
         public float GetFloat(string key)
         {
-            float returnValue = 0f;
-            key = key.ToLowerInvariant();
-            if (saveData.ContainsKey(key))
-            {
-                float.TryParse(saveData[key], out returnValue);
-            }
-            else
-                return 0f;
+            return GetFloat(key, 0f);
+        }
+
+        public float GetFloat(string key, float defaultValue)
+        {
+            float returnValue = defaultValue;
+
+            string value = GetValue(key);
+            if (!float.TryParse(value, out returnValue))
+                return defaultValue;
 
             return returnValue;
         }
@@ -582,7 +599,7 @@ namespace TestFlightCore
 
         public bool GetBool(string key, bool defaultValue)
         {
-            bool returnValue = false;
+            bool returnValue = defaultValue;
             key = key.ToLowerInvariant();
             if (saveData.ContainsKey(key))
             {
@@ -597,14 +614,16 @@ namespace TestFlightCore
 
         public int GetInt(string key)
         {
-            int returnValue = 0;
-            key = key.ToLowerInvariant();
-            if (saveData.ContainsKey(key))
-            {
-                int.TryParse(saveData[key], out returnValue);
-            }
-            else
-                return 0;
+            return GetInt(key, 0);
+        }
+
+        public int GetInt(string key, int defaultValue)
+        {
+            int returnValue = defaultValue;
+
+            string value = GetValue(key);
+            if (!int.TryParse(value, out returnValue))
+                return defaultValue;
 
             return returnValue;
         }
