@@ -426,10 +426,16 @@ namespace TestFlightCore
         // New v1.3 noscope
         public float GetFlightData()
         {
+            if (currentFlightData > maxData)
+                currentFlightData = maxData;
+            
             return currentFlightData;
         }
         public float GetInitialFlightData()
         {
+            if (initialFlightData > maxData)
+                initialFlightData = maxData;
+            
             return initialFlightData;
         }
         public float GetFlightTime()
@@ -461,6 +467,9 @@ namespace TestFlightCore
         // Be sure these are the methods you want to use.  99% of the time you want to use ModifyFlightData instead
         public void SetFlightData(float data)
         {
+            if (data > maxData)
+                data = maxData;
+            
             currentFlightData = data;
         }
         public void SetFlightTime(float flightTime)
@@ -492,6 +501,9 @@ namespace TestFlightCore
             }
             if (newFlightData > dataCap)
                 newFlightData = dataCap;
+
+            if (newFlightData > maxData)
+                newFlightData = maxData;
 
             currentFlightData = newFlightData;
             return currentFlightData;
