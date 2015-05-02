@@ -135,25 +135,18 @@ namespace TestFlightCore
             message = String.Format("TestFlightCore({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(this.part), Configuration, message);
             TestFlightUtil.Log(message, debug);
         }
-
-        // Retrieves the maximum amount of data a part can gain
-        public float GetMaximumData()
+        private void CalculateMaximumData()
         {
-            float maxData = -1f;
-
-            if (!TestFlightEnabled)
-                return maxData;
+            if (maxData > 0f)
+                return;
             
-            // If the maxData property was defined on this core, just return it
-            if (this.maxData > 0f)
-                return this.maxData;
-
-            // Otherwise we need to calculate it
             List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part);
             if (reliabilityModules == null)
-                return maxData;
+                return;
+            
             if (reliabilityModules.Count < 1)
-                return maxData;
+                return;
+            
             foreach (ITestFlightReliability rm in reliabilityModules)
             {
                 FloatCurve curve = rm.GetReliabilityCurve();
@@ -163,6 +156,15 @@ namespace TestFlightCore
                         maxData = curve.maxTime;
                 }
             }
+        }
+        // Retrieves the maximum amount of data a part can gain
+        public float GetMaximumData()
+        {
+
+            if (maxData > 0f)
+                return maxData;
+
+            CalculateMaximumData();
             return maxData;
         }
 
@@ -758,6 +760,8 @@ namespace TestFlightCore
         {
             if (!TestFlightEnabled)
                 return;
+
+            CalculateMaximumData();
 
             if (HighLogic.LoadedSceneIsFlight)
             {

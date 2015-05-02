@@ -771,6 +771,7 @@ namespace TestFlightAPI
         // NEW API
         // Get the base or static failure rate
         float GetBaseFailureRate();
+        float GetMaximumData();
         // Get the Reliability Curve for the part
         FloatCurve GetBaseReliabilityCurve();
         // Get the momentary (IE current dynamic) failure rates (Can vary per reliability/failure modules)

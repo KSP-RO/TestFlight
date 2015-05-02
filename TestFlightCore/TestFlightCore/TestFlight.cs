@@ -251,21 +251,9 @@ namespace TestFlightCore
                 if (core != null)
                 {
                     Log("TestFlightManager: Found core.  Getting part data");
-                    float maxData = 0f;
                     if (TestFlightManagerScenario.Instance.SettingsAlwaysMaxData)
                     {
-                        List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(part);
-                        foreach (ITestFlightReliability rm in reliabilityModules)
-                        {
-                            FloatCurve curve = rm.GetReliabilityCurve();
-                            maxData = 0f;
-                            if (curve != null)
-                                maxData = curve.maxTime;
-                            if (curve != null && maxData > 0f)
-                                break;    
-                        }
-                        Log("AlwaysMaxData is set, initializing part with max data");
-                        core.InitializeFlightData(maxData);
+                        core.InitializeFlightData(core.GetMaximumData());
                     }
                     else
                     {
