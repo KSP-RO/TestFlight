@@ -37,8 +37,8 @@ avc = {
 	},
 	"KSP_VERSION" :
 	{
-		"MAJOR" : 0,
-		"MINOR" : 90,
+		"MAJOR" : 1,
+		"MINOR" : 0,
 		"PATCH" : 0
 	}
 }
