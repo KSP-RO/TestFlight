@@ -8,7 +8,7 @@ ZIP_CORE := TestFlightCore-$(TRAVIS_TAG).zip
 ZIP_RO := TestFlightConfigRO-$(TRAVIS_TAG).zip
 ZIP_STOCK := TestFlightConfigStock-$(TRAVIS_TAG).zip
 
-all: clean configs meta
+all: clean meta configs
 	cp -r GameData/TestFlight/ ~/Dropbox/KSP/TestFlight/
 
 install: clean
@@ -37,11 +37,12 @@ ifdef TRAVIS_TAG
 meta:
 	python makeMeta.py $(TRAVIS_TAG)
 	cp TestFlight.version GameData/TestFlight/TestFlight.version
+	cp TestFlight.version GameData/TestFlight/Config/TestFlight.version
 else
 meta:
 endif
 
-zip: configs meta
+zip: meta configs
 	zip $(ZIP_CORE) GameData GameData/TestFlight/* GameData/TestFlight/Plugins/* GameData/TestFlight/Resources/* GameData/TestFlight/Resources/Textures/*
 
 clean:
@@ -50,6 +51,7 @@ clean:
 	-rm GameData/TestFlight/Config/*.cfg
 	-rm *.zip
 	-rm GameData/TestFlight/*.version
+	-rm GameData/TestFlight/Config/*.version
 	-rm GameData/TestFlight/*.ckan
 	-rm *.version
 	-rm *.ckan
