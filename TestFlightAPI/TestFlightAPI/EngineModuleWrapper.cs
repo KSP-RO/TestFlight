@@ -96,6 +96,48 @@ public class EngineModuleWrapper : ScriptableObject
         }
     }
 
+    public float minFuelFlow
+    {
+        get
+        {
+            if (engineType == EngineModuleType.UNKNOWN)
+                return 0f;
+
+            if (engineType == EngineModuleType.ENGINE)
+                return engine.minFuelFlow;
+            else
+                return engineFX.minFuelFlow;
+        }
+        set
+        {
+            if (engineType == EngineModuleType.ENGINE)
+                engine.minFuelFlow = value;
+            else
+                engineFX.minFuelFlow = value;
+        }
+    }
+
+    public float maxFuelFlow
+    {
+        get
+        {
+            if (engineType == EngineModuleType.UNKNOWN)
+                return 0f;
+
+            if (engineType == EngineModuleType.ENGINE)
+                return engine.maxFuelFlow;
+            else
+                return engineFX.maxFuelFlow;
+        }
+        set
+        {
+            if (engineType == EngineModuleType.ENGINE)
+                engine.maxFuelFlow = value;
+            else
+                engineFX.maxFuelFlow = value;
+        }
+    }
+
     public float maxThrust
     {
         get

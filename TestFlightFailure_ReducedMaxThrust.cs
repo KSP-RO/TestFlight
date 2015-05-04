@@ -15,8 +15,8 @@ namespace TestFlight
 
         protected struct CachedEngineState
         {
-            public float maxThrust;
-            public float minThrust;
+            public float maxFuelFlow;
+            public float minFuelFlow;
         }
 
         Dictionary<int, CachedEngineState> engineStates;
@@ -40,11 +40,11 @@ namespace TestFlight
             {
                 int id = engine.engine.Module.GetInstanceID();
                 CachedEngineState engineState = new CachedEngineState();
-                engineState.minThrust = engine.engine.minThrust;
-                engineState.maxThrust = engine.engine.maxThrust;
-                engine.engine.maxThrust = engineState.maxThrust * thrustReduction;
-                if (engineState.maxThrust == engineState.minThrust || engineState.maxThrust * thrustReduction < engineState.minThrust)
-                    engine.engine.minThrust = engineState.maxThrust * thrustReduction;
+                engineState.minFuelFlow = engine.engine.minFuelFlow;
+                engineState.maxFuelFlow = engine.engine.maxFuelFlow;
+                engine.engine.maxFuelFlow = engineState.maxFuelFlow * thrustReduction;
+                if (engineState.maxFuelFlow == engineState.minFuelFlow || engineState.maxFuelFlow * thrustReduction < engineState.minFuelFlow)
+                    engine.engine.minFuelFlow = engineState.maxFuelFlow * thrustReduction;
                 engineStates.Add(id, engineState);
             }
         }
@@ -58,8 +58,8 @@ namespace TestFlight
                 int id = engine.engine.Module.GetInstanceID();
                 if (engineStates.ContainsKey(id))
                 {
-                    engine.engine.minThrust = engineStates[id].minThrust;
-                    engine.engine.maxThrust = engineStates[id].maxThrust;
+                    engine.engine.minFuelFlow = engineStates[id].minFuelFlow;
+                    engine.engine.maxFuelFlow = engineStates[id].maxFuelFlow;
                 }
             }
             engineStates.Clear();
