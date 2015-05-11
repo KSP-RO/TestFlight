@@ -13,14 +13,6 @@ namespace TestFlight
         [KSPField(isPersistant=true)]
         public float thrustReduction = 0.5f;
 
-        protected struct CachedEngineState
-        {
-            public float maxFuelFlow;
-            public float minFuelFlow;
-        }
-
-        Dictionary<int, CachedEngineState> engineStates;
-
         public override void OnStart(StartState state)
         {
             base.OnStart(state);
@@ -32,37 +24,21 @@ namespace TestFlight
         public override void DoFailure()
         {
             base.DoFailure();
-            if (engineStates == null)
-                engineStates = new Dictionary<int, CachedEngineState>();
-            engineStates.Clear();
-            // for each engine, store its current min & max thrust then reduce it
+            // for each engine change its fuelFlow which will affect thrust
             foreach (EngineHandler engine in engines)
             {
-                int id = engine.engine.Module.GetInstanceID();
-                CachedEngineState engineState = new CachedEngineState();
-                engineState.minFuelFlow = engine.engine.minFuelFlow;
-                engineState.maxFuelFlow = engine.engine.maxFuelFlow;
-                engine.engine.maxFuelFlow = engineState.maxFuelFlow * thrustReduction;
-                if (engineState.maxFuelFlow == engineState.minFuelFlow || engineState.maxFuelFlow * thrustReduction < engineState.minFuelFlow)
-                    engine.engine.minFuelFlow = engineState.maxFuelFlow * thrustReduction;
-                engineStates.Add(id, engineState);
+                engine.engine.SetFuelFlowMult(thrustReduction);
             }
         }
 
         public override float DoRepair()
         {
             base.DoRepair();
-            // for each engine restore its thrust values
+            // for each engine restore its fuell flow back to 1.0
             foreach (EngineHandler engine in engines)
             {
-                int id = engine.engine.Module.GetInstanceID();
-                if (engineStates.ContainsKey(id))
-                {
-                    engine.engine.minFuelFlow = engineStates[id].minFuelFlow;
-                    engine.engine.maxFuelFlow = engineStates[id].maxFuelFlow;
-                }
+                engine.engine.SetFuelFlowMult(1.0f);
             }
-            engineStates.Clear();
             return 0;
         }
     }
