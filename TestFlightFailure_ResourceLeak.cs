@@ -97,18 +97,20 @@ namespace TestFlight
                         parsedValue = 0f;
                     // Calculate the % value based on the total capacity of the tank
                     calculateFromAmount = this.part.Resources.Get(leakingResourceID).maxAmount;
+                    Log(String.Format("Calculating leak amount from maxAmount: {0:F2}", calculateFromAmount));
                 }
                 else if (rawValue.EndsWith("%c"))
                 {
                     trimmedValue = rawValue.Substring(0, index);
                     if (!float.TryParse(trimmedValue, out parsedValue))
                         parsedValue = 0f;
-
                     // Calculate the % value based on the current resource level of the tank
                     calculateFromAmount = this.part.Resources.Get(leakingResourceID).amount;
+                    Log(String.Format("Calculating leak amount from current amount: {0:F2}", calculateFromAmount));
                 }
 
                 parsedValue = parsedValue * (float)calculateFromAmount;
+                Log(String.Format("Calculated leak: {0:F2}", parsedValue));
             }
             else
             {
