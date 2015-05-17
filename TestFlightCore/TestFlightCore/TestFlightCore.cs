@@ -581,7 +581,7 @@ namespace TestFlightCore
             foreach (ITestFlightFailure fm in allFailureModules)
             {
                 PartModule pm = fm as PartModule;
-                if (!disabledFailures.Contains(pm.moduleName))
+                if (!disabledFailures.Contains(pm.moduleName.Trim().ToLowerInvariant()))
                 {
                     if (failureModules == null)
                         failureModules = new List<ITestFlightFailure>();
@@ -589,6 +589,9 @@ namespace TestFlightCore
                 }
             }
 
+            if (failureModules == null || failureModules.Count == 0)
+                return null;
+            
             foreach(ITestFlightFailure fm in failureModules)
             {
                 totalWeight += fm.GetFailureDetails().weight;
@@ -671,13 +674,13 @@ namespace TestFlightCore
         // Enable a failure so it can be triggered (this is the default state)
         public void EnableFailure(String failureModuleName)
         {
-            failureModuleName = failureModuleName.ToLower().Trim();
+            failureModuleName = failureModuleName.ToLowerInvariant().Trim();
             disabledFailures.Remove(failureModuleName);
         }
         // Disable a failure so it can not be triggered
         public void DisableFailure(String failureModuleName)
         {
-            failureModuleName = failureModuleName.ToLower().Trim();
+            failureModuleName = failureModuleName.ToLowerInvariant().Trim();
             if (!disabledFailures.Contains(failureModuleName))
                 disabledFailures.Add(failureModuleName);
         }
