@@ -1,5 +1,9 @@
 # Change Log
 
+## [1.3.0.15](https://github.com/jwvanderbeck/TestFlight/tree/1.3.0.15) (2015-05-17)
+
+[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.3.0.13...1.3.0.15)
+
 ## [1.3.0.13](https://github.com/jwvanderbeck/TestFlight/tree/1.3.0.13) (2015-05-16)
 
 [Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.3.0.12...1.3.0.13)
@@ -54,7 +58,11 @@
 
 ## [1.3.0.8](https://github.com/jwvanderbeck/TestFlight/tree/1.3.0.8) (2015-04-28)
 
-[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.3.0.5...1.3.0.8)
+[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.3.0.14...1.3.0.8)
+
+## [1.3.0.14](https://github.com/jwvanderbeck/TestFlight/tree/1.3.0.14) (2015-04-28)
+
+[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.3.0.5...1.3.0.14)
 
 ## [1.3.0.5](https://github.com/jwvanderbeck/TestFlight/tree/1.3.0.5) (2015-04-28)
 
@@ -74,15 +82,15 @@
 
 ## [1.3E1](https://github.com/jwvanderbeck/TestFlight/tree/1.3E1) (2015-03-19)
 
-[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.2.2.0...1.3E1)
-
-## [1.2.2.0](https://github.com/jwvanderbeck/TestFlight/tree/1.2.2.0) (2015-03-14)
-
-[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.3.0.1...1.2.2.0)
+[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.3.0.1...1.3E1)
 
 ## [1.3.0.1](https://github.com/jwvanderbeck/TestFlight/tree/1.3.0.1) (2015-03-14)
 
-[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.2.1.0...1.3.0.1)
+[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.2.2.0...1.3.0.1)
+
+## [1.2.2.0](https://github.com/jwvanderbeck/TestFlight/tree/1.2.2.0) (2015-03-14)
+
+[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.2.1.0...1.2.2.0)
 
 ## [1.2.1.0](https://github.com/jwvanderbeck/TestFlight/tree/1.2.1.0) (2015-02-28)
 

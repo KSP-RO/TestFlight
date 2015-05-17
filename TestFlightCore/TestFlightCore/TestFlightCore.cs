@@ -62,7 +62,7 @@ namespace TestFlightCore
 
         // These were created for KCT integration but might have other uses
         private float dataRateLimiter = 1.0f;
-        private float dataCap = float.MaxValue;
+        private float dataCap = 1.0f;
 
         public bool TestFlightEnabled
         {
@@ -501,8 +501,8 @@ namespace TestFlightCore
             {
                 newFlightData *= modifier;
             }
-            if (newFlightData > dataCap)
-                newFlightData = dataCap;
+            if (newFlightData > (maxData * dataCap))
+                newFlightData = maxData * dataCap;
 
             if (newFlightData > maxData)
                 newFlightData = maxData;
