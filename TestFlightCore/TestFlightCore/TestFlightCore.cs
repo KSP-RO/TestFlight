@@ -450,6 +450,10 @@ namespace TestFlightCore
             else
                 return 0f;
         }
+        public float GetMaximumFlightData()
+        {
+            return maxData;
+        }
 
         // Methods to restrict the amount of data accumulated.  Useful for KCT or other "Simulation" mods to use
         public float SetDataRateLimit(float limit)

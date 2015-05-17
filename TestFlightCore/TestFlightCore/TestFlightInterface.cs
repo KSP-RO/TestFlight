@@ -228,6 +228,14 @@ namespace TestFlightCore
 
             return core.GetFlightTime();
         }
+        public static float GetMaximumFlightData(Part part)
+        {
+            ITestFlightCore core = TestFlightInterface.GetCore(part);
+            if (core == null)
+                return 0;
+
+            return core.GetMaximumData();
+        }
         public static float SetDataRateLimit(Part part, float limit)
         {
             ITestFlightCore core = TestFlightInterface.GetCore(part);
