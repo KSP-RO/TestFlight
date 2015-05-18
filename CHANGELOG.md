@@ -1,5 +1,39 @@
 # Change Log
 
+## [Unreleased](https://github.com/jwvanderbeck/TestFlight/tree/HEAD)
+
+[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.3.0.19...HEAD)
+
+**Implemented enhancements:**
+
+- Add API method to get a parts maxData [\#75](https://github.com/jwvanderbeck/TestFlight/issues/75)
+
+- Change Core.dataCap to be a 0 -1 float percentage rather than a hard value [\#74](https://github.com/jwvanderbeck/TestFlight/issues/74)
+
+- Failure\_ResourceLeak - Provide flexible methods to specify amount of resources to be leaked [\#71](https://github.com/jwvanderbeck/TestFlight/issues/71)
+
+**Fixed bugs:**
+
+- Disabled Failures still get triggered by TriggerFailure\(\) [\#73](https://github.com/jwvanderbeck/TestFlight/issues/73)
+
+- Migration to KSP 1.0 [\#67](https://github.com/jwvanderbeck/TestFlight/issues/67)
+
+## [1.3.0.19](https://github.com/jwvanderbeck/TestFlight/tree/1.3.0.19) (2015-05-17)
+
+[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.3.0.18...1.3.0.19)
+
+## [1.3.0.18](https://github.com/jwvanderbeck/TestFlight/tree/1.3.0.18) (2015-05-17)
+
+[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.3.0.17...1.3.0.18)
+
+## [1.3.0.17](https://github.com/jwvanderbeck/TestFlight/tree/1.3.0.17) (2015-05-17)
+
+[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.3.0.16...1.3.0.17)
+
+## [1.3.0.16](https://github.com/jwvanderbeck/TestFlight/tree/1.3.0.16) (2015-05-17)
+
+[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.3.0.15...1.3.0.16)
+
 ## [1.3.0.15](https://github.com/jwvanderbeck/TestFlight/tree/1.3.0.15) (2015-05-17)
 
 [Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.3.0.13...1.3.0.15)
@@ -82,15 +116,15 @@
 
 ## [1.3E1](https://github.com/jwvanderbeck/TestFlight/tree/1.3E1) (2015-03-19)
 
-[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.3.0.1...1.3E1)
-
-## [1.3.0.1](https://github.com/jwvanderbeck/TestFlight/tree/1.3.0.1) (2015-03-14)
-
-[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.2.2.0...1.3.0.1)
+[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.2.2.0...1.3E1)
 
 ## [1.2.2.0](https://github.com/jwvanderbeck/TestFlight/tree/1.2.2.0) (2015-03-14)
 
-[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.2.1.0...1.2.2.0)
+[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.3.0.1...1.2.2.0)
+
+## [1.3.0.1](https://github.com/jwvanderbeck/TestFlight/tree/1.3.0.1) (2015-03-14)
+
+[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.2.1.0...1.3.0.1)
 
 ## [1.2.1.0](https://github.com/jwvanderbeck/TestFlight/tree/1.2.1.0) (2015-02-28)
 
@@ -142,7 +176,7 @@
 
 ## [1.0.0.0](https://github.com/jwvanderbeck/TestFlight/tree/1.0.0.0) (2015-02-08)
 
-[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/0.4.6.2-Stock...1.0.0.0)
+[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/0.4.6.2-RealismOverhaul...1.0.0.0)
 
 **Implemented enhancements:**
 
@@ -162,13 +196,13 @@
 
 - MSD should restore previous visibility state if unlocked [\#37](https://github.com/jwvanderbeck/TestFlight/issues/37)
 
-## [0.4.6.2-Stock](https://github.com/jwvanderbeck/TestFlight/tree/0.4.6.2-Stock) (2015-02-06)
-
-[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/0.4.6.2-RealismOverhaul...0.4.6.2-Stock)
-
 ## [0.4.6.2-RealismOverhaul](https://github.com/jwvanderbeck/TestFlight/tree/0.4.6.2-RealismOverhaul) (2015-02-06)
 
-[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/0.4.6.1-RealismOverhaul...0.4.6.2-RealismOverhaul)
+[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/0.4.6.2-Stock...0.4.6.2-RealismOverhaul)
+
+## [0.4.6.2-Stock](https://github.com/jwvanderbeck/TestFlight/tree/0.4.6.2-Stock) (2015-02-06)
+
+[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/0.4.6.1-RealismOverhaul...0.4.6.2-Stock)
 
 **Fixed bugs:**
 
