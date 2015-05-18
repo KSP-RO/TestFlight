@@ -10,9 +10,10 @@ namespace TestFlightAPI
 
     public class FlightDataRecorderBase : PartModule, IFlightDataRecorder
     {
-        private double lastRecordedMet = 0;
         private ITestFlightCore core = null;
         #region KSPFields
+        [KSPField(isPersistant = true)]
+        public float lastRecordedMet = 0;
         [KSPField(isPersistant = true)]
         public float flightDataMultiplier = 10.0f;
         [KSPField(isPersistant = true)]
@@ -21,7 +22,7 @@ namespace TestFlightAPI
         public string configuration = "";
         #endregion
 
-        internal void Log(string message)
+        protected void Log(string message)
         {
             message = String.Format("FlightDataRecorder({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(this.part), Configuration, message);
             TestFlightUtil.Log(message, this.part);
@@ -35,6 +36,8 @@ namespace TestFlightAPI
                 // Verify we have a valid core attached
                 if (core == null)
                     return false;
+                if (string.IsNullOrEmpty(Configuration))
+                    return true;
                 return TestFlightUtil.EvaluateQuery(Configuration, this.part);
             }
         }
@@ -61,25 +64,23 @@ namespace TestFlightAPI
 
             base.OnUpdate();
 
-            double currentMet = core.GetOperatingTime();
+            float currentMet = core.GetOperatingTime();
             if (!IsRecordingFlightData())
             {
                 lastRecordedMet = currentMet;
                 return;
             }
 
-            string scope = core.GetScope();
-
             if (IsRecordingFlightData())
             {
-                double flightData = (currentMet - lastRecordedMet) * flightDataMultiplier;
-                double engineerBonus = core.GetEngineerDataBonus(flightDataEngineerModifier);
+                float flightData = (currentMet - lastRecordedMet) * flightDataMultiplier;
+                float engineerBonus = core.GetEngineerDataBonus(flightDataEngineerModifier);
                 flightData *= engineerBonus;
                 if (flightData >= 0)
-                    core.ModifyFlightDataForScope(flightData, scope, true);
+                    core.ModifyFlightData(flightData, true);
             }
 
-            core.ModifyFlightTimeForScope(currentMet - lastRecordedMet, scope, true);
+            core.ModifyFlightTime(currentMet - lastRecordedMet, true);
 
             lastRecordedMet = currentMet;
         }

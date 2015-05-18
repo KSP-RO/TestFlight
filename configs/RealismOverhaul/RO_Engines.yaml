@@ -94,21 +94,21 @@ PartConfigs:
         # Should only ever be ONE Interop module for a unique PART in KSP.
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = WAC-Corporal:WAC-Corporal'
             title: 'WAC Corporal'
+            startFlightData: 10000
         -   name: 'FlightDataRecorder_Engine'
             configuration: 'WAC-Corporal'
             flightDataMultiplier: 10
             flightDataEngineerModifier: 0.25
         -   name: 'TestFlightReliability'
             configuration: 'WAC-Corporal'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
-                    - '0 0.024'
-                    - '1000 0.0144'
-                    - '4000 0.0072'
-                    - '10000 0.0048'
+            reliabilityCurve:
+                - '0 0.024'
+                - '1000 0.0144'
+                - '4000 0.0072'
+                - '10000 0.0048'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'WAC-Corporal'
             ratedBurnTime: 125
@@ -144,6 +144,7 @@ PartConfigs:
             weight: 4
     Aerobee-Hi: &Aerobee-Hi
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = Aerobee-Hi:Aerobee-Hi'
             title: 'Aerobee Hi'
             techTransfer: 'WAC-Corporal:50'
@@ -154,13 +155,11 @@ PartConfigs:
             flightDataEngineerModifier: 0.25
         -   name: 'TestFlightReliability'
             configuration: 'Aerobee-Hi'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
-                    - '0 0.008372'
-                    - '1000 0.005023'
-                    - '4000 0.002512'
-                    - '10000 0.000419'
+            reliabilityCurve:
+                - '0 0.008372'
+                - '1000 0.005023'
+                - '4000 0.002512'
+                - '10000 0.000419'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'Aerobee-Hi'
             ratedBurnTime: 125
@@ -196,6 +195,7 @@ PartConfigs:
             weight: 4
     Aerobee-150: &Aerobee-150
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = Aerobee-150:Aerobee-150'
             title: 'Aerobee 150'
             techTransfer: 'WAC-Corporal,Aerobee-Hi:50'
@@ -206,13 +206,11 @@ PartConfigs:
             flightDataEngineerModifier: 0.25
         -   name: 'TestFlightReliability'
             configuration: 'Aerobee-150'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
-                    - '0 0.001036'
-                    - '1000 0.000777'
-                    - '3000 00.000518'
-                    - '10000 0.000362'
+            reliabilityCurve:
+                - '0 0.001036'
+                - '1000 0.000777'
+                - '3000 00.000518'
+                - '10000 0.000362'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'Aerobee-150'
             ratedBurnTime: 125
@@ -250,6 +248,7 @@ PartConfigs:
     X-405: &X-405
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = X-405:X-405'
             title: 'X-405'
         -   name: 'FlightDataRecorder_Engine'
@@ -258,9 +257,7 @@ PartConfigs:
             flightDataEngineerModifier: 0.25
         -   name: 'TestFlightReliability'
             configuration: 'X-405'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.000575'
                 - '1000 0.000287'
                 - '4000 0.000172'
@@ -306,6 +303,7 @@ PartConfigs:
     AJ10-37: &AJ10-37
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = AJ10-37:AJ10-37'
             title: 'AJ10-37'
             techTransfer: 'WAC-Corporal,Aerobee-Hi,Aerobee-150:10'
@@ -316,9 +314,7 @@ PartConfigs:
             flightDataEngineerModifier: 0.25
         -   name: 'TestFlightReliability'
             configuration: 'AJ10-37'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.002174'
                 - '1000 0.001304'
                 - '3000 0.000543'
@@ -358,6 +354,7 @@ PartConfigs:
             weight: 4
     AJ10-42: &AJ10-42
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = AJ10-42:AJ10-42'
             title: 'AJ10-42'
             techTransfer: 'AJ10-37:50'
@@ -368,9 +365,7 @@ PartConfigs:
             flightDataEngineerModifier: 0.25
         -   name: 'TestFlightReliability'
             configuration: 'AJ10-42'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.001449'
                 - '2000 0.000870'
                 - '4000 0.000580'
@@ -411,6 +406,7 @@ PartConfigs:
             weight: 4
     AJ10-142: &AJ10-142
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = AJ10-142:AJ10-142'
             title: 'AJ10-142'
             techTransfer: 'AJ10-37,AJ10-42:50'
@@ -421,9 +417,7 @@ PartConfigs:
             flightDataEngineerModifier: 0.25
         -   name: 'TestFlightReliability'
             configuration: 'AJ10-142'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.000471'
                 - '2000 0.000376'
                 - '4000 0.000235'
@@ -464,6 +458,7 @@ PartConfigs:
             weight: 4
     AJ10-104D: &AJ10-104D
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = AJ10-104D:AJ10-104D'
             title: 'AJ10-104D'
             techTransfer: 'AJ10-37,AJ10-42,AJ10-142:50'
@@ -474,9 +469,7 @@ PartConfigs:
             flightDataEngineerModifier: 0.25
         -   name: 'TestFlightReliability'
             configuration: 'AJ10-104D'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.000419'
                 - '2000 0.000188'
                 - '4000 0.000126'
@@ -520,6 +513,7 @@ PartConfigs:
     LR-89-NA-3: &LR-89-NA-3
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = LR-89-NA-3:LR-89-NA-3'
             title: 'LR-89-NA-3'
         -   name: 'FlightDataRecorder_Engine'
@@ -528,9 +522,7 @@ PartConfigs:
             flightDataEngineerModifier: 0.25
         -   name: 'TestFlightReliability'
             configuration: 'LR-89-NA-3'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.000521'
                 - '1000 0.000260'
                 - '4000 0.000104'
@@ -577,6 +569,7 @@ PartConfigs:
     LR-105-NA-5: &LR-105-NA-5
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = LR-105-NA-5:LR-105-NA-5'
             title: 'LR-105-NA-5'
         -   name: 'FlightDataRecorder_Engine'
@@ -585,9 +578,7 @@ PartConfigs:
             flightDataEngineerModifier: 0.25
         -   name: 'TestFlightReliability'
             configuration: 'LR-105-NA-5'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.000101'
                 - '2000 0.000061'
                 - '4000 0.000040'
@@ -634,6 +625,7 @@ PartConfigs:
     Bell-8048: &Bell-8048
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = Bell-8048:Bell-8048'
             title: 'Bell-8048'
         -   name: 'FlightDataRecorder_Engine'
@@ -642,9 +634,7 @@ PartConfigs:
             flightDataEngineerModifier: 0.25
         -   name: 'TestFlightReliability'
             configuration: 'Bell-8048'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.000763'
                 - '1000 0.000534'
                 - '4000 0.000381'
@@ -685,6 +675,7 @@ PartConfigs:
             weight: 4
     Bell-8081: &Bell-8081
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = Bell-8081:Bell-8081'
             title: 'Bell-8081'
             techTransfer: 'Bell-8048:50'
@@ -695,9 +686,7 @@ PartConfigs:
             flightDataEngineerModifier: 0.25
         -   name: 'TestFlightReliability'
             configuration: 'Bell-8081'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.000469'
                 - '2000 0.000282'
                 - '4000 0.000211'
@@ -738,6 +727,7 @@ PartConfigs:
             weight: 4
     Bell-8247: &Bell-8247
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = Bell-8247:Bell-8247'
             title: 'Bell-8247'
             techTransfer: 'Bell-8048,Bell-8081:50'
@@ -748,9 +738,7 @@ PartConfigs:
             flightDataEngineerModifier: 0.25
         -   name: 'TestFlightReliability'
             configuration: 'Bell-8247'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.000595'
                 - '2000 0.000298'
                 - '4000 0.000208'
@@ -793,17 +781,17 @@ PartConfigs:
     XLR11: &XLR11
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = XLR11:XLR11'
             title: 'XLR11'
+            startFlightData: 10000
         -   name: 'FlightDataRecorder_Engine'
             configuration: 'XLR11'
             flightDataMultiplier: 0.2
             flightDataEngineerModifier: 0.1
         -   name: 'TestFlightReliability'
             configuration: 'XLR11'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.001150'
                 - '1000 0.000920'
                 - '4000 0.000747'
@@ -846,6 +834,7 @@ PartConfigs:
     XLR99: &XLR99
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = XLR99:XLR99'
             title: 'XLR99'
         -   name: 'FlightDataRecorder_Engine'
@@ -854,9 +843,7 @@ PartConfigs:
             flightDataEngineerModifier: 0.1
         -   name: 'TestFlightReliability'
             configuration: 'XLR99'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.000303'
                 - '2000 0.000121'
                 - '4000 0.000061'
@@ -900,6 +887,7 @@ PartConfigs:
     A-6: &A-6
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = A-6:A-6'
             title: 'A-6'
         -   name: 'FlightDataRecorder_Engine'
@@ -908,9 +896,7 @@ PartConfigs:
             flightDataEngineerModifier: 0.2
         -   name: 'TestFlightReliability'
             configuration: 'A-6'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.000691'
                 - '1000 0.000553'
                 - '4000 0.000415'
@@ -955,6 +941,7 @@ PartConfigs:
             weight: 2
     A-7: &A-7
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = A-7:A-7'
             title: 'A-7'
             techTransfer: 'A-6:30'
@@ -965,9 +952,7 @@ PartConfigs:
             flightDataEngineerModifier: 0.2
         -   name: 'TestFlightReliability'
             configuration: 'A-7'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.000717'
                 - '2000 0.000502'
                 - '4000 0.000358'
@@ -1014,6 +999,7 @@ PartConfigs:
     LR-87-3: &LR-87-3
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = LR-87-3:LR-87-3'
             title: 'LR-87-3'
         -   name: 'FlightDataRecorder_Engine'
@@ -1022,9 +1008,7 @@ PartConfigs:
             flightDataEngineerModifier: 0.2
         -   name: 'TestFlightReliability'
             configuration: 'LR-87-3'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.000414'
                 - '1000 0.000331'
                 - '4000 0.000248'
@@ -1069,6 +1053,7 @@ PartConfigs:
             weight: 2
     LR-87-5: &LR-87-5
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = LR-87-5:LR-87-5'
             title: 'LR-87-5'
             techTransfer: 'LR-87-3:50'
@@ -1079,9 +1064,7 @@ PartConfigs:
             flightDataEngineerModifier: 0.2
         -   name: 'TestFlightReliability'
             configuration: 'LR-87-5'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.000360'
                 - '2000 0.000252'
                 - '4000 0.000180'
@@ -1126,6 +1109,7 @@ PartConfigs:
             weight: 2
     LR-87-7: &LR-87-7
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = LR-87-7:LR-87-7'
             title: 'LR-87-7'
             techTransfer: 'LR-87-3,LR-87-5:50'
@@ -1136,9 +1120,7 @@ PartConfigs:
             flightDataEngineerModifier: 0.2
         -   name: 'TestFlightReliability'
             configuration: 'LR-87-7'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.000360'
                 - '2000 0.000216'
                 - '4000 0.000126'
@@ -1183,6 +1165,7 @@ PartConfigs:
             weight: 2
     LR-87-9: &LR-87-9
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = LR-87-9:LR-87-9'
             title: 'LR-87-9'
             techTransfer: 'LR-87-3,LR-87-5,LR-87-7:50'
@@ -1193,9 +1176,7 @@ PartConfigs:
             flightDataEngineerModifier: 0.2
         -   name: 'TestFlightReliability'
             configuration: 'LR-87-9'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.000309'
                 - '2000 0.000170'
                 - '4000 0.000093'
@@ -1240,6 +1221,7 @@ PartConfigs:
             weight: 2
     LR-87-11: &LR-87-11
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = LR-87-11:LR-87-11'
             title: 'LR-87-11'
             techTransfer: 'LR-87-3,LR-87-5,LR-87-7,LR-87-9:50'
@@ -1250,9 +1232,7 @@ PartConfigs:
             flightDataEngineerModifier: 0.2
         -   name: 'TestFlightReliability'
             configuration: 'LR-87-11'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.000166'
                 - '2000 0.000099'
                 - '4000 0.000050'
@@ -1297,6 +1277,7 @@ PartConfigs:
             weight: 2
     LR-87-11A: &LR-87-11A
         -   name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = LR-87-11A:LR-87-11A'
             title: 'LR-87-11A'
             techTransfer: 'LR-87-3,LR-87-5,LR-87-7,LR-87-9,LR-87-11:50'
@@ -1307,9 +1288,7 @@ PartConfigs:
             flightDataEngineerModifier: 0.2
         -   name: 'TestFlightReliability'
             configuration: 'LR-87-11A'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.000081'
                 - '2000 0.000041'
                 - '4000 0.000016'
@@ -1357,6 +1336,7 @@ PartConfigs:
         -   name: 'TestFlightInterop'
         -   &RL10A-1-Core
             name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = RL10A-1:RL10A-1'
             title: 'RL10A-1'
         -   name: 'FlightDataRecorder_Engine'
@@ -1366,9 +1346,7 @@ PartConfigs:
         -   &RL10A-1-Reliability
             name: 'TestFlightReliability'
             configuration: 'RL10A-1'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.000423'
                 - '1000 0.000338'
                 - '4000 0.000254'
@@ -1432,6 +1410,7 @@ PartConfigs:
     RL10A-3-1: &RL10A-3-1
         -   &RL10A-3-1-Core
             name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = RL10A-3-1:RL10A-3-1'
             title: 'RL10A-3-1'
             techTransfer: 'RL10A-1:50'
@@ -1443,9 +1422,7 @@ PartConfigs:
         -   &RL10A-3-1-Reliability
             name: 'TestFlightReliability'
             configuration: 'RL10A-3-1'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.000304'
                 - '2000 0.000213'
                 - '4000 0.000152'
@@ -1509,6 +1486,7 @@ PartConfigs:
     RL10A-3-3: &RL10A-3-3
         -   &RL10A-3-3-Core
             name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = RL10A-3-3:RL10A-3-3'
             title: 'RL10A-3-3'
             techTransfer: 'RL10A-1,RL10A-3-1:50'
@@ -1520,9 +1498,7 @@ PartConfigs:
         -   &RL10A-3-3-Reliability
             name: 'TestFlightReliability'
             configuration: 'RL10A-3-3'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.000170'
                 - '2000 0.000102'
                 - '4000 0.000060'
@@ -1586,6 +1562,7 @@ PartConfigs:
     RL10A-3-3A: &RL10A-3-3A
         -   &RL10A-3-3A-Core
             name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = RL10A-3-3A:RL10A-3-3A'
             title: 'RL10A-3-3A'
             techTransfer: 'RL10A-1,RL10A-3-1,RL10A-3-3:50'
@@ -1597,9 +1574,7 @@ PartConfigs:
         -   &RL10A-3-3A-Reliability
             name: 'TestFlightReliability'
             configuration: 'RL10A-3-3A'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.000152'
                 - '2000 0.000076'
                 - '4000 0.000046'
@@ -1663,6 +1638,7 @@ PartConfigs:
     RL10A-4: &RL10A-4
         -   &RL10A-4-Core
             name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = RL10A-4:RL10A-4'
             title: 'RL10A-4'
             techTransfer: 'RL10A-1,RL10A-3-1,RL10A-3-3,RL10A-3-3A:50'
@@ -1674,9 +1650,7 @@ PartConfigs:
         -   &RL10A-4-Reliability
             name: 'TestFlightReliability'
             configuration: 'RL10A-4'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.000096'
                 - '2000 0.000072'
                 - '4000 0.000029'
@@ -1740,6 +1714,7 @@ PartConfigs:
     RL10A-4-1-2: &RL10A-4-1-2
         -   &RL10A-4-1-2-Core
             name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = RL10A-4-1-2:RL10A-4-1-2'
             title: 'RL10A-4-1-2'
             techTransfer: 'RL10A-1,RL10A-3-1,RL10A-3-3,RL10A-3-3A,RL10A-4:50'
@@ -1751,9 +1726,7 @@ PartConfigs:
         -   &RL10A-4-1-2-Reliability
             name: 'TestFlightReliability'
             configuration: 'RL10A-4-1-2'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.000068'
                 - '2000 0.000054'
                 - '4000 0.000034'
@@ -1817,6 +1790,7 @@ PartConfigs:
     RL10B-2: &RL10B-2
         -   &RL10B-2-Core
             name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = RL10B-2:RL10B-2'
             title: 'RL10B-2'
             techTransfer: 'RL10A-1,RL10A-3-1,RL10A-3-3,RL10A-3-3A,RL10A-4:50'
@@ -1828,9 +1802,7 @@ PartConfigs:
         -   &RL10B-2-Reliability
             name: 'TestFlightReliability'
             configuration: 'RL10B-2'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.000051'
                 - '2000 0.000026'
                 - '4000 0.000015'
@@ -1894,6 +1866,7 @@ PartConfigs:
     RL10C-1: &RL10C-1
         -   &RL10C-1-Core
             name: 'TestFlightCore'
+            maxData: 10000
             configuration: 'engineConfig = RL10C-1:RL10C-1'
             title: 'RL10C-1'
             techTransfer: 'RL10A-1,RL10A-3-3,RL10A-3-3A,RL10A-4,RL10A-4-1-2,RL10B-2:50'
@@ -1905,9 +1878,7 @@ PartConfigs:
         -   &RL10C-1-Reliability
             name: 'TestFlightReliability'
             configuration: 'RL10C-1'
-            RELIABILITY_BODY:
-            -   scope: 'default'
-                reliabilityCurve:
+            reliabilityCurve:
                 - '0 0.000041'
                 - '2000 0.000025'
                 - '4000 0.000008'

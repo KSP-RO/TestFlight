@@ -12,13 +12,13 @@ namespace TestFlightCore
 
 
         [Persistent] public bool debugLog = false;
-        [Persistent] public double minTimeBetweenDataPoll = 0.5;
-        [Persistent] public double minTimeBetweenFailurePoll = 60;
+        [Persistent] public float minTimeBetweenDataPoll = 0.5f;
+        [Persistent] public float minTimeBetweenFailurePoll = 60;
         [Persistent] public bool processAllVessels = false;
-        [Persistent] public double flightDataMultiplier = 1.0;
-        [Persistent] public double flightDataEngineerMultiplier = 1.0;
-        [Persistent] public double globalReliabilityModifier = 1.0;
-        [Persistent] public double masterStatusUpdateFrequency = 0.25;
+        [Persistent] public float flightDataMultiplier = 1.0f;
+        [Persistent] public float flightDataEngineerMultiplier = 1.0f;
+        [Persistent] public float globalReliabilityModifier = 1.0f;
+        [Persistent] public float masterStatusUpdateFrequency = 0.25f;
         [Persistent] public bool displaySettingsWindow = false;
         [Persistent] public int settingsPage = 0;
         [Persistent] public bool enableHUD = false;
@@ -36,6 +36,9 @@ namespace TestFlightCore
         [Persistent] public bool editorShowOnDemand = true;
         [Persistent] public bool showMSD = false;
         [Persistent] public bool singleScope = false;
+
+        [Persistent] public bool enabled = true;
+        [Persistent] public bool alwaysMaxData = true;
 
         [Persistent] public int kscWindowPage = 0;
         [Persistent] public PersistentVector2 currentResearchScrollPositionStored = new PersistentVector2();

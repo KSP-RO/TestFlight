@@ -14,7 +14,8 @@ public class EngineModuleWrapper : ScriptableObject
     {
         UNKNOWN = -1,
         ENGINE,
-        ENGINEFX
+        ENGINEFX,
+        REALENGINE
     }
 
     public enum EngineIgnitionState
@@ -25,8 +26,11 @@ public class EngineModuleWrapper : ScriptableObject
     }
 
     ModuleEngines engine;
-    ModuleEnginesFX engineFX;
     public EngineModuleType engineType;
+
+    // Used to store the original fuel flow values
+    private float _minFuelFlow;
+    private float _maxFuelFlow;
 
     // Public methods
     public PartModule Module
@@ -36,10 +40,7 @@ public class EngineModuleWrapper : ScriptableObject
             if (engineType == EngineModuleType.UNKNOWN)
                 return null;
 
-            if (engineType == EngineModuleType.ENGINE)
-                return engine as PartModule;
-            else
-                return engineFX as PartModule;
+            return engine as PartModule;
         }
     }
 
@@ -55,20 +56,13 @@ public class EngineModuleWrapper : ScriptableObject
             if (engineType == EngineModuleType.UNKNOWN)
                 return false;
 
-            if (engineType == EngineModuleType.ENGINE)
-                return engine.allowShutdown;
-            else
-                return engineFX.allowShutdown;
+            return engine.allowShutdown;
         }
         set
         {
             if (engineType == EngineModuleType.UNKNOWN)
                 return;
-
-            if (engineType == EngineModuleType.ENGINE)
-                engine.allowShutdown = value;
-            else
-                engineFX.allowShutdown = value;
+            engine.allowShutdown = value;
         }
     }
 
@@ -78,21 +72,39 @@ public class EngineModuleWrapper : ScriptableObject
         {
             if (engineType == EngineModuleType.UNKNOWN)
                 return false;
-
-            if (engineType == EngineModuleType.ENGINE)
-                return engine.throttleLocked;
-            else
-                return engineFX.throttleLocked;
+            return engine.throttleLocked;
         }
         set
         {
-            if (engineType == EngineModuleType.UNKNOWN)
-                return;
+            engine.throttleLocked = value;
+        }
+    }
 
-            if (engineType == EngineModuleType.ENGINE)
-                engine.throttleLocked = value;
-            else
-                engineFX.throttleLocked = value;
+    public float minFuelFlow
+    {
+        get
+        {
+            if (engineType == EngineModuleType.UNKNOWN)
+                return 0f;
+            return engine.minFuelFlow;
+        }
+        set
+        {
+            engine.minFuelFlow = value;
+        }
+    }
+
+    public float maxFuelFlow
+    {
+        get
+        {
+            if (engineType == EngineModuleType.UNKNOWN)
+                return 0f;
+            return engine.maxFuelFlow;
+        }
+        set
+        {
+            engine.maxFuelFlow = value;
         }
     }
 
@@ -102,41 +114,13 @@ public class EngineModuleWrapper : ScriptableObject
         {
             if (engineType == EngineModuleType.UNKNOWN)
                 return 0f;
-
-            if (engineType == EngineModuleType.ENGINE)
-                return engine.maxThrust;
-            else
-                return engineFX.maxThrust;
+            return engine.maxThrust;
         }
         set
         {
             if (engineType == EngineModuleType.UNKNOWN)
                 return;
-
-            if (engineType == EngineModuleType.ENGINE)
-            {
-                Part part = engine.part;
-                if (part.Modules.Contains("ModuleEngineConfigs"))
-                {
-                    part.Modules["ModuleEngineConfigs"].GetType().GetField("configMaxThrust").SetValue(part.Modules["ModuleEngineConfigs"], value);
-                }
-                else
-                {
-                    engine.maxThrust = value;
-                }
-            }
-            else
-            {
-                Part part = engineFX.part;
-                if (part.Modules.Contains("ModuleEngineConfigs"))
-                {
-                    part.Modules["ModuleEngineConfigs"].GetType().GetField("configMaxThrust").SetValue(part.Modules["ModuleEngineConfigs"], value);
-                }
-                else
-                {
-                    engineFX.maxThrust = value;
-                }
-            }
+            engine.maxThrust = value;
         }
     }
 
@@ -147,40 +131,14 @@ public class EngineModuleWrapper : ScriptableObject
             if (engineType == EngineModuleType.UNKNOWN)
                 return 0f;
 
-            if (engineType == EngineModuleType.ENGINE)
-                return engine.minThrust;
-            else
-                return engineFX.minThrust;
+            return engine.minThrust;
         }
         set
         {
             if (engineType == EngineModuleType.UNKNOWN)
                 return;
 
-            if (engineType == EngineModuleType.ENGINE)
-            {
-                Part part = engine.part;
-                if (part.Modules.Contains("ModuleEngineConfigs"))
-                {
-                    part.Modules["ModuleEngineConfigs"].GetType().GetField("configMinThrust").SetValue(part.Modules["ModuleEngineConfigs"], value);
-                }
-                else
-                {
-                    engine.minThrust = value;
-                }
-            }
-            else
-            {
-                Part part = engineFX.part;
-                if (part.Modules.Contains("ModuleEngineConfigs"))
-                {
-                    part.Modules["ModuleEngineConfigs"].GetType().GetField("configMinThrust").SetValue(part.Modules["ModuleEngineConfigs"], value);
-                }
-                else
-                {
-                    engineFX.minThrust = value;
-                }
-            }
+            engine.minThrust = value;
         }
     }
 
@@ -191,20 +149,13 @@ public class EngineModuleWrapper : ScriptableObject
             if (engineType == EngineModuleType.UNKNOWN)
                 return false;
 
-            if (engineType == EngineModuleType.ENGINE)
-                return engine.flameout;
-            else
-                return engineFX.flameout;
+            return engine.flameout;
         }
         set
         {
             if (engineType == EngineModuleType.UNKNOWN)
                 return;
-
-            if (engineType == EngineModuleType.ENGINE)
-                engine.flameout = value;
-            else
-                engineFX.flameout = value;
+            engine.flameout = value;
         }
     }
 
@@ -215,23 +166,18 @@ public class EngineModuleWrapper : ScriptableObject
             if (engineType == EngineModuleType.UNKNOWN)
                 return false;
 
-            if (engineType == EngineModuleType.ENGINE)
-                return engine.enabled;
-            else
-                return engineFX.enabled;
+            return engine.enabled;
         }
         set
         {
             if (engineType == EngineModuleType.UNKNOWN)
                 return;
 
-            if (engineType == EngineModuleType.ENGINE)
-                engine.enabled = value;
-            else
-                engineFX.enabled = value;
+            engine.enabled = value;
         }
     }
 
+    // DEPRECATED no longer an engine property in KSP 1.0
     public float requestedThrust
     {
         get
@@ -250,10 +196,7 @@ public class EngineModuleWrapper : ScriptableObject
             if (engineType == EngineModuleType.UNKNOWN)
                 return 0f;
 
-            if (engineType == EngineModuleType.ENGINE)
-                return engine.finalThrust;
-            else
-                return engineFX.finalThrust;
+            return engine.finalThrust;
         }
     }
 
@@ -261,12 +204,10 @@ public class EngineModuleWrapper : ScriptableObject
     {
         get
         {
-            if (engineType == EngineModuleType.ENGINE)
-                return engine.EngineIgnited;
-            else if (engineType == EngineModuleType.ENGINEFX)
-                return engineFX.EngineIgnited;
-
-            return false;
+            if (engineType == EngineModuleType.UNKNOWN)
+                return false;
+            
+            return engine.EngineIgnited;
         }
     }
 
@@ -277,14 +218,10 @@ public class EngineModuleWrapper : ScriptableObject
             if (engineType == EngineModuleType.UNKNOWN)
                 return null;
 
-            if (engineType == EngineModuleType.ENGINE)
-                return engine.Events;
-            else
-                return engineFX.Events;
+            return engine.Events;
         }
     }
 
-    // "Shutdown Engine"
     public EngineIgnitionState IgnitionState
     {
         get
@@ -292,86 +229,72 @@ public class EngineModuleWrapper : ScriptableObject
             if (engineType == EngineModuleType.UNKNOWN)
                 return EngineIgnitionState.UNKNOWN;
 
-            if (EngineIgnited)
+            if (engine.finalThrust > 0f)
                 return EngineIgnitionState.IGNITED;
 
-            return EngineIgnitionState.IGNITED;
+            return EngineIgnitionState.NOT_IGNITED;
         }
     }
 
+    // "Shutdown Engine"
     public void Shutdown()
     {
         if (engineType == EngineModuleType.UNKNOWN)
             return;
 
-        if (engineType == EngineModuleType.ENGINE)
+        engine.Shutdown();
+        engine.DeactivateRunningFX();
+        engine.DeactivatePowerFX();
+    }
+
+    // Reduce fuel flow
+    public void SetFuelFlowMult(float multiplier)
+    {
+        if (engineType == EngineModuleType.UNKNOWN)
+            return;
+        if (engineType == EngineModuleType.REALENGINE)
         {
-            engine.Shutdown();
-            engine.DeactivateRunningFX();
-            engine.DeactivatePowerFX();
+            Part part = engine.part;
+            part.Modules["ModuleEnginesRF"].GetType().GetField("flowMult").SetValue(part.Modules["ModuleEnginesRF"], multiplier);
         }
         else
         {
-            engineFX.Shutdown();
-            engineFX.DeactivateLoopingFX();
+            engine.minFuelFlow = _minFuelFlow * multiplier;
+            engine.maxFuelFlow = _maxFuelFlow * multiplier;
         }
     }
 
-    public EngineModuleWrapper(Part part)
+    public EngineModuleWrapper(Part part) : this(part, "engine")
     {
-        engineType = EngineModuleType.UNKNOWN;
-
-        if (part.Modules.Contains("ModuleEngines"))
-        {
-            engine = part.Modules["ModuleEngines"] as ModuleEngines;
-            engineFX = null;
-            engineType = EngineModuleType.ENGINE;
-        }
-        else if (part.Modules.Contains("ModuleEnginesFX"))
-        {
-            engine = null;
-            engineFX = part.Modules["ModuleEnginesFX"] as ModuleEnginesFX;
-            engineType = EngineModuleType.ENGINEFX;
-        }
     }
 
     public EngineModuleWrapper(Part part, string engineID)
     {
-        engineType = EngineModuleType.UNKNOWN;
-
-        if (part.Modules.Contains("ModuleEnginesFX"))
+        ModuleEngines _engine = null;
+        foreach (PartModule pm in part.Modules)
         {
-            List<ModuleEnginesFX> enginesFX = null;
-            enginesFX = part.Modules.OfType<ModuleEnginesFX>().Where(e => e.engineID == engineID).ToList();
-            // really should only ever be one by a given ID, so we just take the first.  If there really is more than one, then that is someone else fault
-            if (enginesFX.Count > 0)
-            {
-                engine = null;
-                engineFX = enginesFX[0];
+            _engine = pm as ModuleEngines;
+            if (_engine != null && _engine.engineID.ToLowerInvariant() == engineID.ToLowerInvariant())
+                break;
+        }
+        if (_engine != null)
+        {
+            engine = _engine;
+            if (part.Modules.Contains("ModuleEnginesRF"))
+                engineType = EngineModuleType.REALENGINE;
+            else if (part.Modules.Contains("ModuleEngines"))
+                engineType = EngineModuleType.ENGINE;
+            else if (part.Modules.Contains("ModuleEnginesFX"))
                 engineType = EngineModuleType.ENGINEFX;
-            }
+            else
+                engineType = EngineModuleType.UNKNOWN;
+
+            _minFuelFlow = engine.minFuelFlow;
+            _maxFuelFlow = engine.maxFuelFlow;
         }
-    }
-
-    public EngineModuleWrapper(Part part, int index)
-    {
-        engineType = EngineModuleType.UNKNOWN;
-        engine = null;
-        engineFX = null;
-
-        PartModule pm = part.Modules.GetModule(index);
-        engine = pm as ModuleEngines;
-        engineFX = pm as ModuleEnginesFX;
-
-        if (engine != null)
+        else
         {
-            engineFX = null;
-            engineType = EngineModuleType.ENGINE;
-        }
-        else if (engineFX != null)
-        {
-            engine = null;
-            engineType = EngineModuleType.ENGINEFX;
+            engineType = EngineModuleType.UNKNOWN;
         }
     }
 
@@ -392,6 +315,8 @@ public class EngineModuleWrapper : ScriptableObject
             meType = "ENGINE";
         if (EngineType == EngineModuleType.ENGINEFX)
             meType = "ENGINEFX";
+        if (EngineType == EngineModuleType.REALENGINE)
+            meType = "REALENGINE";
 
         message = String.Format("TestFlight_EngineModuleWrapper({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(part), meType, message);
         TestFlightUtil.Log(message, part);

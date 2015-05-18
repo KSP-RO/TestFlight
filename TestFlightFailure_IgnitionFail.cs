@@ -23,37 +23,6 @@ namespace TestFlight
         private ITestFlightCore core = null;
 
 
-        private bool _FARLoaded = false, check = true;
-        /// <summary>
-        /// Returns if FAR is currently loaded in the game
-        /// </summary>
-        public bool FARLoaded
-        {
-            get 
-            {
-                if (check) { _FARLoaded = AssemblyLoader.loadedAssemblies.Any(a => a.dllName == "FerramAerospaceResearch"); check = false; }
-                return _FARLoaded;
-            }
-        }
-        private MethodInfo _densityMethod = null;
-        /// <summary>
-        /// A delegate to the FAR GetCurrentDensity method
-        /// </summary>
-        public MethodInfo densityMethod
-        {
-            get
-            {
-                if (_densityMethod == null)
-                {
-                    _densityMethod = AssemblyLoader.loadedAssemblies.FirstOrDefault(a => a.dllName == "FerramAerospaceResearch").assembly
-                        .GetTypes().Single(t => t.Name == "FARAeroUtil").GetMethods().Where(m => m.IsPublic && m.IsStatic)
-                        .Where(m => m.ReturnType == typeof(double) && m.Name == "GetCurrentDensity").ToDictionary(m => m, m => m.GetParameters())
-                        .Single(p => p.Value[0].ParameterType == typeof(CelestialBody) && p.Value[1].ParameterType == typeof(double)).Key;
-                }
-
-                return _densityMethod;
-            }
-        }
         public double DynamicPressure
         {
             get
@@ -61,21 +30,7 @@ namespace TestFlight
                 double density;
                 Vector3 velocity = this.part.Rigidbody.velocity + Krakensbane.GetFrameVelocityV3f();
                 float sqrSpeed = velocity.sqrMagnitude;
-                if (FARLoaded)
-                {
-                    try
-                    {
-                        density = (double)densityMethod.Invoke(null, new object[] { this.vessel.mainBody, this.vessel.altitude, true });
-                    }
-                    catch
-                    {
-                        density = this.vessel.atmDensity;
-                    }
-                }
-                else
-                {
-                    density = this.vessel.atmDensity;
-                }
+                density = this.vessel.atmDensity;
                 double dynamicPressure = 0.5 * density * sqrSpeed;
                 return dynamicPressure;
             }
@@ -86,21 +41,12 @@ namespace TestFlight
             {
                 // verify we have a valid core attached
                 if (core == null)
-                {
-                    Log("IgnitionFail: No valid core attached");
                     return false;
-                }
                 if (baseIgnitionChance == null)
-                {
-                    Log("IgnitionFail: No valid baseIgnitionChance FloatCurve");
                     return false;
-                }
                 // and a valid engine
                 if (engines == null)
-                {
-                    Log("IgnitionFail: No valid engines found");
                     return false;
-                }
                 return TestFlightUtil.EvaluateQuery(Configuration, this.part);
             }
         }
@@ -226,7 +172,7 @@ namespace TestFlight
             }
 
         }
-        public override double DoRepair()
+        public override float DoRepair()
         {
             base.DoRepair();
             for (int i = 0; i < engines.Count; i++)

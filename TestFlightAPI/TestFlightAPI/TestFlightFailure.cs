@@ -159,6 +159,8 @@ namespace TestFlightAPI
         {
             get
             {
+                if (string.IsNullOrEmpty(Configuration))
+                    return true;
                 return TestFlightUtil.EvaluateQuery(Configuration, this.part);
             }
         }
@@ -350,7 +352,7 @@ namespace TestFlightAPI
         /// Trigger a repair ATTEMPT of the module's failure.  It is the module's responsability to take care of any consumable resources, data transmission, etc required to perform the repair
         /// </summary>
         /// <returns>Should return true if the failure was repaired, false otherwise</returns>
-        public virtual double AttemptRepair()
+        public virtual float AttemptRepair()
         {
             if (repairConfig == null)
                 return -1;
@@ -370,12 +372,12 @@ namespace TestFlightAPI
         /// This is made available as an API method to allow things like failure simulations.
         /// </summary>
         /// <returns><c>true</c>, if failure was repaired, <c>false</c> otherwise.</returns>
-        public virtual double ForceRepair()
+        public virtual float ForceRepair()
         {
             return DoRepair();
         }
 
-        public virtual double DoRepair()
+        public virtual float DoRepair()
         {
             Failed = false;
             ITestFlightCore core = TestFlightUtil.GetCore(this.part);
@@ -388,7 +390,7 @@ namespace TestFlightAPI
         /// Gets the seconds until repair is complete
         /// </summary>
         /// <returns>The seconds until repair is complete, <c>0</c> if repair is complete, and <c>-1</c> if something changed the inteerupt the repairs and reapir has stopped with the part still broken.</returns>
-        public double GetSecondsUntilRepair()
+        public float GetSecondsUntilRepair()
         {
             if (Failed)
                 return -1;

@@ -12,8 +12,6 @@ namespace TestFlight
     public class TestFlightFailure_Engine : TestFlightFailureBase
     {
         [KSPField(isPersistant=true)]
-        public string engineIndex = "";
-        [KSPField(isPersistant=true)]
         public string engineID = "";
 
         protected class EngineHandler
@@ -85,52 +83,7 @@ namespace TestFlight
                 }
                 else
                 {
-                    int index = int.Parse(engineIndex);
-                    EngineModuleWrapper engine = new EngineModuleWrapper(this.part, index);
-                    EngineHandler engineHandler = new EngineHandler();
-                    engineHandler.engine = engine;
-                    engineHandler.ignitionState = engine.IgnitionState;
-                    engines.Add(engineHandler);
-                }
-            }
-            else if (!String.IsNullOrEmpty(engineIndex))
-            {
-                if (engineIndex.ToLower() == "all")
-                {
-                    int length = this.part.Modules.Count;
-                    for (int i = 0; i < length; i++)
-                    {
-                        PartModule pm = this.part.Modules.GetModule(i);
-                        ModuleEngines pmEngine = pm as ModuleEngines;
-                        ModuleEnginesFX pmEngineFX = pm as ModuleEnginesFX;
-                        EngineModuleWrapper engine = null;
-                        if (pmEngine != null || pmEngineFX != null)
-                        {
-                            engine = new EngineModuleWrapper(this.part, i);
-                            EngineHandler engineHandler = new EngineHandler();
-                            engineHandler.engine = engine;
-                            engineHandler.ignitionState = engine.IgnitionState;
-                            engines.Add(engineHandler);
-                        }
-                    }
-                }
-                else if (engineIndex.Contains(","))
-                {
-                    string[] sEngineIndices = engineIndex.Split(new char[1] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                    foreach (string sEngineIndex in sEngineIndices)
-                    {
-                        int index = int.Parse(sEngineIndex);
-                        EngineModuleWrapper engine = new EngineModuleWrapper(this.part, index);
-                        EngineHandler engineHandler = new EngineHandler();
-                        engineHandler.engine = engine;
-                        engineHandler.ignitionState = engine.IgnitionState;
-                        engines.Add(engineHandler);
-                    }
-                }
-                else
-                {
-                    int index = int.Parse(engineIndex);
-                    EngineModuleWrapper engine = new EngineModuleWrapper(this.part, index);
+                    EngineModuleWrapper engine = new EngineModuleWrapper(this.part, engineID);
                     EngineHandler engineHandler = new EngineHandler();
                     engineHandler.engine = engine;
                     engineHandler.ignitionState = engine.IgnitionState;
@@ -157,7 +110,7 @@ namespace TestFlight
         {
             base.DoFailure();
         }
-        public override double DoRepair()
+        public override float DoRepair()
         {
             return base.DoRepair();
         }
