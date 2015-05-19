@@ -68,6 +68,8 @@ else
 ifeq ($(TRAVIS_SECURE_ENV_VARS),true)
 deploy:
 	@curl --ftp-create-dirs -T ${ZIP_CORE} -u ${FTP_USER}:${FTP_PASSWD} ftp://stantonspacebarn.com/webapps/johnvanderbeck/modding/KSP/TestFlight/$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER)/$(ZIP_CORE)
+	@curl --ftp-create-dirs -T ${ZIP_STOCK} -u ${FTP_USER}:${FTP_PASSWD} ftp://stantonspacebarn.com/webapps/johnvanderbeck/modding/KSP/TestFlight/$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER)/$(ZIP_STOCK)
+	@curl --ftp-create-dirs -T ${ZIP_RO} -u ${FTP_USER}:${FTP_PASSWD} ftp://stantonspacebarn.com/webapps/johnvanderbeck/modding/KSP/TestFlight/$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER)/$(ZIP_RO)
 else
 deploy:
 	echo No secure environment available. Skipping deploy.
