@@ -4,9 +4,15 @@ CONFIG_DIR = configs
 VERSION = $(shell git describe --tags)
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD 2>&1)
 
+ifdef TRAVIS_TAG
 ZIP_CORE := TestFlightCore-$(TRAVIS_TAG).zip
 ZIP_RO := TestFlightConfigRO-$(TRAVIS_TAG).zip
 ZIP_STOCK := TestFlightConfigStock-$(TRAVIS_TAG).zip
+else
+ZIP_CORE := TestFlightCore-$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER).zip
+ZIP_RO := TestFlightConfigRO-$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER).zip
+ZIP_STOCK := TestFlightConfigStock-$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER).zip
+endif
 
 all: clean meta configs
 	cp -r GameData/TestFlight/ ~/Dropbox/KSP/TestFlight/
@@ -59,10 +65,13 @@ clean:
 ifdef TRAVIS_TAG
 deploy:
 else
-ifdef TRAVIS_SECURE_ENV_VARS
+ifeq ($(TRAVIS_SECURE_ENV_VARS),true)
 deploy:
-	echo $TRAVIS_SECURE_ENV_VARS
+	curl --ftp-create-dirs -T $(ZIP_CORE) -u $FTP_USER:$FTP_PASSWORD ftp://stantonspacebarn.com/webapps/johnvanderbeck/modding/KSP/TestFlight/$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER)/$(ZIP_CORE)
+	curl --ftp-create-dirs -T $(ZIP_STOCK) -u $FTP_USER:$FTP_PASSWORD ftp://stantonspacebarn.com/webapps/johnvanderbeck/modding/KSP/TestFlight/$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER)/$(ZIP_STOCK)
+	curl --ftp-create-dirs -T $(ZIP_RO) -u $FTP_USER:$FTP_PASSWORD ftp://stantonspacebarn.com/webapps/johnvanderbeck/modding/KSP/TestFlight/$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER)/$(ZIP_RO)
 else
 deploy:
+	echo No secure environment available. Skipping deploy.
 endif
 endif
