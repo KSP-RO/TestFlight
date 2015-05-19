@@ -31,3 +31,10 @@ notifications:
     template:
       - "Build #%{build_number} - %{branch} - %{result}"
       - "%{commit_message}"
+after_success:
+- make deploy
+env:
+  global:
+  - secure: KK4zCiujTh58oH6dX5Hphi357mwnDrjFS9oVbCOaDUk+Uwz6qhEUgwvWZu5a2/wEFFRV4JyRm27QsAdDAJ0qy0f+SW6yoTIrdYx3PTDuWl+CL4L5yGV6K/LYrGrtDz1AXLFupfhgPcoB62dYDmZmzCHNioB8BY5zuuA9o3fzxcU=
+  - secure: fLfigVPg9ubGokcauE+797nTcw63TPjsJXmKrzG1JqsvzCXzd4qVrbw6zuwO7rRzAaimqwbxjIVxZFqzJHb9jCut3FcM+iMranewM75qRErqSZh14sImWi9YMRIl5wkb0xElGIbPYAY1aqR89V8m20CthTX21/dfmJhTa8EyAPM=
+  - secure: TTeep3257heuzclYnRD5r+fKCuilW+heZynKplW30SGckkrdtcZe6lbYs0tQ+5o3a8X1y41TQHKgXIJQM0P2DIfKODT9iofpu4gCIZoL+cF7Mj3BKoBHz7zKtYoCMdP/fkTh8cJMpV5nERhiADmC4hSdghwUmydLFI2VS7IUIO0=

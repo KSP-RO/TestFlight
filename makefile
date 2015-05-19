@@ -55,3 +55,14 @@ clean:
 	-rm GameData/TestFlight/*.ckan
 	-rm *.version
 	-rm *.ckan
+
+ifdef TRAVIS_TAG
+deploy:
+else
+ifdef TRAVIS_SECURE_ENV_VARS
+deploy:
+	echo $TRAVIS_SECURE_ENV_VARS
+else
+deploy:
+endif
+endif
