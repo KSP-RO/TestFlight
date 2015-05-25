@@ -29,7 +29,7 @@ def submitBuild(projectID, buildName, changelog, token):
 	conn.request("POST", endpoint + "/builds", params, headers)
 	response = conn.getresponse()
 	data = json.loads(response.read())
-	# print data
+	print data
 	print data['id']
 	buildID = data['id']
 	conn.close()
@@ -94,25 +94,25 @@ endpoint = os.getenv('API_ENDPOINT')
 username = os.getenv('API_USERNAME')
 password = os.getenv('API_PASSWORD')
 
-# print args
-if not args.projectName:
-	args.projectName = os.getenv('PROJECT_NAME')
-if not args.buildName:
-	args.buildName = os.getenv('TRAVIS_BRANCH') + '_' + os.getenv('TRAVIS_BUILD_NUMBER')
-if not args.buildID:
-	args.buildID = os.getenv('BUILD_ID')
+print args
+if not args.project_name:
+	args.project_name = os.getenv('PROJECT_NAME')
+if not args.build_name:
+	args.build_name = os.getenv('TRAVIS_BRANCH') + '_' + os.getenv('TRAVIS_BUILD_NUMBER')
+if not args.build_id:
+	args.build_id = os.getenv('BUILD_ID')
 
-projectName = args.projectName
-buildName = args.buildName
+projectName = args.project_name
+buildName = args.build_name
 changelog = args.changelog
-buildID = args.buildID
+buildID = args.build_id
 
 token = authenticate(buildserver, endpoint, username, password)
 
-if args.action == 'build' or args.action == 'all':
-	buildID = submitBuild(projectID, buildName, changelog, token)
+if 'build' in args.action or 'all' in args.action:
+	buildID = submitBuild(args.project_id, buildName, changelog, token)
 
-if args.action == 'file' or args.action == 'all':
+if 'file' in args.action or 'all' in args.action:
 	for filename in args.files:
 		filepath = '/builds/' + projectName + 'build_' + buildName + '/' + filename
 		submitFile(buildID, filename, filepath, token)
