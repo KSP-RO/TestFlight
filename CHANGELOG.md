@@ -1,12 +1,14 @@
 # Change Log
 
-## [Unreleased](https://github.com/jwvanderbeck/TestFlight/tree/HEAD)
+## [1.3.1.1](https://github.com/jwvanderbeck/TestFlight/tree/1.3.1.1) (2015-05-18)
 
-[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.3.1.0...HEAD)
+[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.3.1.0...1.3.1.1)
 
 **Fixed bugs:**
 
 - Failure\_ResourceLeak parses incorrect values in some locales [\#76](https://github.com/jwvanderbeck/TestFlight/issues/76)
+
+- AVC .version is incorrectly indicating KSP 1.0.0 when it should be 1.0.2 [\#80](https://github.com/jwvanderbeck/TestFlight/issues/80)
 
 ## [1.3.1.0](https://github.com/jwvanderbeck/TestFlight/tree/1.3.1.0) (2015-05-18)
 
@@ -96,15 +98,15 @@
 
 ## [1.3.0.6](https://github.com/jwvanderbeck/TestFlight/tree/1.3.0.6) (2015-04-29)
 
-[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.3.0.14...1.3.0.6)
-
-## [1.3.0.14](https://github.com/jwvanderbeck/TestFlight/tree/1.3.0.14) (2015-04-28)
-
-[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.3.0.8...1.3.0.14)
+[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.3.0.8...1.3.0.6)
 
 ## [1.3.0.8](https://github.com/jwvanderbeck/TestFlight/tree/1.3.0.8) (2015-04-28)
 
-[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.3.0.5...1.3.0.8)
+[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.3.0.14...1.3.0.8)
+
+## [1.3.0.14](https://github.com/jwvanderbeck/TestFlight/tree/1.3.0.14) (2015-04-28)
+
+[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.3.0.5...1.3.0.14)
 
 ## [1.3.0.5](https://github.com/jwvanderbeck/TestFlight/tree/1.3.0.5) (2015-04-28)
 
