@@ -71,6 +71,7 @@ deploy:
 	@curl --ftp-create-dirs -T ${ZIP_STOCK} -u ${FTP_USER}:${FTP_PASSWD} ftp://stantonspacebarn.com/webapps/johnvanderbeck/modding/KSP/TestFlight/$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER)/$(ZIP_STOCK)
 	@curl --ftp-create-dirs -T ${ZIP_RO} -u ${FTP_USER}:${FTP_PASSWD} ftp://stantonspacebarn.com/webapps/johnvanderbeck/modding/KSP/TestFlight/$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER)/$(ZIP_RO)
 	export TRAVIS_COMMIT_MSG=\"$(git log --format=%B --no-merges -n 1)\"
+	echo $TRAVIS_COMMIT_MSG
 	python buildServer.py all --project-id 0 --project-name TestFlight --build-name $(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER) --changelog "$(TRAVIS_COMMIT_MSG)" --files $(ZIP_CORE) $(ZIP_STOCK) $(ZIP_RO)
 else
 deploy:
