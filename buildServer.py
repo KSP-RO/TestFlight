@@ -13,7 +13,7 @@ def authenticate(buildserver, endpoint, username, password):
 	response = conn.getresponse()
 	data = json.loads(response.read())
 	# print data
-	print data['token']
+	# print data['token']
 	apitoken = data['token']
 	conn.close()
 	return apitoken
@@ -29,8 +29,8 @@ def submitBuild(projectID, buildName, changelog, token):
 	conn.request("POST", endpoint + "/builds", params, headers)
 	response = conn.getresponse()
 	data = json.loads(response.read())
-	print data
-	print data['id']
+	# print data
+	# print data['id']
 	buildID = data['id']
 	conn.close()
 	return buildID
@@ -47,7 +47,7 @@ def submitFile(buildID, filename, filepath, token):
 	response = conn.getresponse()
 	data = json.loads(response.read())
 	# print data
-	print data['id']
+	# print data['id']
 	releaseID = data['id']
 	conn.close()
 	return releaseID
