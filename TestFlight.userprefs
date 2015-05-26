@@ -4,12 +4,12 @@
     <Files>
       <File FileName="TestFlightCore/TestFlightCore/TestFlight.cs" Line="1" Column="1" />
       <File FileName="TestFlightCore/TestFlightCore/TestFlightCore.cs" Line="1" Column="1" />
-      <File FileName="TestFlightAPI/TestFlightAPI/TestFlightAPI.cs" Line="465" Column="28" />
-      <File FileName="TestFlightContracts/TestFlightContractConfigurator.cs" Line="9" Column="7" />
+      <File FileName="TestFlightAPI/TestFlightAPI/TestFlightAPI.cs" Line="1" Column="1" />
+      <File FileName="TestFlightContracts/TestFlightContractConfigurator.cs" Line="1" Column="1" />
       <File FileName="TestFlightCore/TestFlightCore/TestFlightInterface.cs" Line="1" Column="1" />
       <File FileName="TestFlightAPI/TestFlightAPI/TestFlightPartData.cs" Line="1" Column="1" />
       <File FileName="TestFlightAPI/TestFlightAPI/EngineModuleWrapper.cs" Line="1" Column="1" />
-      <File FileName="TestFlightFailure_Explode.cs" Line="19" Column="30" />
+      <File FileName="TestFlightFailure_Explode.cs" Line="1" Column="1" />
       <File FileName="TestFlightFailure_ResourceLeak.cs" Line="106" Column="1" />
       <File FileName="FlightDataRecorder_Engine.cs" Line="1" Column="1" />
       <File FileName="TestFlightFailure_ReducedMaxThrust.cs" Line="1" Column="1" />
@@ -19,16 +19,7 @@
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node name="TestFlight" expanded="True">
-            <Node name="TestFlight" expanded="True">
-              <Node name="TestFlightFailure_ResourceLeak.cs" selected="True" />
-            </Node>
-            <Node name="TestFlightAPI" expanded="True">
-              <Node name="References" expanded="True" />
-            </Node>
-            <Node name="TestFlightContracts" expanded="True" />
-            <Node name="TestFlightCore" expanded="True" />
-          </Node>
+          <Node name="TestFlight" expanded="True" selected="True" />
         </State>
       </Pad>
     </Pads>
