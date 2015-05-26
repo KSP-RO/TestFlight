@@ -2,7 +2,7 @@ language: python
 python:
 - '2.7'
 before_install:
-  - "export TRAVIS_COMMIT_MSG=\"$(git log --format=%B --no-merges -n 1)\""
+  - git log --no-merges -n 1 > changes.md
 install:
 - pip install -r requirements.txt
 script:

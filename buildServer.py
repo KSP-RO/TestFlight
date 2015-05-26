@@ -4,6 +4,21 @@ import sys, os, httplib, urllib, argparse, json
 # a new build and the files that go with it
 # This only adds database entries though, the files still need to be FTPd
 
+def parseChanges(s):
+	s = s.strip()
+	if len(s) == 0:
+		return s
+	if s[0] == "*":
+		s = "\n" + s
+	elif s.startswith("commit") or s.startswith("Date"):
+		return s + "\n"
+	elif s.startswith("Author"):
+		return s[0:s.find("<")] + "\n"
+	else:
+		s = " " + s
+	return s
+
+
 def authenticate(buildserver, endpoint, username, password):
 	# Authenticate with the API to get a token
 	params = urllib.urlencode({'name': username, 'password': password})
@@ -18,7 +33,10 @@ def authenticate(buildserver, endpoint, username, password):
 	conn.close()
 	return apitoken
 
-def submitBuild(projectID, buildName, changelog, token):
+def submitBuild(projectID, buildName, changes, token):
+	changes = map(parseChanges, changes)
+	changelog = "".join(changes)
+
 	params = urllib.urlencode({
 		'buildName': buildName, 
 		'buildChangelog': changelog,
@@ -74,7 +92,7 @@ parser.add_argument('--build-name', metavar='buildName', type=str, required=True
 parser.add_argument('--project-id', metavar='projectID', type=int,
                    help='(BUILD)Database ID of the project on the build server.')
 parser.add_argument('--changelog', metavar='changelog', type=str,
-                   help='(BUILD)Contents you want saved as the change log for this build')
+                   help='(BUILD)path to file that contains change log for the build.')
 parser.add_argument('--build-id', metavar='buildID', type=int,
                    help='(FILE)Database ID of the build this file belongs to.  Uses $BUILD_ID if not specified.')
 parser.add_argument('--files', metavar='filename', type=str, nargs='*',
@@ -104,13 +122,15 @@ if not args.build_id:
 
 projectName = args.project_name
 buildName = args.build_name
-changelog = args.changelog
+changelogFile = args.changelog
 buildID = args.build_id
 
 token = authenticate(buildserver, endpoint, username, password)
 
 if 'build' in args.action or 'all' in args.action:
-	buildID = submitBuild(args.project_id, buildName, changelog, token)
+	with open(changelogFile, 'r') as f:
+		changes = f.readlines();
+	buildID = submitBuild(args.project_id, buildName, changes, token)
 
 if 'file' in args.action or 'all' in args.action:
 	for filename in args.files:
