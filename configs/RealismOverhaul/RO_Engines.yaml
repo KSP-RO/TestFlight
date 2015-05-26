@@ -566,25 +566,25 @@ PartConfigs:
             configuration: 'LR-89-NA-3'
             weight: 4
     # LR-105 Series engine used as sustainer on Atlas
-    LR-105-NA-5: &LR-105-NA-5
+    LR-105-NA-3: &LR-105-NA-3
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             maxData: 10000
-            configuration: 'engineConfig = LR-105-NA-5:LR-105-NA-5'
-            title: 'LR-105-NA-5'
+            configuration: 'engineConfig = LR-105-NA-3:LR-105-NA-3'
+            title: 'LR-105-NA-3'
         -   name: 'FlightDataRecorder_Engine'
-            configuration: 'LR-105-NA-5'
+            configuration: 'LR-105-NA-3'
             flightDataMultiplier: 2.5
             flightDataEngineerModifier: 0.25
         -   name: 'TestFlightReliability'
-            configuration: 'LR-105-NA-5'
+            configuration: 'LR-105-NA-3'
             reliabilityCurve:
                 - '0 0.000101'
                 - '2000 0.000061'
                 - '4000 0.000040'
                 - '10000 0.000015'
         -   name: 'TestFlightReliability_EngineCycle'
-            configuration: 'LR-105-NA-5'
+            configuration: 'LR-105-NA-3'
             ratedBurnTime: 309
             cycle:
             - '0.00 20.00'
@@ -595,13 +595,13 @@ PartConfigs:
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
         -   name: 'TestFlightFailure_ShutdownEngine'
-            configuration: 'LR-105-NA-5'
+            configuration: 'LR-105-NA-3'
             weight: 32
             REPAIR:
             - *EasySoftware
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
-            configuration: 'LR-105-NA-5'
+            configuration: 'LR-105-NA-3'
             restoreIgnitionCharge: false
             baseIgnitionChance:
             - '0 0.90'
@@ -613,13 +613,13 @@ PartConfigs:
             - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
-            configuration: 'LR-105-NA-5'
+            configuration: 'LR-105-NA-3'
             weight: 32
             REPAIR:
             - *EasyMechanical
         -   *Explode
         -   name: 'TestFlightFailure_Explode'
-            configuration: 'LR-105-NA-5'
+            configuration: 'LR-105-NA-3'
             weight: 4
     # Bell 80XX Series engines used on Agena
     Bell-8048: &Bell-8048
@@ -1967,12 +1967,12 @@ Parts:
     - '@PART[FASAMercuryAtlasEngBooster]:AFTER[RealismOverhaul]'
     configs:
     - *LR-89-NA-3
--   part: 'LR-105-NA-5'
+-   part: 'LR-105-NA-3'
     patterns:
     - '@PART[liquidEngine]:AFTER[RealismOverhaul]'
     - '@PART[FASAMercuryAtlasEng]:AFTER[RealismOverhaul]'
     configs:
-    - *LR-105-NA-5
+    - *LR-105-NA-3
 -   part: 'Bell-80xx'
     patterns:
     - '@PART[FASAAgena_Engine]:AFTER[RealismOverhaul]'
