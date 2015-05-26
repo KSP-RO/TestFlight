@@ -114,7 +114,7 @@ if 'build' in args.action or 'all' in args.action:
 
 if 'file' in args.action or 'all' in args.action:
 	for filename in args.files:
-		filepath = '/builds/' + projectName + 'build_' + buildName + '/' + filename
+		filepath = 'http://builds.johnvanderbeck.com/builds/' + projectName + 'build_' + buildName + '/' + filename
 		submitFile(buildID, filename, filepath, token)
 
 print buildID
