@@ -1331,6 +1331,342 @@ PartConfigs:
         -   name: 'TestFlightFailure_Explode'
             configuration: 'LR-87-11A'
             weight: 2
+# LR-91 Series Engine
+    LR-91-3: &LR-91-3
+        -   name: 'TestFlightInterop'
+        -   name: 'TestFlightCore'
+            maxData: 10000
+            configuration: 'engineConfig = LR-91-3:LR-91-3'
+            title: 'LR-91-3'
+        -   name: 'FlightDataRecorder_Engine'
+            configuration: 'LR-91-3'
+            flightDataMultiplier: 3.62
+            flightDataEngineerModifier: 0.2
+        -   name: 'TestFlightReliability'
+            configuration: 'LR-91-3'
+            reliabilityCurve:
+                - '0 0.000414'
+                - '1000 0.000331'
+                - '4000 0.000248'
+                - '10000 0.000124'
+        -   name: 'TestFlightReliability_EngineCycle'
+            configuration: 'LR-91-3'
+            ratedBurnTime: 180
+            cycle:
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
+            - '143.00 1.00 0 0'
+            - '212.00 100.00'
+        # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
+        # Only ONE block will be folded down though!
+        -   *ShutdownEngine        
+        -   name: 'TestFlightFailure_ShutdownEngine'
+            configuration: 'LR-91-3'
+            weight: 32
+            REPAIR:
+            - *EasySoftware
+        -   *IgnitionFail
+        -   name: 'TestFlightFailure_IgnitionFail'
+            configuration: 'LR-91-3'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.80'
+            - '10000 0.875'
+            ignorePressureOnPad: true
+            pressureCurve:
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
+        -   *ReducedMaxThrust
+        -   name: 'TestFlightFailure_ReducedMaxThrust'
+            configuration: 'LR-91-3'
+            weight: 16
+            REPAIR:
+            - *EasyMechanical
+        -   *Explode
+        -   name: 'TestFlightFailure_Explode'
+            configuration: 'LR-91-3'
+            weight: 2
+    LR-91-5: &LR-91-5
+        -   name: 'TestFlightCore'
+            maxData: 10000
+            configuration: 'engineConfig = LR-91-5:LR-91-5'
+            title: 'LR-91-5'
+            techTransfer: 'LR-91-3:50'
+            techTransferMax: 2000
+        -   name: 'FlightDataRecorder_Engine'
+            configuration: 'LR-91-5'
+            flightDataMultiplier: 3.60
+            flightDataEngineerModifier: 0.2
+        -   name: 'TestFlightReliability'
+            configuration: 'LR-91-5'
+            reliabilityCurve:
+                - '0 0.000360'
+                - '2000 0.000252'
+                - '4000 0.000180'
+                - '10000 0.000090'
+        -   name: 'TestFlightReliability_EngineCycle'
+            configuration: 'LR-91-5'
+            ratedBurnTime: 185
+            cycle:
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
+            - '144.00 1.00 0 0'
+            - '213.50 100.00'
+        # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
+        # Only ONE block will be folded down though!
+        -   *ShutdownEngine        
+        -   name: 'TestFlightFailure_ShutdownEngine'
+            configuration: 'LR-91-5'
+            weight: 32
+            REPAIR:
+            - *EasySoftware
+        -   *IgnitionFail
+        -   name: 'TestFlightFailure_IgnitionFail'
+            configuration: 'LR-91-5'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.90'
+            - '10000 0.95'
+            ignorePressureOnPad: true
+            pressureCurve:
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
+        -   *ReducedMaxThrust
+        -   name: 'TestFlightFailure_ReducedMaxThrust'
+            configuration: 'LR-91-5'
+            weight: 16
+            REPAIR:
+            - *EasyMechanical
+        -   *Explode
+        -   name: 'TestFlightFailure_Explode'
+            configuration: 'LR-91-5'
+            weight: 2
+    LR-91-7: &LR-91-7
+        -   name: 'TestFlightCore'
+            maxData: 10000
+            configuration: 'engineConfig = LR-91-7:LR-91-7'
+            title: 'LR-91-7'
+            techTransfer: 'LR-91-3,LR-91-5:50'
+            techTransferMax: 2000
+        -   name: 'FlightDataRecorder_Engine'
+            configuration: 'LR-91-7'
+            flightDataMultiplier: 3.60
+            flightDataEngineerModifier: 0.2
+        -   name: 'TestFlightReliability'
+            configuration: 'LR-91-7'
+            reliabilityCurve:
+                - '0 0.000360'
+                - '2000 0.000216'
+                - '4000 0.000126'
+                - '10000 0.000072'
+        -   name: 'TestFlightReliability_EngineCycle'
+            configuration: 'LR-91-7'
+            ratedBurnTime: 182.5
+            cycle:
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
+            - '144.00 1.00 0 0'
+            - '213.50 100.00'
+        # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
+        # Only ONE block will be folded down though!
+        -   *ShutdownEngine        
+        -   name: 'TestFlightFailure_ShutdownEngine'
+            configuration: 'LR-91-7'
+            weight: 32
+            REPAIR:
+            - *EasySoftware
+        -   *IgnitionFail
+        -   name: 'TestFlightFailure_IgnitionFail'
+            configuration: 'LR-91-7'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.90'
+            - '10000 0.975'
+            ignorePressureOnPad: true
+            pressureCurve:
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
+        -   *ReducedMaxThrust
+        -   name: 'TestFlightFailure_ReducedMaxThrust'
+            configuration: 'LR-91-7'
+            weight: 16
+            REPAIR:
+            - *EasyMechanical
+        -   *Explode
+        -   name: 'TestFlightFailure_Explode'
+            configuration: 'LR-91-7'
+            weight: 2
+    LR-91-9: &LR-91-9
+        -   name: 'TestFlightCore'
+            maxData: 10000
+            configuration: 'engineConfig = LR-91-9:LR-91-9'
+            title: 'LR-91-9'
+            techTransfer: 'LR-91-3,LR-91-5,LR-91-7:50'
+            techTransferMax: 2000
+        -   name: 'FlightDataRecorder_Engine'
+            configuration: 'LR-91-9'
+            flightDataMultiplier: 3.40
+            flightDataEngineerModifier: 0.2
+        -   name: 'TestFlightReliability'
+            configuration: 'LR-91-9'
+            reliabilityCurve:
+                - '0 0.000309'
+                - '2000 0.000170'
+                - '4000 0.000093'
+                - '10000 0.000062'
+        -   name: 'TestFlightReliability_EngineCycle'
+            configuration: 'LR-91-9'
+            ratedBurnTime: 208
+            cycle:
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
+            - '152.00 1.00 0 0'
+            - '225.50 100.00'
+        # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
+        # Only ONE block will be folded down though!
+        -   *ShutdownEngine        
+        -   name: 'TestFlightFailure_ShutdownEngine'
+            configuration: 'LR-91-9'
+            weight: 32
+            REPAIR:
+            - *EasySoftware
+        -   *IgnitionFail
+        -   name: 'TestFlightFailure_IgnitionFail'
+            configuration: 'LR-91-9'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.98'
+            - '10000 0.995'
+            ignorePressureOnPad: true
+            pressureCurve:
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
+        -   *ReducedMaxThrust
+        -   name: 'TestFlightFailure_ReducedMaxThrust'
+            configuration: 'LR-91-9'
+            weight: 16
+            REPAIR:
+            - *EasyMechanical
+        -   *Explode
+        -   name: 'TestFlightFailure_Explode'
+            configuration: 'LR-91-9'
+            weight: 2
+    LR-91-11: &LR-91-11
+        -   name: 'TestFlightCore'
+            maxData: 10000
+            configuration: 'engineConfig = LR-91-11:LR-91-11'
+            title: 'LR-91-11'
+            techTransfer: 'LR-91-3,LR-91-5,LR-91-7,LR-91-9:50'
+            techTransferMax: 2000
+        -   name: 'FlightDataRecorder_Engine'
+            configuration: 'LR-91-11'
+            flightDataMultiplier: 3.11
+            flightDataEngineerModifier: 0.2
+        -   name: 'TestFlightReliability'
+            configuration: 'LR-91-11'
+            reliabilityCurve:
+                - '0 0.000166'
+                - '2000 0.000099'
+                - '4000 0.000050'
+                - '10000 0.000017'
+        -   name: 'TestFlightReliability_EngineCycle'
+            configuration: 'LR-91-11'
+            ratedBurnTime: 205
+            cycle:
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
+            - '166.00 1.00 0 0'
+            - '246.50 150.00'
+        # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
+        # Only ONE block will be folded down though!
+        -   *ShutdownEngine        
+        -   name: 'TestFlightFailure_ShutdownEngine'
+            configuration: 'LR-91-11'
+            weight: 32
+            REPAIR:
+            - *EasySoftware
+        -   *IgnitionFail
+        -   name: 'TestFlightFailure_IgnitionFail'
+            configuration: 'LR-91-11'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.98'
+            - '10000 0.99975'
+            ignorePressureOnPad: true
+            pressureCurve:
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
+        -   *ReducedMaxThrust
+        -   name: 'TestFlightFailure_ReducedMaxThrust'
+            configuration: 'LR-91-11'
+            weight: 16
+            REPAIR:
+            - *EasyMechanical
+        -   *Explode
+        -   name: 'TestFlightFailure_Explode'
+            configuration: 'LR-91-11'
+            weight: 2
+    LR-91-11A: &LR-91-11A
+        -   name: 'TestFlightCore'
+            maxData: 10000
+            configuration: 'engineConfig = LR-91-11A:LR-91-11A'
+            title: 'LR-91-11A'
+            techTransfer: 'LR-91-3,LR-91-5,LR-91-7,LR-91-9,LR-91-11:50'
+            techTransferMax: 2000
+        -   name: 'FlightDataRecorder_Engine'
+            configuration: 'LR-91-11A'
+            flightDataMultiplier: 3.05
+            flightDataEngineerModifier: 0.2
+        -   name: 'TestFlightReliability'
+            configuration: 'LR-91-11A'
+            reliabilityCurve:
+                - '0 0.000081'
+                - '2000 0.000041'
+                - '4000 0.000016'
+                - '10000 0.000004'
+        -   name: 'TestFlightReliability_EngineCycle'
+            configuration: 'LR-91-11A'
+            ratedBurnTime: 205
+            cycle:
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
+            - '169.00 1.00 0 0'
+            - '251.00 150.00'
+        # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
+        # Only ONE block will be folded down though!
+        -   *ShutdownEngine        
+        -   name: 'TestFlightFailure_ShutdownEngine'
+            configuration: 'LR-91-11A'
+            weight: 32
+            REPAIR:
+            - *EasySoftware
+        -   *IgnitionFail
+        -   name: 'TestFlightFailure_IgnitionFail'
+            configuration: 'LR-91-11A'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.98'
+            - '10000 0.9999'
+            ignorePressureOnPad: true
+            pressureCurve:
+            - '0 0.9'
+            - '5000 0.7'
+            - '50000 0.15'
+        -   *ReducedMaxThrust
+        -   name: 'TestFlightFailure_ReducedMaxThrust'
+            configuration: 'LR-91-11A'
+            weight: 16
+            REPAIR:
+            - *EasyMechanical
+        -   *Explode
+        -   name: 'TestFlightFailure_Explode'
+            configuration: 'LR-91-11A'
+            weight: 2            
     # RL10 Series Vacuum Engine
     RL10A-1: &RL10A-1
         -   name: 'TestFlightInterop'
