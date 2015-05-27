@@ -24,6 +24,13 @@ install: clean
 	cp -r GameData/TestFlight/ ~/Dropbox/KSP/TestFlight/
 	cp -r GameData/TestFlight/ ~/Developer/KSP/1.0/TestFlightDEV/Dev/GameData/TestFlight/
 
+install-ro: clean
+	-rm ~/Developer/KSP/1.0/TestFlightDEV/Dev/GameData/TestFlight/Config/*.cfg
+	cd $(CONFIG_DIR);python compileYamlConfigs.py RealismOverhaul
+	cp $(CONFIG_DIR)/RealismOverhaul/*.cfg GameData/TestFlight/Config
+	cp -r GameData/TestFlight/ ~/Dropbox/KSP/TestFlight/
+	cp -r GameData/TestFlight/ ~/Developer/KSP/1.0/TestFlightDEV/Dev/GameData/TestFlight/
+
 release: zip
 
 configs: $(CONFIG_DIR)/RealismOverhaul/%.cfg $(CONFIG_DIR)/Stock/%.cfg
