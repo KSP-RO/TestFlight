@@ -15,8 +15,8 @@ namespace TestFlightCore
         internal string partName;
         internal uint partID;
         internal int partStatus;
-        internal float baseFailureRate;
-        internal float momentaryFailureRate;
+        internal double baseFailureRate;
+        internal double momentaryFailureRate;
         internal ITestFlightCore flightCore;
         internal ITestFlightFailure activeFailure;
         internal bool highlightPart;
@@ -422,7 +422,7 @@ namespace TestFlightCore
                                 partStatus.partStatus = core.GetPartStatus();
                                 partStatus.timeToRepair = core.GetRepairTime();
                                 partStatus.flightData = core.GetFlightData();
-                                float failureRate = core.GetBaseFailureRate();
+                                double failureRate = core.GetBaseFailureRate();
                                 MomentaryFailureRate momentaryFailureRate = core.GetWorstMomentaryFailureRate();
                                 if (momentaryFailureRate.valid && momentaryFailureRate.failureRate > failureRate)
                                     failureRate = momentaryFailureRate.failureRate;

@@ -29,7 +29,7 @@ namespace TestFlight
                 }
             }
         }
-        public override float GetBaseFailureRate(float flightData)
+        public override double GetBaseFailureRate(float flightData)
         {
             return 0;
         }

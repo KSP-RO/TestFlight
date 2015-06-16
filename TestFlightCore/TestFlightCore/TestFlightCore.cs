@@ -44,14 +44,11 @@ namespace TestFlightCore
         public bool initialized = false;
         [KSPField(isPersistant=true)]
         public float maxData = 0f;
+        [KSPField(isPersistant=true)]
+        public float failureRateModifier = 1f;
 
-        // Base Failure Rate is stored per Scope internally
-        // As of v1.3 we no longer have cope
-//        private Dictionary<String, float> baseFailureRate;
-        private float baseFailureRate;
+        private double baseFailureRate;
         // We store the base, or initial, flight data for calculation of Base Failure Rate
-        // Deprecated v1.3
-//        private FlightDataConfig baseFlightData;
         // Momentary Failure Rates are calculated based on modifiers.  Those modifiers
         // are stored per SCOPE and per TRIGGER
         private List<MomentaryFailureRate> momentaryFailureRates;
@@ -169,12 +166,12 @@ namespace TestFlightCore
         }
 
         // Get the base or static failure rate
-        public float GetBaseFailureRate()
+        public double GetBaseFailureRate()
         {
-            if (baseFailureRate != 0f)
+            if (baseFailureRate != 0)
                 return baseFailureRate;
 
-            float totalBFR = 0f;
+            double totalBFR = 0f;
             List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part);
             if (reliabilityModules == null)
                 return TestFlightUtil.MIN_FAILURE_RATE;
@@ -183,7 +180,8 @@ namespace TestFlightCore
             {
                 totalBFR += rm.GetBaseFailureRate(initialFlightData);
             }
-            totalBFR = Mathf.Max(totalBFR, TestFlightUtil.MIN_FAILURE_RATE);
+            totalBFR = totalBFR * failureRateModifier;
+            totalBFR = Math.Max(totalBFR, TestFlightUtil.MIN_FAILURE_RATE);
             baseFailureRate = totalBFR;
             return baseFailureRate;
         }
@@ -231,7 +229,7 @@ namespace TestFlightCore
 
             bestMFR = new MomentaryFailureRate();
             bestMFR.valid = false;
-            bestMFR.failureRate = float.MaxValue;
+            bestMFR.failureRate = double.MaxValue;
 
             foreach (MomentaryFailureRate mfr in momentaryFailureRates)
             {
@@ -247,7 +245,7 @@ namespace TestFlightCore
         {
             return momentaryFailureRates;
         }
-        public float GetMomentaryFailureRateForTrigger(String trigger)
+        public double GetMomentaryFailureRateForTrigger(String trigger)
         {
             return GetMomentaryFailureRate(trigger).failureRate;
         }
@@ -285,7 +283,7 @@ namespace TestFlightCore
             return new MomentaryFailureRate();
         }
 
-        public float SetTriggerMomentaryFailureModifier(String trigger, float multiplier, PartModule owner)
+        public double SetTriggerMomentaryFailureModifier(String trigger, double multiplier, PartModule owner)
         {
             // store the trigger, recalculate the final rate, and cache that as well
             trigger = trigger.ToLower().Trim();
@@ -313,11 +311,11 @@ namespace TestFlightCore
                 return CalculateMomentaryFailureRate(trigger);
             }
         }
-        internal float CalculateMomentaryFailureRate(String trigger)
+        internal double CalculateMomentaryFailureRate(String trigger)
         {
             trigger = trigger.ToLower().Trim();
-            float baseFailureRate = GetBaseFailureRate();
-            float totalModifiers = 1;
+            double baseFailureRate = GetBaseFailureRate();
+            double totalModifiers = 1;
 
             foreach (MomentaryFailureModifier mfm in momentaryFailureModifiers)
             {
@@ -326,7 +324,7 @@ namespace TestFlightCore
                     totalModifiers *= mfm.modifier;
                 }
             }
-            float momentaryRate = baseFailureRate * totalModifiers;
+            double momentaryRate = baseFailureRate * totalModifiers;
             // Cache this value internally
             MomentaryFailureRate mfr = GetMomentaryFailureRate(trigger);
             if (mfr.valid)
@@ -348,24 +346,24 @@ namespace TestFlightCore
         // Returned string will be of the format "123 units"
         // units should be one of:
         //  seconds, hours, days, years, 
-        public String FailureRateToMTBFString(float failureRate, TestFlightUtil.MTBFUnits units)
+        public String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units)
         {
             return FailureRateToMTBFString(failureRate, units, false, int.MaxValue);
         }
-        public String FailureRateToMTBFString(float failureRate, TestFlightUtil.MTBFUnits units, int maximum)
+        public String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, int maximum)
         {
             return FailureRateToMTBFString(failureRate, units, false, maximum);
         }
         // Short version of MTBFString uses a single letter to denote (s)econds, (m)inutes, (h)ours, (d)ays, (y)ears
         // The returned string will be of the format "12.00s" or "0.20d"
-        public String FailureRateToMTBFString(float failureRate, TestFlightUtil.MTBFUnits units, bool shortForm)
+        public String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, bool shortForm)
         {
             return FailureRateToMTBFString(failureRate, units, shortForm, int.MaxValue);
         }
-        public String FailureRateToMTBFString(float failureRate, TestFlightUtil.MTBFUnits units, bool shortForm, int maximum)
+        public String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, bool shortForm, int maximum)
         {
             int currentUnit = (int)TestFlightUtil.MTBFUnits.SECONDS;
-            float mtbf = FailureRateToMTBF(failureRate, (TestFlightUtil.MTBFUnits)currentUnit);
+            double mtbf = FailureRateToMTBF(failureRate, (TestFlightUtil.MTBFUnits)currentUnit);
             while (mtbf > maximum)
             {
                 currentUnit++;
@@ -402,10 +400,10 @@ namespace TestFlightCore
             }
         }
         // Simply converts the failure rate to a MTBF number, without any string formatting
-        public float FailureRateToMTBF(float failureRate, TestFlightUtil.MTBFUnits units)
+        public double FailureRateToMTBF(double failureRate, TestFlightUtil.MTBFUnits units)
         {
-            failureRate = Mathf.Max((float)failureRate, (float)TestFlightUtil.MIN_FAILURE_RATE);
-            float mtbfSeconds = 1.0f / failureRate;
+            failureRate = Math.Max(failureRate, TestFlightUtil.MIN_FAILURE_RATE);
+            double mtbfSeconds = 1.0f / failureRate;
 
             switch (units)
             {

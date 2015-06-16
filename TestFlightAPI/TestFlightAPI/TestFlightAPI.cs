@@ -27,7 +27,7 @@ namespace TestFlightAPI
 
     public class TestFlightUtil
     {
-        public const float MIN_FAILURE_RATE = 0.000001f;
+        public const double MIN_FAILURE_RATE = 0.00000000000001f;
         public enum MTBFUnits : int
         {
             SECONDS = 0,
@@ -575,7 +575,7 @@ namespace TestFlightAPI
     {
         public String owner;
         public String triggerName;
-        public float modifier;
+        public double modifier;
         // ALWAYS check if valid == true before using the data in this structure!  
         // If valid is false, then the data is empty because a valid data set could not be located
         public bool valid;
@@ -584,7 +584,7 @@ namespace TestFlightAPI
     public struct MomentaryFailureRate
     {
         public String triggerName;
-        public float failureRate;
+        public double failureRate;
         // ALWAYS check if valid == true before using the data in this structure!  
         // If valid is false, then the data is empty because a valid data set could not be located
         public bool valid;
@@ -637,7 +637,7 @@ namespace TestFlightAPI
         /// <returns>The base failure rate for scope.  0 if this module only implements Momentary Failure Rates</returns>
         /// <param name="flightData">The flight data that failure rate should be calculated on.</param>
         /// <param name="scope">Scope.</param>
-        float GetBaseFailureRate(float flightData);
+        double GetBaseFailureRate(float flightData);
 
         /// <summary>
         /// Gets the reliability curve for the given scope.
@@ -770,7 +770,7 @@ namespace TestFlightAPI
 
         // NEW API
         // Get the base or static failure rate
-        float GetBaseFailureRate();
+        double GetBaseFailureRate();
         float GetMaximumData();
         // Get the Reliability Curve for the part
         FloatCurve GetBaseReliabilityCurve();
@@ -781,24 +781,24 @@ namespace TestFlightAPI
         MomentaryFailureRate GetWorstMomentaryFailureRate();
         MomentaryFailureRate GetBestMomentaryFailureRate();
         List<MomentaryFailureRate> GetAllMomentaryFailureRates();
-        float GetMomentaryFailureRateForTrigger(String trigger);
+        double GetMomentaryFailureRateForTrigger(String trigger);
         // The momentary failure rate is tracked per named "trigger" which allows multiple Reliability or FailureTrigger modules to cooperate
         // Returns the total modified failure rate back to the caller for convenience
-        float SetTriggerMomentaryFailureModifier(String trigger, float multiplier, PartModule owner);
+        double SetTriggerMomentaryFailureModifier(String trigger, double multiplier, PartModule owner);
         // simply converts the failure rate into a MTBF string.  Convenience method
         // Returned string will be of the format "123.00 units"
         // Optionally specify a maximum size for MTBF.  If the given units would return an MTBF larger than maximu, it will 
         // automaticly be converted into progressively higher units until the returned value is <= maximum
-        String FailureRateToMTBFString(float failureRate, TestFlightUtil.MTBFUnits units);
-        String FailureRateToMTBFString(float failureRate, TestFlightUtil.MTBFUnits units, int maximum);
+        String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units);
+        String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, int maximum);
         // Short version of MTBFString uses a single letter to denote (s)econds, (m)inutes, (h)ours, (d)ays, (y)ears
         // So the returned string will be EF "12.00s" or "0.20d"
         // Optionally specify a maximum size for MTBF.  If the given units would return an MTBF larger than maximu, it will 
         // automaticly be converted into progressively higher units until the returned value is <= maximum
-        String FailureRateToMTBFString(float failureRate, TestFlightUtil.MTBFUnits units, bool shortForm);
-        String FailureRateToMTBFString(float failureRate, TestFlightUtil.MTBFUnits units, bool shortForm, int maximum);
+        String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, bool shortForm);
+        String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, bool shortForm, int maximum);
         // Simply converts the failure rate to a MTBF number, without any string formatting
-        float FailureRateToMTBF(float failureRate, TestFlightUtil.MTBFUnits units);
+        double FailureRateToMTBF(double failureRate, TestFlightUtil.MTBFUnits units);
         // Get the FlightData or FlightTime for the part
         float GetFlightData();
         float GetInitialFlightData();

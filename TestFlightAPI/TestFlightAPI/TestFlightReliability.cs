@@ -102,7 +102,7 @@ namespace TestFlightAPI
 //            return reliability;
 //        }
         // New v1.3 noscope implementation
-        public virtual float GetBaseFailureRate(float flightData)
+        public virtual double GetBaseFailureRate(float flightData)
         {
             if (reliabilityCurve != null)
                 return reliabilityCurve.Evaluate(flightData);
@@ -231,9 +231,9 @@ namespace TestFlightAPI
                 return;
 
             lastCheck = operatingTime;
-            float baseFailureRate = core.GetBaseFailureRate();
+            double baseFailureRate = core.GetBaseFailureRate();
             MomentaryFailureRate momentaryFailureRate = core.GetWorstMomentaryFailureRate();
-            float currentFailureRate;
+            double currentFailureRate;
 
             if (momentaryFailureRate.valid && momentaryFailureRate.failureRate > baseFailureRate)
                 currentFailureRate = momentaryFailureRate.failureRate;
