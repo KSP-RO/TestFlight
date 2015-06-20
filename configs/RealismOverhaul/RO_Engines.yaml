@@ -142,26 +142,26 @@ PartConfigs:
         -   name: 'TestFlightFailure_Explode'
             configuration: 'WAC-Corporal'
             weight: 4
-    Aerobee-Hi: &Aerobee-Hi
+    XASR-1: &XASR-1
         -   name: 'TestFlightCore'
             maxData: 10000
-            configuration: 'engineConfig = Aerobee-Hi:Aerobee-Hi'
-            title: 'Aerobee Hi'
+            configuration: 'engineConfig = XASR-1:XASR-1'
+            title: 'XASR-1'
             techTransfer: 'WAC-Corporal:50'
             techTransferMax: 2000
         -   name: 'FlightDataRecorder_Engine'
-            configuration: 'Aerobee-Hi'
+            configuration: 'XASR-1'
             flightDataMultiplier: 10
             flightDataEngineerModifier: 0.25
         -   name: 'TestFlightReliability'
-            configuration: 'Aerobee-Hi'
+            configuration: 'XASR-1'
             reliabilityCurve:
                 - '0 0.008372'
                 - '1000 0.005023'
                 - '4000 0.002512'
                 - '10000 0.000419'
         -   name: 'TestFlightReliability_EngineCycle'
-            configuration: 'Aerobee-Hi'
+            configuration: 'XASR-1'
             ratedBurnTime: 125
             cycle:
             - '0.00 5.00'
@@ -171,13 +171,13 @@ PartConfigs:
         # When referencing a block like this for use in a module, the blocks have to come BEFORE the module itself.  They will then get folded down into it
         -   *ShutdownEngine        
         -   name: 'TestFlightFailure_ShutdownEngine'
-            configuration: 'Aerobee-Hi'
+            configuration: 'XASR-1'
             weight: 16
             REPAIR:
             - *EasySoftware
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
-            configuration: 'Aerobee-Hi'
+            configuration: 'XASR-1'
             restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.95'
@@ -185,34 +185,34 @@ PartConfigs:
             ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
-            configuration: 'Aerobee-Hi'
+            configuration: 'XASR-1'
             weight: 16
             REPAIR:
             - *EasyMechanical
         -   *Explode
         -   name: 'TestFlightFailure_Explode'
-            configuration: 'Aerobee-Hi'
+            configuration: 'XASR-1'
             weight: 4
-    Aerobee-150: &Aerobee-150
+    AJ10-27: &AJ10-27
         -   name: 'TestFlightCore'
             maxData: 10000
-            configuration: 'engineConfig = Aerobee-150:Aerobee-150'
-            title: 'Aerobee 150'
-            techTransfer: 'WAC-Corporal,Aerobee-Hi:50'
+            configuration: 'engineConfig = AJ10-27:AJ10-27'
+            title: 'AJ10-27'
+            techTransfer: 'WAC-Corporal,XASR-1:50'
             techTransferMax: 5000
         -   name: 'FlightDataRecorder_Engine'
-            configuration: 'Aerobee-150'
+            configuration: 'AJ10-27'
             flightDataMultiplier: 10
             flightDataEngineerModifier: 0.25
         -   name: 'TestFlightReliability'
-            configuration: 'Aerobee-150'
+            configuration: 'AJ10-27'
             reliabilityCurve:
                 - '0 0.001036'
                 - '1000 0.000777'
                 - '3000 00.000518'
                 - '10000 0.000362'
         -   name: 'TestFlightReliability_EngineCycle'
-            configuration: 'Aerobee-150'
+            configuration: 'AJ10-27'
             ratedBurnTime: 125
             cycle:
             - '0.00 5.00'
@@ -222,7 +222,7 @@ PartConfigs:
         # When referencing a block like this for use in a module, the blocks have to come BEFORE the module itself.  They will then get folded down into it
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
-            configuration: 'Aerobee-150'
+            configuration: 'AJ10-27'
             restoreIgnitionCharge: false
             baseIgnitionChance:
             - '0 0.95'
@@ -230,19 +230,19 @@ PartConfigs:
             ignorePressureOnPad: true
         -   *ShutdownEngine        
         -   name: 'TestFlightFailure_ShutdownEngine'
-            configuration: 'Aerobee-150'
+            configuration: 'AJ10-27'
             weight: 16
             REPAIR:
             - *EasySoftware
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
-            configuration: 'Aerobee-150'
+            configuration: 'AJ10-27'
             weight: 16
             REPAIR:
             - *EasyMechanical
         -   *Explode
         -   name: 'TestFlightFailure_Explode'
-            configuration: 'Aerobee-150'
+            configuration: 'AJ10-27'
             weight: 4
     # X-405 Vanguard
     X-405: &X-405
@@ -306,7 +306,7 @@ PartConfigs:
             maxData: 10000
             configuration: 'engineConfig = AJ10-37:AJ10-37'
             title: 'AJ10-37'
-            techTransfer: 'WAC-Corporal,Aerobee-Hi,Aerobee-150:10'
+            techTransfer: 'WAC-Corporal,XASR-1,AJ10-27:10'
             techTransferMax: 1000
         -   name: 'FlightDataRecorder_Engine'
             configuration: 'AJ10-37'
@@ -508,27 +508,27 @@ PartConfigs:
         -   name: 'TestFlightFailure_Explode'
             configuration: 'AJ10-104D'
             weight: 4
-    # LR-79 / LR-89 Atlas/Thor Engines
+    # LR79 / LR89 Atlas/Thor Engines
     # Giving this a higher rated burn time more appropriate for Thor than Atlas, but since they are both crammed into one engine I don't have much of a choice
-    LR-89-NA-3: &LR-89-NA-3
+    LR89-NA-3: &LR89-NA-3
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             maxData: 10000
-            configuration: 'engineConfig = LR-89-NA-3:LR-89-NA-3'
-            title: 'LR-89-NA-3'
+            configuration: 'engineConfig = LR89-NA-3:LR89-NA-3'
+            title: 'LR89-NA-3'
         -   name: 'FlightDataRecorder_Engine'
-            configuration: 'LR-89-NA-3'
+            configuration: 'LR89-NA-3'
             flightDataMultiplier: 6
             flightDataEngineerModifier: 0.25
         -   name: 'TestFlightReliability'
-            configuration: 'LR-89-NA-3'
+            configuration: 'LR89-NA-3'
             reliabilityCurve:
                 - '0 0.000521'
                 - '1000 0.000260'
                 - '4000 0.000104'
                 - '10000 0.000052'
         -   name: 'TestFlightReliability_EngineCycle'
-            configuration: 'LR-89-NA-3'
+            configuration: 'LR89-NA-3'
             ratedBurnTime: 215
             cycle:
             - '0 10 0 -1.8'
@@ -539,13 +539,13 @@ PartConfigs:
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
         -   name: 'TestFlightFailure_ShutdownEngine'
-            configuration: 'LR-89-NA-3'
+            configuration: 'LR89-NA-3'
             weight: 32
             REPAIR:
             - *EasySoftware
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
-            configuration: 'LR-89-NA-3'
+            configuration: 'LR89-NA-3'
             restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.80'
@@ -557,34 +557,34 @@ PartConfigs:
             - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
-            configuration: 'LR-89-NA-3'
+            configuration: 'LR89-NA-3'
             weight: 32
             REPAIR:
             - *EasyMechanical
         -   *Explode
         -   name: 'TestFlightFailure_Explode'
-            configuration: 'LR-89-NA-3'
+            configuration: 'LR89-NA-3'
             weight: 4
-    # LR-105 Series engine used as sustainer on Atlas
-    LR-105-NA-3: &LR-105-NA-3
+    # LR105 Series engine used as sustainer on Atlas
+    LR105-NA-3: &LR105-NA-3
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             maxData: 10000
-            configuration: 'engineConfig = LR-105-NA-3:LR-105-NA-3'
-            title: 'LR-105-NA-3'
+            configuration: 'engineConfig = LR105-NA-3:LR105-NA-3'
+            title: 'LR105-NA-3'
         -   name: 'FlightDataRecorder_Engine'
-            configuration: 'LR-105-NA-3'
+            configuration: 'LR105-NA-3'
             flightDataMultiplier: 2.5
             flightDataEngineerModifier: 0.25
         -   name: 'TestFlightReliability'
-            configuration: 'LR-105-NA-3'
+            configuration: 'LR105-NA-3'
             reliabilityCurve:
                 - '0 0.000101'
                 - '2000 0.000061'
                 - '4000 0.000040'
                 - '10000 0.000015'
         -   name: 'TestFlightReliability_EngineCycle'
-            configuration: 'LR-105-NA-3'
+            configuration: 'LR105-NA-3'
             ratedBurnTime: 309
             cycle:
             - '0.00 20.00'
@@ -595,13 +595,13 @@ PartConfigs:
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
         -   name: 'TestFlightFailure_ShutdownEngine'
-            configuration: 'LR-105-NA-3'
+            configuration: 'LR105-NA-3'
             weight: 32
             REPAIR:
             - *EasySoftware
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
-            configuration: 'LR-105-NA-3'
+            configuration: 'LR105-NA-3'
             restoreIgnitionCharge: false
             baseIgnitionChance:
             - '0 0.90'
@@ -613,13 +613,13 @@ PartConfigs:
             - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
-            configuration: 'LR-105-NA-3'
+            configuration: 'LR105-NA-3'
             weight: 32
             REPAIR:
             - *EasyMechanical
         -   *Explode
         -   name: 'TestFlightFailure_Explode'
-            configuration: 'LR-105-NA-3'
+            configuration: 'LR105-NA-3'
             weight: 4
     # Bell 80XX Series engines used on Agena
     Bell-8048: &Bell-8048
@@ -995,26 +995,26 @@ PartConfigs:
         -   name: 'TestFlightFailure_Explode'
             configuration: 'A-7'
             weight: 4
-    # LR-87 Series Engine
-    LR-87-3: &LR-87-3
+    # LR87 Series Engine
+    LR87-3: &LR87-3
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             maxData: 10000
-            configuration: 'engineConfig = LR-87-3:LR-87-3'
-            title: 'LR-87-3'
+            configuration: 'engineConfig = LR87-3:LR87-3'
+            title: 'LR87-3'
         -   name: 'FlightDataRecorder_Engine'
-            configuration: 'LR-87-3'
+            configuration: 'LR87-3'
             flightDataMultiplier: 3.62
             flightDataEngineerModifier: 0.2
         -   name: 'TestFlightReliability'
-            configuration: 'LR-87-3'
+            configuration: 'LR87-3'
             reliabilityCurve:
                 - '0 0.000414'
                 - '1000 0.000331'
                 - '4000 0.000248'
                 - '10000 0.000124'
         -   name: 'TestFlightReliability_EngineCycle'
-            configuration: 'LR-87-3'
+            configuration: 'LR87-3'
             ratedBurnTime: 138
             cycle:
             - '0.00 10.00'
@@ -1025,13 +1025,13 @@ PartConfigs:
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
         -   name: 'TestFlightFailure_ShutdownEngine'
-            configuration: 'LR-87-3'
+            configuration: 'LR87-3'
             weight: 32
             REPAIR:
             - *EasySoftware
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
-            configuration: 'LR-87-3'
+            configuration: 'LR87-3'
             restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.80'
@@ -1043,34 +1043,34 @@ PartConfigs:
             - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
-            configuration: 'LR-87-3'
+            configuration: 'LR87-3'
             weight: 16
             REPAIR:
             - *EasyMechanical
         -   *Explode
         -   name: 'TestFlightFailure_Explode'
-            configuration: 'LR-87-3'
+            configuration: 'LR87-3'
             weight: 2
-    LR-87-5: &LR-87-5
+    LR87-5: &LR87-5
         -   name: 'TestFlightCore'
             maxData: 10000
-            configuration: 'engineConfig = LR-87-5:LR-87-5'
-            title: 'LR-87-5'
-            techTransfer: 'LR-87-3:50'
+            configuration: 'engineConfig = LR87-5:LR87-5'
+            title: 'LR87-5'
+            techTransfer: 'LR87-3:50'
             techTransferMax: 2000
         -   name: 'FlightDataRecorder_Engine'
-            configuration: 'LR-87-5'
+            configuration: 'LR87-5'
             flightDataMultiplier: 3.60
             flightDataEngineerModifier: 0.2
         -   name: 'TestFlightReliability'
-            configuration: 'LR-87-5'
+            configuration: 'LR87-5'
             reliabilityCurve:
                 - '0 0.000360'
                 - '2000 0.000252'
                 - '4000 0.000180'
                 - '10000 0.000090'
         -   name: 'TestFlightReliability_EngineCycle'
-            configuration: 'LR-87-5'
+            configuration: 'LR87-5'
             ratedBurnTime: 139
             cycle:
             - '0.00 10.00'
@@ -1081,13 +1081,13 @@ PartConfigs:
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
         -   name: 'TestFlightFailure_ShutdownEngine'
-            configuration: 'LR-87-5'
+            configuration: 'LR87-5'
             weight: 32
             REPAIR:
             - *EasySoftware
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
-            configuration: 'LR-87-5'
+            configuration: 'LR87-5'
             restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.90'
@@ -1099,34 +1099,34 @@ PartConfigs:
             - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
-            configuration: 'LR-87-5'
+            configuration: 'LR87-5'
             weight: 16
             REPAIR:
             - *EasyMechanical
         -   *Explode
         -   name: 'TestFlightFailure_Explode'
-            configuration: 'LR-87-5'
+            configuration: 'LR87-5'
             weight: 2
-    LR-87-7: &LR-87-7
+    LR87-7: &LR87-7
         -   name: 'TestFlightCore'
             maxData: 10000
-            configuration: 'engineConfig = LR-87-7:LR-87-7'
-            title: 'LR-87-7'
-            techTransfer: 'LR-87-3,LR-87-5:50'
+            configuration: 'engineConfig = LR87-7:LR87-7'
+            title: 'LR87-7'
+            techTransfer: 'LR87-3,LR87-5:50'
             techTransferMax: 2000
         -   name: 'FlightDataRecorder_Engine'
-            configuration: 'LR-87-7'
+            configuration: 'LR87-7'
             flightDataMultiplier: 3.60
             flightDataEngineerModifier: 0.2
         -   name: 'TestFlightReliability'
-            configuration: 'LR-87-7'
+            configuration: 'LR87-7'
             reliabilityCurve:
                 - '0 0.000360'
                 - '2000 0.000216'
                 - '4000 0.000126'
                 - '10000 0.000072'
         -   name: 'TestFlightReliability_EngineCycle'
-            configuration: 'LR-87-7'
+            configuration: 'LR87-7'
             ratedBurnTime: 139
             cycle:
             - '0.00 10.00'
@@ -1137,13 +1137,13 @@ PartConfigs:
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
         -   name: 'TestFlightFailure_ShutdownEngine'
-            configuration: 'LR-87-7'
+            configuration: 'LR87-7'
             weight: 32
             REPAIR:
             - *EasySoftware
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
-            configuration: 'LR-87-7'
+            configuration: 'LR87-7'
             restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.90'
@@ -1155,34 +1155,34 @@ PartConfigs:
             - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
-            configuration: 'LR-87-7'
+            configuration: 'LR87-7'
             weight: 16
             REPAIR:
             - *EasyMechanical
         -   *Explode
         -   name: 'TestFlightFailure_Explode'
-            configuration: 'LR-87-7'
+            configuration: 'LR87-7'
             weight: 2
-    LR-87-9: &LR-87-9
+    LR87-9: &LR87-9
         -   name: 'TestFlightCore'
             maxData: 10000
-            configuration: 'engineConfig = LR-87-9:LR-87-9'
-            title: 'LR-87-9'
-            techTransfer: 'LR-87-3,LR-87-5,LR-87-7:50'
+            configuration: 'engineConfig = LR87-9:LR87-9'
+            title: 'LR87-9'
+            techTransfer: 'LR87-3,LR87-5,LR87-7:50'
             techTransferMax: 2000
         -   name: 'FlightDataRecorder_Engine'
-            configuration: 'LR-87-9'
+            configuration: 'LR87-9'
             flightDataMultiplier: 3.40
             flightDataEngineerModifier: 0.2
         -   name: 'TestFlightReliability'
-            configuration: 'LR-87-9'
+            configuration: 'LR87-9'
             reliabilityCurve:
                 - '0 0.000309'
                 - '2000 0.000170'
                 - '4000 0.000093'
                 - '10000 0.000062'
         -   name: 'TestFlightReliability_EngineCycle'
-            configuration: 'LR-87-9'
+            configuration: 'LR87-9'
             ratedBurnTime: 147
             cycle:
             - '0.00 10.00'
@@ -1193,13 +1193,13 @@ PartConfigs:
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
         -   name: 'TestFlightFailure_ShutdownEngine'
-            configuration: 'LR-87-9'
+            configuration: 'LR87-9'
             weight: 32
             REPAIR:
             - *EasySoftware
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
-            configuration: 'LR-87-9'
+            configuration: 'LR87-9'
             restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.98'
@@ -1211,34 +1211,34 @@ PartConfigs:
             - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
-            configuration: 'LR-87-9'
+            configuration: 'LR87-9'
             weight: 16
             REPAIR:
             - *EasyMechanical
         -   *Explode
         -   name: 'TestFlightFailure_Explode'
-            configuration: 'LR-87-9'
+            configuration: 'LR87-9'
             weight: 2
-    LR-87-11: &LR-87-11
+    LR87-11: &LR87-11
         -   name: 'TestFlightCore'
             maxData: 10000
-            configuration: 'engineConfig = LR-87-11:LR-87-11'
-            title: 'LR-87-11'
-            techTransfer: 'LR-87-3,LR-87-5,LR-87-7,LR-87-9:50'
+            configuration: 'engineConfig = LR87-11:LR87-11'
+            title: 'LR87-11'
+            techTransfer: 'LR87-3,LR87-5,LR87-7,LR87-9:50'
             techTransferMax: 2000
         -   name: 'FlightDataRecorder_Engine'
-            configuration: 'LR-87-11'
+            configuration: 'LR87-11'
             flightDataMultiplier: 3.11
             flightDataEngineerModifier: 0.2
         -   name: 'TestFlightReliability'
-            configuration: 'LR-87-11'
+            configuration: 'LR87-11'
             reliabilityCurve:
                 - '0 0.000166'
                 - '2000 0.000099'
                 - '4000 0.000050'
                 - '10000 0.000017'
         -   name: 'TestFlightReliability_EngineCycle'
-            configuration: 'LR-87-11'
+            configuration: 'LR87-11'
             ratedBurnTime: 161
             cycle:
             - '0.00 10.00'
@@ -1249,13 +1249,13 @@ PartConfigs:
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
         -   name: 'TestFlightFailure_ShutdownEngine'
-            configuration: 'LR-87-11'
+            configuration: 'LR87-11'
             weight: 32
             REPAIR:
             - *EasySoftware
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
-            configuration: 'LR-87-11'
+            configuration: 'LR87-11'
             restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.98'
@@ -1267,34 +1267,34 @@ PartConfigs:
             - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
-            configuration: 'LR-87-11'
+            configuration: 'LR87-11'
             weight: 16
             REPAIR:
             - *EasyMechanical
         -   *Explode
         -   name: 'TestFlightFailure_Explode'
-            configuration: 'LR-87-11'
+            configuration: 'LR87-11'
             weight: 2
-    LR-87-11A: &LR-87-11A
+    LR87-11A: &LR87-11A
         -   name: 'TestFlightCore'
             maxData: 10000
-            configuration: 'engineConfig = LR-87-11A:LR-87-11A'
-            title: 'LR-87-11A'
-            techTransfer: 'LR-87-3,LR-87-5,LR-87-7,LR-87-9,LR-87-11:50'
+            configuration: 'engineConfig = LR87-11A:LR87-11A'
+            title: 'LR87-11A'
+            techTransfer: 'LR87-3,LR87-5,LR87-7,LR87-9,LR87-11:50'
             techTransferMax: 2000
         -   name: 'FlightDataRecorder_Engine'
-            configuration: 'LR-87-11A'
+            configuration: 'LR87-11A'
             flightDataMultiplier: 3.05
             flightDataEngineerModifier: 0.2
         -   name: 'TestFlightReliability'
-            configuration: 'LR-87-11A'
+            configuration: 'LR87-11A'
             reliabilityCurve:
                 - '0 0.000081'
                 - '2000 0.000041'
                 - '4000 0.000016'
                 - '10000 0.000004'
         -   name: 'TestFlightReliability_EngineCycle'
-            configuration: 'LR-87-11A'
+            configuration: 'LR87-11A'
             ratedBurnTime: 164
             cycle:
             - '0.00 10.00'
@@ -1305,13 +1305,13 @@ PartConfigs:
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
         -   name: 'TestFlightFailure_ShutdownEngine'
-            configuration: 'LR-87-11A'
+            configuration: 'LR87-11A'
             weight: 32
             REPAIR:
             - *EasySoftware
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
-            configuration: 'LR-87-11A'
+            configuration: 'LR87-11A'
             restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.98'
@@ -1323,35 +1323,35 @@ PartConfigs:
             - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
-            configuration: 'LR-87-11A'
+            configuration: 'LR87-11A'
             weight: 16
             REPAIR:
             - *EasyMechanical
         -   *Explode
         -   name: 'TestFlightFailure_Explode'
-            configuration: 'LR-87-11A'
+            configuration: 'LR87-11A'
             weight: 2
-# LR-91 Series Engine
-    LR-91-5: &LR-91-5
+# LR91 Series Engine
+    LR91-5: &LR91-5
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             maxData: 10000
-            configuration: 'engineConfig = LR-91-5:LR-91-5'
-            title: 'LR-91-5'
+            configuration: 'engineConfig = LR91-5:LR91-5'
+            title: 'LR91-5'
             techTransferMax: 2000
         -   name: 'FlightDataRecorder_Engine'
-            configuration: 'LR-91-5'
+            configuration: 'LR91-5'
             flightDataMultiplier: 3.60
             flightDataEngineerModifier: 0.2
         -   name: 'TestFlightReliability'
-            configuration: 'LR-91-5'
+            configuration: 'LR91-5'
             reliabilityCurve:
                 - '0 0.000360'
                 - '2000 0.000252'
                 - '4000 0.000180'
                 - '10000 0.000090'
         -   name: 'TestFlightReliability_EngineCycle'
-            configuration: 'LR-91-5'
+            configuration: 'LR91-5'
             ratedBurnTime: 185
             cycle:
             - '0.00 10.00'
@@ -1362,13 +1362,13 @@ PartConfigs:
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
         -   name: 'TestFlightFailure_ShutdownEngine'
-            configuration: 'LR-91-5'
+            configuration: 'LR91-5'
             weight: 32
             REPAIR:
             - *EasySoftware
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
-            configuration: 'LR-91-5'
+            configuration: 'LR91-5'
             restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.90'
@@ -1380,34 +1380,34 @@ PartConfigs:
             - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
-            configuration: 'LR-91-5'
+            configuration: 'LR91-5'
             weight: 16
             REPAIR:
             - *EasyMechanical
         -   *Explode
         -   name: 'TestFlightFailure_Explode'
-            configuration: 'LR-91-5'
+            configuration: 'LR91-5'
             weight: 2
-    LR-91-7: &LR-91-7
+    LR91-7: &LR91-7
         -   name: 'TestFlightCore'
             maxData: 10000
-            configuration: 'engineConfig = LR-91-7:LR-91-7'
-            title: 'LR-91-7'
-            techTransfer: 'LR-91-5:50'
+            configuration: 'engineConfig = LR91-7:LR91-7'
+            title: 'LR91-7'
+            techTransfer: 'LR91-5:50'
             techTransferMax: 2000
         -   name: 'FlightDataRecorder_Engine'
-            configuration: 'LR-91-7'
+            configuration: 'LR91-7'
             flightDataMultiplier: 3.60
             flightDataEngineerModifier: 0.2
         -   name: 'TestFlightReliability'
-            configuration: 'LR-91-7'
+            configuration: 'LR91-7'
             reliabilityCurve:
                 - '0 0.000360'
                 - '2000 0.000216'
                 - '4000 0.000126'
                 - '10000 0.000072'
         -   name: 'TestFlightReliability_EngineCycle'
-            configuration: 'LR-91-7'
+            configuration: 'LR91-7'
             ratedBurnTime: 182.5
             cycle:
             - '0.00 10.00'
@@ -1418,13 +1418,13 @@ PartConfigs:
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
         -   name: 'TestFlightFailure_ShutdownEngine'
-            configuration: 'LR-91-7'
+            configuration: 'LR91-7'
             weight: 32
             REPAIR:
             - *EasySoftware
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
-            configuration: 'LR-91-7'
+            configuration: 'LR91-7'
             restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.90'
@@ -1436,34 +1436,34 @@ PartConfigs:
             - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
-            configuration: 'LR-91-7'
+            configuration: 'LR91-7'
             weight: 16
             REPAIR:
             - *EasyMechanical
         -   *Explode
         -   name: 'TestFlightFailure_Explode'
-            configuration: 'LR-91-7'
+            configuration: 'LR91-7'
             weight: 2
-    LR-91-9: &LR-91-9
+    LR91-9: &LR91-9
         -   name: 'TestFlightCore'
             maxData: 10000
-            configuration: 'engineConfig = LR-91-9:LR-91-9'
-            title: 'LR-91-9'
-            techTransfer: 'LR-91-5,LR-91-7:50'
+            configuration: 'engineConfig = LR91-9:LR91-9'
+            title: 'LR91-9'
+            techTransfer: 'LR91-5,LR91-7:50'
             techTransferMax: 2000
         -   name: 'FlightDataRecorder_Engine'
-            configuration: 'LR-91-9'
+            configuration: 'LR91-9'
             flightDataMultiplier: 3.40
             flightDataEngineerModifier: 0.2
         -   name: 'TestFlightReliability'
-            configuration: 'LR-91-9'
+            configuration: 'LR91-9'
             reliabilityCurve:
                 - '0 0.000309'
                 - '2000 0.000170'
                 - '4000 0.000093'
                 - '10000 0.000062'
         -   name: 'TestFlightReliability_EngineCycle'
-            configuration: 'LR-91-9'
+            configuration: 'LR91-9'
             ratedBurnTime: 208
             cycle:
             - '0.00 10.00'
@@ -1474,13 +1474,13 @@ PartConfigs:
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
         -   name: 'TestFlightFailure_ShutdownEngine'
-            configuration: 'LR-91-9'
+            configuration: 'LR91-9'
             weight: 32
             REPAIR:
             - *EasySoftware
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
-            configuration: 'LR-91-9'
+            configuration: 'LR91-9'
             restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.98'
@@ -1492,34 +1492,34 @@ PartConfigs:
             - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
-            configuration: 'LR-91-9'
+            configuration: 'LR91-9'
             weight: 16
             REPAIR:
             - *EasyMechanical
         -   *Explode
         -   name: 'TestFlightFailure_Explode'
-            configuration: 'LR-91-9'
+            configuration: 'LR91-9'
             weight: 2
-    LR-91-11: &LR-91-11
+    LR91-11: &LR91-11
         -   name: 'TestFlightCore'
             maxData: 10000
-            configuration: 'engineConfig = LR-91-11:LR-91-11'
-            title: 'LR-91-11'
-            techTransfer: 'LR-91-5,LR-91-7,LR-91-9:50'
+            configuration: 'engineConfig = LR91-11:LR91-11'
+            title: 'LR91-11'
+            techTransfer: 'LR91-5,LR91-7,LR91-9:50'
             techTransferMax: 2000
         -   name: 'FlightDataRecorder_Engine'
-            configuration: 'LR-91-11'
+            configuration: 'LR91-11'
             flightDataMultiplier: 3.11
             flightDataEngineerModifier: 0.2
         -   name: 'TestFlightReliability'
-            configuration: 'LR-91-11'
+            configuration: 'LR91-11'
             reliabilityCurve:
                 - '0 0.000166'
                 - '2000 0.000099'
                 - '4000 0.000050'
                 - '10000 0.000017'
         -   name: 'TestFlightReliability_EngineCycle'
-            configuration: 'LR-91-11'
+            configuration: 'LR91-11'
             ratedBurnTime: 205
             cycle:
             - '0.00 10.00'
@@ -1530,13 +1530,13 @@ PartConfigs:
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
         -   name: 'TestFlightFailure_ShutdownEngine'
-            configuration: 'LR-91-11'
+            configuration: 'LR91-11'
             weight: 32
             REPAIR:
             - *EasySoftware
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
-            configuration: 'LR-91-11'
+            configuration: 'LR91-11'
             restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.98'
@@ -1548,34 +1548,34 @@ PartConfigs:
             - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
-            configuration: 'LR-91-11'
+            configuration: 'LR91-11'
             weight: 16
             REPAIR:
             - *EasyMechanical
         -   *Explode
         -   name: 'TestFlightFailure_Explode'
-            configuration: 'LR-91-11'
+            configuration: 'LR91-11'
             weight: 2
-    LR-91-11A: &LR-91-11A
+    LR91-11A: &LR91-11A
         -   name: 'TestFlightCore'
             maxData: 10000
-            configuration: 'engineConfig = LR-91-11A:LR-91-11A'
-            title: 'LR-91-11A'
-            techTransfer: 'LR-91-5,LR-91-7,LR-91-9,LR-91-11:50'
+            configuration: 'engineConfig = LR91-11A:LR91-11A'
+            title: 'LR91-11A'
+            techTransfer: 'LR91-5,LR91-7,LR91-9,LR91-11:50'
             techTransferMax: 2000
         -   name: 'FlightDataRecorder_Engine'
-            configuration: 'LR-91-11A'
+            configuration: 'LR91-11A'
             flightDataMultiplier: 3.05
             flightDataEngineerModifier: 0.2
         -   name: 'TestFlightReliability'
-            configuration: 'LR-91-11A'
+            configuration: 'LR91-11A'
             reliabilityCurve:
                 - '0 0.000081'
                 - '2000 0.000041'
                 - '4000 0.000016'
                 - '10000 0.000004'
         -   name: 'TestFlightReliability_EngineCycle'
-            configuration: 'LR-91-11A'
+            configuration: 'LR91-11A'
             ratedBurnTime: 205
             cycle:
             - '0.00 10.00'
@@ -1586,13 +1586,13 @@ PartConfigs:
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
         -   name: 'TestFlightFailure_ShutdownEngine'
-            configuration: 'LR-91-11A'
+            configuration: 'LR91-11A'
             weight: 32
             REPAIR:
             - *EasySoftware
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
-            configuration: 'LR-91-11A'
+            configuration: 'LR91-11A'
             restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.98'
@@ -1604,13 +1604,13 @@ PartConfigs:
             - '50000 0.15'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
-            configuration: 'LR-91-11A'
+            configuration: 'LR91-11A'
             weight: 16
             REPAIR:
             - *EasyMechanical
         -   *Explode
         -   name: 'TestFlightFailure_Explode'
-            configuration: 'LR-91-11A'
+            configuration: 'LR91-11A'
             weight: 2            
     # RL10 Series Vacuum Engine
     RL10A-1: &RL10A-1
@@ -2227,8 +2227,8 @@ Parts:
     - '@PART[ROAerobeeSustainer]:AFTER[RealismOverhaul]'
     configs:
     - *WAC-Corporal
-    - *Aerobee-Hi
-    - *Aerobee-150
+    - *XASR-1
+    - *AJ10-27
 -   part: 'X-405'
     patterns:
     - '@PART[SXTX405]:AFTER[RP-0]'
@@ -2242,18 +2242,18 @@ Parts:
     - *AJ10-42
     - *AJ10-142
     - *AJ10-104D
--   part: 'LR-89-NA-3'
+-   part: 'LR89-NA-3'
     patterns:
     - '@PART[RO-LR-89]:AFTER[RealismOverhaul]'
     - '@PART[FASAMercuryAtlasEngBooster]:AFTER[RealismOverhaul]'
     configs:
-    - *LR-89-NA-3
--   part: 'LR-105-NA-3'
+    - *LR89-NA-3
+-   part: 'LR105-NA-3'
     patterns:
     - '@PART[liquidEngine]:AFTER[RealismOverhaul]'
     - '@PART[FASAMercuryAtlasEng]:AFTER[RealismOverhaul]'
     configs:
-    - *LR-105-NA-3
+    - *LR105-NA-3
 -   part: 'Bell-80xx'
     patterns:
     - '@PART[FASAAgena_Engine]:AFTER[RealismOverhaul]'
@@ -2278,26 +2278,26 @@ Parts:
     configs:
     - *A-6
     - *A-7
--   part: 'LR-87'
+-   part: 'LR87'
     patterns:
     - '@PART[liquidEngineprodulVR2]:AFTER[RealismOverhaul]'
     - '@PART[FASAGeminiLR87Twin]:AFTER[RealismOverhaul]'
     configs:
-    - *LR-87-3
-    - *LR-87-5
-    - *LR-87-7
-    - *LR-87-9
-    - *LR-87-11
-    - *LR-87-11A
--   part: 'LR-91'
+    - *LR87-3
+    - *LR87-5
+    - *LR87-7
+    - *LR87-9
+    - *LR87-11
+    - *LR87-11A
+-   part: 'LR91'
     patterns:
     - '@PART[FASAGeminiLR91]:AFTER[RealismOverhaul]'
     configs:
-    - *LR-91-5
-    - *LR-91-7
-    - *LR-91-9
-    - *LR-91-11
-    - *LR-91-11A
+    - *LR91-5
+    - *LR91-7
+    - *LR91-9
+    - *LR91-11
+    - *LR91-11A
 -   part: 'RL10'
     patterns:
     - '@PART[engineLargeSkipper]:AFTER[RealismOverhaul]'
