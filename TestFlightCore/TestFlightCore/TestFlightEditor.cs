@@ -259,7 +259,7 @@ namespace TestFlightCore
                 {
                     core.InitializeFlightData(flightData);
                     GUILayout.BeginHorizontal();
-                    float failureRate = core.GetBaseFailureRate();
+                    double failureRate = core.GetBaseFailureRate();
                     String mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
                     // 10 characters for body max plus 10 characters for situation plus underscore = 21 characters needed for longest scope string
                     GUILayout.Label(String.Format("{0,-7:F2}<b>du</b>", flightData), GUILayout.Width(75));

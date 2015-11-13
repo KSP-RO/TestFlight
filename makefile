@@ -4,9 +4,15 @@ CONFIG_DIR = configs
 VERSION = $(shell git describe --tags)
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD 2>&1)
 
+ifdef TRAVIS_TAG
 ZIP_CORE := TestFlightCore-$(TRAVIS_TAG).zip
 ZIP_RO := TestFlightConfigRO-$(TRAVIS_TAG).zip
 ZIP_STOCK := TestFlightConfigStock-$(TRAVIS_TAG).zip
+else
+ZIP_CORE := TestFlightCore-$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER).zip
+ZIP_RO := TestFlightConfigRO-$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER).zip
+ZIP_STOCK := TestFlightConfigStock-$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER).zip
+endif
 
 all: clean meta configs
 	cp -r GameData/TestFlight/ ~/Dropbox/KSP/TestFlight/
@@ -15,6 +21,13 @@ install: clean
 	-rm ~/Developer/KSP/1.0/TestFlightDEV/Dev/GameData/TestFlight/Config/*.cfg
 	cd $(CONFIG_DIR);python compileYamlConfigs.py Stock
 	cp $(CONFIG_DIR)/Stock/*.cfg GameData/TestFlight/Config
+	cp -r GameData/TestFlight/ ~/Dropbox/KSP/TestFlight/
+	cp -r GameData/TestFlight/ ~/Developer/KSP/1.0/TestFlightDEV/Dev/GameData/TestFlight/
+
+install-ro: clean
+	-rm ~/Developer/KSP/1.0/TestFlightDEV/Dev/GameData/TestFlight/Config/*.cfg
+	cd $(CONFIG_DIR);python compileYamlConfigs.py RealismOverhaul
+	cp $(CONFIG_DIR)/RealismOverhaul/*.cfg GameData/TestFlight/Config
 	cp -r GameData/TestFlight/ ~/Dropbox/KSP/TestFlight/
 	cp -r GameData/TestFlight/ ~/Developer/KSP/1.0/TestFlightDEV/Dev/GameData/TestFlight/
 
@@ -55,3 +68,18 @@ clean:
 	-rm GameData/TestFlight/*.ckan
 	-rm *.version
 	-rm *.ckan
+
+ifdef TRAVIS_TAG
+deploy:
+else
+ifeq ($(TRAVIS_SECURE_ENV_VARS),true)
+deploy:
+	@curl --ftp-create-dirs -T ${ZIP_CORE} -u ${FTP_USER}:${FTP_PASSWD} ftp://stantonspacebarn.com/webapps/buildtracker/builds/TestFlight/build_$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER)/$(ZIP_CORE)
+	@curl --ftp-create-dirs -T ${ZIP_STOCK} -u ${FTP_USER}:${FTP_PASSWD} ftp://stantonspacebarn.com/webapps/buildtracker/builds/TestFlight/build_$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER)/$(ZIP_STOCK)
+	@curl --ftp-create-dirs -T ${ZIP_RO} -u ${FTP_USER}:${FTP_PASSWD} ftp://stantonspacebarn.com/webapps/buildtracker/builds/TestFlight/build_$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER)/$(ZIP_RO)
+	python buildServer.py all --project-id 0 --project-name TestFlight --build-name $(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER) --changelog changes.md --files $(ZIP_CORE) $(ZIP_STOCK) $(ZIP_RO)
+else
+deploy:
+	echo No secure environment available. Skipping deploy.
+endif
+endif

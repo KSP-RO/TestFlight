@@ -107,7 +107,7 @@ namespace TestFlightCore
             return core.GetRequirementsTooltip();
         }
         // Get the base or static failure rate
-        public static float GetBaseFailureRate(Part part)
+        public static double GetBaseFailureRate(Part part)
         {
             ITestFlightCore core = TestFlightInterface.GetCore(part);
             if (core == null)
@@ -128,7 +128,7 @@ namespace TestFlightCore
         // These  methods will let you get a list of all momentary rates or you can get the best (lowest chance of failure)/worst (highest chance of failure) rates
         // Note that the return value is alwasy a dictionary.  The key is the name of the trigger, always in lowercase.  The value is the failure rate.
         // The dictionary will be a single entry in the case of Worst/Best calls, and will be the length of total triggers in the case of askign for All momentary rates.
-        public static float GetWorstMomentaryFailureRateValue(Part part)
+        public static double GetWorstMomentaryFailureRateValue(Part part)
         {
             ITestFlightCore core = TestFlightInterface.GetCore(part);
             if (core == null)
@@ -141,7 +141,7 @@ namespace TestFlightCore
             else
                 return -1;
         }
-        public static float GetBestMomentaryFailureRate(Part part)
+        public static double GetBestMomentaryFailureRate(Part part)
         {
             ITestFlightCore core = TestFlightInterface.GetCore(part);
             if (core == null)
@@ -153,7 +153,7 @@ namespace TestFlightCore
             else
                 return -1;
         }
-        public static float GetMomentaryFailureRateForTrigger(Part part, String trigger)
+        public static double GetMomentaryFailureRateForTrigger(Part part, String trigger)
         {
             ITestFlightCore core = TestFlightInterface.GetCore(part);
             if (core == null)
@@ -163,7 +163,7 @@ namespace TestFlightCore
         }
         // The momentary failure rate is tracked per named "trigger" which allows multiple Reliability or FailureTrigger modules to cooperate
         // Returns the total modified failure rate back to the caller for convenience
-        public static float SetTriggerMomentaryFailureModifier(Part part, String trigger, float multiplier, PartModule owner)
+        public static double SetTriggerMomentaryFailureModifier(Part part, String trigger, double multiplier, PartModule owner)
         {
             ITestFlightCore core = TestFlightInterface.GetCore(part);
             if (core == null)
@@ -175,11 +175,11 @@ namespace TestFlightCore
         // Returned string will be of the format "123.00 units"
         // Optionally specify a maximum size for MTBF.  If the given units would return an MTBF larger than maximu, it will 
         // automaticly be converted into progressively higher units until the returned value is <= maximum
-        public static String FailureRateToMTBFString(Part part, float failureRate, int units)
+        public static String FailureRateToMTBFString(Part part, double failureRate, int units)
         {
             return TestFlightInterface.FailureRateToMTBFString(part, failureRate, units, false, int.MaxValue);
         }
-        public static String FailureRateToMTBFString(Part part, float failureRate, int units, int maximum)
+        public static String FailureRateToMTBFString(Part part, double failureRate, int units, int maximum)
         {
             return TestFlightInterface.FailureRateToMTBFString(part, failureRate, units, false, maximum);
         }
@@ -187,11 +187,11 @@ namespace TestFlightCore
         // So the returned string will be EF "12.00s" or "0.20d"
         // Optionally specify a maximum size for MTBF.  If the given units would return an MTBF larger than maximu, it will 
         // automaticly be converted into progressively higher units until the returned value is <= maximum
-        public static String FailureRateToMTBFString(Part part, float failureRate, int units, bool shortForm)
+        public static String FailureRateToMTBFString(Part part, double failureRate, int units, bool shortForm)
         {
             return TestFlightInterface.FailureRateToMTBFString(part, failureRate, units, shortForm, int.MaxValue);
         }
-        public static String FailureRateToMTBFString(Part part, float failureRate, int units, bool shortForm, int maximum)
+        public static String FailureRateToMTBFString(Part part, double failureRate, int units, bool shortForm, int maximum)
         {
             ITestFlightCore core = TestFlightInterface.GetCore(part);
             if (core == null)
@@ -199,13 +199,13 @@ namespace TestFlightCore
             return core.FailureRateToMTBFString(failureRate, (TestFlightUtil.MTBFUnits)units, shortForm, maximum);
         }
         // Simply converts the failure rate to a MTBF number, without any string formatting
-        public static float FailureRateToMTBF(Part part, float failureRate, int units)
+        public static double FailureRateToMTBF(Part part, double failureRate, int units)
         {
             ITestFlightCore core = TestFlightInterface.GetCore(part);
             if (core == null)
             {
-                failureRate = Mathf.Max((float)failureRate, (float)TestFlightUtil.MIN_FAILURE_RATE);
-                float mtbfSeconds = 1.0f / failureRate;
+                failureRate = Math.Max(failureRate, TestFlightUtil.MIN_FAILURE_RATE);
+                double mtbfSeconds = 1.0f / failureRate;
                 return mtbfSeconds;
             }
 
