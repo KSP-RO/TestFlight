@@ -26,8 +26,8 @@ build = int(version.split(".")[3])
 avc = {
 	"NAME" : "TestFlight",
 	"URL" : "http://ksp-avc.cybutek.net/version.php?id=118",
-	"DOWNLOAD" : "https://github.com/jwvanderbeck/TestFlight/releases/download/{}/TestFlight-{}.zip".format(args.tag[0],args.tag[0]),
-	"CHANGE_LOG_URL" : "https://github.com/jwvanderbeck/TestFlight/releases/tag/{}".format(args.tag[0]),
+	"DOWNLOAD" : "https://github.com/KSP-RO/TestFlight/releases/download/{}/TestFlight-{}.zip".format(args.tag[0],args.tag[0]),
+	"CHANGE_LOG_URL" : "https://github.com/KSP-RO/TestFlight/releases/tag/{}".format(args.tag[0]),
 	"VERSION" :
 	{
 		"MAJOR" : major,

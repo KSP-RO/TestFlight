@@ -13,9 +13,9 @@ As of 30 January 2015, TestFlight is has separate releases for Stock and Realism
 
 Stock
 -----
-[![Build Status Master](https://travis-ci.org/jwvanderbeck/TestFlight.svg?branch=master)](https://travis-ci.org/jwvanderbeck/TestFlight)
+[![Build Status Master](https://travis-ci.org/KSP-RO/TestFlight.svg?branch=master)](https://travis-ci.org/jwvanderbeck/TestFlight)
 
-Latest Release: [v0.4.5 Alpha Stock](https://github.com/jwvanderbeck/TestFlight/releases/tag/0.4.5-Stock)    
+Latest Release: [v0.4.5 Alpha Stock](https://github.com/KSP-RO/TestFlight/releases/tag/0.4.5-Stock)    
 Forum Thread: [KSP Add Ons Development Thread](http://forum.kerbalspaceprogram.com/threads/88187)    
 GitHub: https://github.com/jwvanderbeck/TestFlight    
 Bug Reports & Feature Requests: https://github.com/jwvanderbeck/TestFlight/issues    
@@ -38,12 +38,12 @@ I am looking for people willing to volunteer to help build better configs for st
 
 Realism Overhaul
 ----------------
-[![Build Status RealismOverhaul](https://travis-ci.org/jwvanderbeck/TestFlight.svg?branch=RealismOverhaul)](https://travis-ci.org/jwvanderbeck/TestFlight) 
+[![Build Status RealismOverhaul](https://travis-ci.org/KSP-RO/TestFlight.svg?branch=RealismOverhaul)](https://travis-ci.org/jwvanderbeck/TestFlight) 
 
-Latest Release: [v0.4.5 Alpha RealismOverhaul](https://github.com/jwvanderbeck/TestFlight/releases/tag/0.4.5.1-RealismOverhaul)    
+Latest Release: [v0.4.5 Alpha RealismOverhaul](https://github.com/KSP-RO/TestFlight/releases/tag/0.4.5.1-RealismOverhaul)    
 Forum Thread: [KSP Add Ons Development Thread](http://forum.kerbalspaceprogram.com/threads/88187)    
-GitHub: https://github.com/jwvanderbeck/TestFlight/RealismOverhaul    
-Bug Reports & Feature Requests: https://github.com/jwvanderbeck/TestFlight/issues    
+GitHub: https://github.com/KSP-RO/TestFlight/RealismOverhaul    
+Bug Reports & Feature Requests: https://github.com/KSP-RO/TestFlight/issues    
 Waffle Status Board: https://waffle.io/jwvanderbeck/TestFlight
 
 **Config Status**
