@@ -60,6 +60,46 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Failure Bases\TestFlightFailureBase_Avionics.cs" />
+    <Compile Include="Failure Bases\TestFlightFailureBase_Docking.cs" />
+    <Compile Include="Failure Bases\TestFlightFailureBase_FARCtrlSrf.cs" />
+    <Compile Include="Failure Bases\TestFlightFailureBase_Gimbal.cs" />
+    <Compile Include="Failure Bases\TestFlightFailureBase_ReactionWheel.cs" />
+    <Compile Include="Failure Bases\TestFlightFailureBase_Solar.cs" />
+    <Compile Include="Failure Bases\TestFlightFailureBase_Wheel.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_AblatorCover.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_Animation.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_AvionicsAxis.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_AvionicsClamp.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_AvionicsDeadzone.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_AvionicsGlitch.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_AvionicsInvert.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_AvionicsPartial.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_AvionicsTotal.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_DockingClamp.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_DockingFeed.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_EngineCoolant.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_FARCtrlSrfGlitch.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_FARCtrlSrfMech.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_GimbalCenter.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_GimbalSpeed.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_LightBroken.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_ReactionBroken.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_ReactionTorque.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_ResourcePump.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_SolarMech.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_WheelBrake.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_WheelMotor.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_WheelSteer.cs" />
+    <Compile Include="Flight Recorders\FlightDataRecorder_DockingPort.cs" />
+    <Compile Include="Flight Recorders\FlightDataRecorder_FARCtrlSrf.cs" />
+    <Compile Include="Flight Recorders\FlightDataRecorder_HeatShield.cs" />
+    <Compile Include="Flight Recorders\FlightDataRecorder_Intake.cs" />
+    <Compile Include="Flight Recorders\FlightDataRecorder_Lights.cs" />
+    <Compile Include="Flight Recorders\FlightDataRecorder_RCS.cs" />
+    <Compile Include="Flight Recorders\FlightDataRecorder_ReactionWheel.cs" />
+    <Compile Include="Flight Recorders\FlightDataRecorder_Solar.cs" />
+    <Compile Include="Flight Recorders\FlightDataRecorder_Wheels.cs" />
     <Compile Include="KSPFramework\MonoBehaviourExtended.cs">
       <SubType>Code</SubType>
     </Compile>
