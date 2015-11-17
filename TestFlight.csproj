@@ -75,6 +75,7 @@
     <Compile Include="Failure Modules\TestFlightFailure_AvionicsGlitch.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_AvionicsInvert.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_AvionicsPartial.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_AvionicsThrustJam.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_AvionicsTotal.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_DockingClamp.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_DockingFeed.cs" />
@@ -88,6 +89,7 @@
     <Compile Include="Failure Modules\TestFlightFailure_ReactionTorque.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_ResourcePump.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_SolarMech.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_SolarTracking.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_WheelBrake.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_WheelMotor.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_WheelSteer.cs" />
