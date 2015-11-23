@@ -19,7 +19,7 @@ deploy:
   - TestFlightConfigStock*.zip
   skip_cleanup: true
   on:
-    repo: jwvanderbeck/TestFlight
+    repo: KSP-RO/TestFlight
     tags: true
     all_branches: true
 notifications:
