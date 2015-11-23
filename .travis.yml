@@ -2,7 +2,7 @@ language: python
 python:
 - '2.7'
 before_install:
-  - git log --no-merges -n 1 > changes.md
+- git log --no-merges -n 1 > changes.md
 install:
 - pip install -r requirements.txt
 script:
@@ -11,7 +11,7 @@ script:
 deploy:
   provider: releases
   api_key:
-    secure: LRM8ZzPgJUALKL7/ls9RvqmFoksE+Gq7+ud+l5ha+by7ptb1FWRXEjIWoELC8ieFioAi2aXKcYASKnwkIqmcwkH556mK+E4xaohdqN1jndVYxbe/Dle+cHO0G6vRjQWPJdp17sLlKKBfrt0p+JblqVf5tS3GoR5MVMeZp5/xThY=
+    secure: Wm7wncirAYROoMUb5wQ+F+FJcqJ94ROgNTCZkTAO8EniR/WmN66fOBYOoAQkxjPaVlH0yZGmVKrBkuI58B6o8X2hCVaCfUz7611JxwQvcpX5YZaMO1yH1ukr5kGXnE+iVE/ebA06WSincnnNKC+Sx/AWZaCoFjEHnHSeSGADMsw=
   file_glob: true
   file:
   - TestFlightCore*.zip
@@ -25,7 +25,7 @@ deploy:
 notifications:
   irc:
     channels:
-    - irc.esper.net#TestFlight
+    - irc.esper.net#RO
     skip_join: true
     use_notice: true
     on_success: change
