@@ -55,16 +55,24 @@ def compileFloatCurve(name, node, depth = 2):
 
 def compile(pattern, partConfig, data):
 	cachedModule = {}
-	moduleString = pattern + "\n{\n" 
+	moduleString = pattern + "\n{\n"
+	overrideConfig = None
+	for module in partConfig:
+		if "name" in module and module['name'] == "ConfigurationOverride":
+			overrideConfig = module['configuration']
 	for module in partConfig:
 		if not "name" in module:
 			cachedModule = module
 			continue
+		if "name" in module and module['name'] == "ConfigurationOverride":
+			continue;
 		if cachedModule != None and len(cachedModule) > 1:
 			module.update(cachedModule)
 			cachedModule = {}
 		moduleString += "\n\tMODULE\n\t{\n"
 		for key,value in module.iteritems():
+			if key == "configuration" and not module['name'] == "TestFlightCore" and overrideConfig:
+				value = overrideConfig
 			if isinstance(value,list):
 				if isinstance(value[0],dict):
 					for node in value:
