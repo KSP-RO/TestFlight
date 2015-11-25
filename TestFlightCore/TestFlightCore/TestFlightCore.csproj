@@ -95,5 +95,9 @@
       <Name>TestFlightAPI</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Framework\" />
+    <Folder Include="FrameworkExt\" />
+  </ItemGroup>
   <ItemGroup />
 </Project>
