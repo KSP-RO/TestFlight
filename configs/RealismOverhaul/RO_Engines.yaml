@@ -2220,6 +2220,79 @@ PartConfigs:
         -   *RL10C-1-ReducedMaxThrust
         -   *Explode
         -   *RL10C-1-Explode
+    Template_BoosterEarly: &BoosterEarly
+        -   &BoosterEarly-DataRecorderEngine
+            name: 'FlightDataRecorder_Engine'
+            configuration: ''
+            flightDataMultiplier: 5.0
+            flightDataEngineerModifier: 0.5
+        -   &BoosterEarly-Reliability
+            name: 'TestFlightReliability'
+            configuration: ''
+            reliabilityCurve:
+                - '0 0.024'
+                - '1000 0.0144'
+                - '4000 0.0072'
+                - '10000 0.0048'
+        -   &BoosterEarly-EngineCycle
+            name: 'TestFlightReliability_EngineCycle'
+            configuration: ''
+            ratedBurnTime: 180
+            cycle:
+            - '0.00 5.00'
+            - '5.00 1.00 -0.8 0'
+            - '180.00 1.00 0 0'
+            - '240.70 200.00'
+        # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
+        # Only ONE block will be folded down though!
+        -   *ShutdownEngine        
+        -   &BoosterEarly-ShutdownEngine
+            name: 'TestFlightFailure_ShutdownEngine'
+            configuration: ''
+            weight: 32
+            REPAIR:
+            - *EasySoftware
+        -   *IgnitionFail
+        -   &BoosterEarly-IgnitionFail
+            name: 'TestFlightFailure_IgnitionFail'
+            configuration: ''
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.1'            
+            - '10000 0.1'
+            ignorePressureOnPad: true
+        -   *ReducedMaxThrust
+        -   &BoosterEarly-ReducedMaxThrust
+            name: 'TestFlightFailure_ReducedMaxThrust'
+            configuration: ''
+            weight: 16
+            REPAIR:
+            - *EasyMechanical
+        -   *Explode
+        -   &BoosterEarly-Explode
+            name: 'TestFlightFailure_Explode'
+            configuration: ''
+            weight: 2
+    WAC-Test: &WAC-Test
+        -   name: 'ConfigurationOverride'
+            configuration: 'WAC-Corporal'
+        -   name: 'TestFlightInterop'
+        -   name: 'TestFlightCore'
+            maxData: 10000
+            configuration: 'engineConfig = WAC-Corporal:WAC-Corporal'
+            title: 'WAC Corporal'
+            startFlightData: 500
+        -   *BoosterEarly-Reliability
+        -   *BoosterEarly-EngineCycle
+        -   *BoosterEarly-DataRecorderEngine
+        -   *ShutdownEngine        
+        -   *BoosterEarly-ShutdownEngine
+        -   *IgnitionFail
+        -   *BoosterEarly-IgnitionFail
+        -   *ReducedMaxThrust
+        -   *BoosterEarly-ReducedMaxThrust
+        -   *Explode
+        -   *BoosterEarly-Explode
 # And here we actually take all the stuff defined above and apply it to actual parts
 Parts:
 -   part: 'WAC-Corporal'
