@@ -46,6 +46,8 @@ namespace TestFlightCore
         public float maxData = 0f;
         [KSPField(isPersistant=true)]
         public float failureRateModifier = 1f;
+        [KSPField]
+        public int scienceDataValue = 0;
 
         private double baseFailureRate;
         // We store the base, or initial, flight data for calculation of Base Failure Rate
