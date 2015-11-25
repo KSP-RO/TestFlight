@@ -9,26 +9,17 @@ namespace TestFlight.Failure_Modules
 {
     public class TestFlightFailure_SolarTracking : TestFlightFailureBase_Solar
     {
+        private float trackingSpeed = 0f;
         public override void DoFailure()
         {
             base.DoFailure();
+            this.trackingSpeed = base.module.trackingSpeed;
             base.module.trackingSpeed = 0;
         }
         public override float DoRepair()
         {
             base.DoRepair();
-            if (base.part != null && base.part.partInfo != null)
-            {
-                Part pf = base.part.partInfo.partPrefab;
-                if (pf != null)
-                {
-                    ModuleDeployableSolarPanel pm = (ModuleDeployableSolarPanel)pf.Modules.OfType<ModuleDeployableSolarPanel>();
-                    if (pm != null)
-                    {
-                        base.module.trackingSpeed = pm.trackingSpeed;
-                    }
-                }
-            }
+            base.module.trackingSpeed = this.trackingSpeed;
             return 0f;
         }
     }
