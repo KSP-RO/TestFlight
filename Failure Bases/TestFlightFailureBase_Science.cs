@@ -10,9 +10,9 @@ namespace TestFlight
     public class TestFlightFailureBase_Science : TestFlightFailureBase
     {
         protected ModuleScienceExperiment module;
-        public override void OnStart(PartModule.StartState state)
+        public override void OnAwake()
         {
-            base.OnStart(state);
+            base.OnAwake();
             this.module = base.part.FindModuleImplementing<ModuleScienceExperiment>();
         }
     }

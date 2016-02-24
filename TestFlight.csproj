@@ -91,6 +91,7 @@
     <Compile Include="Failure Modules\TestFlightFailure_ResourcePump.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_ScienceBroken.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_ScienceCollect.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_ScienceXmit.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_SolarMech.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_SolarTracking.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_WheelBrake.cs" />
