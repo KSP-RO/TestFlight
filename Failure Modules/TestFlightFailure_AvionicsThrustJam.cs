@@ -31,7 +31,7 @@ namespace TestFlight.Failure_Modules
             }
             return 0f;
         }
-        public override void OnFlyByWire(FlightCtrlState s)
+        public void OnFlyByWire(FlightCtrlState s)
         {
             s.mainThrottle = this.throttle;
         }

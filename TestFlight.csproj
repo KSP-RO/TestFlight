@@ -65,6 +65,7 @@
     <Compile Include="Failure Bases\TestFlightFailureBase_FARCtrlSrf.cs" />
     <Compile Include="Failure Bases\TestFlightFailureBase_Gimbal.cs" />
     <Compile Include="Failure Bases\TestFlightFailureBase_ReactionWheel.cs" />
+    <Compile Include="Failure Bases\TestFlightFailureBase_Science.cs" />
     <Compile Include="Failure Bases\TestFlightFailureBase_Solar.cs" />
     <Compile Include="Failure Bases\TestFlightFailureBase_Wheel.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_AblatorCover.cs" />
@@ -88,6 +89,8 @@
     <Compile Include="Failure Modules\TestFlightFailure_ReactionBroken.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_ReactionTorque.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_ResourcePump.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_ScienceBroken.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_ScienceCollect.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_SolarMech.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_SolarTracking.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_WheelBrake.cs" />
@@ -100,6 +103,7 @@
     <Compile Include="Flight Recorders\FlightDataRecorder_Lights.cs" />
     <Compile Include="Flight Recorders\FlightDataRecorder_RCS.cs" />
     <Compile Include="Flight Recorders\FlightDataRecorder_ReactionWheel.cs" />
+    <Compile Include="Flight Recorders\FlightDataRecorder_Science.cs" />
     <Compile Include="Flight Recorders\FlightDataRecorder_Solar.cs" />
     <Compile Include="Flight Recorders\FlightDataRecorder_Wheels.cs" />
     <Compile Include="KSPFramework\MonoBehaviourExtended.cs">
@@ -126,6 +130,7 @@
     <Compile Include="TestFlightReliability_EngineCycle.cs" />
     <Compile Include="TestFlightFailure_IgnitionFail.cs" />
     <Compile Include="TestFlightFailure_Engine.cs" />
+    <Compile Include="TestFlightReliability_TestFail.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
