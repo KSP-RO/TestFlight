@@ -296,3 +296,49 @@
 		severity = failure
 	}
 }
+//prevents experiment being used until repaired
+@PART[*]:HAS[@MODULE[ModuleScienceExperiment]:HAS[~experimentID[evaReport],~experimentID[crewReport],~experimentID[surfaceSample],~experimentID[asteroidSample]]]:FOR[TestFlight]
+{
+	MODULE
+	{
+		name = TestFlightInterop
+	}
+	MODULE
+	{
+		name = TestFlightCore
+		startFlightData = 0
+		maxData = 10000
+	}
+	MODULE
+	{
+		name = FlightDataRecorder_Science
+		flightDataEngineerModifier = 0
+		flightDataMultiplier = 2
+	}
+	MODULE
+	{
+		name = TestFlightReliability
+		reliabilityCurve
+		{
+			key = 0 0.005
+			key = 10000 0.002
+		}
+	}
+	MODULE
+	{
+		REPAIR
+		{
+			canBeRepairedInFlight = True
+			canBeRepairedOnSplashed = True
+			canBeRepairedByRemote = False
+			repairChance = 75
+		}
+		name = TestFlightFailure_ScienceBroken
+		weight = 8
+		failureType = hardware
+		failureTitle = Seal cracked
+		duRepair = 250
+		duFail = 100
+		severity = failure
+	}
+}
