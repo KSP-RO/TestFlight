@@ -12,17 +12,20 @@ namespace TestFlight
     {
         protected string modName = "";
         protected PartModule module;
-        public override void OnAwake()
+        public override void OnStart(PartModule.StartState state)
         {
-            base.OnAwake();
+            base.OnStart(state);
             this.module = base.part.Modules[this.modName];
         }
         public void SetValue(string fieldName, object value)
         {
-            FieldInfo field = this.module.GetType().GetField(fieldName);
-            if (field != null)
+            if (this.module != null)
             {
-                field.SetValue(module, value);
+                FieldInfo field = this.module.GetType().GetField(fieldName);
+                if (field != null)
+                {
+                    field.SetValue(module, value);
+                }
             }
         }
     }
