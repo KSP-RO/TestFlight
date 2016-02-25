@@ -53,37 +53,38 @@ namespace TestFlight
         {
             if (base.vessel == null || base.vessel != FlightGlobals.ActiveVessel || base.part.isControlSource)
             {
-                switch (this.failedState)
-                {
-                    case FailedState.Pitch:
-                        s.pitch = Calculate(s.pitch);
-                        break;
-                    case FailedState.Roll:
-                        s.roll = Calculate(s.roll);
-                        break;
-                    case FailedState.Yaw:
-                        s.yaw = Calculate(s.yaw);
-                        break;
-                    case FailedState.Rotate:
-                        s.pitch = Calculate(s.pitch);
-                        s.roll = Calculate(s.roll);
-                        s.yaw = Calculate(s.yaw);
-                        break;
-                    case FailedState.TranX:
-                        s.X = Calculate(s.X);
-                        break;
-                    case FailedState.TranY:
-                        s.Y = Calculate(s.Y);
-                        break;
-                    case FailedState.TranZ:
-                        s.Z = Calculate(s.Z);
-                        break;
-                    case FailedState.Translate:
-                        s.X = Calculate(s.X);
-                        s.Y = Calculate(s.Y);
-                        s.Z = Calculate(s.Z);
-                        break;
-                }
+                return;
+            }
+            switch (this.failedState)
+            {
+                case FailedState.Pitch:
+                    s.pitch = Calculate(s.pitch);
+                    break;
+                case FailedState.Roll:
+                    s.roll = Calculate(s.roll);
+                    break;
+                case FailedState.Yaw:
+                    s.yaw = Calculate(s.yaw);
+                    break;
+                case FailedState.Rotate:
+                    s.pitch = Calculate(s.pitch);
+                    s.roll = Calculate(s.roll);
+                    s.yaw = Calculate(s.yaw);
+                    break;
+                case FailedState.TranX:
+                    s.X = Calculate(s.X);
+                    break;
+                case FailedState.TranY:
+                    s.Y = Calculate(s.Y);
+                    break;
+                case FailedState.TranZ:
+                    s.Z = Calculate(s.Z);
+                    break;
+                case FailedState.Translate:
+                    s.X = Calculate(s.X);
+                    s.Y = Calculate(s.Y);
+                    s.Z = Calculate(s.Z);
+                    break;
             }
         }
 
