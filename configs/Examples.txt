@@ -342,3 +342,48 @@
 		severity = failure
 	}
 }
+@PART[*]:HAS[@MODULE[ModuleRTAntenna]]:FOR[TestFlight]
+{
+	MODULE
+	{
+		name = TestFlightInterop
+	}
+	MODULE
+	{
+		name = TestFlightCore
+		startFlightData = 0
+		maxData = 10000
+	}
+	MODULE
+	{
+		name = FlightDataRecorder_RT
+		flightDataEngineerModifier = 0
+		flightDataMultiplier = 2
+	}
+	MODULE
+	{
+		name = TestFlightReliability
+		reliabilityCurve
+		{
+			key = 0 0.005
+			key = 10000 0.002
+		}
+	}
+	MODULE
+	{
+		REPAIR
+		{
+			canBeRepairedInFlight = True
+			canBeRepairedOnSplashed = True
+			canBeRepairedByRemote = False
+			repairChance = 75
+		}
+		name = TestFlightFailure_RemoteBroken
+		weight = 8
+		failureType = hardware
+		failureTitle = Circuits fried
+		duRepair = 250
+		duFail = 100
+		severity = failure
+	}
+}
