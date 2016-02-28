@@ -40,20 +40,20 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\..\KSP.app\Contents\Data\Managed\Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>..\..\..\..\KSP.app\Contents\Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>..\..\..\..\KSP.app\Contents\Data\Managed\UnityEngine.dll</HintPath>
-    </Reference>
     <Reference Include="TestFlightAPI">
       <HintPath>..\..\..\..\GameData\TestFlight\Plugins\TestFlightAPI.dll</HintPath>
     </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\..\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>..\..\..\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\..\Managed\UnityEngine.dll</HintPath>
+    </Reference>
     <Reference Include="ContractConfigurator">
-      <HintPath>..\..\..\..\GameData\ContractConfigurator\ContractConfigurator.dll</HintPath>
+      <HintPath>..\..\..\Managed\ContractConfigurator.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
