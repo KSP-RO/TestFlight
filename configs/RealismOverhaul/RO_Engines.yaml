@@ -456,26 +456,78 @@ PartConfigs:
         -   name: 'TestFlightFailure_Explode'
             configuration: 'AJ10-142'
             weight: 4
-    AJ10-104D: &AJ10-104D
+        AJ10-101A: &AJ10-101A
         -   name: 'TestFlightCore'
             maxData: 10000
-            configuration: 'engineConfig = AJ10-104D:AJ10-104D'
-            title: 'AJ10-104D'
-            techTransfer: 'AJ10-37,AJ10-42,AJ10-142:50'
+            configuration: 'engineConfig = AJ10-101A:AJ10-101A'
+            title: 'AJ10-101A'
+            techTransfer: 'AJ10-37,AJ10-42:50'
             techTransferMax: 2000
         -   name: 'FlightDataRecorder_Engine'
-            configuration: 'AJ10-104D'
+            configuration: 'AJ10-101A'
             flightDataMultiplier: 2
             flightDataEngineerModifier: 0.25
         -   name: 'TestFlightReliability'
-            configuration: 'AJ10-104D'
+            configuration: 'AJ10-101A'
+            reliabilityCurve:
+                - '0 0.000471'
+                - '2000 0.000376'
+                - '4000 0.000235'
+                - '10000 0.000094'
+        -   name: 'TestFlightReliability_EngineCycle'
+            configuration: 'AJ10-101A'
+            ratedBurnTime: 240
+            cycle:
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
+            - '245.00 1.00 0 0'
+            - '485.00 200.00'
+        # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
+        # Only ONE block will be folded down though!
+        -   *ShutdownEngine        
+        -   name: 'TestFlightFailure_ShutdownEngine'
+            configuration: 'AJ10-101A'
+            weight: 32
+            REPAIR:
+            - *EasySoftware
+        -   *IgnitionFail
+        -   name: 'TestFlightFailure_IgnitionFail'
+            configuration: 'AJ10-101A'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.95'
+            - '10000 0.995'
+            ignorePressureOnPad: true
+        -   *ReducedMaxThrust
+        -   name: 'TestFlightFailure_ReducedMaxThrust'
+            configuration: 'AJ10-101A'
+            weight: 32
+            REPAIR:
+            - *EasyMechanical
+        -   *Explode
+        -   name: 'TestFlightFailure_Explode'
+            configuration: 'AJ10-101A'
+            weight: 4
+    AJ10-118: &AJ10-118
+        -   name: 'TestFlightCore'
+            maxData: 10000
+            configuration: 'engineConfig = AJ10-118:AJ10-118'
+            title: 'AJ10-118'
+            techTransfer: 'AJ10-37,AJ10-42,AJ10-142:50'
+            techTransferMax: 2000
+        -   name: 'FlightDataRecorder_Engine'
+            configuration: 'AJ10-118'
+            flightDataMultiplier: 2
+            flightDataEngineerModifier: 0.25
+        -   name: 'TestFlightReliability'
+            configuration: 'AJ10-118'
             reliabilityCurve:
                 - '0 0.000419'
                 - '2000 0.000188'
                 - '4000 0.000126'
                 - '10000 0.000021'
         -   name: 'TestFlightReliability_EngineCycle'
-            configuration: 'AJ10-104D'
+            configuration: 'AJ10-118'
             ratedBurnTime: 377
             cycle:
             - '0.00 10.00'
@@ -486,13 +538,13 @@ PartConfigs:
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
         -   name: 'TestFlightFailure_ShutdownEngine'
-            configuration: 'AJ10-104D'
+            configuration: 'AJ10-118'
             weight: 32
             REPAIR:
             - *EasySoftware
         -   *IgnitionFail
         -   name: 'TestFlightFailure_IgnitionFail'
-            configuration: 'AJ10-104D'
+            configuration: 'AJ10-118'
             restoreIgnitionCharge: false
             baseIgnitionChance: 
             - '0 0.98'
@@ -500,13 +552,65 @@ PartConfigs:
             ignorePressureOnPad: true
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
-            configuration: 'AJ10-104D'
+            configuration: 'AJ10-118'
             weight: 32
             REPAIR:
             - *EasyMechanical
         -   *Explode
         -   name: 'TestFlightFailure_Explode'
-            configuration: 'AJ10-104D'
+            configuration: 'AJ10-118'
+            weight: 4
+    AJ10-118D: &AJ10-118D
+        -   name: 'TestFlightCore'
+            maxData: 10000
+            configuration: 'engineConfig = AJ10-118D:AJ10-118D'
+            title: 'AJ10-118D'
+            techTransfer: 'AJ10-37,AJ10-42,AJ10-142,AJ10-118:50'
+            techTransferMax: 2000
+        -   name: 'FlightDataRecorder_Engine'
+            configuration: 'AJ10-118D'
+            flightDataMultiplier: 2
+            flightDataEngineerModifier: 0.25
+        -   name: 'TestFlightReliability'
+            configuration: 'AJ10-118D'
+            reliabilityCurve:
+                - '0 0.000419'
+                - '2000 0.000188'
+                - '4000 0.000126'
+                - '10000 0.000021'
+        -   name: 'TestFlightReliability_EngineCycle'
+            configuration: 'AJ10-118D'
+            ratedBurnTime: 377
+            cycle:
+            - '0.00 10.00'
+            - '5.00 1.00 -0.8 0'
+            - '382.00 1.00 0 0'
+            - '457.40 200.00'
+        # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
+        # Only ONE block will be folded down though!
+        -   *ShutdownEngine        
+        -   name: 'TestFlightFailure_ShutdownEngine'
+            configuration: 'AJ10-118D'
+            weight: 32
+            REPAIR:
+            - *EasySoftware
+        -   *IgnitionFail
+        -   name: 'TestFlightFailure_IgnitionFail'
+            configuration: 'AJ10-118D'
+            restoreIgnitionCharge: false
+            baseIgnitionChance: 
+            - '0 0.98'
+            - '0 0.998'
+            ignorePressureOnPad: true
+        -   *ReducedMaxThrust
+        -   name: 'TestFlightFailure_ReducedMaxThrust'
+            configuration: 'AJ10-118D'
+            weight: 32
+            REPAIR:
+            - *EasyMechanical
+        -   *Explode
+        -   name: 'TestFlightFailure_Explode'
+            configuration: 'AJ10-118D'
             weight: 4
     # LR79 / LR89 Atlas/Thor Engines
     # Giving this a higher rated burn time more appropriate for Thor than Atlas, but since they are both crammed into one engine I don't have much of a choice
@@ -2240,8 +2344,10 @@ Parts:
     configs:
     - *AJ10-37
     - *AJ10-42
+    - *AJ10-101A
     - *AJ10-142
-    - *AJ10-104D
+    - *AJ10-118
+    - *AJ10-118D
 -   part: 'LR89-NA-3'
     patterns:
     - '@PART[RO-LR-89]:AFTER[RealismOverhaul]'
