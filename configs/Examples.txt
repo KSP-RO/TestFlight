@@ -387,3 +387,65 @@
 		severity = failure
 	}
 }
+@PART[*]:HAS[@MODULE[FARControllableSurface]]:FOR[TestFlight]
+{
+	MODULE
+	{
+		name = TestFlightInterop
+	}
+	MODULE
+	{
+		name = TestFlightCore
+		startFlightData = 0
+		maxData = 10000
+	}
+	MODULE
+	{
+		name = FlightDataRecorder
+		flightDataEngineerModifier = 0
+		flightDataMultiplier = 1
+	}
+	MODULE
+	{
+		name = TestFlightReliability
+		reliabilityCurve
+		{
+			key = 0 0.0005
+			key = 10000 0.0002
+		}
+	}
+	MODULE
+	{ //USE ON FLAPS PARTS glitches flaps to a position
+		REPAIR
+		{
+			canBeRepairedInFlight = True
+			canBeRepairedOnSplashed = True
+			canBeRepairedByRemote = False
+			repairChance = 75
+		}
+		name = TestFlightFailure_FARCtrlSrfGlitch
+		weight = 8
+		failureType = mechanical
+		failureTitle = Flaps jammed
+		duRepair = 250
+		duFail = 100
+		severity = failure
+	}
+		MODULE
+	{
+		REPAIR
+		{
+			canBeRepairedInFlight = True
+			canBeRepairedOnSplashed = True
+			canBeRepairedByRemote = False
+			repairChance = 75
+		}
+		name = TestFlightFailure_FARCtrlSrfMech
+		weight = 8
+		failureType = hardware
+		failureTitle = Control loss
+		duRepair = 250
+		duFail = 100
+		severity = failure
+	}
+}
