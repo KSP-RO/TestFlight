@@ -300,6 +300,7 @@ PartConfigs:
             configuration: 'X-405'
             weight: 4
     #AJ10 Series
+    #Vanguard
     AJ10-37: &AJ10-37
         -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
@@ -352,6 +353,7 @@ PartConfigs:
         -   name: 'TestFlightFailure_Explode'
             configuration: 'AJ10-37'
             weight: 4
+    #Thor-Able I
     AJ10-42: &AJ10-42
         -   name: 'TestFlightCore'
             maxData: 10000
@@ -404,6 +406,7 @@ PartConfigs:
         -   name: 'TestFlightFailure_Explode'
             configuration: 'AJ10-42'
             weight: 4
+    #Thor-Delta
     AJ10-142: &AJ10-142
         -   name: 'TestFlightCore'
             maxData: 10000
@@ -456,7 +459,8 @@ PartConfigs:
         -   name: 'TestFlightFailure_Explode'
             configuration: 'AJ10-142'
             weight: 4
-        AJ10-101A: &AJ10-101A
+    #Able II
+    AJ10-101A: &AJ10-101A
         -   name: 'TestFlightCore'
             maxData: 10000
             configuration: 'engineConfig = AJ10-101A:AJ10-101A'
@@ -508,6 +512,7 @@ PartConfigs:
         -   name: 'TestFlightFailure_Explode'
             configuration: 'AJ10-101A'
             weight: 4
+    #Delta A
     AJ10-118: &AJ10-118
         -   name: 'TestFlightCore'
             maxData: 10000
@@ -560,6 +565,7 @@ PartConfigs:
         -   name: 'TestFlightFailure_Explode'
             configuration: 'AJ10-118'
             weight: 4
+    #Delta B-D
     AJ10-118D: &AJ10-118D
         -   name: 'TestFlightCore'
             maxData: 10000
