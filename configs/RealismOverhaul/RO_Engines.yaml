@@ -1253,8 +1253,8 @@ PartConfigs:
             cycle:
             - '0.00 10.00'
             - '5.00 1.00 -0.8 0'
-            - '144.00 1.00 0 0'
-            - '213.50 100.00'
+            - '185.00 1.00 0 0'
+            - '275.00 100.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
@@ -1299,18 +1299,18 @@ PartConfigs:
         -   name: 'TestFlightReliability'
             configuration: 'LR91-AJ-7'
             reliabilityCurve:
-                - '0 0.000360'
-                - '2000 0.000216'
-                - '4000 0.000126'
-                - '10000 0.000072'
+                - '0 0.000180'
+                - '2000 0.000110'
+                - '4000 0.000060'
+                - '10000 0.000036'
         -   name: 'TestFlightReliability_EngineCycle'
             configuration: 'LR91-AJ-7'
             ratedBurnTime: 182.5
             cycle:
             - '0.00 10.00'
             - '5.00 1.00 -0.8 0'
-            - '144.00 1.00 0 0'
-            - '213.50 100.00'
+            - '215.00 1.00 0 0'
+            - '320.00 100.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
@@ -1324,8 +1324,8 @@ PartConfigs:
             configuration: 'LR91-AJ-7'
             restoreIgnitionCharge: false
             baseIgnitionChance: 
-            - '0 0.90'
-            - '10000 0.975'
+            - '0 0.95'
+            - '10000 0.985'
             ignorePressureOnPad: true
             pressureCurve:
             - '0 1.0'
@@ -1365,8 +1365,8 @@ PartConfigs:
             cycle:
             - '0.00 10.00'
             - '5.00 1.00 -0.8 0'
-            - '152.00 1.00 0 0'
-            - '225.50 100.00'
+            - '215.00 1.00 0 0'
+            - '320.00 100.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
@@ -1421,8 +1421,8 @@ PartConfigs:
             cycle:
             - '0.00 10.00'
             - '5.00 1.00 -0.8 0'
-            - '166.00 1.00 0 0'
-            - '246.50 150.00'
+            - '215.00 1.00 0 0'
+            - '320.00 150.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
@@ -1477,8 +1477,8 @@ PartConfigs:
             cycle:
             - '0.00 10.00'
             - '5.00 1.00 -0.8 0'
-            - '169.00 1.00 0 0'
-            - '251.00 150.00'
+            - '245.00 1.00 0 0'
+            - '365.00 150.00'
         # When referencing a block like this for use in a module, the block has to come BEFORE the module itself.  They will then get folded down into it
         # Only ONE block will be folded down though!
         -   *ShutdownEngine        
