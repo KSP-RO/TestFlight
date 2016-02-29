@@ -75,7 +75,7 @@ namespace TestFlightCore
                 if (string.IsNullOrEmpty(Configuration))
                     return true;
                 
-                string[] ops = { "=", "!=", "<", "<=", ">", ">=", "<>", "<=>" };
+                string[] ops = { "=", "!=", "<", "<=", ">", ">=", "<>", "<=>", "$==", "$=" };
                 bool opFound = false;
                 foreach (string op in ops)
                 {
