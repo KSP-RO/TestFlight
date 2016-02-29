@@ -237,9 +237,9 @@ namespace TestFlightAPI
         {
             block = block.ToLower();
             // The meat of the evaluation is done here
-            if (block.Contains("|"))
+            if (block.Contains(" "))
             {
-                string[] parts = block.Split(new char[1] {'|'});
+                string[] parts = block.Split(new char[1] {' '});
                 if (parts.Length < 3)
                     return false;
 
@@ -264,26 +264,6 @@ namespace TestFlightAPI
                     return false;
                 switch (op)
                 {
-                    case "$==" :
-                        switch (val.valueType)
-                        {
-                            case InteropValueType.STRING:
-                                if (val.value.ToLowerInvariant() == term.ToLowerInvariant())
-                                    return true;
-                                else
-                                    return false;
-                        }
-                        break;
-                    case "$=" :
-                        switch (val.valueType)
-                        {
-                            case InteropValueType.STRING:
-                                if (val.value.ToLowerInvariant().StartsWith(term.ToLowerInvariant()))
-                                    return true;
-                                else
-                                    return false;
-                        }
-                        break;
                     case "=":
                         switch (val.valueType)
                         {
