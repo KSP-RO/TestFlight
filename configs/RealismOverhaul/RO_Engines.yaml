@@ -2226,6 +2226,7 @@ Parts:
     - *LR87-AJ-9
     - *LR87-AJ-11
     - *LR87-AJ-11A
+    - *LR87-AJ-LH2-TitanC
 -   part: 'LR91'
     patterns:
     - '@PART[FASAGeminiLR91]:AFTER[RealismOverhaul]'
