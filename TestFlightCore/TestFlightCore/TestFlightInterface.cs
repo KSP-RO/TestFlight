@@ -8,14 +8,6 @@ namespace TestFlightCore
 {
     public class TestFlightInterface : MonoBehaviour
     {
-        // TODO
-        // Move this into the new "Settings" class that needs to be created *AFTER* merging in with master (or else it will be a really nasty merge)
-        public static float DeepSpaceThreshold
-        {
-            get { return 10000000; }
-        }
-
-
         public static bool TestFlightInstalled()
         {
             return true;
