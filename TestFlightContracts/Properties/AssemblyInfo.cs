@@ -25,3 +25,6 @@ using System.Runtime.CompilerServices;
 //[assembly: AssemblyDelaySign(false)]
 //[assembly: AssemblyKeyFile("")]
 
+
+[assembly: KSPAssemblyDependency("TestFlightAPI", 1, 5)]
+[assembly: KSPAssemblyDependency("ContractConfigurator", 1, 0)]
