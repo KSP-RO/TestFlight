@@ -992,9 +992,11 @@ PartConfigs:
             - '10000 0.95'
             ignorePressureOnPad: true
             pressureCurve:
-            - '0 1.0'
-            - '5000 0.7'
-            - '50000 0.15'
+            - '0 1 0 0'
+            - '500 1 0 0'
+            - '10000 0.7 -8.558777E-05 -8.558777E-05'
+            - '20000 0.27 -9.402294E-06 -9.402294E-06'
+            - '50000 0.15 0 0'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'LR87-AJ-LH2-TitanC'
@@ -1104,9 +1106,11 @@ PartConfigs:
             - '10000 0.995'
             ignorePressureOnPad: true
             pressureCurve:
-            - '0 1.0'
-            - '5000 0.7'
-            - '50000 0.15'
+            - '0 1 0 0'
+            - '500 1 0 0'
+            - '10000 0.7 -8.558777E-05 -8.558777E-05'
+            - '20000 0.27 -9.402294E-06 -9.402294E-06'
+            - '50000 0.15 0 0'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'LR87-AJ-9'
@@ -1160,9 +1164,11 @@ PartConfigs:
             - '10000 0.99975'
             ignorePressureOnPad: true
             pressureCurve:
-            - '0 1.0'
-            - '5000 0.7'
-            - '50000 0.15'
+            - '0 1 0 0'
+            - '500 1 0 0'
+            - '10000 0.7 -8.558777E-05 -8.558777E-05'
+            - '20000 0.27 -9.402294E-06 -9.402294E-06'
+            - '50000 0.15 0 0'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'LR87-AJ-11'
@@ -1216,9 +1222,11 @@ PartConfigs:
             - '10000 0.9999'
             ignorePressureOnPad: true
             pressureCurve:
-            - '0 1.0'
-            - '5000 0.7'
-            - '50000 0.15'
+            - '0 1 0 0'
+            - '500 1 0 0'
+            - '10000 0.7 -8.558777E-05 -8.558777E-05'
+            - '20000 0.27 -9.402294E-06 -9.402294E-06'
+            - '50000 0.15 0 0'
         -   *ReducedMaxThrust
         -   name: 'TestFlightFailure_ReducedMaxThrust'
             configuration: 'LR87-AJ-11A'
