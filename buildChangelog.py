@@ -26,15 +26,16 @@ if not args.branch:
 	args.branch = "master"
 
 if (args.tag):
-	releaseURL = urllib.urlopen("https://api.github.com/repos/jwvanderbeck/TestFlight/releases/tags/" + args.tag)
+	releaseURL = urllib.urlopen("https://api.github.com/repos/KSP-RO/TestFlight/releases/tags/" + args.tag)
 else:
-	releaseURL = urllib.urlopen("https://api.github.com/repos/jwvanderbeck/TestFlight/releases/latest")
+	releaseURL = urllib.urlopen("https://api.github.com/repos/KSP-RO/TestFlight/releases/latest")
 latestRelease = json.load(releaseURL)
+print latestRelease
 sinceDate = latestRelease["created_at"]
 print "Getting since date: " + sinceDate
 print "Using branch: " + args.branch
-commitsURL = urllib.urlopen("https://api.github.com/repos/jwvanderbeck/TestFlight/commits?since=" + sinceDate + "&sha=" + args.branch)
-print "https://api.github.com/repos/jwvanderbeck/TestFlight/commits?since=" + sinceDate + "?sha=" + args.branch
+commitsURL = urllib.urlopen("https://api.github.com/repos/KSP-RO/TestFlight/commits?since=" + sinceDate + "&sha=" + args.branch)
+print "https://api.github.com/repos/KSP-RO/TestFlight/commits?since=" + sinceDate + "?sha=" + args.branch
 commits = json.load(commitsURL)
 print commits
 
