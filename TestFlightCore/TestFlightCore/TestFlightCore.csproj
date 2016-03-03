@@ -35,7 +35,7 @@
     <CustomCommands>
       <CustomCommands>
         <Command type="AfterBuild" command="cp ${TargetFile} ${TargetDir}/../../../../GameData/TestFlight/Plugins" />
-        <Command type="AfterBuild" command="cp -r /Users/john/Developer/KSP/0.90/TestFlightDEV/Dev/_DEV/GitHub/TestFlight/GameData /Users/john/Developer/KSP/0.90/TestFlightDEV/Dev/" />
+        <Command type="AfterBuild" command="cp -r /Users/john/Developer/KSP/1.0/TestFlightDEV/Dev/_DEV/GitHub/TestFlight/GameData /Users/john/Developer/KSP/1.0/TestFlightDEV/Dev/" />
       </CustomCommands>
     </CustomCommands>
   </PropertyGroup>
