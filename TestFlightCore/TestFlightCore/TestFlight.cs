@@ -464,8 +464,6 @@ namespace TestFlightCore
                                     masterStatusItem.allPartsStatus.Add(partStatus);
                                     masterStatus.Add(vessel.id, masterStatusItem);
                                 }
-                                string partName = TestFlightUtil.GetFullPartName(part);
-                                tfScenario.SetFlightDataForPartName(partName, partStatus.flightData);
                             }
                         }
                     }

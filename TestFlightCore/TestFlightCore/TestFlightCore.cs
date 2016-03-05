@@ -492,24 +492,33 @@ namespace TestFlightCore
 
         public float ModifyFlightData(float modifier, bool additive)
         {
-            float newFlightData = currentFlightData;
+            // Will hold the new flight data after calculation
+            float newFlightData;
+            // The flight data as it stands before modification
+            float existingData = currentFlightData;
+            // Amount of data stored in the scenario store
+            float existingStoredFlightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(TestFlightUtil.GetFullPartName(this.part));
 
+            // Calculate the new flight data
             if (additive)
             {
                 modifier = ApplyFlightDataMultiplier(modifier);
-                newFlightData += modifier;
+                newFlightData = existingData + modifier;
             }
             else
             {
-                newFlightData *= modifier;
+                newFlightData = existingData * modifier;
             }
+            // Adjust new flight data if neccesary to stay under the cap
             if (newFlightData > (maxData * dataCap))
                 newFlightData = maxData * dataCap;
-
             if (newFlightData > maxData)
                 newFlightData = maxData;
-
+            // update the scenario store to add (or subtract) the difference between the flight data before calculation and the flight data after (IE the relative change)
+            TestFlightManagerScenario.Instance.SetFlightDataForPartName(TestFlightUtil.GetFullPartName(this.part), existingStoredFlightData + (newFlightData - existingData));
+            // and update our part's saved data on the vessel
             currentFlightData = newFlightData;
+
             return currentFlightData;
         }
 
@@ -803,9 +812,9 @@ namespace TestFlightCore
 
         public void InitializeFlightData(float flightData)
         {
-            if (currentFlightData > 0f)
+            if (initialized)
                 return;
-
+            
             if (flightData == 0f)
                 flightData = AttemptTechTransfer();
             
@@ -816,7 +825,8 @@ namespace TestFlightCore
             initialFlightData = flightData;
 
             missionStartTime = (float)Planetarium.GetUniversalTime();
-            initialized = true;
+            if (HighLogic.LoadedSceneIsFlight)
+                initialized = true;
         }
 
         internal float AttemptTechTransfer()
