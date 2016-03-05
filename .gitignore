@@ -213,3 +213,7 @@ $RECYCLE.BIN/
 *.msi
 *.msm
 *.msp
+
+TestFlight.userprefs
+
+*.userprefs
