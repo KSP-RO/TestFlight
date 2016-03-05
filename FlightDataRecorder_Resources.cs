@@ -14,7 +14,7 @@ namespace TestFlight
     // float kerbalDistanceToPart = Vector3.Distance(kerbal.transform.position, targetPart.collider.ClosestPointOnBounds(kerbal.transform.position));
     public class FlightDataRecorder_Resources : FlightDataRecorderBase
     {
-        [KSPField(isPersistant)]
+        [KSPField]
         public double emptyThreshold = 0.1;
 
         public override void OnAwake()
