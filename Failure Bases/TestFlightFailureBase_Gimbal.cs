@@ -9,7 +9,7 @@ namespace TestFlight
 {
     public class TestFlightFailureBase_Gimbal : TestFlightFailureBase
     {
-        [KSPField(isPersistant = true)]
+        [KSPField(isPersistant = false)]
         public string gimbalTransformName = "RANDOM";
 
         protected ModuleGimbal module;

@@ -12,9 +12,9 @@ namespace TestFlight
 {
     public class TestFlightFailure_IgnitionFail : TestFlightFailure_Engine
     {
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public bool restoreIgnitionCharge = false;
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public bool ignorePressureOnPad = true;
 
         public FloatCurve baseIgnitionChance = null;

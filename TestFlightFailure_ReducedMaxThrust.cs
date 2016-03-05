@@ -10,7 +10,7 @@ namespace TestFlight
 {
     public class TestFlightFailure_ReducedMaxThrust : TestFlightFailure_Engine
     {
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public float thrustReduction = 0.5f;
 
         public override void OnStart(StartState state)
