@@ -34,6 +34,7 @@ namespace TestFlightCore
         internal string vesselName;
         internal List<PartStatus> allPartsStatus;
     }
+
     public struct TestFlightData
     {
         // Scope is a combination of the current SOI and the Situation, always lowercase.
@@ -45,6 +46,7 @@ namespace TestFlightCore
         // The specific flight time, in seconds, of this part instance
         public double flightTime;
     }
+
     public class PartFlightData : IConfigNode
     {
         private List<TestFlightData> flightData = null;
@@ -134,7 +136,8 @@ namespace TestFlightCore
                         if (dataMembers.Length == 3)
                         {
                             TestFlightData tfData = new TestFlightData();
-                            tfData.scope = dataMembers[0];;
+                            tfData.scope = dataMembers[0];
+                            ;
                             tfData.flightData = float.Parse(dataMembers[1]);
                             tfData.flightTime = 0;
                             newData.flightData.Add(tfData);
@@ -195,6 +198,10 @@ namespace TestFlightCore
         float lastDataPoll = 0.0f;
         float lastFailurePoll = 0.0f;
         float lastMasterStatusUpdate = 0.0f;
+
+        // Used for propery accumulating flight data from multiple of the same named parts
+        Dictionary<string, float> baseFlightData;
+        Dictionary<string, float> accumulatedFlightData;
 
         internal void Log(string message)
         {
@@ -276,7 +283,7 @@ namespace TestFlightCore
                 return;
             // iterate through our cached vessels and delete ones that are no longer valid
             List<Guid> vesselsToDelete = new List<Guid>();
-            foreach(var entry in masterStatus)
+            foreach (var entry in masterStatus)
             {
                 Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == entry.Key);
                 if (vessel == null)
@@ -334,7 +341,7 @@ namespace TestFlightCore
 
             // iterate through our cached vessels and delete ones that are no longer valid
             List<Guid> vesselsToDelete = new List<Guid>();
-            foreach(var entry in knownVessels)
+            foreach (var entry in knownVessels)
             {
                 Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == entry.Key);
                 if (vessel == null)
@@ -371,7 +378,7 @@ namespace TestFlightCore
                 {
                     if (vessel.vesselType == VesselType.Lander || vessel.vesselType == VesselType.Probe || vessel.vesselType == VesselType.Rover || vessel.vesselType == VesselType.Ship || vessel.vesselType == VesselType.Station)
                     {
-                        if ( !knownVessels.ContainsKey(vessel.id) )
+                        if (!knownVessels.ContainsKey(vessel.id))
                         {
                             Log("TestFlightManager: Adding new vessel " + vessel.GetName() + " with launch time " + Planetarium.GetUniversalTime());
                             knownVessels.Add(vessel.id, Planetarium.GetUniversalTime());
@@ -399,12 +406,18 @@ namespace TestFlightCore
                 VerifyMasterStatus();
             }
             // process vessels
+            if (baseFlightData == null)
+                baseFlightData = new Dictionary<string, float>();
+            if (accumulatedFlightData == null)
+                accumulatedFlightData = new Dictionary<string, float>();
+            baseFlightData.Clear();
+            accumulatedFlightData.Clear();
             foreach (var entry in knownVessels)
             {
                 Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == entry.Key);
                 if (vessel.loaded)
                 {
-                    foreach(Part part in vessel.parts)
+                    foreach (Part part in vessel.parts)
                     {
                         ITestFlightCore core = TestFlightUtil.GetCore(part);
                         if (core != null)
@@ -465,7 +478,20 @@ namespace TestFlightCore
                                     masterStatus.Add(vessel.id, masterStatusItem);
                                 }
                                 string partName = TestFlightUtil.GetFullPartName(part);
-                                tfScenario.SetFlightDataForPartName(partName, partStatus.flightData);
+                                if (baseFlightData.ContainsKey(partName))
+                                {
+                                    float existingData = baseFlightData[partName];
+                                    float newData = partStatus.flightData - existingData;
+                                    newData += accumulatedFlightData[partName];
+                                    accumulatedFlightData[partName] = newData;
+                                }
+                                else
+                                {
+                                    float existingData = tfScenario.GetFlightDataForPartName(partName);
+                                    baseFlightData.Add(partName, existingData);
+                                    float newData = partStatus.flightData - existingData;
+                                    accumulatedFlightData.Add(partName, newData);
+                                }
                             }
                         }
                     }
@@ -479,13 +505,18 @@ namespace TestFlightCore
                     lastFailurePoll = currentUTC;
                 }
             }
+            // Record accumulated flight data
+            foreach (KeyValuePair<string, float> entry in accumulatedFlightData)
+            {
+                tfScenario.SetFlightDataForPartName(entry.Key, entry.Value);
+            }
         }
     
     }
-        
+
 
     [KSPScenario(ScenarioCreationOptions.AddToAllGames, 
-        new GameScenes[] 
+        new GameScenes[]
         { 
             GameScenes.FLIGHT,
             GameScenes.EDITOR,
@@ -493,12 +524,15 @@ namespace TestFlightCore
             GameScenes.TRACKSTATION
         }
     )]
-	public class TestFlightManagerScenario : ScenarioModule
-	{
+    public class TestFlightManagerScenario : ScenarioModule
+    {
         internal UserSettings userSettings = null;
         internal BodySettings bodySettings = null;
+
         public static TestFlightManagerScenario Instance { get; private set; }
+
         public System.Random RandomGenerator { get; private set; }
+
         public bool isReady = false;
         // For storing save specific arbitrary data
         private string rawSaveData = "";
@@ -752,6 +786,7 @@ namespace TestFlightCore
             }
             return returnPart;
         }
+
         public string PartWithLeastData()
         {
             if (partData == null)
@@ -770,6 +805,7 @@ namespace TestFlightCore
             }
             return returnPart;
         }
+
         public string PartWithNoData(string partList)
         {
             string[] parts = partList.Split(new char[1]{ ',' });
@@ -871,7 +907,7 @@ namespace TestFlightCore
                     }
                     storedPartData.AddValue("flightData", totalData.ToString());
                     storedPartData.AddValue("flightTime", totalTime.ToString());
-                    partData.Add(storedPartData.PartName,storedPartData);
+                    partData.Add(storedPartData.PartName, storedPartData);
                 }
             }
             // new noscope
@@ -881,13 +917,13 @@ namespace TestFlightCore
                 {
                     TestFlightPartData storedPartData = new TestFlightPartData();
                     storedPartData.Load(partDataNode);
-                    partData.Add(storedPartData.PartName,storedPartData);
+                    partData.Add(storedPartData.PartName, storedPartData);
                 }
             }
         }
 
-		public override void OnSave(ConfigNode node)
-		{
+        public override void OnSave(ConfigNode node)
+        {
             base.OnSave(node);
             if (userSettings != null)
             {
@@ -905,6 +941,6 @@ namespace TestFlightCore
                 ConfigNode partNode = node.AddNode("partData");
                 storedPartData.Save(partNode);
             }
-		}
-	}
+        }
+    }
 }
