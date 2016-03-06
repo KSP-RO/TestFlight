@@ -58,11 +58,11 @@ namespace TestFlight
             {
                 if (engineID.ToLower() == "all")
                 {
-                    List<ModuleEnginesFX> enginesFX = this.part.Modules.OfType<ModuleEnginesFX>().ToList();
-                    foreach (ModuleEnginesFX fx in enginesFX)
+                    List<ModuleEngines> engineMods = this.part.Modules.OfType<ModuleEngines>().ToList();
+                    foreach (ModuleEngines eng in engineMods)
                     {
-                        string id = fx.engineID;
-                        EngineModuleWrapper engine = ScriptableObject.CreateInstance<EngineModuleWrapper>();
+                        string id = eng.engineID;
+                        EngineModuleWrapper engine = new EngineModuleWrapper();
                         engine.InitWithEngine(this.part, id);
                         EngineHandler engineHandler = new EngineHandler();
                         engineHandler.engine = engine;
@@ -75,7 +75,7 @@ namespace TestFlight
                     string[] sEngineIndices = engineID.Split(new char[1] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                     foreach (string sEngineIndex in sEngineIndices)
                     {
-                        EngineModuleWrapper engine = ScriptableObject.CreateInstance<EngineModuleWrapper>();
+                        EngineModuleWrapper engine = new EngineModuleWrapper();
                         engine.InitWithEngine(this.part, sEngineIndex);
                         EngineHandler engineHandler = new EngineHandler();
                         engineHandler.engine = engine;
@@ -85,7 +85,7 @@ namespace TestFlight
                 }
                 else
                 {
-                    EngineModuleWrapper engine = ScriptableObject.CreateInstance<EngineModuleWrapper>();
+                    EngineModuleWrapper engine = new EngineModuleWrapper();
                     engine.InitWithEngine(this.part, engineID);
                     EngineHandler engineHandler = new EngineHandler();
                     engineHandler.engine = engine;
@@ -95,7 +95,7 @@ namespace TestFlight
             }
             else
             {
-                EngineModuleWrapper engine = ScriptableObject.CreateInstance<EngineModuleWrapper>();
+                EngineModuleWrapper engine = new EngineModuleWrapper();
                 engine.Init(this.part);
                 EngineHandler engineHandler = new EngineHandler();
                 engineHandler.engine = engine;
