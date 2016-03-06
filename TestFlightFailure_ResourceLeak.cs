@@ -61,7 +61,7 @@ namespace TestFlight
 
         public void FixedUpdate()
         {
-            if(HighLogic.LoadedSceneIsFlight)
+            if(HighLogic.LoadedSceneIsFlight && isLeaking)
             {
                 if (!String.IsNullOrEmpty(leakingResource))
                 {
