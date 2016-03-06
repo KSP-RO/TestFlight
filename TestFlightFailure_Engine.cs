@@ -62,7 +62,8 @@ namespace TestFlight
                     foreach (ModuleEnginesFX fx in enginesFX)
                     {
                         string id = fx.engineID;
-                        EngineModuleWrapper engine = new EngineModuleWrapper(this.part, id);
+                        EngineModuleWrapper engine = ScriptableObject.CreateInstance<EngineModuleWrapper>();
+                        engine.InitWithEngine(this.part, id);
                         EngineHandler engineHandler = new EngineHandler();
                         engineHandler.engine = engine;
                         engineHandler.ignitionState = engine.IgnitionState;
@@ -74,7 +75,8 @@ namespace TestFlight
                     string[] sEngineIndices = engineID.Split(new char[1] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                     foreach (string sEngineIndex in sEngineIndices)
                     {
-                        EngineModuleWrapper engine = new EngineModuleWrapper(this.part, sEngineIndex);
+                        EngineModuleWrapper engine = ScriptableObject.CreateInstance<EngineModuleWrapper>();
+                        engine.InitWithEngine(this.part, sEngineIndex);
                         EngineHandler engineHandler = new EngineHandler();
                         engineHandler.engine = engine;
                         engineHandler.ignitionState = engine.IgnitionState;
@@ -83,7 +85,8 @@ namespace TestFlight
                 }
                 else
                 {
-                    EngineModuleWrapper engine = new EngineModuleWrapper(this.part, engineID);
+                    EngineModuleWrapper engine = ScriptableObject.CreateInstance<EngineModuleWrapper>();
+                    engine.InitWithEngine(this.part, engineID);
                     EngineHandler engineHandler = new EngineHandler();
                     engineHandler.engine = engine;
                     engineHandler.ignitionState = engine.IgnitionState;
@@ -92,7 +95,8 @@ namespace TestFlight
             }
             else
             {
-                EngineModuleWrapper engine = new EngineModuleWrapper(this.part);
+                EngineModuleWrapper engine = ScriptableObject.CreateInstance<EngineModuleWrapper>();
+                engine.Init(this.part);
                 EngineHandler engineHandler = new EngineHandler();
                 engineHandler.engine = engine;
                 engineHandler.ignitionState = engine.IgnitionState;

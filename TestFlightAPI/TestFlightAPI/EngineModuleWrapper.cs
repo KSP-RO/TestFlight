@@ -264,11 +264,16 @@ public class EngineModuleWrapper : ScriptableObject
         }
     }
 
-    public EngineModuleWrapper(Part part) : this(part, "engine")
+    public EngineModuleWrapper()
     {
     }
 
-    public EngineModuleWrapper(Part part, string engineID)
+    public void Init(Part part)
+    {
+        InitWithEngine(part, "engine");
+    }
+
+    public void InitWithEngine(Part part, string engineID)
     {
         ModuleEngines _engine = null;
         foreach (PartModule pm in part.Modules)
