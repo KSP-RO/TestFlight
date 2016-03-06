@@ -2209,12 +2209,12 @@ Parts:
     - *AJ10-118D
 -   part: 'XLR11'
     patterns:
-    - '@PART[FASAGemini4X800Mini]:AFTER[RealismOverhaul]'
+    - '@PART[*]:HAS[@MODULE[ModuleEngineConfigs]:HAS[@CONFIG[XLR11]]]:BEFORE[TestFlight]'
     configs:
     - *XLR11
 -   part: 'XLR99'
     patterns:
-    - '@PART[NP_lfe_25m_Orbitalbertha_Mini]:AFTER[RealismOverhaul]'
+    - '@PART[*]:HAS[@MODULE[ModuleEngineConfigs]:HAS[@CONFIG[XLR99]]]:BEFORE[TestFlight]'
     configs:
     - *XLR99
 -   part: 'NAA-75-110-A'
@@ -2237,13 +2237,19 @@ Parts:
     - *LR87-AJ-LH2-TitanC
 -   part: 'LR91'
     patterns:
-    - '@PART[FASAGeminiLR91]:AFTER[RealismOverhaul]'
+    - '@PART[FASAGeminiLR91|liquidEngineorbit2]:AFTER[RealismOverhaul]'
     configs:
+    - *LR91-AJ-3
     - *LR91-AJ-5
     - *LR91-AJ-7
     - *LR91-AJ-9
     - *LR91-AJ-11
     - *LR91-AJ-11A
+-   part: 'LR91-3'
+    patterns:
+    - '@PART[FASAGeminiLR91Mini]:AFTER[RealismOverhaul]'
+    configs:
+    - *LR91-AJ-3
 -   part: 'RL10'
     patterns:
     - '@PART[engineLargeSkipper]:AFTER[RealismOverhaul]'
