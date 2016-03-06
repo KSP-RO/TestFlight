@@ -25,6 +25,9 @@ namespace TestFlight
         private float _initialAmount = 10f;
         private float _perSecondAmount = 0.1f;
 
+        [KSPField(isPersistant = true)]
+        public bool isLeaking = false;
+
         /// <summary>
         /// Triggers the failure controlled by the failure module
         /// </summary>
@@ -52,29 +55,27 @@ namespace TestFlight
             if (!String.IsNullOrEmpty(leakingResource))
             {
                 ParseResourceValues();
-                this.part.RequestResource(leakingResource, _initialAmount, ResourceFlowMode.NO_FLOW);
-                StartCoroutine("LeakResource");
+                isLeaking = true;
             }
         }
 
-        internal IEnumerator LeakResource()
+        public void FixedUpdate()
         {
-            while (true)
+            if(HighLogic.LoadedSceneIsFlight)
             {
                 if (!String.IsNullOrEmpty(leakingResource))
                 {
                     if (calculatePerTick)
                         ParseResourceValues();
-                    this.part.RequestResource(leakingResource, _perSecondAmount, ResourceFlowMode.NO_FLOW);
+                    this.part.RequestResource(leakingResourceID, _perSecondAmount * TimeWarp.fixedDeltaTime, ResourceFlowMode.NO_FLOW);
                 }
-                yield return new WaitForSeconds(1f);
             }
         }
 
         public override float DoRepair()
         {
             base.DoRepair();
-            StopCoroutine("LeakResource");
+            isLeaking = false;
 
             return 0;
         }
