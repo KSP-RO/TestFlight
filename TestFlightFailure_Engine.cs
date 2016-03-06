@@ -11,7 +11,7 @@ namespace TestFlight
 {
     public class TestFlightFailure_Engine : TestFlightFailureBase
     {
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public string engineID = "";
 
         protected class EngineHandler

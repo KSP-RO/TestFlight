@@ -24,15 +24,15 @@ namespace TestFlightCore
         [KSPField(isPersistant=true)]
         public float startFlightData;
 
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public string configuration = "";
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public string title = "";
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public string techTransfer = "";
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public float techTransferMax = 1000;
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public float techTransferGenerationPenalty = 0.05f;
         [KSPField(isPersistant=true)]
         public float operatingTime;
@@ -40,9 +40,9 @@ namespace TestFlightCore
         public float lastMET;
         [KSPField(isPersistant=true)]
         public bool initialized = false;
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public float maxData = 0f;
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public float failureRateModifier = 1f;
         [KSPField]
         public int scienceDataValue = 0;

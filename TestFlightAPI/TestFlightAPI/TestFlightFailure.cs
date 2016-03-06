@@ -127,21 +127,21 @@ namespace TestFlightAPI
     /// </summary>
     public class TestFlightFailureBase : PartModule, ITestFlightFailure
     {
-        [KSPField(isPersistant = true)]
+        [KSPField]
         public string failureType;
-        [KSPField(isPersistant = true)]
+        [KSPField]
         public string severity;
-        [KSPField(isPersistant = true)]
+        [KSPField]
         public int weight;
-        [KSPField(isPersistant = true)]
+        [KSPField]
         public string failureTitle = "Failure";
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public string configuration = "";
-        [KSPField(isPersistant = true)]
+        [KSPField]
         public float duFail = 0f;
-        [KSPField(isPersistant = true)]
+        [KSPField]
         public float duRepair = 0f;
-        [KSPField(isPersistant = true)]
+        [KSPField]
         public bool oneShot = false;
 
         public RepairConfig repairConfig;
