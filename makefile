@@ -33,6 +33,18 @@ install-ro: clean meta
 
 release: zip
 
+local: clean configs plugins
+
+ifdef TRAVIS_TAG
+plugins:
+else
+plugins:
+	cp bin/Release/TestFlight.dll GameData/TestFlight/Plugins/TestFlight.dll
+	cp TestFlightCore/TestFlightCore/bin/Release/TestFlightCore.dll GameData/TestFlight/Plugins/TestFlightCore.dll
+	cp TestFlightAPI/TestFlightAPI/bin/Release/TestFlightAPI.dll GameData/TestFlight/Plugins/TestFlightAPI.dll
+	cp TestFlightContracts/bin/Release/TestFlightContracts.dll GameData/TestFlight/Plugins/TestFlightContracts.dll
+endif
+
 configs: $(CONFIG_DIR)/RealismOverhaul/%.cfg $(CONFIG_DIR)/Stock/%.cfg
 	cp $(CONFIG_DIR)/RealismOverhaul/*.cfg GameData/TestFlight/Config
 	zip $(ZIP_RO) GameData/TestFlight/Config/*
