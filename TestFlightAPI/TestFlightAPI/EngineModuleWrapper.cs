@@ -29,7 +29,7 @@ public class EngineModuleWrapper
     // Used to store the original fuel flow values
     private float _minFuelFlow;
     private float _maxFuelFlow;
-    private float _G;
+    private float _g;
 
     // Public methods
     public PartModule Module
@@ -104,6 +104,20 @@ public class EngineModuleWrapper
         set
         {
             engine.maxFuelFlow = value;
+        }
+    }
+
+    public float g
+    {
+        get
+        {
+            if (engineType == EngineModuleType.UNKNOWN)
+                return 0f;
+            return engine.g;
+        }
+        set
+        {
+            engine.g = value;
         }
     }
 
@@ -272,7 +286,7 @@ public class EngineModuleWrapper
         }
         else
         {
-            engine.g = _G * multiplier;
+            engine.g = _g * multiplier;
         }
     }
 
@@ -307,6 +321,7 @@ public class EngineModuleWrapper
 
             _minFuelFlow = engine.minFuelFlow;
             _maxFuelFlow = engine.maxFuelFlow;
+            _g = engine.g;
         }
         else
         {
