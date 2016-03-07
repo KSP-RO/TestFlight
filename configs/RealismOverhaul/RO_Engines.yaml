@@ -1295,7 +1295,6 @@ PartConfigs:
             configuration: 'LR91-AJ-3'
             weight: 2
     LR91-AJ-5: &LR91-AJ-5
-        -   name: 'TestFlightInterop'
         -   name: 'TestFlightCore'
             maxData: 10000
             configuration: 'engineConfig = LR91-AJ-5:LR91-AJ-5'
@@ -1711,7 +1710,6 @@ PartConfigs:
             configuration: 'RL10A-3-1'
             weight: 2
     RL10A-3-1x2: &RL10A-3-1x2
-        -   name: 'TestFlightInterop'
         -   *RL10A-3-1-Core
         -   *RL10A-3-1-Reliability
         -   *RL10A-3-1-EngineCycle
@@ -1787,7 +1785,6 @@ PartConfigs:
             configuration: 'RL10A-3-3'
             weight: 2
     RL10A-3-3x2: &RL10A-3-3x2
-        -   name: 'TestFlightInterop'
         -   *RL10A-3-3-Core
         -   *RL10A-3-3-Reliability
         -   *RL10A-3-3-EngineCycle
@@ -1863,7 +1860,6 @@ PartConfigs:
             configuration: 'RL10A-3-3A'
             weight: 2
     RL10A-3-3Ax2: &RL10A-3-3Ax2
-        -   name: 'TestFlightInterop'
         -   *RL10A-3-3A-Core
         -   *RL10A-3-3A-Reliability
         -   *RL10A-3-3A-EngineCycle
@@ -1939,7 +1935,6 @@ PartConfigs:
             configuration: 'RL10A-4'
             weight: 2
     RL10A-4x2: &RL10A-4x2
-        -   name: 'TestFlightInterop'
         -   *RL10A-4-Core
         -   *RL10A-4-Reliability
         -   *RL10A-4-EngineCycle
@@ -2015,7 +2010,6 @@ PartConfigs:
             configuration: 'RL10A-4-1-2'
             weight: 2
     RL10A-4-1-2x2: &RL10A-4-1-2x2
-        -   name: 'TestFlightInterop'
         -   *RL10A-4-1-2-Core
         -   *RL10A-4-1-2-Reliability
         -   *RL10A-4-1-2-EngineCycle
@@ -2091,7 +2085,6 @@ PartConfigs:
             configuration: 'RL10B-2'
             weight: 2
     RL10B-2x2: &RL10B-2x2
-        -   name: 'TestFlightInterop'
         -   *RL10B-2-Core
         -   *RL10B-2-Reliability
         -   *RL10B-2-EngineCycle
@@ -2167,7 +2160,6 @@ PartConfigs:
             configuration: 'RL10C-1'
             weight: 2
     RL10C-1x2: &RL10C-1x2
-        -   name: 'TestFlightInterop'
         -   *RL10C-1-Core
         -   *RL10C-1-Reliability
         -   *RL10C-1-EngineCycle
