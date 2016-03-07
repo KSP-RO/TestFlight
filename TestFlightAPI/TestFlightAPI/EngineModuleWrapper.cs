@@ -13,7 +13,7 @@ public class EngineModuleWrapper
     {
         UNKNOWN = -1,
         ENGINE,
-        SOVLERENGINE
+        SOLVERENGINE
     }
 
     public enum EngineIgnitionState
@@ -265,7 +265,7 @@ public class EngineModuleWrapper
     {
         if (engineType == EngineModuleType.UNKNOWN)
             return;
-        if (engineType == EngineModuleType.SOVLERENGINE)
+        if (engineType == EngineModuleType.SOLVERENGINE)
         {
             engine.GetType().GetField("flowMult").SetValue(engine, multiplier);
         }
@@ -280,7 +280,7 @@ public class EngineModuleWrapper
     {
         if (engineType == EngineModuleType.UNKNOWN)
             return;
-        if (engineType == EngineModuleType.SOVLERENGINE)
+        if (engineType == EngineModuleType.SOLVERENGINE)
         {
             engine.GetType().GetField("ispMult").SetValue(engine, multiplier);
         }
@@ -313,7 +313,7 @@ public class EngineModuleWrapper
             engine = _engine;
             string tName = engine.GetType().Name;
             if (tName == "ModuleEnginesRF" || tName.Contains("ModuleEnginesAJE"))
-                engineType = EngineModuleType.SOVLERENGINE;
+                engineType = EngineModuleType.SOLVERENGINE;
             else
                 engineType = EngineModuleType.ENGINE;
 
@@ -342,7 +342,7 @@ public class EngineModuleWrapper
         string meType = "UNKNOWN";
         if (EngineType == EngineModuleType.ENGINE)
             meType = "ENGINE";
-        if (EngineType == EngineModuleType.SOVLERENGINE)
+        if (EngineType == EngineModuleType.SOLVERENGINE)
             meType = "SOLVERENGINE";
 
         message = String.Format("TestFlight_EngineModuleWrapper({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(part), meType, message);
