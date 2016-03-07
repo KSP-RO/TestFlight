@@ -314,10 +314,8 @@ public class EngineModuleWrapper
             string tName = engine.GetType().Name;
             if (tName == "ModuleEnginesRF" || tName.Contains("ModuleEnginesAJE"))
                 engineType = EngineModuleType.SOVLERENGINE;
-            else if (engine is ModuleEngines)
-                engineType = EngineModuleType.ENGINE;
             else
-                engineType = EngineModuleType.UNKNOWN;
+                engineType = EngineModuleType.ENGINE;
 
             _minFuelFlow = engine.minFuelFlow;
             _maxFuelFlow = engine.maxFuelFlow;
