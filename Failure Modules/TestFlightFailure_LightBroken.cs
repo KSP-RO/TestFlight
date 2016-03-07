@@ -6,29 +6,28 @@ using TestFlightAPI;
 
 namespace TestFlight.Failure_Modules
 {
-    public class TestFlightFailure_LightBroken : TestFlightFailureBase
+    public class TestFlightFailure_LightBroken : TestFlightFailureBase_Light
     {
-        private ModuleLight module;
-
-        public override void OnStart(PartModule.StartState state)
-        {
-            base.OnStart(state);
-            this.module = base.part.FindModuleImplementing<ModuleLight>();
-        }
         public override void DoFailure()
         {
             base.DoFailure();
-            if (this.module.isOn)
+            if (base.module != null)
             {
-                this.module.LightsOff();
+                if (this.module.isOn)
+                {
+                    this.module.LightsOff();
+                }
+                base.module.Events["LightsOff"].active = false;
+                base.module.Events["LightsOn"].active = false;
             }
-            this.module.Events["LightsOff"].active = false;
-            this.module.Events["LightsOn"].active = false;
         }
         public override float DoRepair()
         {
             base.DoRepair();
-            this.module.Events["LightsOn"].active = true;
+            if (base.module != null)
+            {
+                this.module.Events["LightsOn"].active = true;
+            }
             return 0f;
         }
     }
