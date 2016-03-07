@@ -48,11 +48,28 @@ namespace TestFlightAPI
             return hours.ToString ("D2") 
                 + ":" + minutes.ToString ("D2") + ":" + seconds.ToString ("D2");
         }
-        // Methods for accessing the TestFlight modules on a given part
 
+        // Methods for accessing the TestFlight modules on a given part
+        // Get the part name, minus any numbers or clone or whatever. Borrowed from RF (by NK, so by permission obviously).
+        public static string GetPartName(Part part)
+        {
+            if (part.partInfo != null)
+                return GetPartName(part.partInfo);
+            return GetPartName(part.name);
+        }
+
+        public static string GetPartName(AvailablePart ap)
+        {
+            return GetPartName(ap.name);
+        }
+        public static string GetPartName(string partName)
+        {
+            partName = partName.Replace(".", "-");
+            return partName.Replace("_", "-");
+        }
         public static string GetFullPartName(Part part)
         {
-            string baseName = part.name;
+            string baseName = GetPartName(part);
 
             if (part.Modules == null)
                 return baseName;
@@ -410,7 +427,7 @@ namespace TestFlightAPI
             else
             {
                 // if there are no "parts" to this block, then it must be just a simple part name or an alias
-                if (block == part.name.ToLower())
+                if (block == GetPartName(part).ToLower())
                     return true;
                 if (block == TestFlightUtil.GetFullPartName(part).ToLower())
                     return true;

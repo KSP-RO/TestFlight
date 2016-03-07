@@ -82,7 +82,13 @@ namespace TestFlightCore
                 }
                 if (!opFound)
                 {
-                    if (part.name.ToLower() == Configuration.ToLower())
+                    // If this configuration defines an alias, just trim it off
+                    string test = Configuration;
+                    if (Configuration.Contains(":"))
+                    {
+                        test = test.Split(new char[1] { ':' })[0];
+                    }
+                    if (TestFlightUtil.GetPartName(part).ToLower() == test.ToLower())
                         return true;
                     return false;
                 }
