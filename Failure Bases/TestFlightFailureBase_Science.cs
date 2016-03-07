@@ -9,11 +9,26 @@ namespace TestFlight
 {
     public class TestFlightFailureBase_Science : TestFlightFailureBase
     {
+        [KSPField]
+        public string experimentID = "";
+
         protected ModuleScienceExperiment module;
         public override void OnAwake()
         {
             base.OnAwake();
-            this.module = base.part.FindModuleImplementing<ModuleScienceExperiment>();
+            List<ModuleScienceExperiment> list = base.part.Modules.OfType<ModuleScienceExperiment>().ToList();
+            if (list != null)
+            {
+                for (int i=0; i<list.Count; i++)
+                {
+                    if (list[i].experimentID == this.experimentID)
+                    {
+                        this.module = list[i];
+                        return;
+                    }
+                }
+            }
+
         }
     }
 }
