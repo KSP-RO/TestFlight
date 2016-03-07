@@ -626,11 +626,11 @@ PartConfigs:
             maxData: 10000
             configuration: 'engineConfig = XLR11:XLR11'
             title: 'XLR11'
-            startFlightData: 10000
+            startFlightData: 0
         -   name: 'FlightDataRecorder_Engine'
             configuration: 'XLR11'
-            flightDataMultiplier: 0.2
-            flightDataEngineerModifier: 0.1
+            flightDataMultiplier: 7.0
+            flightDataEngineerModifier: 0.2
         -   name: 'TestFlightReliability'
             configuration: 'XLR11'
             reliabilityCurve:
@@ -681,7 +681,7 @@ PartConfigs:
             title: 'XLR99'
         -   name: 'FlightDataRecorder_Engine'
             configuration: 'XLR99'
-            flightDataMultiplier: 0.1
+            flightDataMultiplier: 7.0
             flightDataEngineerModifier: 0.1
         -   name: 'TestFlightReliability'
             configuration: 'XLR99'
