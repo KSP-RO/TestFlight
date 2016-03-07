@@ -12,7 +12,7 @@ namespace TestFlight
     public class TestFlightFailure_Engine : TestFlightFailureBase
     {
         [KSPField]
-        public string engineID = "";
+        public string engineID = "all";
 
         protected class EngineHandler
         {
@@ -58,7 +58,7 @@ namespace TestFlight
             {
                 if (engineID.ToLower() == "all")
                 {
-                    List<ModuleEngines> engineMods = this.part.Modules.OfType<ModuleEngines>().ToList();
+                    List<ModuleEngines> engineMods = this.part.Modules.GetModules<ModuleEngines>();
                     foreach (ModuleEngines eng in engineMods)
                     {
                         string id = eng.engineID;
