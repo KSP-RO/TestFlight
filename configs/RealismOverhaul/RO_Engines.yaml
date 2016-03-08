@@ -2022,13 +2022,6 @@ PartConfigs:
         -   *RL10C-1-Explode
 # And here we actually take all the stuff defined above and apply it to actual parts
 Parts:
--   part: 'WAC-Corporal'
-    patterns:
-    - '@PART[ROAerobeeSustainer]:AFTER[RealismOverhaul]'
-    configs:
-    - *WAC-Corporal
-    - *XASR-1
-    - *AJ10-27
 -   part: 'X-405'
     patterns:
     - '@PART[SXTX405]:AFTER[RP-0]'
