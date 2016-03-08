@@ -91,6 +91,7 @@
     <Compile Include="Failure Modules\TestFlightFailure_LightFlicker.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_ReactionBroken.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_ReactionTorque.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_RemotePassiveBroken.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_RemoteBroken.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_ResourcePump.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_ScienceBroken.cs" />
