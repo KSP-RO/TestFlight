@@ -11,6 +11,8 @@ namespace TestFlight
     {
         [KSPField]
         public FloatCurve reliabilityAtPressure = new FloatCurve();
+        [KSPField]
+        public double min_failure_modifier = 0.000000000001d;
 
         private double oldPenalty = 1.0;
         public override void OnUpdate()
@@ -22,7 +24,8 @@ namespace TestFlight
                 return;
 
             double newPenalty = reliabilityAtPressure.Evaluate((float)base.vessel.dynamicPressurekPa * 1000);
-            if (newPenalty < 1d) newPenalty = 1d;
+            if (newPenalty < this.min_failure_modifier)
+                newPenalty = this.min_failure_modifier;
             if (newPenalty != this.oldPenalty)
             {
                 this.oldPenalty = newPenalty;
