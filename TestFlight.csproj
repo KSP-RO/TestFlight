@@ -126,6 +126,8 @@
     <Compile Include="KSPFramework\SkinsLibrary.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reliability Modules\TestFlightReliability_DynamicPressure.cs" />
+    <Compile Include="Reliability Modules\TestFlightReliability_InternalTemperature.cs" />
+    <Compile Include="Reliability Modules\TestFlightReliability_SkinTemperature.cs" />
     <Compile Include="TestFlightReliability.cs" />
     <Compile Include="FlightDataRecorder.cs" />
     <Compile Include="FlightDataRecorder_Engine.cs" />
