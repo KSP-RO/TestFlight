@@ -11,10 +11,9 @@ namespace TestFlight
     {
         [KSPField]
         public FloatCurve reliabilityAtPressure = new FloatCurve();
-        [KSPField]
-        public double min_failure_modifier = 0.000000000001d;
 
-        private double oldPenalty = 1.0;
+        private double oldPenalty = TestFlightUtil.MIN_FAILURE_RATE;
+
         public override void OnUpdate()
         {
             if (!TestFlightEnabled)
@@ -24,14 +23,13 @@ namespace TestFlight
                 return;
 
             double newPenalty = reliabilityAtPressure.Evaluate((float)base.vessel.dynamicPressurekPa * 1000);
-            if (newPenalty < this.min_failure_modifier)
-                newPenalty = this.min_failure_modifier;
-            if (newPenalty != this.oldPenalty)
-            {
-                this.oldPenalty = newPenalty;
+            newPenalty = Math.Min(newPenalty, TestFlightUtil.MIN_FAILURE_RATE);
+
+            if (newPenalty != oldPenalty)
                 core.SetTriggerMomentaryFailureModifier("DynamicPressure", newPenalty, this);
-            }
+            oldPenalty = newPenalty;
         }
+
         public override double GetBaseFailureRate(float flightData)
         {
             return 0;
