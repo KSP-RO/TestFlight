@@ -7,15 +7,13 @@ using UnityEngine;
 
 using TestFlightAPI;
 
-// Thanks Squad so much for making two different nearly identical modules to handle engines
-public class EngineModuleWrapper : ScriptableObject
+public class EngineModuleWrapper
 {
     public enum EngineModuleType
     {
         UNKNOWN = -1,
         ENGINE,
-        ENGINEFX,
-        REALENGINE
+        SOLVERENGINE
     }
 
     public enum EngineIgnitionState
@@ -31,6 +29,7 @@ public class EngineModuleWrapper : ScriptableObject
     // Used to store the original fuel flow values
     private float _minFuelFlow;
     private float _maxFuelFlow;
+    private float _g;
 
     // Public methods
     public PartModule Module
@@ -105,6 +104,20 @@ public class EngineModuleWrapper : ScriptableObject
         set
         {
             engine.maxFuelFlow = value;
+        }
+    }
+
+    public float g
+    {
+        get
+        {
+            if (engineType == EngineModuleType.UNKNOWN)
+                return 0f;
+            return engine.g;
+        }
+        set
+        {
+            engine.g = value;
         }
     }
 
@@ -252,10 +265,9 @@ public class EngineModuleWrapper : ScriptableObject
     {
         if (engineType == EngineModuleType.UNKNOWN)
             return;
-        if (engineType == EngineModuleType.REALENGINE)
+        if (engineType == EngineModuleType.SOLVERENGINE)
         {
-            Part part = engine.part;
-            part.Modules["ModuleEnginesRF"].GetType().GetField("flowMult").SetValue(part.Modules["ModuleEnginesRF"], multiplier);
+            engine.GetType().GetField("flowMult").SetValue(engine, multiplier);
         }
         else
         {
@@ -264,33 +276,50 @@ public class EngineModuleWrapper : ScriptableObject
         }
     }
 
-    public EngineModuleWrapper(Part part) : this(part, "engine")
+    public void SetFuelIspMult(float multiplier)
+    {
+        if (engineType == EngineModuleType.UNKNOWN)
+            return;
+        if (engineType == EngineModuleType.SOLVERENGINE)
+        {
+            engine.GetType().GetField("ispMult").SetValue(engine, multiplier);
+        }
+        else
+        {
+            engine.g = _g * multiplier;
+        }
+    }
+
+    public EngineModuleWrapper()
     {
     }
 
-    public EngineModuleWrapper(Part part, string engineID)
+    public void Init(Part part)
+    {
+        InitWithEngine(part, "");
+    }
+
+    public void InitWithEngine(Part part, string engineID)
     {
         ModuleEngines _engine = null;
         foreach (PartModule pm in part.Modules)
         {
             _engine = pm as ModuleEngines;
-            if (_engine != null && _engine.engineID.ToLowerInvariant() == engineID.ToLowerInvariant())
+            if (_engine != null && (engineID == "" || _engine.engineID.ToLowerInvariant() == engineID.ToLowerInvariant()))
                 break;
         }
         if (_engine != null)
         {
             engine = _engine;
-            if (part.Modules.Contains("ModuleEnginesRF"))
-                engineType = EngineModuleType.REALENGINE;
-            else if (part.Modules.Contains("ModuleEngines"))
-                engineType = EngineModuleType.ENGINE;
-            else if (part.Modules.Contains("ModuleEnginesFX"))
-                engineType = EngineModuleType.ENGINEFX;
+            string tName = engine.GetType().Name;
+            if (tName == "ModuleEnginesRF" || tName.Contains("ModuleEnginesAJE"))
+                engineType = EngineModuleType.SOLVERENGINE;
             else
-                engineType = EngineModuleType.UNKNOWN;
+                engineType = EngineModuleType.ENGINE;
 
             _minFuelFlow = engine.minFuelFlow;
             _maxFuelFlow = engine.maxFuelFlow;
+            _g = engine.g;
         }
         else
         {
@@ -313,10 +342,8 @@ public class EngineModuleWrapper : ScriptableObject
         string meType = "UNKNOWN";
         if (EngineType == EngineModuleType.ENGINE)
             meType = "ENGINE";
-        if (EngineType == EngineModuleType.ENGINEFX)
-            meType = "ENGINEFX";
-        if (EngineType == EngineModuleType.REALENGINE)
-            meType = "REALENGINE";
+        if (EngineType == EngineModuleType.SOLVERENGINE)
+            meType = "SOLVERENGINE";
 
         message = String.Format("TestFlight_EngineModuleWrapper({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(part), meType, message);
         TestFlightUtil.Log(message, part);

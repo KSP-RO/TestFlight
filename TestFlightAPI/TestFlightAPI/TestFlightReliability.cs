@@ -45,7 +45,7 @@ namespace TestFlightAPI
 //        protected List<ReliabilityBodyConfig> reliabilityBodies = null;
         protected FloatCurve reliabilityCurve = null;
 
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public string configuration = "";
         [KSPField(isPersistant=true)]
         public float lastCheck = 0;

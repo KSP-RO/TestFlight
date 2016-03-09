@@ -12,37 +12,24 @@ namespace TestFlight
 {
     public class TestFlightFailure_IgnitionFail : TestFlightFailure_Engine
     {
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public bool restoreIgnitionCharge = false;
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public bool ignorePressureOnPad = true;
 
+        [KSPField]
         public FloatCurve baseIgnitionChance = null;
+        [KSPField]
         public FloatCurve pressureCurve = null;
 
         private ITestFlightCore core = null;
 
-
-        public double DynamicPressure
-        {
-            get
-            {
-                double density;
-                Vector3 velocity = this.part.Rigidbody.velocity + Krakensbane.GetFrameVelocityV3f();
-                float sqrSpeed = velocity.sqrMagnitude;
-                density = this.vessel.atmDensity;
-                double dynamicPressure = 0.5 * density * sqrSpeed;
-                return dynamicPressure;
-            }
-        }
         public new bool TestFlightEnabled
         {
             get
             {
                 // verify we have a valid core attached
                 if (core == null)
-                    return false;
-                if (baseIgnitionChance == null)
                     return false;
                 // and a valid engine
                 if (engines == null)
@@ -76,24 +63,6 @@ namespace TestFlight
             base.Startup();
             // We don't want this getting triggered as a random failure
             core.DisableFailure("TestFlightFailure_IgnitionFail");
-            Part prefab = this.part.partInfo.partPrefab;
-            foreach (PartModule pm in prefab.Modules)
-            {
-                TestFlightFailure_IgnitionFail modulePrefab = pm as TestFlightFailure_IgnitionFail;
-                if (modulePrefab != null && modulePrefab.Configuration == configuration)
-                {
-                    if ((object)modulePrefab.baseIgnitionChance != null)
-                    {
-                        Log("IgnitionFail: Loading baseIgnitionChance from prefab");
-                        baseIgnitionChance = modulePrefab.baseIgnitionChance;
-                    }
-                    if ((object)modulePrefab.pressureCurve != null)
-                    {
-                        Log("IgnitionFail: Loading pressureCurve from prefab");
-                        pressureCurve = modulePrefab.pressureCurve;
-                    }
-                }
-            }
         }
 
         public override void OnUpdate()
@@ -115,15 +84,6 @@ namespace TestFlight
                     {
                         Log(String.Format("IgnitionFail: Engine {0} transitioning to INGITED state", engine.engine.Module.GetInstanceID()));
                         Log(String.Format("IgnitionFail: Checking curves..."));
-                        if (baseIgnitionChance != null)
-                            Log("IgnitionFail: baseIgnitionChance is valid");
-                        else
-                            Log("IgnitionFail: baseIgnitionChance is NULL");
-
-                        if (pressureCurve != null)
-                            Log("IgnitionFail: pressureCurve is valid");
-                        else
-                            Log("IgnitionFail: pressureCurve is NULL");
 
                         double initialFlightData = core.GetInitialFlightData();
                         float ignitionChance = 1f;
@@ -131,8 +91,8 @@ namespace TestFlight
                         ignitionChance = baseIgnitionChance.Evaluate((float)initialFlightData);
                         if (ignitionChance <= 0)
                             ignitionChance = 1f;
-                        if (pressureCurve != null)
-                            multiplier = pressureCurve.Evaluate((float)DynamicPressure);
+
+                        multiplier = pressureCurve.Evaluate((float)(part.dynamicPressurekPa * 1000d));
                         if (multiplier <= 0f)
                             multiplier = 1f;
 
@@ -197,25 +157,13 @@ namespace TestFlight
             }
         }
 
-        public override void OnLoad(ConfigNode node)
+        public override void OnAwake()
         {
-            base.OnLoad(node);
-            if (node.HasNode("baseIgnitionChance"))
-            {
-                Log("IgnitionFail: Loading baseIgnitionChance curve");
-                baseIgnitionChance = new FloatCurve();
-                baseIgnitionChance.Load(node.GetNode("baseIgnitionChance"));
-            }
-            else
-                baseIgnitionChance = null;
-            if (node.HasNode("pressureCurve"))
-            {
-                Log("IgnitionFail: Loading pressure curve");
-                pressureCurve = new FloatCurve();
-                pressureCurve.Load(node.GetNode("pressureCurve"));
-            }
-            else
-                pressureCurve = null;
+            base.OnAwake();
+            baseIgnitionChance = new FloatCurve();
+            baseIgnitionChance.Add(0f, 1f);
+            pressureCurve = new FloatCurve();
+            pressureCurve.Add(0f, 1f);
         }
     }
 }

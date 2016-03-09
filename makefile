@@ -6,11 +6,9 @@ BRANCH := $(shell git rev-parse --abbrev-ref HEAD 2>&1)
 
 ifdef TRAVIS_TAG
 ZIP_CORE := TestFlightCore-$(TRAVIS_TAG).zip
-ZIP_RO := TestFlightConfigRO-$(TRAVIS_TAG).zip
 ZIP_STOCK := TestFlightConfigStock-$(TRAVIS_TAG).zip
 else
 ZIP_CORE := TestFlightCore-$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER).zip
-ZIP_RO := TestFlightConfigRO-$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER).zip
 ZIP_STOCK := TestFlightConfigStock-$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER).zip
 endif
 
@@ -24,24 +22,23 @@ install: clean
 	cp -r GameData/TestFlight/ ~/Dropbox/KSP/TestFlight/
 	cp -r GameData/TestFlight/ ~/Developer/KSP/1.0/TestFlightDEV/Dev/GameData/TestFlight/
 
-install-ro: clean
-	-rm ~/Developer/KSP/1.0/TestFlightDEV/Dev/GameData/TestFlight/Config/*.cfg
-	cd $(CONFIG_DIR);python compileYamlConfigs.py RealismOverhaul
-	cp $(CONFIG_DIR)/RealismOverhaul/*.cfg GameData/TestFlight/Config
-	cp -r GameData/TestFlight/ ~/Dropbox/KSP/TestFlight/
-	cp -r GameData/TestFlight/ ~/Developer/KSP/1.0/TestFlightDEV/Dev/GameData/TestFlight/
-
 release: zip
 
-configs: $(CONFIG_DIR)/RealismOverhaul/%.cfg $(CONFIG_DIR)/Stock/%.cfg
-	cp $(CONFIG_DIR)/RealismOverhaul/*.cfg GameData/TestFlight/Config
-	zip $(ZIP_RO) GameData/TestFlight/Config/*
-	rm GameData/TestFlight/Config/*.cfg
+local: clean configs plugins
+
+ifdef TRAVIS_TAG
+plugins:
+else
+plugins:
+	cp bin/Release/TestFlight.dll GameData/TestFlight/Plugins/TestFlight.dll
+	cp TestFlightCore/TestFlightCore/bin/Release/TestFlightCore.dll GameData/TestFlight/Plugins/TestFlightCore.dll
+	cp TestFlightAPI/TestFlightAPI/bin/Release/TestFlightAPI.dll GameData/TestFlight/Plugins/TestFlightAPI.dll
+	cp TestFlightContracts/bin/Release/TestFlightContracts.dll GameData/TestFlight/Plugins/TestFlightContracts.dll
+endif
+
+configs: $(CONFIG_DIR)/Stock/%.cfg
 	cp $(CONFIG_DIR)/Stock/*.cfg GameData/TestFlight/Config
 	zip $(ZIP_STOCK) GameData/TestFlight/Config/*
-
-$(CONFIG_DIR)/RealismOverhaul/%.cfg:
-	cd $(CONFIG_DIR);python compileYamlConfigs.py RealismOverhaul
 
 $(CONFIG_DIR)/Stock/%.cfg:
 	cd $(CONFIG_DIR);python compileYamlConfigs.py Stock
@@ -59,7 +56,6 @@ zip: meta configs
 	zip $(ZIP_CORE) GameData GameData/TestFlight/* GameData/TestFlight/Plugins/* GameData/TestFlight/Resources/* GameData/TestFlight/Resources/Textures/*
 
 clean:
-	-rm $(CONFIG_DIR)/RealismOverhaul/*.cfg
 	-rm $(CONFIG_DIR)/Stock/*.cfg
 	-rm GameData/TestFlight/Config/*.cfg
 	-rm *.zip
@@ -76,7 +72,6 @@ ifeq ($(TRAVIS_SECURE_ENV_VARS),true)
 deploy:
 	@curl --ftp-create-dirs -T ${ZIP_CORE} -u ${FTP_USER}:${FTP_PASSWD} ftp://stantonspacebarn.com/webapps/buildtracker/builds/TestFlight/build_$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER)/$(ZIP_CORE)
 	@curl --ftp-create-dirs -T ${ZIP_STOCK} -u ${FTP_USER}:${FTP_PASSWD} ftp://stantonspacebarn.com/webapps/buildtracker/builds/TestFlight/build_$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER)/$(ZIP_STOCK)
-	@curl --ftp-create-dirs -T ${ZIP_RO} -u ${FTP_USER}:${FTP_PASSWD} ftp://stantonspacebarn.com/webapps/buildtracker/builds/TestFlight/build_$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER)/$(ZIP_RO)
 	python buildServer.py all --project-id 0 --project-name TestFlight --build-name $(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER) --changelog changes.md --files $(ZIP_CORE) $(ZIP_STOCK) $(ZIP_RO)
 else
 deploy:

@@ -1,11 +1,9 @@
 TestFlight
 ==========
+[![Build Status Master](https://travis-ci.org/KSP-RO/TestFlight.svg?branch=master)](https://travis-ci.org/KSP-RO/TestFlight)
 
 Project Status
 --------------
-
-[![Stories in Testing](https://badge.waffle.io/jwvanderbeck/TestFlight.png?label=testing&title=In Testing)](https://waffle.io/jwvanderbeck/TestFlight) [![Stories in In Progress](https://badge.waffle.io/jwvanderbeck/TestFlight.png?label=in%20progress&title=In%20Progress)](https://waffle.io/jwvanderbeck/TestFlight)
-
 
 TestFlight is currently in Alpha development, but is available for play in KSP.
 
