@@ -36,7 +36,7 @@ plugins:
 	cp TestFlightContracts/bin/Release/TestFlightContracts.dll GameData/TestFlight/Plugins/TestFlightContracts.dll
 endif
 
-configs: $(CONFIG_DIR)/RealismOverhaul/%.cfg $(CONFIG_DIR)/Stock/%.cfg
+configs: $(CONFIG_DIR)/Stock/%.cfg
 	cp $(CONFIG_DIR)/Stock/*.cfg GameData/TestFlight/Config
 	zip $(ZIP_STOCK) GameData/TestFlight/Config/*
 
