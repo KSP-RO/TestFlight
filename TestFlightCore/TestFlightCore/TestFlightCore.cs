@@ -486,7 +486,7 @@ namespace TestFlightCore
         {
             if (TestFlightManagerScenario.Instance != null)
             {
-                TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part)).AddValue("flightTime", flightTime);
+                TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part)).SetValue("flightTime", flightTime);
             }
         }
 
@@ -543,7 +543,7 @@ namespace TestFlightCore
                     newFlightTime += flightTime;
                 else
                     newFlightTime *= flightTime;
-                TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part)).AddValue("flightTime", newFlightTime);
+                TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part)).SetValue("flightTime", newFlightTime);
             }
 
             return newFlightTime;
@@ -825,7 +825,10 @@ namespace TestFlightCore
                 flightData = AttemptTechTransfer();
             
             if (startFlightData > flightData)
+            {
+                TestFlightManagerScenario.Instance.AddFlightDataForPartName(TestFlightUtil.GetFullPartName(this.part), startFlightData);
                 flightData = startFlightData;
+            }
 
             currentFlightData = flightData;
             initialFlightData = flightData;
