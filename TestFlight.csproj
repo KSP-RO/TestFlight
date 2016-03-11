@@ -141,6 +141,7 @@
     <Compile Include="TestFlightFailure_IgnitionFail.cs" />
     <Compile Include="TestFlightFailure_Engine.cs" />
     <Compile Include="TestFlightReliability_TestFail.cs" />
+    <Compile Include="TestFlightFailure_EnginePerformanceLoss.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
