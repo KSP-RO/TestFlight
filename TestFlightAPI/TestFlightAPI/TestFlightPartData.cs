@@ -124,6 +124,66 @@ namespace TestFlightAPI
                 partData.Add(key, value);
         }
 
+        public void AddValue(string key, float value)
+        {
+            key = key.ToLowerInvariant();
+            if (partData.ContainsKey(key))
+            {
+                float existingValue;
+                if (float.TryParse(partData[key], out existingValue))
+                {
+                    SetValue(key, existingValue + value);
+                }
+            }
+            else
+                SetValue(key, value);
+        }
+
+        public void AddValue(string key, int value)
+        {
+            key = key.ToLowerInvariant();
+            if (partData.ContainsKey(key))
+            {
+                int existingValue;
+                if (int.TryParse(partData[key], out existingValue))
+                {
+                    SetValue(key, existingValue + value);
+                }
+            }
+            else
+                SetValue(key, value);
+        }
+
+        public void ToggleValue(string key, bool value)
+        {
+            key = key.ToLowerInvariant();
+            if (partData.ContainsKey(key))
+            {
+                bool existingValue;
+                if (bool.TryParse(partData[key], out existingValue))
+                {
+                    SetValue(key, !existingValue);
+                }
+            }
+            else
+                SetValue(key, value);
+        }
+
+        public void AddValue(string key, double value)
+        {
+            key = key.ToLowerInvariant();
+            if (partData.ContainsKey(key))
+            {
+                double existingValue;
+                if (double.TryParse(partData[key], out existingValue))
+                {
+                    SetValue(key, existingValue + value);
+                }
+            }
+            else
+                SetValue(key, value);
+        }
+            
         private void decodeRawPartData()
         {
             string[] propertyGroups = rawPartdata.Split(new char[1]{ ',' }, StringSplitOptions.RemoveEmptyEntries);
