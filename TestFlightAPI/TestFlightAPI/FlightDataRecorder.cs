@@ -43,8 +43,17 @@ namespace TestFlightAPI
         }
         public string Configuration
         {
-            get { return configuration; }
-            set { configuration = value; }
+            get 
+            { 
+                if (configuration.Equals(string.Empty))
+                    configuration = "kspPartName = " + TestFlightUtil.GetPartName(this.part);
+
+                return configuration; 
+            }
+            set 
+            { 
+                configuration = value; 
+            }
         }
 
         public override void OnStart(StartState state)
