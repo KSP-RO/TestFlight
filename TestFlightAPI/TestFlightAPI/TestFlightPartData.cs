@@ -95,27 +95,27 @@ namespace TestFlightAPI
             return returnValue;
         }
 
-        public void AddValue(string key, float value)
+        public void SetValue(string key, float value)
         {
-            AddValue(key, value.ToString());
+            SetValue(key, value.ToString());
         }
 
-        public void AddValue(string key, int value)
+        public void SetValue(string key, int value)
         {
-            AddValue(key, value.ToString());
+            SetValue(key, value.ToString());
         }
 
-        public void AddValue(string key, bool value)
+        public void SetValue(string key, bool value)
         {
-            AddValue(key, value.ToString());
+            SetValue(key, value.ToString());
         }
 
-        public void AddValue(string key, double value)
+        public void SetValue(string key, double value)
         {
-            AddValue(key, value.ToString());
+            SetValue(key, value.ToString());
         }
 
-        public void AddValue(string key, string value)
+        public void SetValue(string key, string value)
         {
             key = key.ToLowerInvariant();
             if (partData.ContainsKey(key))
@@ -130,7 +130,7 @@ namespace TestFlightAPI
             foreach (string propertyGroup in propertyGroups)
             {
                 string[] keyValuePair = propertyGroup.Split(new char[1]{ ':' });
-                AddValue(keyValuePair[0], keyValuePair[1]);
+                SetValue(keyValuePair[0], keyValuePair[1]);
             }
         }
 

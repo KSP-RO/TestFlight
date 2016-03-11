@@ -21,7 +21,7 @@ namespace TestFlightCore
         public float currentFlightData;
         [KSPField(isPersistant=true)]
         public float initialFlightData;
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public float startFlightData;
 
         [KSPField]
