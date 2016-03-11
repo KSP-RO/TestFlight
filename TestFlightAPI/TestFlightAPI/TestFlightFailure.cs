@@ -169,7 +169,7 @@ namespace TestFlightAPI
             get 
             { 
                 if (configuration.Equals(string.Empty))
-                    configuration = "kspPartName = " + TestFlightUtil.GetPartName(this.part);
+                    configuration = TestFlightUtil.GetPartName(this.part);
 
                 return configuration; 
             }
