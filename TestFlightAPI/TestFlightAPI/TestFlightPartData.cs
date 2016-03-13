@@ -95,27 +95,27 @@ namespace TestFlightAPI
             return returnValue;
         }
 
-        public void AddValue(string key, float value)
+        public void SetValue(string key, float value)
         {
-            AddValue(key, value.ToString());
+            SetValue(key, value.ToString());
         }
 
-        public void AddValue(string key, int value)
+        public void SetValue(string key, int value)
         {
-            AddValue(key, value.ToString());
+            SetValue(key, value.ToString());
         }
 
-        public void AddValue(string key, bool value)
+        public void SetValue(string key, bool value)
         {
-            AddValue(key, value.ToString());
+            SetValue(key, value.ToString());
         }
 
-        public void AddValue(string key, double value)
+        public void SetValue(string key, double value)
         {
-            AddValue(key, value.ToString());
+            SetValue(key, value.ToString());
         }
 
-        public void AddValue(string key, string value)
+        public void SetValue(string key, string value)
         {
             key = key.ToLowerInvariant();
             if (partData.ContainsKey(key))
@@ -124,13 +124,73 @@ namespace TestFlightAPI
                 partData.Add(key, value);
         }
 
+        public void AddValue(string key, float value)
+        {
+            key = key.ToLowerInvariant();
+            if (partData.ContainsKey(key))
+            {
+                float existingValue;
+                if (float.TryParse(partData[key], out existingValue))
+                {
+                    SetValue(key, existingValue + value);
+                }
+            }
+            else
+                SetValue(key, value);
+        }
+
+        public void AddValue(string key, int value)
+        {
+            key = key.ToLowerInvariant();
+            if (partData.ContainsKey(key))
+            {
+                int existingValue;
+                if (int.TryParse(partData[key], out existingValue))
+                {
+                    SetValue(key, existingValue + value);
+                }
+            }
+            else
+                SetValue(key, value);
+        }
+
+        public void ToggleValue(string key, bool value)
+        {
+            key = key.ToLowerInvariant();
+            if (partData.ContainsKey(key))
+            {
+                bool existingValue;
+                if (bool.TryParse(partData[key], out existingValue))
+                {
+                    SetValue(key, !existingValue);
+                }
+            }
+            else
+                SetValue(key, value);
+        }
+
+        public void AddValue(string key, double value)
+        {
+            key = key.ToLowerInvariant();
+            if (partData.ContainsKey(key))
+            {
+                double existingValue;
+                if (double.TryParse(partData[key], out existingValue))
+                {
+                    SetValue(key, existingValue + value);
+                }
+            }
+            else
+                SetValue(key, value);
+        }
+            
         private void decodeRawPartData()
         {
             string[] propertyGroups = rawPartdata.Split(new char[1]{ ',' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string propertyGroup in propertyGroups)
             {
                 string[] keyValuePair = propertyGroup.Split(new char[1]{ ':' });
-                AddValue(keyValuePair[0], keyValuePair[1]);
+                SetValue(keyValuePair[0], keyValuePair[1]);
             }
         }
 

@@ -21,7 +21,7 @@ namespace TestFlightCore
         public float currentFlightData;
         [KSPField(isPersistant=true)]
         public float initialFlightData;
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public float startFlightData;
 
         [KSPField]
@@ -97,8 +97,20 @@ namespace TestFlightCore
         }
         public string Configuration
         {
-            get { return configuration; }
-            set { configuration = value; }
+            get 
+            { 
+                if (configuration.Equals(string.Empty))
+                {
+                    configuration = "kspPartName = " + TestFlightUtil.GetPartName(this.part);
+                    configuration = configuration + ":" + TestFlightUtil.GetPartName(this.part);
+                }
+
+                return configuration; 
+            }
+            set 
+            { 
+                configuration = value; 
+            }
         }
         public string Title
         {
@@ -486,7 +498,7 @@ namespace TestFlightCore
         {
             if (TestFlightManagerScenario.Instance != null)
             {
-                TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part)).AddValue("flightTime", flightTime);
+                TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part)).SetValue("flightTime", flightTime);
             }
         }
 
@@ -543,7 +555,7 @@ namespace TestFlightCore
                     newFlightTime += flightTime;
                 else
                     newFlightTime *= flightTime;
-                TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part)).AddValue("flightTime", newFlightTime);
+                TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part)).SetValue("flightTime", newFlightTime);
             }
 
             return newFlightTime;
@@ -825,7 +837,10 @@ namespace TestFlightCore
                 flightData = AttemptTechTransfer();
             
             if (startFlightData > flightData)
+            {
+                TestFlightManagerScenario.Instance.AddFlightDataForPartName(TestFlightUtil.GetFullPartName(this.part), startFlightData);
                 flightData = startFlightData;
+            }
 
             currentFlightData = flightData;
             initialFlightData = flightData;

@@ -131,6 +131,11 @@ namespace TestFlightAPI
                 return returnVal;
             }
         }
+        public override void OnAwake()
+        {
+            base.OnAwake();
+            AddInteropValue("kspPartName", TestFlightUtil.GetPartName(this.part), "TestFlight");
+        }
     }
 }
 
