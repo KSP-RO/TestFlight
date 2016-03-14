@@ -866,6 +866,10 @@ namespace TestFlightAPI
         /// Determines whether the part is considered operating or not.
         /// </summary>
         bool IsPartOperating();
+
+        float GetMaximumRnDData();
+        float GetRnDCost();
+        float GetRnDRate();
     }
 }
 

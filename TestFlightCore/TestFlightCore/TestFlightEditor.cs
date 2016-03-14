@@ -33,6 +33,7 @@ namespace TestFlightCore
             }
         }
         internal TestFlightManagerScenario tfScenario = null;
+        internal TestFlightRnDScenario tfRnDScenario = null;
         internal bool isReady = false;
         private ApplicationLauncherButton appLauncherButton;
         bool stickyWindow = false;
@@ -91,6 +92,18 @@ namespace TestFlightCore
             {
                 yield return null;
             }
+
+            while (TestFlightRnDScenario.Instance == null)
+            {
+                yield return null;
+            }
+
+            tfRnDScenario = TestFlightRnDScenario.Instance;
+            while (!tfRnDScenario.isReady)
+            {
+                yield return null;
+            }
+
             Startup();
         }
 
@@ -130,9 +143,9 @@ namespace TestFlightCore
             if (tfScenario == null)
                 return;
 
-            float windowWidth = 350f;
+            float windowWidth = 200f;
             float left = Screen.width - windowWidth - 75f;
-            float windowHeight = 50f;
+            float windowHeight = 100f;
 
             windowHeight += 20f;
             float top = Screen.height - windowHeight - 60f;
@@ -250,21 +263,56 @@ namespace TestFlightCore
             GUILayout.Label(String.Format("Selected Part: {0}", TestFlightUtil.GetFullPartName(SelectedPart)), Styles.styleEditorTitle);
 
             tfScenario.userSettings.currentEditorScrollPosition = GUILayout.BeginScrollView(tfScenario.userSettings.currentEditorScrollPosition);
-            TestFlightPartData partData = tfScenario.GetPartDataForPart(TestFlightUtil.GetFullPartName(SelectedPart));
-            if (partData != null)
+            float flightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(TestFlightUtil.GetFullPartName(SelectedPart));
+            core = TestFlightUtil.GetCore(SelectedPart);
+            if (core != null)
             {
-                float flightData = partData.GetFloat("flightData");
-                core = TestFlightUtil.GetCore(SelectedPart);
-                if (core != null)
+                core.InitializeFlightData(flightData);
+                GUILayout.BeginHorizontal();
+                double failureRate = core.GetBaseFailureRate();
+                String mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
+                // 10 characters for body max plus 10 characters for situation plus underscore = 21 characters needed for longest scope string
+                GUILayout.Label(String.Format("{0,-7:F2}<b>du</b>", flightData), GUILayout.Width(75));
+                GUILayout.Label(String.Format("{0,-5:F2} MTBF", mtbfString), GUILayout.Width(125));
+                GUILayout.EndHorizontal();
+                Log("Checking for RnD Status");
+                string partName = TestFlightUtil.GetFullPartName(SelectedPart);
+                float maxRnDData = core.GetMaximumRnDData();
+                if (flightData >= maxRnDData)
                 {
-                    core.InitializeFlightData(flightData);
-                    GUILayout.BeginHorizontal();
-                    double failureRate = core.GetBaseFailureRate();
-                    String mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
-                    // 10 characters for body max plus 10 characters for situation plus underscore = 21 characters needed for longest scope string
-                    GUILayout.Label(String.Format("{0,-7:F2}<b>du</b>", flightData), GUILayout.Width(75));
-                    GUILayout.Label(String.Format("{0,-5:F2} MTBF", mtbfString), GUILayout.Width(125));
-                    GUILayout.EndHorizontal();
+                    Log("Part has reached Max RnD");
+                    GUILayout.Label("Part flight data meets or exceeds maximum lab R&D amount", Styles.styleEditorText);
+                }
+                else
+                {
+                    Log("Part is RnD Eligible");
+                    if (!tfRnDScenario.IsPartBeingResearched(partName))
+                    {
+                        Log("Part is not being researched.  Show research buttons");
+                        GUILayout.Label("Hire Research Team", Styles.styleEditorTitle);
+                        GUILayout.BeginHorizontal();
+                        if (GUILayout.Button("Skilled", GUILayout.Width(75)))
+                        {
+                            tfRnDScenario.AddResearchTeam(SelectedPart, 0);
+                        }
+                        if (GUILayout.Button("Advanced", GUILayout.Width(75)))
+                        {
+                            tfRnDScenario.AddResearchTeam(SelectedPart, 0);
+                        }
+                        if (GUILayout.Button("Expert", GUILayout.Width(75)))
+                        {
+                            tfRnDScenario.AddResearchTeam(SelectedPart, 0);
+                        }
+                        GUILayout.EndHorizontal();
+                    }
+                    else
+                    {
+                        Log("Part is already being researched.  Show button to stop");
+                        if (GUILayout.Button("Stop Research", GUILayout.Width(200)))
+                        {
+                            tfRnDScenario.RemoveResearch(partName);
+                        }
+                    }
                 }
             }
             GUILayout.EndScrollView();

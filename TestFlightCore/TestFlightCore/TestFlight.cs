@@ -750,31 +750,6 @@ namespace TestFlightCore
 
             InitDataStore();
 
-            // TODO
-            // The bodySettings don't currently work anyway, so commenting this out for now
-//            if (bodySettings.FileExists)
-//                bodySettings.Load();
-//            else
-//            {
-//                bodySettings.bodyAliases.Add("moho", "Moho");
-//                bodySettings.bodyAliases.Add("eve", "Eve");
-//                bodySettings.bodyAliases.Add("gilly", "Gilly");
-//                bodySettings.bodyAliases.Add("kerbin", "Kerbin");
-//                bodySettings.bodyAliases.Add("mun", "Mun");
-//                bodySettings.bodyAliases.Add("minmus", "Minmus");
-//                bodySettings.bodyAliases.Add("duna", "Duna");
-//                bodySettings.bodyAliases.Add("ike", "Ike");
-//                bodySettings.bodyAliases.Add("dres", "Dres");
-//                bodySettings.bodyAliases.Add("jool", "Jool");
-//                bodySettings.bodyAliases.Add("laythe", "Laythe");
-//                bodySettings.bodyAliases.Add("vall", "Vall");
-//                bodySettings.bodyAliases.Add("tylo", "Tylo");
-//                bodySettings.bodyAliases.Add("bop", "Bop");
-//                bodySettings.bodyAliases.Add("pol", "Pol");
-//                bodySettings.bodyAliases.Add("eeloo", "Eeloo");
-//                bodySettings.Save();
-//            }
-
             base.OnAwake();
         }
 
