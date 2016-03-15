@@ -126,6 +126,7 @@ namespace TestFlightCore
             CalculateWindowBounds();
             DragEnabled = !tfScenario.userSettings.editorWindowLocked;
             WindowMoveEventsEnabled = true;
+            WindowMoveCompleteAfter = 0.1f;
             ClampToScreen = true;
             TooltipsEnabled = true;
             TooltipMouseOffset = new Vector2d(10, 10);
