@@ -24,8 +24,6 @@ namespace TestFlightCore
 
         public string PartInResearch { get; set; }
 
-        protected float lastUpdatedTime = 0f;
-
         internal void Log(string message)
         {
             bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
@@ -45,19 +43,14 @@ namespace TestFlightCore
         /// Updates the research on the team's current part
         /// </summary>
         /// <returns>The amount of du added to the part this update.</returns>
-        public float UpdateResearch(float currentPartData)
+        public float UpdateResearch(float normalizedTime, float currentPartData)
         {
             if (PartInResearch != "")
             {
-                float currentUTC = (float)Planetarium.GetUniversalTime();
-                float timeInTick = currentUTC - lastUpdatedTime;
-                float normalizedTime = timeInTick / 86400f;
-                Log("Time in tick " + timeInTick + ", normalized time " + normalizedTime);
                 float pointsForTick = Points * normalizedTime * PartRnDRate;
                 pointsForTick = Mathf.Min(pointsForTick, MaxData - currentPartData);
                 float costForTick = Cost * normalizedTime * PartRnDCost;
                 Log("Points " + pointsForTick + ", Cost " + costForTick);
-                lastUpdatedTime = currentUTC;
                 if (HighLogic.CurrentGame.Mode == Game.Modes.CAREER)
                 {
                     CurrencyModifierQuery query = CurrencyModifierQuery.RunQuery(TransactionReasons.RnDPartPurchase, -costForTick, 0f, 0f);
@@ -66,7 +59,7 @@ namespace TestFlightCore
                     if (totalCost < Funding.Instance.Funds)
                     {
                         Log("Subtracting cost...");
-                        Funding.Instance.AddFunds(-totalCost, TransactionReasons.RnDPartPurchase);
+                        Funding.Instance.AddFunds(totalCost, TransactionReasons.RnDPartPurchase);
                         return pointsForTick;
                     }
                     else
@@ -100,7 +93,7 @@ namespace TestFlightCore
         protected Dictionary<string, TestFlightRnDTeam> activeTeams = null;
 
         [KSPField(isPersistant=true)]
-        protected float lastUpdateTime = 0f;
+        protected double lastUpdateTime = 0f;
 
         protected double updateFrequency = 86400d;
 
@@ -119,11 +112,13 @@ namespace TestFlightCore
 
         public void Update()
         {
-            float currentTime = (float)Planetarium.GetUniversalTime();
+            double currentTime = Planetarium.GetUniversalTime();
             List<string> teamsToStop = new List<string>();
             Log("Update.  Current Time " + currentTime + ", Last Update " + lastUpdateTime);
             if (currentTime - lastUpdateTime >= updateFrequency)
             {
+                float normalizedTime = (float)((currentTime - lastUpdateTime) / updateFrequency);
+                Log("Doing research update, normalized time " + normalizedTime);
                 lastUpdateTime = currentTime;
                 foreach (KeyValuePair<string, TestFlightRnDTeam> entry in activeTeams)
                 {
@@ -137,7 +132,7 @@ namespace TestFlightCore
                         }
                         else
                         {
-                            float partData = entry.Value.UpdateResearch(partCurrentData);
+                            float partData = entry.Value.UpdateResearch(normalizedTime, partCurrentData);
                             Log("Research tick for part " + entry.Value.PartInResearch + " yielded " + partData + "du");
                             if (partData > 0)
                             {

@@ -143,9 +143,9 @@ namespace TestFlightCore
             if (tfScenario == null)
                 return;
 
-            float windowWidth = 200f;
+            float windowWidth = 250f;
             float left = Screen.width - windowWidth - 75f;
-            float windowHeight = 100f;
+            float windowHeight = 150f;
 
             windowHeight += 20f;
             float top = Screen.height - windowHeight - 60f;
