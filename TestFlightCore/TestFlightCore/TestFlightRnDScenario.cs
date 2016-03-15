@@ -55,18 +55,18 @@ namespace TestFlightCore
                 Log("Time in tick " + timeInTick + ", normalized time " + normalizedTime);
                 float pointsForTick = Points * normalizedTime * PartRnDRate;
                 pointsForTick = Mathf.Min(pointsForTick, MaxData - currentPartData);
-                float costForTick = Cost * normalizedTime * -1.0f * PartRnDCost;
+                float costForTick = Cost * normalizedTime * PartRnDCost;
                 Log("Points " + pointsForTick + ", Cost " + costForTick);
                 lastUpdatedTime = currentUTC;
                 if (HighLogic.CurrentGame.Mode == Game.Modes.CAREER)
                 {
-                    CurrencyModifierQuery query = CurrencyModifierQuery.RunQuery(TransactionReasons.RnDPartPurchase, costForTick, 0f, 0f);
-                    float modifiedFunds = query.GetEffectDelta(Currency.Funds);
-                    Log("Modified cost " + modifiedFunds);
-                    if (modifiedFunds * -1 > Funding.Instance.Funds)
+                    CurrencyModifierQuery query = CurrencyModifierQuery.RunQuery(TransactionReasons.RnDPartPurchase, -costForTick, 0f, 0f);
+                    float totalCost = query.GetInput(Currency.Funds) + query.GetEffectDelta(Currency.Funds);
+                    Log("Total cost " + totalCost);
+                    if (totalCost < Funding.Instance.Funds)
                     {
                         Log("Subtracting cost...");
-                        Funding.Instance.AddFunds(modifiedFunds, TransactionReasons.RnDPartPurchase);
+                        Funding.Instance.AddFunds(-totalCost, TransactionReasons.RnDPartPurchase);
                         return pointsForTick;
                     }
                     else
@@ -180,7 +180,7 @@ namespace TestFlightCore
 
         public void CreateTeams()
         {
-            if (availableTeams.Count > 0)
+            if (availableTeams != null)
                 return;
             
             availableTeams = new List<TestFlightRnDTeam>(3);
@@ -203,6 +203,9 @@ namespace TestFlightCore
             if (core == null)
                 return;
 
+            if (availableTeams == null)
+                CreateTeams();
+            
             if (team < availableTeams.Count)
             {
                 TestFlightRnDTeam template = availableTeams[team];
