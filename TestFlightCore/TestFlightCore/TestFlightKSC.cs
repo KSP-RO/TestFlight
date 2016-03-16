@@ -16,6 +16,7 @@ namespace TestFlightCore
     {
         internal static TestFlightKSCWindow Instance;
         internal TestFlightManagerScenario tfScenario = null;
+        internal TestFlightRnDScenario tfRnDScenario = null;
         internal bool isReady = false;
         private ApplicationLauncherButton appLauncherButton;
         bool stickyWindow = false;
@@ -47,6 +48,17 @@ namespace TestFlightCore
 
             tfScenario = TestFlightManagerScenario.Instance;
             while (!tfScenario.isReady)
+            {
+                yield return null;
+            }
+
+            while (TestFlightRnDScenario.Instance == null)
+            {
+                yield return null;
+            }
+
+            tfRnDScenario = TestFlightRnDScenario.Instance;
+            while (!tfRnDScenario.isReady)
             {
                 yield return null;
             }
@@ -179,8 +191,38 @@ namespace TestFlightCore
             {
                 case 0:
                     GUILayout.Label("Research & Development");
-                    GUILayout.Label("Here you can allocate R&D teams to working on improving your hardware.\nMouse over for help.");
-//                    tfScenario.userSettings.currentResearchScrollPosition = GUILayout.BeginScrollView(tfScenario.userSettings.currentResearchScrollPosition);
+                    List<string> partsInResearch = tfRnDScenario.GetPartsInResearch();
+                    if (partsInResearch == null || partsInResearch.Count == 0)
+                        GUILayout.Label("Here you can manage engineering teams working on your hardware.\nYou can start new research programs from the VAB.");
+                    else
+                    {
+                        tfScenario.userSettings.currentResearchScrollPosition = GUILayout.BeginScrollView(tfScenario.userSettings.currentResearchScrollPosition);
+                        foreach (string partInResearch in partsInResearch)
+                        {
+                            GUILayout.BeginHorizontal();
+                            if (GUILayout.Button("Stop", GUILayout.Width(50)))
+                            {
+                                tfRnDScenario.RemoveResearch(partInResearch);
+                            }
+                            if (tfRnDScenario.GetPartResearchState(partInResearch))
+                            {
+                                if (GUILayout.Button("Pause", GUILayout.Width(50)))
+                                {
+                                    tfRnDScenario.SetPartResearchState(partInResearch, false);
+                                }
+                            }
+                            else
+                            {
+                                if (GUILayout.Button("Resume", GUILayout.Width(50)))
+                                {
+                                    tfRnDScenario.SetPartResearchState(partInResearch, true);
+                                }
+                            }
+                            GUILayout.Label(partInResearch);
+                            GUILayout.EndHorizontal();
+                        }
+                        GUILayout.EndScrollView();
+                    }
                     break;
                 case 1:
                     if (ddlSettingsPage == null)
