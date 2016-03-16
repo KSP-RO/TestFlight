@@ -206,14 +206,14 @@ namespace TestFlightCore
                             }
                             if (tfRnDScenario.GetPartResearchState(partInResearch))
                             {
-                                if (GUILayout.Button("Pause", GUILayout.Width(50)))
+                                if (GUILayout.Button("Pause", GUILayout.Width(75)))
                                 {
                                     tfRnDScenario.SetPartResearchState(partInResearch, false);
                                 }
                             }
                             else
                             {
-                                if (GUILayout.Button("Resume", GUILayout.Width(50)))
+                                if (GUILayout.Button("Resume", GUILayout.Width(75)))
                                 {
                                     tfRnDScenario.SetPartResearchState(partInResearch, true);
                                 }
