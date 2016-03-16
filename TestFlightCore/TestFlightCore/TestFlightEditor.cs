@@ -11,10 +11,66 @@ using TestFlightAPI;
 
 namespace TestFlightCore
 {
+    public class TestFlightEditorInfoWindow : MonoBehaviour
+    {
+        private bool show = false;
+        private Rect position;
+        private Part selectedPart;
+
+        public void OnGUI()
+        {
+            position = GUILayout.Window(GetInstanceID(), position, DrawWindow, String.Empty, Styles.styleEditorPanel);
+        }
+
+        public void Update()
+        {
+            if (EditorLogic.RootPart == null || EditorLogic.fetch.editorScreen != EditorScreen.Parts)
+            {
+                return;
+            }
+
+            position.x = Mathf.Clamp(Input.mousePosition.x + 16.0f, 0.0f, Screen.width - position.width);
+            position.y = Mathf.Clamp(Screen.height - Input.mousePosition.y, 0.0f, Screen.height - position.height);
+            if (position.x < Input.mousePosition.x + 20.0f)
+            {
+                position.y = Mathf.Clamp(position.y + 20.0f, 0.0f, Screen.height - position.height);
+            }
+            if (position.x < Input.mousePosition.x + 16.0f && position.y < Screen.height - Input.mousePosition.y)
+            {
+                position.x = Input.mousePosition.x - 3 - position.width;
+            }
+
+            selectedPart = EditorLogic.fetch.ship.parts.Find(p => p.stackIcon.highlightIcon) ?? EditorLogic.SelectedPart;
+            if (selectedPart != null)
+            {
+                if ( (!show && Input.GetMouseButtonDown(2))
+                    || (!show && Input.GetMouseButtonDown(1) && Input.GetKeyDown(KeyCode.LeftCommand))
+                    || (!show && Input.GetMouseButtonDown(1) && Input.GetKeyDown(KeyCode.LeftControl)))
+                {
+                    show = true;
+                }
+            } // End selectedPart
+        }
+
+        public void DrawWindow(int windowID)
+        {
+            GUILayout.Label(selectedPart.partInfo.title, Styles.styleEditorTitle);
+            if (show)
+            {
+            }
+            else
+            {
+                GUILayout.Space(2.0f);
+                GUILayout.Label("Middle mouse (or cmd/ctrl right mouse) to show TestFlight info...", Styles.styleEditorText);
+            }
+        }
+    }
+
     [KSPAddon(KSPAddon.Startup.EditorAny, false)]
     public class TestFlightEditorWindow : MonoBehaviourWindowPlus
     {
         internal static TestFlightEditorWindow Instance;
+        internal TestFlightEditorInfoWindow infoWindow = null;
         private bool locked = false;
         private Part _selectedPart;
         internal Part SelectedPart
@@ -70,6 +126,17 @@ namespace TestFlightCore
             bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
             message = "TestFlightEditor: " + message;
             TestFlightUtil.Log(message, debug);
+        }
+
+        internal override void Awake()
+        {
+            infoWindow = this.gameObject.AddComponent<TestFlightEditorInfoWindow>();
+        }
+
+        internal override void OnDestroy()
+        {
+            if (infoWindow != null)
+                Destroy(infoWindow);
         }
 
         internal override void Start()

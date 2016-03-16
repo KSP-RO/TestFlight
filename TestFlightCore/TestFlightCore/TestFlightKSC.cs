@@ -196,7 +196,8 @@ namespace TestFlightCore
                         GUILayout.Label("Here you can manage engineering teams working on your hardware.\nYou can start new research programs from the VAB.");
                     else
                     {
-                        tfScenario.userSettings.currentResearchScrollPosition = GUILayout.BeginScrollView(tfScenario.userSettings.currentResearchScrollPosition);
+//                        tfScenario.userSettings.currentResearchScrollPosition = GUILayout.BeginScrollView(tfScenario.userSettings.currentResearchScrollPosition);
+                        GUILayout.BeginVertical();
                         foreach (string partInResearch in partsInResearch)
                         {
                             GUILayout.BeginHorizontal();
@@ -221,7 +222,8 @@ namespace TestFlightCore
                             GUILayout.Label(partInResearch);
                             GUILayout.EndHorizontal();
                         }
-                        GUILayout.EndScrollView();
+                        GUILayout.EndVertical();
+//                        GUILayout.EndScrollView();
                     }
                     break;
                 case 1:
