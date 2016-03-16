@@ -23,6 +23,7 @@ namespace TestFlightCore
         }
 
         public string PartInResearch { get; set; }
+        public bool ResearchActive { get; set; }
 
         internal void Log(string message)
         {
@@ -37,6 +38,7 @@ namespace TestFlightCore
             Points = points;
             CostFactor = costFactor;
             PartInResearch = "";
+            ResearchActive = false;
         }
 
         /// <summary>
@@ -45,7 +47,7 @@ namespace TestFlightCore
         /// <returns>The amount of du added to the part this update.</returns>
         public float UpdateResearch(float normalizedTime, float currentPartData)
         {
-            if (PartInResearch != "")
+            if (PartInResearch != "" && ResearchActive)
             {
                 float pointsForTick = Points * normalizedTime * PartRnDRate;
                 pointsForTick = Mathf.Min(pointsForTick, MaxData - currentPartData);
@@ -122,7 +124,7 @@ namespace TestFlightCore
                 lastUpdateTime = currentTime;
                 foreach (KeyValuePair<string, TestFlightRnDTeam> entry in activeTeams)
                 {
-                    if (entry.Value.PartInResearch != "")
+                    if (entry.Value.PartInResearch != "" && entry.Value.ResearchActive)
                     {
                         float partCurrentData = tfScenario.GetFlightDataForPartName(entry.Value.PartInResearch);
                         if (partCurrentData >= entry.Value.MaxData)
@@ -209,6 +211,7 @@ namespace TestFlightCore
                 activeTeams[partName].MaxData = core.GetMaximumRnDData();
                 activeTeams[partName].PartRnDCost = core.GetRnDCost();
                 activeTeams[partName].PartRnDRate = core.GetRnDRate();
+                activeTeams[partName].ResearchActive = true;
             }
         }
 
@@ -227,6 +230,32 @@ namespace TestFlightCore
             
             return activeTeams.ContainsKey(partName);
         }
+
+        public List<string> GetPartsInResearch()
+        {
+            if (activeTeams == null)
+                return null;
+            
+            List<string> parts = new List<string>(activeTeams.Keys);
+            return parts;
+        }
+
+        public bool GetPartResearchState(string partName)
+        {
+            if (!IsPartBeingResearched(partName))
+                return false;
+
+            return activeTeams[partName].ResearchActive;
+        }
+
+        public void SetPartResearchState(string partName, bool researchActive)
+        {
+            if (activeTeams.ContainsKey(partName))
+            {
+                activeTeams[partName].ResearchActive = researchActive;
+            }
+        }
+
 
         protected TestFlightRnDTeam GetTeamTemplate(string templateName)
         {
@@ -259,6 +288,7 @@ namespace TestFlightCore
                         activeTeams[partName].MaxData = float.Parse(teamNode.GetValue("MaxData"));
                         activeTeams[partName].PartRnDCost = float.Parse(teamNode.GetValue("PartRnDCost"));
                         activeTeams[partName].PartRnDRate = float.Parse(teamNode.GetValue("PartRnDRate"));
+                        activeTeams[partName].ResearchActive = bool.Parse(teamNode.GetValue("ResearchActive"));
                     }
                 }
             }
@@ -280,6 +310,7 @@ namespace TestFlightCore
                     teamNode.AddValue("MaxData", entry.Value.MaxData);
                     teamNode.AddValue("PartRnDCost", entry.Value.PartRnDCost);
                     teamNode.AddValue("PartRnDRate", entry.Value.PartRnDRate);
+                    teamNode.AddValue("ResearchActive", entry.Value.ResearchActive);
                 }
             }
         }
