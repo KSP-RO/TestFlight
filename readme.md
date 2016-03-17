@@ -1,58 +1,7 @@
 TestFlight
 ==========
 [![Build Status Master](https://travis-ci.org/KSP-RO/TestFlight.svg?branch=master)](https://travis-ci.org/KSP-RO/TestFlight)
-
-Project Status
---------------
-
-TestFlight is currently in Alpha development, but is available for play in KSP.
-
-As of 30 January 2015, TestFlight is has separate releases for Stock and Realism Overhaul.  Please ensure you download the proper one.
-
-Stock
------
-[![Build Status Master](https://travis-ci.org/KSP-RO/TestFlight.svg?branch=master)](https://travis-ci.org/jwvanderbeck/TestFlight)
-
-Latest Release: [v0.4.5 Alpha Stock](https://github.com/KSP-RO/TestFlight/releases/tag/0.4.5-Stock)    
-Forum Thread: [KSP Add Ons Development Thread](http://forum.kerbalspaceprogram.com/threads/88187)    
-GitHub: https://github.com/jwvanderbeck/TestFlight    
-Bug Reports & Feature Requests: https://github.com/jwvanderbeck/TestFlight/issues    
-Waffle Status Board: https://waffle.io/jwvanderbeck/TestFlight
-
-**Config Status**
-
-* Engines
-	* All liquid engines
-	* All solid engines
-	* All monopropellant engines
-* Fuel Tanks
-	* All liquid fuel tanks
-	* All monopropellant fuel tanks
-	* All xenon fuel tanks
-
-Currently the configs for the stock branch apply to any stock or stock-alike parts and part packs that use the standard stock resources.  In generall if you are playing a "Stock" or "Stock-alike" game, you should find valid TestFlight configs for the parts listed above in **Config Status**.  However there are no special configs for specific parts.  This means that currently for example, every liquid engine has the same reliability.
-
-I am looking for people willing to volunteer to help build better configs for stock.  If you are interested please let me know by posting in the forum thread.  Thank you!
-
-Realism Overhaul
-----------------
-[![Build Status RealismOverhaul](https://travis-ci.org/KSP-RO/TestFlight.svg?branch=RealismOverhaul)](https://travis-ci.org/jwvanderbeck/TestFlight) 
-
-Latest Release: [v0.4.5 Alpha RealismOverhaul](https://github.com/KSP-RO/TestFlight/releases/tag/0.4.5.1-RealismOverhaul)    
-Forum Thread: [KSP Add Ons Development Thread](http://forum.kerbalspaceprogram.com/threads/88187)    
-GitHub: https://github.com/KSP-RO/TestFlight/RealismOverhaul    
-Bug Reports & Feature Requests: https://github.com/KSP-RO/TestFlight/issues    
-Waffle Status Board: https://waffle.io/jwvanderbeck/TestFlight
-
-**Config Status**
-
-* Engines
-	* WAC-Corporal, Aerobee-Hi, Aerobee-150
-	* X-405
-	* AJ-10-37,AJ-10-42
-
-I am looking for people willing to volunteer to help with the configs for Realism Overhaul.  If you are interested please let me know by posting in the forum thread.  Thank you!
-
+[![Build Status dev](https://travis-ci.org/KSP-RO/TestFlight.svg?branch=dev)](https://travis-ci.org/KSP-RO/TestFlight)
 
 ----------------------------------
 
