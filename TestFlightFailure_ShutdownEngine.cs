@@ -13,6 +13,7 @@ namespace TestFlight
         protected struct CachedEngineState
         {
             public bool allowShutdown;
+            public int numIgnitions;
         }
 
         Dictionary<int, CachedEngineState> engineStates;
@@ -36,8 +37,10 @@ namespace TestFlight
                 int id = engine.engine.Module.GetInstanceID();
                 CachedEngineState engineState = new CachedEngineState();
                 engineState.allowShutdown = engine.engine.allowShutdown;
+                engineState.numIgnitions = engine.engine.GetIgnitionCount();
                 engine.engine.Shutdown();
                 engineStates.Add(id, engineState);
+                engine.engine.RemoveIgnitions(-1);
             }
         }
 
@@ -52,6 +55,7 @@ namespace TestFlight
                 {
                     engine.engine.enabled = true;
                     engine.engine.allowShutdown = engineStates[id].allowShutdown;
+                    engine.engine.AddIgnitions(engineStates[id].numIgnitions);
                 }
             }
             engineStates.Clear();
