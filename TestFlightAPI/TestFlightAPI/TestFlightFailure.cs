@@ -144,13 +144,16 @@ namespace TestFlightAPI
         [KSPField]
         public bool oneShot = false;
 
+        [KSPField(isPersistant=true)]
+        public bool failed;
+
         public RepairConfig repairConfig;
 
 
         public bool Failed
         {
-            get;
-            set;
+            get { return failed; }
+            set { failed = value; }
         }
 
         public string repairConfigString;
