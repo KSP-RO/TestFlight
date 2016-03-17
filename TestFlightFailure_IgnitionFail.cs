@@ -21,6 +21,13 @@ namespace TestFlight
         public FloatCurve baseIgnitionChance = null;
         [KSPField]
         public FloatCurve pressureCurve = null;
+        [KSPField]
+        public FloatCurve ignitionUseMultiplier = null;
+        [KSPField]
+        public float additionalFailureChance = 0f;
+
+        [KSPField(isPersistant=true)]
+        public int numIgnitions = 0;
 
         private ITestFlightCore core = null;
 
@@ -82,8 +89,10 @@ namespace TestFlight
                 {
                     if (engine.ignitionState == EngineModuleWrapper.EngineIgnitionState.NOT_IGNITED || engine.ignitionState == EngineModuleWrapper.EngineIgnitionState.UNKNOWN)
                     {
+                        double failureRoll = 0d;
                         Log(String.Format("IgnitionFail: Engine {0} transitioning to INGITED state", engine.engine.Module.GetInstanceID()));
                         Log(String.Format("IgnitionFail: Checking curves..."));
+                        numIgnitions++;
 
                         double initialFlightData = core.GetInitialFlightData();
                         float ignitionChance = 1f;
@@ -97,14 +106,19 @@ namespace TestFlight
                             multiplier = 1f;
 
                         if (this.vessel.situation != Vessel.Situations.PRELAUNCH)
-                            ignitionChance *= multiplier;
+                            ignitionChance = ignitionChance * multiplier * ignitionUseMultiplier.Evaluate(numIgnitions);
 
-                        double failureRoll = core.RandomGenerator.NextDouble();
+                        failureRoll = core.RandomGenerator.NextDouble();
                         Log(String.Format("IgnitionFail: Engine {0} ignition chance {1:F4}, roll {2:F4}", engine.engine.Module.GetInstanceID(), ignitionChance, failureRoll));
                         if (failureRoll > ignitionChance)
                         {
                             engine.failEngine = true;
                             core.TriggerNamedFailure("TestFlightFailure_IgnitionFail");
+                            failureRoll = core.RandomGenerator.NextDouble();
+                            if (failureRoll < additionalFailureChance)
+                            {
+                                core.TriggerFailure();
+                            }
                         }
                     }
                 }
@@ -164,6 +178,8 @@ namespace TestFlight
             baseIgnitionChance.Add(0f, 1f);
             pressureCurve = new FloatCurve();
             pressureCurve.Add(0f, 1f);
+            ignitionUseMultiplier = new FloatCurve();
+            ignitionUseMultiplier.Add(0f, 1f);
         }
     }
 }
