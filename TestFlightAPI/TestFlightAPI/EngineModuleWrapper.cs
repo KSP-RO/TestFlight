@@ -297,6 +297,8 @@ public class EngineModuleWrapper
             if (engine.GetType().Name == "ModuleEnginesRF")
             {
                 int currentIgnitions = (int)engine.GetType().GetField("ignitions").GetValue(engine);
+                if (currentIgnitions < 0)
+                    return;
                 engine.GetType().GetField("ignitions").SetValue(engine, numIgnitions + currentIgnitions);
             }
         }
