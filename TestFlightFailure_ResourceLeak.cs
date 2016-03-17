@@ -82,7 +82,7 @@ namespace TestFlight
                     if (part.Resources.Count > 0)
                     {
                         List<PartResource> allResources = this.part.Resources.list;
-                        int randomResource = UnityEngine.Random.Range(0, allResources.Count());
+                        int randomResource = TestFlightUtil.GetCore(this.part).RandomGenerator.Next(0, allResources.Count());
                         resId = allResources[randomResource].info.id;
                         found = true;
                     }

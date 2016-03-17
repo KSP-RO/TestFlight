@@ -875,12 +875,25 @@ namespace TestFlightCore
         public void SetFlightDataForPartName(string partName, float data)
         {
             if (partData.ContainsKey(partName))
-                partData[partName].AddValue("flightData", data.ToString());
+                partData[partName].SetValue("flightData", data.ToString());
             else
             {
                 TestFlightPartData newData = new TestFlightPartData();
                 newData.PartName = partName;
-                newData.AddValue("flightData", data.ToString());
+                newData.SetValue("flightData", data.ToString());
+                partData.Add(partName, newData);
+            }
+        }
+        // This is a utility method that adds the "flightData" value directly
+        public void AddFlightDataForPartName(string partName, float data)
+        {
+            if (partData.ContainsKey(partName))
+                partData[partName].AddValue("flightData", data);
+            else
+            {
+                TestFlightPartData newData = new TestFlightPartData();
+                newData.PartName = partName;
+                newData.SetValue("flightData", data);
                 partData.Add(partName, newData);
             }
         }
@@ -926,8 +939,8 @@ namespace TestFlightCore
                         totalData += data.flightData;
                         totalTime += data.flightTime;
                     }
-                    storedPartData.AddValue("flightData", totalData.ToString());
-                    storedPartData.AddValue("flightTime", totalTime.ToString());
+                    storedPartData.SetValue("flightData", totalData.ToString());
+                    storedPartData.SetValue("flightTime", totalTime.ToString());
                     partData.Add(storedPartData.PartName, storedPartData);
                 }
             }
