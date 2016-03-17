@@ -17,10 +17,7 @@ all: clean meta configs
 
 install: clean
 	-rm ~/Developer/KSP/1.0/TestFlightDEV/Dev/GameData/TestFlight/Config/*.cfg
-	cd $(CONFIG_DIR);python compileYamlConfigs.py Stock
-	cp $(CONFIG_DIR)/Stock/*.cfg GameData/TestFlight/Config
 	cp -r GameData/TestFlight/ ~/Dropbox/KSP/TestFlight/
-	cp -r GameData/TestFlight/ ~/Developer/KSP/1.0/TestFlightDEV/Dev/GameData/TestFlight/
 
 release: zip
 
