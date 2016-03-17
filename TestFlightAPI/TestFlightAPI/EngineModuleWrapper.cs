@@ -325,6 +325,19 @@ public class EngineModuleWrapper
         }
     }
 
+    public int GetIgnitionCount()
+    {
+        int currentIgnitions = -1;
+        if (engineType == EngineModuleType.SOLVERENGINE)
+        {
+            if (engine.GetType().Name == "ModuleEnginesRF")
+            {
+                currentIgnitions = (int)engine.GetType().GetField("ignitions").GetValue(engine);
+            }
+        }
+        return currentIgnitions;
+    }
+
     public EngineModuleWrapper()
     {
     }
