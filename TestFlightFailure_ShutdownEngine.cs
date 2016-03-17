@@ -55,7 +55,7 @@ namespace TestFlight
                 {
                     engine.engine.enabled = true;
                     engine.engine.allowShutdown = engineStates[id].allowShutdown;
-                    engine.engine.AddIgnitions(engineStates[id].numIgnitions);
+                    engine.engine.SetIgnitionCount(engineStates[id].numIgnitions);
                 }
             }
             engineStates.Clear();

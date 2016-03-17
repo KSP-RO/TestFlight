@@ -290,16 +290,27 @@ public class EngineModuleWrapper
         }
     }
 
+    public void SetIgnitionCount(int numIgnitions)
+    {
+        if (engineType == EngineModuleType.SOLVERENGINE)
+        {
+            if (engine.GetType().Name == "ModuleEnginesRF")
+            {
+                engine.GetType().GetField("ignitions").SetValue(engine, numIgnitions);
+            }
+        }
+    }
+
     public void AddIgnitions(int numIgnitions)
     {
         if (engineType == EngineModuleType.SOLVERENGINE)
         {
             if (engine.GetType().Name == "ModuleEnginesRF")
             {
-                int currentIgnitions = (int)engine.GetType().GetField("ignitions").GetValue(engine);
+                int currentIgnitions = GetIgnitionCount();
                 if (currentIgnitions < 0)
                     return;
-                engine.GetType().GetField("ignitions").SetValue(engine, numIgnitions + currentIgnitions);
+                SetIgnitionCount(numIgnitions + currentIgnitions);
             }
         }
     }
@@ -317,9 +328,9 @@ public class EngineModuleWrapper
                 }
                 else
                 {
-                    int currentIgnitions = (int)engine.GetType().GetField("ignitions").GetValue(engine);
+                    int currentIgnitions = GetIgnitionCount();
                     int newIgnitions = Math.Max(0, currentIgnitions - numIgnitions);
-                    engine.GetType().GetField("ignitions").SetValue(engine, newIgnitions);
+                    SetIgnitionCount(newIgnitions);
                 }
             }
         }
