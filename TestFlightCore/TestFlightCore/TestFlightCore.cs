@@ -46,6 +46,13 @@ namespace TestFlightCore
         public float failureRateModifier = 1f;
         [KSPField]
         public int scienceDataValue = 0;
+        // RnD system properties
+        [KSPField]
+        public float rndMaxData = 0f;
+        [KSPField]
+        public float rndRate = 1f;
+        [KSPField]
+        public float rndCost = 1f;
 
         private double baseFailureRate;
         // We store the base, or initial, flight data for calculation of Base Failure Rate
@@ -846,6 +853,7 @@ namespace TestFlightCore
             initialFlightData = flightData;
 
             missionStartTime = (float)Planetarium.GetUniversalTime();
+
             if (HighLogic.LoadedSceneIsFlight)
                 initialized = true;
         }
@@ -1058,6 +1066,23 @@ namespace TestFlightCore
 //            }
 //            info += dataRecorder.GetTestFlightInfo();
             return info;
+        }
+        public float GetMaximumRnDData()
+        {
+            if (rndMaxData == 0)
+                return GetMaximumData() * 0.75f;
+            else
+                return rndMaxData;
+        }
+
+        public float GetRnDCost()
+        {
+            return rndCost;
+        }
+
+        public float GetRnDRate()
+        {
+            return rndRate;
         }
     }
 }

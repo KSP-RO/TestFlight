@@ -76,6 +76,7 @@
     <Compile Include="TestFlightInterface.cs" />
     <Compile Include="UserSettings.cs" />
     <Compile Include="TestFlightKSC.cs" />
+    <Compile Include="TestFlightRnDScenario.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
