@@ -833,6 +833,17 @@ namespace TestFlightCore
 
             if (disabledFailures == null)
                 disabledFailures = new List<string>();
+
+            // poll failure modules for any existing failures
+            List<ITestFlightFailure> failures = TestFlightUtil.GetFailureModules(this.part);
+            foreach (ITestFlightFailure failure in failures)
+            {
+                if (failure.Failed)
+                {
+                    activeFailure = failure;
+                    break;
+                }
+            }
         }
 
         public void InitializeFlightData(float flightData)

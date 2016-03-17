@@ -666,6 +666,11 @@ namespace TestFlightAPI
 
 	public interface ITestFlightFailure
 	{
+        bool Failed
+        {
+            get;
+            set;
+        }
         bool TestFlightEnabled
         {
             get;
