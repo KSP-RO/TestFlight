@@ -98,7 +98,7 @@ namespace TestFlight
                         float ignitionChance = 1f;
                         float multiplier = 1f;
                         ignitionChance = baseIgnitionChance.Evaluate((float)initialFlightData);
-                        if (ignitionChance <= 0)
+                        if (ignitionChance <= 0)    
                             ignitionChance = 1f;
 
                         multiplier = pressureCurve.Evaluate((float)(part.dynamicPressurekPa * 1000d));

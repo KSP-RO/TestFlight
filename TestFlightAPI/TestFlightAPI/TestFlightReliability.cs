@@ -80,7 +80,7 @@ namespace TestFlightAPI
             }
         }
 
-        internal void Log(string message)
+        protected void Log(string message)
         {
             message = String.Format("TestFlightReliability({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(this.part), Configuration, message);
             TestFlightUtil.Log(message, this.part);
