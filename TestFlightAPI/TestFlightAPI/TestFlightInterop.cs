@@ -31,6 +31,8 @@ namespace TestFlightAPI
 
             Log(String.Format("Added new interop, {0} = {1}, for {2}", name, value, owner));
 
+            TestFlightUtil.UpdatePartConfigs();
+
             return true;
         }
         public bool AddInteropValue(string name, int value, string owner)
@@ -46,6 +48,7 @@ namespace TestFlightAPI
 
             knownInterops.Add(name, opValue);
 
+            TestFlightUtil.UpdatePartConfigs();
             return true;
         }
         public bool AddInteropValue(string name, float value, string owner)
@@ -61,6 +64,7 @@ namespace TestFlightAPI
 
             knownInterops.Add(name, opValue);
 
+            TestFlightUtil.UpdatePartConfigs();
             return true;
         }
         public bool AddInteropValue(string name, bool value, string owner)
@@ -76,6 +80,7 @@ namespace TestFlightAPI
 
             knownInterops.Add(name, opValue);
 
+            TestFlightUtil.UpdatePartConfigs();
             return true;
         }
         public bool RemoveInteropValue(string name, string owner)
@@ -92,6 +97,7 @@ namespace TestFlightAPI
                 return false;
 
             knownInterops.Remove(name);
+            TestFlightUtil.UpdatePartConfigs();
             return true;
         }
         public void ClearInteropValues(string owner)
@@ -111,6 +117,7 @@ namespace TestFlightAPI
                     knownInterops.Remove(key);
                 }
             }
+            TestFlightUtil.UpdatePartConfigs();
         }
         public InteropValue GetInterop(string name)
         {
@@ -130,6 +137,12 @@ namespace TestFlightAPI
                 returnVal.valueType = InteropValueType.INVALID;
                 return returnVal;
             }
+        }
+
+        public override void OnAwake()
+        {
+            base.OnAwake();
+            AddInteropValue("kspPartName", this.part.name, "TestFlight");
         }
     }
 }

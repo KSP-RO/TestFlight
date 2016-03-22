@@ -1028,6 +1028,10 @@ namespace TestFlightCore
 //            info += dataRecorder.GetTestFlightInfo();
             return info;
         }
+
+        public void UpdatePartConfig()
+        {
+        }
     }
 }
 
