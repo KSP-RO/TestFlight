@@ -59,8 +59,6 @@
     <Compile Include="EngineModuleWrapper.cs" />
     <Compile Include="TestFlightInterop.cs" />
     <Compile Include="TestFlightPartData.cs" />
-    <Compile Include="DynamicPartConfig.cs" />
-    <Compile Include="ITestFlightConfigNode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
