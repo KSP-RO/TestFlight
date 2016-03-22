@@ -130,6 +130,17 @@ namespace TestFlightAPI
             }
             return null;
         }
+
+        public static void UpdatePartConfigs(Part part)
+        {
+            foreach (PartModule pm in part.Modules)
+            {
+                ITestFlightCore core = pm as ITestFlightCore;
+                if (core != null)
+                    core.UpdatePartConfig();
+            }
+        }
+
         // Get the Data Recorder Module - can only ever be one.
         public static IFlightDataRecorder GetDataRecorder(Part part)
         {
@@ -429,8 +440,7 @@ namespace TestFlightAPI
                 // if there are no "parts" to this block, then it must be just a simple part name or an alias
                 if (block == GetPartName(part).ToLower())
                     return true;
-                if (block == TestFlightUtil.GetFullPartName(part).ToLower())
-                    return true;
+                
                 return false;
             }
         }
@@ -872,6 +882,10 @@ namespace TestFlightAPI
         /// </summary>
         bool IsPartOperating();
 
+        /// <summary>
+        /// Called whenever an Interop value is added, changed, or removed to allow the modules on the part to update to the proper config
+        /// </summary>
+        void UpdatePartConfig();
         float GetMaximumRnDData();
         float GetRnDCost();
         float GetRnDRate();

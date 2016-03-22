@@ -1085,6 +1085,13 @@ namespace TestFlightCore
 //            info += dataRecorder.GetTestFlightInfo();
             return info;
         }
+
+        public void UpdatePartConfig()
+        {
+            BaseEvent toggleRNDGUIEvent = Events["ToggleRNDGUI"];
+            toggleRNDGUIEvent.guiActiveEditor = TestFlightEnabled;
+        }
+
         public float GetMaximumRnDData()
         {
             if (rndMaxData == 0)

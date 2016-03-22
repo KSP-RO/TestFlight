@@ -749,7 +749,6 @@ namespace TestFlightCore
                 userSettings.Save();
 
             InitDataStore();
-
             base.OnAwake();
         }
 

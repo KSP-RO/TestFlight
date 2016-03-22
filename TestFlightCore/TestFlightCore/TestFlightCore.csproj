@@ -76,6 +76,7 @@
     <Compile Include="TestFlightInterface.cs" />
     <Compile Include="UserSettings.cs" />
     <Compile Include="TestFlightKSC.cs" />
+    <Compile Include="TFMultiCore.cs" />
     <Compile Include="TestFlightRnDScenario.cs" />
     <Compile Include="Utilities\ConfigNodeExtensions.cs" />
   </ItemGroup>
