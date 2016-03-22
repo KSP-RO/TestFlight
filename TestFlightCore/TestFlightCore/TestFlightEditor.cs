@@ -11,10 +11,63 @@ using TestFlightAPI;
 
 namespace TestFlightCore
 {
+    public class TestFlightEditorInfoWindow : MonoBehaviour
+    {
+        private bool show = false;
+        private Rect position;
+        private Part selectedPart;
+
+        public void OnGUI()
+        {
+            if (selectedPart == null)
+                return;
+            
+            position = GUILayout.Window(GetInstanceID(), position, DrawWindow, String.Empty, Styles.styleEditorPanel);
+        }
+
+        public void Update()
+        {
+            if (EditorLogic.RootPart == null || EditorLogic.fetch.editorScreen != EditorScreen.Parts)
+            {
+                return;
+            }
+
+            position.x = Mathf.Clamp(Input.mousePosition.x + 16.0f, 0.0f, Screen.width - position.width);
+            position.y = Mathf.Clamp(Screen.height - Input.mousePosition.y, 0.0f, Screen.height - position.height);
+            selectedPart = EditorLogic.fetch.ship.parts.Find(p => p.stackIcon.highlightIcon) ?? EditorLogic.SelectedPart;
+            if (selectedPart != null)
+            {
+                if ( (!show && Input.GetMouseButtonDown(2))
+                    || (!show && Input.GetKeyDown(KeyCode.T) && Input.GetKeyDown(KeyCode.LeftCommand))
+                    || (!show && Input.GetKeyDown(KeyCode.T) && Input.GetKeyDown(KeyCode.LeftControl)))
+                {
+                    show = true;
+                }
+            } // End selectedPart
+        }
+
+        public void DrawWindow(int windowID)
+        {
+            if (selectedPart != null)
+            {
+                GUILayout.Label(selectedPart.partInfo.title, Styles.styleEditorTitle);
+                if (show)
+                {
+                }
+                else
+                {
+                    GUILayout.Space(2.0f);
+                    GUILayout.Label("Middle mouse (or cmd/ctrl+t) to show TestFlight info...", Styles.styleEditorText);
+                }
+            }
+        }
+    }
+
     [KSPAddon(KSPAddon.Startup.EditorAny, false)]
     public class TestFlightEditorWindow : MonoBehaviourWindowPlus
     {
         internal static TestFlightEditorWindow Instance;
+        internal TestFlightEditorInfoWindow infoWindow = null;
         private bool locked = false;
         private Part _selectedPart;
         internal Part SelectedPart
@@ -33,6 +86,7 @@ namespace TestFlightCore
             }
         }
         internal TestFlightManagerScenario tfScenario = null;
+        internal TestFlightRnDScenario tfRnDScenario = null;
         internal bool isReady = false;
         private ApplicationLauncherButton appLauncherButton;
         bool stickyWindow = false;
@@ -71,6 +125,17 @@ namespace TestFlightCore
             TestFlightUtil.Log(message, debug);
         }
 
+        internal override void Awake()
+        {
+            infoWindow = this.gameObject.AddComponent<TestFlightEditorInfoWindow>();
+        }
+
+        internal override void OnDestroy()
+        {
+            if (infoWindow != null)
+                Destroy(infoWindow);
+        }
+
         internal override void Start()
         {
             Log("TestFlightEditor: Initializing Editor Hook");
@@ -91,6 +156,18 @@ namespace TestFlightCore
             {
                 yield return null;
             }
+
+            while (TestFlightRnDScenario.Instance == null)
+            {
+                yield return null;
+            }
+
+            tfRnDScenario = TestFlightRnDScenario.Instance;
+            while (!tfRnDScenario.isReady)
+            {
+                yield return null;
+            }
+
             Startup();
         }
 
@@ -113,6 +190,7 @@ namespace TestFlightCore
             CalculateWindowBounds();
             DragEnabled = !tfScenario.userSettings.editorWindowLocked;
             WindowMoveEventsEnabled = true;
+            WindowMoveCompleteAfter = 0.1f;
             ClampToScreen = true;
             TooltipsEnabled = true;
             TooltipMouseOffset = new Vector2d(10, 10);
@@ -130,9 +208,9 @@ namespace TestFlightCore
             if (tfScenario == null)
                 return;
 
-            float windowWidth = 350f;
+            float windowWidth = 250f;
             float left = Screen.width - windowWidth - 75f;
-            float windowHeight = 50f;
+            float windowHeight = 150f;
 
             windowHeight += 20f;
             float top = Screen.height - windowHeight - 60f;
@@ -210,6 +288,11 @@ namespace TestFlightCore
                 Visible = false;
         }
 
+        public void ToggleWindow()
+        {
+            Visible = !Visible;
+        }
+
         internal override void OnGUIOnceOnly()
         {
             Styles.InitStyles();
@@ -250,21 +333,59 @@ namespace TestFlightCore
             GUILayout.Label(String.Format("Selected Part: {0}", TestFlightUtil.GetFullPartName(SelectedPart)), Styles.styleEditorTitle);
 
             tfScenario.userSettings.currentEditorScrollPosition = GUILayout.BeginScrollView(tfScenario.userSettings.currentEditorScrollPosition);
-            TestFlightPartData partData = tfScenario.GetPartDataForPart(TestFlightUtil.GetFullPartName(SelectedPart));
-            if (partData != null)
+            float flightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(TestFlightUtil.GetFullPartName(SelectedPart));
+            core = TestFlightUtil.GetCore(SelectedPart);
+            if (core != null)
             {
-                float flightData = partData.GetFloat("flightData");
-                core = TestFlightUtil.GetCore(SelectedPart);
-                if (core != null)
+                core.InitializeFlightData(flightData);
+                GUILayout.BeginHorizontal();
+                double failureRate = core.GetBaseFailureRate();
+                String mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
+                // 10 characters for body max plus 10 characters for situation plus underscore = 21 characters needed for longest scope string
+                GUILayout.Label(String.Format("{0,-7:F2}<b>du</b>", flightData), GUILayout.Width(75));
+                GUILayout.Label(String.Format("{0,-5:F2} MTBF", mtbfString), GUILayout.Width(125));
+                GUILayout.EndHorizontal();
+                Log("Checking for RnD Status");
+                string partName = TestFlightUtil.GetFullPartName(SelectedPart);
+                float maxRnDData = core.GetMaximumRnDData();
+                if (flightData >= maxRnDData)
                 {
-                    core.InitializeFlightData(flightData);
-                    GUILayout.BeginHorizontal();
-                    double failureRate = core.GetBaseFailureRate();
-                    String mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
-                    // 10 characters for body max plus 10 characters for situation plus underscore = 21 characters needed for longest scope string
-                    GUILayout.Label(String.Format("{0,-7:F2}<b>du</b>", flightData), GUILayout.Width(75));
-                    GUILayout.Label(String.Format("{0,-5:F2} MTBF", mtbfString), GUILayout.Width(125));
-                    GUILayout.EndHorizontal();
+                    Log("Part has reached Max RnD");
+                    GUILayout.Label("Part flight data meets or exceeds maximum lab R&D amount", Styles.styleEditorText);
+                }
+                else
+                {
+                    Log("Part is RnD Eligible");
+                    if (!tfRnDScenario.IsPartBeingResearched(partName))
+                    {
+                        Log("Part is not being researched.  Show research buttons");
+                        GUILayout.Label("Hire Research Team", Styles.styleEditorTitle);
+                        List<TestFlightRNDTeamSettings> teams = tfRnDScenario.GetAvailableTeams();
+                        if (teams != null)
+                        {
+                            int numTeams = teams.Count;
+                            for (int i = 0; i < numTeams; i++)
+                            {
+                                GUILayout.BeginHorizontal();
+                                if (GUILayout.Button("Hire Team", GUILayout.Width(100)))
+                                {
+                                    tfRnDScenario.AddResearchTeam(SelectedPart, i);
+                                }
+                                GUILayout.Label(String.Format("{0,-7:F2}<b>points</b>", teams[i].points), GUILayout.Width(75));
+                                GUILayout.Label(String.Format("{0,-7:F2}<b>funds/point</b>", teams[i].costFactor), GUILayout.Width(75));
+                                GUILayout.Label(String.Format("Total Cost {0,-7:F2} every {1}", teams[i].costFactor * teams[i].points, TestFlightUtil.FormatTime(tfRnDScenario.updateFrequency)), GUILayout.Width(75));
+                                GUILayout.EndHorizontal();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Log("Part is already being researched.  Show button to stop");
+                        if (GUILayout.Button("Stop Research", GUILayout.Width(200)))
+                        {
+                            tfRnDScenario.RemoveResearch(partName);
+                        }
+                    }
                 }
             }
             GUILayout.EndScrollView();

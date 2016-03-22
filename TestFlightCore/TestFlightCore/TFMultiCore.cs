@@ -17,27 +17,6 @@ namespace TestFlightCore
         public int scienceDataValue = 0;
         #endregion
 
-        public void Load(ConfigNode node)
-        {
-            base.Load(node);
-            if (node.HasValue("techTransfer"))
-                techTransfer = node.GetValue("techTransfer");
-            if (node.HasValue("techTransferMax"))
-                int.TryParse(node.GetValue("techTransferMax"), out techTransferMax);
-            if (node.HasValue("techTransferGenerationPenalty"))
-                float.TryParse(node.GetValue("techTransferGenerationPenalty"), out techTransferGenerationPenalty);
-            if (node.HasValue("scienceDataValue"))
-                int.TryParse(node.GetValue("scienceDataValue"), out scienceDataValue);
-        }
-
-        public void Save(ConfigNode node)
-        {
-            base.Save(node);
-            node.AddValue("techTransfer", techTransfer);
-            node.AddValue("techTransferMax", techTransferMax);
-            node.AddValue("techTransferGenerationPenalty", techTransferGenerationPenalty);
-            node.AddValue("scienceDataValue", scienceDataValue);
-        }
     }
 
     public class TFMultiCore : PartModuleExtended, ITestFlightCore
@@ -55,7 +34,7 @@ namespace TestFlightCore
         public bool initialized = false;
         public float failureRateModifier = 1f;
         // This will be updated so we always know what part to point to
-        public string currentPartName = this.part.name;
+        public string currentPartName = "";
 
         // Static config nodes
         List<MultiCoreConfig> coreConfigs;
@@ -341,6 +320,21 @@ namespace TestFlightCore
             {
                 throw new NotImplementedException();
             }
+        }
+
+        public float GetMaximumRnDData()
+        {
+            throw new NotImplementedException();
+        }
+
+        public float GetRnDCost()
+        {
+            throw new NotImplementedException();
+        }
+
+        public float GetRnDRate()
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

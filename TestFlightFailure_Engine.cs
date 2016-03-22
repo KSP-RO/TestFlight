@@ -11,8 +11,8 @@ namespace TestFlight
 {
     public class TestFlightFailure_Engine : TestFlightFailureBase
     {
-        [KSPField(isPersistant=true)]
-        public string engineID = "";
+        [KSPField]
+        public string engineID = "all";
 
         protected class EngineHandler
         {
@@ -58,11 +58,12 @@ namespace TestFlight
             {
                 if (engineID.ToLower() == "all")
                 {
-                    List<ModuleEnginesFX> enginesFX = this.part.Modules.OfType<ModuleEnginesFX>().ToList();
-                    foreach (ModuleEnginesFX fx in enginesFX)
+                    List<ModuleEngines> engineMods = this.part.Modules.GetModules<ModuleEngines>();
+                    foreach (ModuleEngines eng in engineMods)
                     {
-                        string id = fx.engineID;
-                        EngineModuleWrapper engine = new EngineModuleWrapper(this.part, id);
+                        string id = eng.engineID;
+                        EngineModuleWrapper engine = new EngineModuleWrapper();
+                        engine.InitWithEngine(this.part, id);
                         EngineHandler engineHandler = new EngineHandler();
                         engineHandler.engine = engine;
                         engineHandler.ignitionState = engine.IgnitionState;
@@ -74,7 +75,8 @@ namespace TestFlight
                     string[] sEngineIndices = engineID.Split(new char[1] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                     foreach (string sEngineIndex in sEngineIndices)
                     {
-                        EngineModuleWrapper engine = new EngineModuleWrapper(this.part, sEngineIndex);
+                        EngineModuleWrapper engine = new EngineModuleWrapper();
+                        engine.InitWithEngine(this.part, sEngineIndex);
                         EngineHandler engineHandler = new EngineHandler();
                         engineHandler.engine = engine;
                         engineHandler.ignitionState = engine.IgnitionState;
@@ -83,7 +85,8 @@ namespace TestFlight
                 }
                 else
                 {
-                    EngineModuleWrapper engine = new EngineModuleWrapper(this.part, engineID);
+                    EngineModuleWrapper engine = new EngineModuleWrapper();
+                    engine.InitWithEngine(this.part, engineID);
                     EngineHandler engineHandler = new EngineHandler();
                     engineHandler.engine = engine;
                     engineHandler.ignitionState = engine.IgnitionState;
@@ -92,7 +95,8 @@ namespace TestFlight
             }
             else
             {
-                EngineModuleWrapper engine = new EngineModuleWrapper(this.part);
+                EngineModuleWrapper engine = new EngineModuleWrapper();
+                engine.Init(this.part);
                 EngineHandler engineHandler = new EngineHandler();
                 engineHandler.engine = engine;
                 engineHandler.ignitionState = engine.IgnitionState;

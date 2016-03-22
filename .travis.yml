@@ -17,7 +17,6 @@ deploy:
   file_glob: true
   file:
   - TestFlightCore*.zip
-  - TestFlightConfigRO*.zip
   - TestFlightConfigStock*.zip
   skip_cleanup: true
   on:

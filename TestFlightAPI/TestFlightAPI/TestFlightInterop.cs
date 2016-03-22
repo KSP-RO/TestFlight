@@ -31,7 +31,7 @@ namespace TestFlightAPI
 
             Log(String.Format("Added new interop, {0} = {1}, for {2}", name, value, owner));
 
-            TestFlightUtil.UpdatePartConfigs();
+            TestFlightUtil.UpdatePartConfigs(this.part);
 
             return true;
         }
@@ -48,7 +48,7 @@ namespace TestFlightAPI
 
             knownInterops.Add(name, opValue);
 
-            TestFlightUtil.UpdatePartConfigs();
+            TestFlightUtil.UpdatePartConfigs(this.part);
             return true;
         }
         public bool AddInteropValue(string name, float value, string owner)
@@ -64,7 +64,7 @@ namespace TestFlightAPI
 
             knownInterops.Add(name, opValue);
 
-            TestFlightUtil.UpdatePartConfigs();
+            TestFlightUtil.UpdatePartConfigs(this.part);
             return true;
         }
         public bool AddInteropValue(string name, bool value, string owner)
@@ -80,7 +80,7 @@ namespace TestFlightAPI
 
             knownInterops.Add(name, opValue);
 
-            TestFlightUtil.UpdatePartConfigs();
+            TestFlightUtil.UpdatePartConfigs(this.part);
             return true;
         }
         public bool RemoveInteropValue(string name, string owner)
@@ -97,7 +97,7 @@ namespace TestFlightAPI
                 return false;
 
             knownInterops.Remove(name);
-            TestFlightUtil.UpdatePartConfigs();
+            TestFlightUtil.UpdatePartConfigs(this.part);
             return true;
         }
         public void ClearInteropValues(string owner)
@@ -117,7 +117,7 @@ namespace TestFlightAPI
                     knownInterops.Remove(key);
                 }
             }
-            TestFlightUtil.UpdatePartConfigs();
+            TestFlightUtil.UpdatePartConfigs(this.part);
         }
         public InteropValue GetInterop(string name)
         {
@@ -138,11 +138,10 @@ namespace TestFlightAPI
                 return returnVal;
             }
         }
-
         public override void OnAwake()
         {
             base.OnAwake();
-            AddInteropValue("kspPartName", this.part.name, "TestFlight");
+            AddInteropValue("kspPartName", TestFlightUtil.GetPartName(this.part), "TestFlight");
         }
     }
 }

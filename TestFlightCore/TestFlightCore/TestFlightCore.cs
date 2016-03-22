@@ -21,18 +21,18 @@ namespace TestFlightCore
         public float currentFlightData;
         [KSPField(isPersistant=true)]
         public float initialFlightData;
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public float startFlightData;
 
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public string configuration = "";
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public string title = "";
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public string techTransfer = "";
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public float techTransferMax = 1000;
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public float techTransferGenerationPenalty = 0.05f;
         [KSPField(isPersistant=true)]
         public float operatingTime;
@@ -40,12 +40,19 @@ namespace TestFlightCore
         public float lastMET;
         [KSPField(isPersistant=true)]
         public bool initialized = false;
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public float maxData = 0f;
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public float failureRateModifier = 1f;
         [KSPField]
         public int scienceDataValue = 0;
+        // RnD system properties
+        [KSPField]
+        public float rndMaxData = 0f;
+        [KSPField]
+        public float rndRate = 1f;
+        [KSPField]
+        public float rndCost = 1f;
 
         private double baseFailureRate;
         // We store the base, or initial, flight data for calculation of Base Failure Rate
@@ -82,7 +89,13 @@ namespace TestFlightCore
                 }
                 if (!opFound)
                 {
-                    if (part.name.ToLower() == Configuration.ToLower())
+                    // If this configuration defines an alias, just trim it off
+                    string test = Configuration;
+                    if (Configuration.Contains(":"))
+                    {
+                        test = test.Split(new char[1] { ':' })[0];
+                    }
+                    if (TestFlightUtil.GetPartName(part).ToLower() == test.ToLower())
                         return true;
                     return false;
                 }
@@ -91,8 +104,20 @@ namespace TestFlightCore
         }
         public string Configuration
         {
-            get { return configuration; }
-            set { configuration = value; }
+            get 
+            { 
+                if (configuration.Equals(string.Empty))
+                {
+                    configuration = "kspPartName = " + TestFlightUtil.GetPartName(this.part);
+                    configuration = configuration + ":" + TestFlightUtil.GetPartName(this.part);
+                }
+
+                return configuration; 
+            }
+            set 
+            { 
+                configuration = value; 
+            }
         }
         public string Title
         {
@@ -113,6 +138,13 @@ namespace TestFlightCore
                 else
                     return false;
             }
+        }
+
+        [KSPEvent(guiActiveEditor=true, guiName = "R&D Window")]            
+        public void ToggleRNDGUI()
+        {
+            TestFlightEditorWindow.Instance.LockPart(this.part);
+            TestFlightEditorWindow.Instance.ToggleWindow();
         }
 
         public System.Random RandomGenerator
@@ -480,7 +512,7 @@ namespace TestFlightCore
         {
             if (TestFlightManagerScenario.Instance != null)
             {
-                TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part)).AddValue("flightTime", flightTime);
+                TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part)).SetValue("flightTime", flightTime);
             }
         }
 
@@ -492,24 +524,33 @@ namespace TestFlightCore
 
         public float ModifyFlightData(float modifier, bool additive)
         {
-            float newFlightData = currentFlightData;
+            // Will hold the new flight data after calculation
+            float newFlightData;
+            // The flight data as it stands before modification
+            float existingData = currentFlightData;
+            // Amount of data stored in the scenario store
+            float existingStoredFlightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(TestFlightUtil.GetFullPartName(this.part));
 
+            // Calculate the new flight data
             if (additive)
             {
                 modifier = ApplyFlightDataMultiplier(modifier);
-                newFlightData += modifier;
+                newFlightData = existingData + modifier;
             }
             else
             {
-                newFlightData *= modifier;
+                newFlightData = existingData * modifier;
             }
+            // Adjust new flight data if neccesary to stay under the cap
             if (newFlightData > (maxData * dataCap))
                 newFlightData = maxData * dataCap;
-
             if (newFlightData > maxData)
                 newFlightData = maxData;
-
+            // update the scenario store to add (or subtract) the difference between the flight data before calculation and the flight data after (IE the relative change)
+            TestFlightManagerScenario.Instance.SetFlightDataForPartName(TestFlightUtil.GetFullPartName(this.part), existingStoredFlightData + (newFlightData - existingData));
+            // and update our part's saved data on the vessel
             currentFlightData = newFlightData;
+
             return currentFlightData;
         }
 
@@ -528,7 +569,7 @@ namespace TestFlightCore
                     newFlightTime += flightTime;
                 else
                     newFlightTime *= flightTime;
-                TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part)).AddValue("flightTime", newFlightTime);
+                TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part)).SetValue("flightTime", newFlightTime);
             }
 
             return newFlightTime;
@@ -799,24 +840,40 @@ namespace TestFlightCore
 
             if (disabledFailures == null)
                 disabledFailures = new List<string>();
+
+            // poll failure modules for any existing failures
+            List<ITestFlightFailure> failures = TestFlightUtil.GetFailureModules(this.part);
+            foreach (ITestFlightFailure failure in failures)
+            {
+                if (failure.Failed)
+                {
+                    activeFailure = failure;
+                    break;
+                }
+            }
         }
 
         public void InitializeFlightData(float flightData)
         {
-            if (currentFlightData > 0f)
+            if (initialized)
                 return;
-
+            
             if (flightData == 0f)
                 flightData = AttemptTechTransfer();
             
             if (startFlightData > flightData)
+            {
+                TestFlightManagerScenario.Instance.AddFlightDataForPartName(TestFlightUtil.GetFullPartName(this.part), startFlightData);
                 flightData = startFlightData;
+            }
 
             currentFlightData = flightData;
             initialFlightData = flightData;
 
             missionStartTime = (float)Planetarium.GetUniversalTime();
-            initialized = true;
+
+            if (HighLogic.LoadedSceneIsFlight)
+                initialized = true;
         }
 
         internal float AttemptTechTransfer()
@@ -1031,6 +1088,24 @@ namespace TestFlightCore
 
         public void UpdatePartConfig()
         {
+        }
+
+        public float GetMaximumRnDData()
+        {
+            if (rndMaxData == 0)
+                return GetMaximumData() * 0.75f;
+            else
+                return rndMaxData;
+        }
+
+        public float GetRnDCost()
+        {
+            return rndCost;
+        }
+
+        public float GetRnDRate()
+        {
+            return rndRate;
         }
     }
 }

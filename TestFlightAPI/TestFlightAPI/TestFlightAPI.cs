@@ -48,11 +48,28 @@ namespace TestFlightAPI
             return hours.ToString ("D2") 
                 + ":" + minutes.ToString ("D2") + ":" + seconds.ToString ("D2");
         }
-        // Methods for accessing the TestFlight modules on a given part
 
+        // Methods for accessing the TestFlight modules on a given part
+        // Get the part name, minus any numbers or clone or whatever. Borrowed from RF (by NK, so by permission obviously).
+        public static string GetPartName(Part part)
+        {
+            if (part.partInfo != null)
+                return GetPartName(part.partInfo);
+            return GetPartName(part.name);
+        }
+
+        public static string GetPartName(AvailablePart ap)
+        {
+            return GetPartName(ap.name);
+        }
+        public static string GetPartName(string partName)
+        {
+            partName = partName.Replace(".", "-");
+            return partName.Replace("_", "-");
+        }
         public static string GetFullPartName(Part part)
         {
-            string baseName = part.name;
+            string baseName = GetPartName(part);
 
             if (part.Modules == null)
                 return baseName;
@@ -116,10 +133,11 @@ namespace TestFlightAPI
 
         public static void UpdatePartConfigs(Part part)
         {
-            ITestFlightCore core = part.GetComponent<ITestFlightCore>() as ITestFlightCore;
-            if (core != null)
+            foreach (PartModule pm in part.Modules)
             {
-                core.UpdatePartConfig();
+                ITestFlightCore core = pm as ITestFlightCore;
+                if (core != null)
+                    core.UpdatePartConfig();
             }
         }
 
@@ -419,8 +437,8 @@ namespace TestFlightAPI
             }
             else
             {
-                // if there are no "parts" to this block, then it must be just a simple part name
-                if (block == part.name.ToLower())
+                // if there are no "parts" to this block, then it must be just a simple part name or an alias
+                if (block == GetPartName(part).ToLower())
                     return true;
                 
                 return false;
@@ -658,6 +676,11 @@ namespace TestFlightAPI
 
 	public interface ITestFlightFailure
 	{
+        bool Failed
+        {
+            get;
+            set;
+        }
         bool TestFlightEnabled
         {
             get;
@@ -863,6 +886,9 @@ namespace TestFlightAPI
         /// Called whenever an Interop value is added, changed, or removed to allow the modules on the part to update to the proper config
         /// </summary>
         void UpdatePartConfig();
+        float GetMaximumRnDData();
+        float GetRnDCost();
+        float GetRnDRate();
     }
 }
 

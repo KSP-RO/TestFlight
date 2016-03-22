@@ -45,7 +45,7 @@ namespace TestFlightAPI
 //        protected List<ReliabilityBodyConfig> reliabilityBodies = null;
         protected FloatCurve reliabilityCurve = null;
 
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public string configuration = "";
         [KSPField(isPersistant=true)]
         public float lastCheck = 0;
@@ -67,11 +67,20 @@ namespace TestFlightAPI
 
         public string Configuration
         {
-            get { return configuration; }
-            set { configuration = value; }
+            get 
+            { 
+                if (configuration.Equals(string.Empty))
+                    configuration = TestFlightUtil.GetPartName(this.part);
+
+                return configuration; 
+            }
+            set 
+            { 
+                configuration = value; 
+            }
         }
 
-        internal void Log(string message)
+        protected void Log(string message)
         {
             message = String.Format("TestFlightReliability({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(this.part), Configuration, message);
             TestFlightUtil.Log(message, this.part);

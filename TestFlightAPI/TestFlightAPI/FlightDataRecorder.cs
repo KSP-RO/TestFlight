@@ -14,11 +14,11 @@ namespace TestFlightAPI
         #region KSPFields
         [KSPField(isPersistant = true)]
         public float lastRecordedMet = 0;
-        [KSPField(isPersistant = true)]
+        [KSPField]
         public float flightDataMultiplier = 10.0f;
-        [KSPField(isPersistant = true)]
+        [KSPField]
         public float flightDataEngineerModifier = 0.25f;
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public string configuration = "";
         #endregion
 
@@ -43,8 +43,17 @@ namespace TestFlightAPI
         }
         public string Configuration
         {
-            get { return configuration; }
-            set { configuration = value; }
+            get 
+            { 
+                if (configuration.Equals(string.Empty))
+                    configuration = TestFlightUtil.GetPartName(this.part);
+
+                return configuration; 
+            }
+            set 
+            { 
+                configuration = value; 
+            }
         }
 
         public override void OnStart(StartState state)

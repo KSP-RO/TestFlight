@@ -23,7 +23,8 @@ namespace TestFlight
         public override void OnStart(StartState state)
         {
             base.OnStart(state);
-            engine = new EngineModuleWrapper(this.part);
+            engine = new EngineModuleWrapper();
+            engine.Init(this.part);
         }
         public override bool IsPartOperating()
         {

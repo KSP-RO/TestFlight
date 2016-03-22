@@ -11,19 +11,59 @@ namespace TestFlight
 {
     public class TestFlightFailure_ResourceLeak : TestFlightFailureBase
     {
-        [KSPField(isPersistant = true)]
+        [KSPField]
         public string resourceToLeak = "random";
-        [KSPField(isPersistant = true)]
+        [KSPField]
         public string initialAmount = "10";
-        [KSPField(isPersistant = true)]
+        [KSPField]
         public string perSecondAmount = "0.1";
-        [KSPField(isPersistant = true)]
+        [KSPField]
         public bool calculatePerTick = false;
 
-        private string leakingResource = "";
-        private int leakingResourceID = 0;
-        private float _initialAmount = 10f;
-        private float _perSecondAmount = 0.1f;
+        [KSPField(isPersistant = true)]
+        public bool isLeaking = false;
+
+        private List<ResourceLeak> leaks;
+        private float _initialAmount, _perSecondAmount;
+
+        public class ResourceLeak : IConfigNode
+        {
+            public int id = 0;
+            public double amount;
+            public double initialAmount;
+
+            public void Load(ConfigNode node)
+            {
+                id = int.Parse(node.GetValue("id"));
+                amount = double.Parse(node.GetValue("amount"));
+                initialAmount = 0d; // if we're loading, the initial leak has occurred.
+            }
+
+            public void Save(ConfigNode node)
+            {
+                node.AddValue("id", id);
+                node.AddValue("amount", amount.ToString("G17"));
+            }
+
+            public ResourceLeak(int newId, double newAmount, double newInit)
+            {
+                id = newId;
+                amount = newAmount;
+                initialAmount = newInit;
+            }
+
+            public ResourceLeak(ConfigNode node)
+            {
+                Load(node);
+            }
+        }
+
+        public override void OnStart(StartState state)
+        {
+            base.OnStart(state);
+            if (Failed)
+                DoFailure();
+        }
 
         /// <summary>
         /// Triggers the failure controlled by the failure module
@@ -31,55 +71,78 @@ namespace TestFlight
         public override void DoFailure()
         {
             base.DoFailure();
-            if (resourceToLeak.ToLower() == "random")
+            if (resourceToLeak.ToLower() == "all")
             {
-                List<PartResource> allResources = this.part.Resources.list;
-                int randomResource = UnityEngine.Random.Range(0, allResources.Count());
-                leakingResource = allResources[randomResource].resourceName;
-                leakingResourceID = allResources[randomResource].info.id;
+                foreach (PartResource r in this.part.Resources)
+                {
+                    int resId = r.info.id;
+                    ParseResourceValues(resId);
+                    leaks.Add(new ResourceLeak(resId, _perSecondAmount, _initialAmount));
+                }
             }
             else
             {
-                List<PartResource> resources = this.part.Resources.list.Where(n => n.resourceName == resourceToLeak).ToList();
-                if (resources != null && resources.Count > 0)
+                int resId = 0;
+                bool found = false;
+                if (resourceToLeak.ToLower() == "random")
                 {
-                    PartResource resource = resources[0];
-                    leakingResource = resourceToLeak;
-                    leakingResourceID = resource.info.id;
+                    if (part.Resources.Count > 0)
+                    {
+                        List<PartResource> allResources = this.part.Resources.list;
+                        int randomResource = TestFlightUtil.GetCore(this.part).RandomGenerator.Next(0, allResources.Count());
+                        resId = allResources[randomResource].info.id;
+                        found = true;
+                    }
+                }
+                else
+                {
+                    List<PartResource> resources = this.part.Resources.list.Where(n => n.resourceName == resourceToLeak).ToList();
+                    if (resources != null && resources.Count > 0)
+                    {
+                        resId = resources[0].info.id;
+                        found = true;
+                    }
+                }
+                if (found)
+                {
+                    ParseResourceValues(resId);
+                    leaks.Add(new ResourceLeak(resId, _perSecondAmount, _initialAmount));
                 }
             }
-
-            if (!String.IsNullOrEmpty(leakingResource))
+            if (leaks.Count > 0  && !isLeaking)
             {
-                ParseResourceValues();
-                this.part.RequestResource(leakingResource, _initialAmount, ResourceFlowMode.NO_FLOW);
-                StartCoroutine("LeakResource");
+                isLeaking = true;
+                foreach (ResourceLeak leak in leaks)
+                    this.part.RequestResource(leak.id, leak.initialAmount, ResourceFlowMode.NO_FLOW);
             }
         }
 
-        internal IEnumerator LeakResource()
+        public void FixedUpdate()
         {
-            while (true)
+            if(HighLogic.LoadedSceneIsFlight && isLeaking)
             {
-                if (!String.IsNullOrEmpty(leakingResource))
+                ResourceLeak leak;
+                for(int i = leaks.Count - 1; i >= 0; --i)
                 {
+                    leak = leaks[i];
                     if (calculatePerTick)
-                        ParseResourceValues();
-                    this.part.RequestResource(leakingResource, _perSecondAmount, ResourceFlowMode.NO_FLOW);
+                    {
+                        leak.amount = ParseValue(perSecondAmount, leak.id);
+                    }
+                    this.part.RequestResource(leak.id, _perSecondAmount * TimeWarp.fixedDeltaTime, ResourceFlowMode.NO_FLOW);
                 }
-                yield return new WaitForSeconds(1f);
             }
         }
 
         public override float DoRepair()
         {
             base.DoRepair();
-            StopCoroutine("LeakResource");
+            isLeaking = false;
 
             return 0;
         }
 
-        private float ParseValue(string rawValue)
+        private float ParseValue(string rawValue, int leakingResourceID)
         {
             float parsedValue = 0f;
             int index = rawValue.IndexOf("%");
@@ -121,25 +184,37 @@ namespace TestFlight
             return parsedValue;
         }
 
-        private void ParseResourceValues()
+        private void ParseResourceValues(int resID)
         {
-            _initialAmount = ParseValue(initialAmount);
-            _perSecondAmount = ParseValue(perSecondAmount);
+            _initialAmount = ParseValue(initialAmount, resID);
+            _perSecondAmount = ParseValue(perSecondAmount, resID);
         }
 
         public override void OnLoad(ConfigNode node)
         {
-            base.OnLoad(node);
-            if (node.HasValue("resourceToLeak"))
-                resourceToLeak = node.GetValue("resourceToLeak");
-            else
-                resourceToLeak = "random";
-            if (node.HasValue("initialAmount"))
-                initialAmount = node.GetValue("initialAmount");
-            if (node.HasValue("perSecondAmount"))
-                perSecondAmount = node.GetValue("perSecondAmount");
-            if (node.HasValue("calculatePerTick"))
-                calculatePerTick = bool.Parse(node.GetValue("calculatePerTick"));
+            if (node.HasNode("LEAK"))
+            {
+                leaks.Clear();
+                foreach (ConfigNode n in node.GetNodes("LEAK"))
+                    leaks.Add(new ResourceLeak(n));
+            }
+        }
+
+        public override void OnSave(ConfigNode node)
+        {
+            if (leaks.Count > 0)
+            {
+                foreach (ResourceLeak leak in leaks)
+                {
+                    ConfigNode n = node.AddNode("LEAK");
+                    leak.Save(n);
+                }
+            }
+        }
+
+        public override void OnAwake()
+        {
+            leaks = new List<ResourceLeak>();
         }
     }
 }

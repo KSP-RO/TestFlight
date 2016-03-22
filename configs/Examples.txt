@@ -18,7 +18,7 @@
 	}
 	MODULE
 	{
-		name = TestFlightReliability
+		name = TestFlightReliability_TestFail
 		reliabilityCurve
 		{
 			key = 0 0.005
@@ -41,6 +41,25 @@
 		duRepair = 250
 		duFail = 100
 		severity = failure
+	}
+	MODULE
+	{
+		REPAIR
+		{
+			canBeRepairedInFlight = True
+			canBeRepairedOnSplashed = True
+			canBeRepairedByRemote = False
+			repairChance = 75
+		}
+		name = TestFlightFailure_LightFlicker
+		minFlickerTime = 0.1
+		maxFlickerTime = 0.4
+		weight = 32
+		failureType = hardware
+		failureTitle = Bulb shorting out
+		duRepair = 250
+		duFail = 100
+		severity = minor
 	}
 }
 @PART[*]:HAS[@MODULE[ModuleAblator],!MODULE[TestFlightCore]]:AFTER[TestFlight]

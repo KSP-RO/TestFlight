@@ -127,30 +127,33 @@ namespace TestFlightAPI
     /// </summary>
     public class TestFlightFailureBase : PartModule, ITestFlightFailure
     {
-        [KSPField(isPersistant = true)]
+        [KSPField]
         public string failureType;
-        [KSPField(isPersistant = true)]
+        [KSPField]
         public string severity;
-        [KSPField(isPersistant = true)]
+        [KSPField]
         public int weight;
-        [KSPField(isPersistant = true)]
+        [KSPField]
         public string failureTitle = "Failure";
-        [KSPField(isPersistant=true)]
+        [KSPField]
         public string configuration = "";
-        [KSPField(isPersistant = true)]
+        [KSPField]
         public float duFail = 0f;
-        [KSPField(isPersistant = true)]
+        [KSPField]
         public float duRepair = 0f;
-        [KSPField(isPersistant = true)]
+        [KSPField]
         public bool oneShot = false;
+
+        [KSPField(isPersistant=true)]
+        public bool failed;
 
         public RepairConfig repairConfig;
 
 
         public bool Failed
         {
-            get;
-            set;
+            get { return failed; }
+            set { failed = value; }
         }
 
         public string repairConfigString;
@@ -166,8 +169,17 @@ namespace TestFlightAPI
         }
         public string Configuration
         {
-            get { return configuration; }
-            set { configuration = value; }
+            get 
+            { 
+                if (configuration.Equals(string.Empty))
+                    configuration = TestFlightUtil.GetPartName(this.part);
+
+                return configuration; 
+            }
+            set 
+            { 
+                configuration = value; 
+            }
         }
 
         public bool OneShot

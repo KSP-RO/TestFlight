@@ -64,6 +64,7 @@
     <Compile Include="Failure Bases\TestFlightFailureBase_Docking.cs" />
     <Compile Include="Failure Bases\TestFlightFailureBase_FARCtrlSrf.cs" />
     <Compile Include="Failure Bases\TestFlightFailureBase_Gimbal.cs" />
+    <Compile Include="Failure Bases\TestFlightFailureBase_Light.cs" />
     <Compile Include="Failure Bases\TestFlightFailureBase_ReactionWheel.cs" />
     <Compile Include="Failure Bases\TestFlightFailureBase_Generic.cs" />
     <Compile Include="Failure Bases\TestFlightFailureBase_Science.cs" />
@@ -87,8 +88,10 @@
     <Compile Include="Failure Modules\TestFlightFailure_GimbalCenter.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_GimbalSpeed.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_LightBroken.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_LightFlicker.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_ReactionBroken.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_ReactionTorque.cs" />
+    <Compile Include="Failure Modules\TestFlightFailure_RemotePassiveBroken.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_RemoteBroken.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_ResourcePump.cs" />
     <Compile Include="Failure Modules\TestFlightFailure_ScienceBroken.cs" />
@@ -122,6 +125,9 @@
     <Compile Include="KSPFramework\ExtensionsUnity.cs" />
     <Compile Include="KSPFramework\SkinsLibrary.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Reliability Modules\TestFlightReliability_DynamicPressure.cs" />
+    <Compile Include="Reliability Modules\TestFlightReliability_InternalTemperature.cs" />
+    <Compile Include="Reliability Modules\TestFlightReliability_SkinTemperature.cs" />
     <Compile Include="TestFlightReliability.cs" />
     <Compile Include="FlightDataRecorder.cs" />
     <Compile Include="FlightDataRecorder_Engine.cs" />
@@ -135,6 +141,7 @@
     <Compile Include="TestFlightFailure_IgnitionFail.cs" />
     <Compile Include="TestFlightFailure_Engine.cs" />
     <Compile Include="TestFlightReliability_TestFail.cs" />
+    <Compile Include="TestFlightFailure_EnginePerformanceLoss.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
