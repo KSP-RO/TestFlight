@@ -19,6 +19,9 @@ namespace TestFlightCore
 
         public void OnGUI()
         {
+            if (selectedPart == null)
+                return;
+            
             position = GUILayout.Window(GetInstanceID(), position, DrawWindow, String.Empty, Styles.styleEditorPanel);
         }
 
@@ -29,24 +32,16 @@ namespace TestFlightCore
                 return;
             }
 
-            position.x = Mathf.Clamp(Input.mousePosition.x + 16.0f, 0.0f, Screen.width - position.width);
-            position.y = Mathf.Clamp(Screen.height - Input.mousePosition.y, 0.0f, Screen.height - position.height);
-            if (position.x < Input.mousePosition.x + 20.0f)
-            {
-                position.y = Mathf.Clamp(position.y + 20.0f, 0.0f, Screen.height - position.height);
-            }
-            if (position.x < Input.mousePosition.x + 16.0f && position.y < Screen.height - Input.mousePosition.y)
-            {
-                position.x = Input.mousePosition.x - 3 - position.width;
-            }
 
             selectedPart = EditorLogic.fetch.ship.parts.Find(p => p.stackIcon.highlightIcon) ?? EditorLogic.SelectedPart;
             if (selectedPart != null)
             {
                 if ( (!show && Input.GetMouseButtonDown(2))
-                    || (!show && Input.GetMouseButtonDown(1) && Input.GetKeyDown(KeyCode.LeftCommand))
-                    || (!show && Input.GetMouseButtonDown(1) && Input.GetKeyDown(KeyCode.LeftControl)))
+                    || (!show && Input.GetKeyDown(KeyCode.T) && Input.GetKeyDown(KeyCode.LeftCommand))
+                    || (!show && Input.GetKeyDown(KeyCode.T) && Input.GetKeyDown(KeyCode.LeftControl)))
                 {
+                    position.x = Mathf.Clamp(Input.mousePosition.x - 20.0f - position.width, 0.0f, Screen.width - position.width);
+                    position.y = Mathf.Clamp(Screen.height - Input.mousePosition.y, 0.0f, Screen.height - position.height);
                     show = true;
                 }
             } // End selectedPart
@@ -54,14 +49,17 @@ namespace TestFlightCore
 
         public void DrawWindow(int windowID)
         {
-            GUILayout.Label(selectedPart.partInfo.title, Styles.styleEditorTitle);
-            if (show)
+            if (selectedPart != null)
             {
-            }
-            else
-            {
-                GUILayout.Space(2.0f);
-                GUILayout.Label("Middle mouse (or cmd/ctrl right mouse) to show TestFlight info...", Styles.styleEditorText);
+                GUILayout.Label(selectedPart.partInfo.title, Styles.styleEditorTitle);
+                if (show)
+                {
+                }
+                else
+                {
+                    GUILayout.Space(2.0f);
+                    GUILayout.Label("Middle mouse (or cmd/ctrl+t) to show TestFlight info...", Styles.styleEditorText);
+                }
             }
         }
     }
@@ -289,6 +287,11 @@ namespace TestFlightCore
         {
             if (!stickyWindow)
                 Visible = false;
+        }
+
+        public void ToggleWindow()
+        {
+            Visible = !Visible;
         }
 
         internal override void OnGUIOnceOnly()
