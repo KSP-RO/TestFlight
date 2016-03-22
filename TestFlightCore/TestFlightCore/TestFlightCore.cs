@@ -1088,6 +1088,8 @@ namespace TestFlightCore
 
         public void UpdatePartConfig()
         {
+            BaseEvent toggleRNDGUIEvent = Events["ToggleRNDGUI"];
+            toggleRNDGUIEvent.guiActiveEditor = TestFlightEnabled;
         }
 
         public float GetMaximumRnDData()
