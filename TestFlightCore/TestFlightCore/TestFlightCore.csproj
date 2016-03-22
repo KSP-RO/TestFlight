@@ -77,6 +77,7 @@
     <Compile Include="UserSettings.cs" />
     <Compile Include="TestFlightKSC.cs" />
     <Compile Include="TestFlightRnDScenario.cs" />
+    <Compile Include="Utilities\ConfigNodeExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -99,6 +100,7 @@
   <ItemGroup>
     <Folder Include="Framework\" />
     <Folder Include="FrameworkExt\" />
+    <Folder Include="Utilities\" />
   </ItemGroup>
   <ItemGroup />
 </Project>

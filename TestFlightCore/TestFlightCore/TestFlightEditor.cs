@@ -32,7 +32,8 @@ namespace TestFlightCore
                 return;
             }
 
-
+            position.x = Mathf.Clamp(Input.mousePosition.x + 16.0f, 0.0f, Screen.width - position.width);
+            position.y = Mathf.Clamp(Screen.height - Input.mousePosition.y, 0.0f, Screen.height - position.height);
             selectedPart = EditorLogic.fetch.ship.parts.Find(p => p.stackIcon.highlightIcon) ?? EditorLogic.SelectedPart;
             if (selectedPart != null)
             {
@@ -40,8 +41,6 @@ namespace TestFlightCore
                     || (!show && Input.GetKeyDown(KeyCode.T) && Input.GetKeyDown(KeyCode.LeftCommand))
                     || (!show && Input.GetKeyDown(KeyCode.T) && Input.GetKeyDown(KeyCode.LeftControl)))
                 {
-                    position.x = Mathf.Clamp(Input.mousePosition.x - 20.0f - position.width, 0.0f, Screen.width - position.width);
-                    position.y = Mathf.Clamp(Screen.height - Input.mousePosition.y, 0.0f, Screen.height - position.height);
                     show = true;
                 }
             } // End selectedPart
@@ -361,20 +360,23 @@ namespace TestFlightCore
                     {
                         Log("Part is not being researched.  Show research buttons");
                         GUILayout.Label("Hire Research Team", Styles.styleEditorTitle);
-                        GUILayout.BeginHorizontal();
-                        if (GUILayout.Button("Skilled", GUILayout.Width(75)))
+                        List<TestFlightRNDTeamSettings> teams = tfRnDScenario.GetAvailableTeams();
+                        if (teams != null)
                         {
-                            tfRnDScenario.AddResearchTeam(SelectedPart, 0);
+                            int numTeams = teams.Count;
+                            for (int i = 0; i < numTeams; i++)
+                            {
+                                GUILayout.BeginHorizontal();
+                                if (GUILayout.Button("Hire Team", GUILayout.Width(100)))
+                                {
+                                    tfRnDScenario.AddResearchTeam(SelectedPart, i);
+                                }
+                                GUILayout.Label(String.Format("{0,-7:F2}<b>points</b>", teams[i].points), GUILayout.Width(75));
+                                GUILayout.Label(String.Format("{0,-7:F2}<b>funds/point</b>", teams[i].costFactor), GUILayout.Width(75));
+                                GUILayout.Label(String.Format("Total Cost {0,-7:F2} every {1}", teams[i].costFactor * teams[i].points, TestFlightUtil.FormatTime(tfRnDScenario.updateFrequency)), GUILayout.Width(75));
+                                GUILayout.EndHorizontal();
+                            }
                         }
-                        if (GUILayout.Button("Advanced", GUILayout.Width(75)))
-                        {
-                            tfRnDScenario.AddResearchTeam(SelectedPart, 0);
-                        }
-                        if (GUILayout.Button("Expert", GUILayout.Width(75)))
-                        {
-                            tfRnDScenario.AddResearchTeam(SelectedPart, 0);
-                        }
-                        GUILayout.EndHorizontal();
                     }
                     else
                     {

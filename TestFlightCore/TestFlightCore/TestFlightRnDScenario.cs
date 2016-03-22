@@ -8,7 +8,6 @@ namespace TestFlightCore
 {
     public class TestFlightRnDTeam
     {
-        public string Name { get; private set; }
         public float Points { get; set; }
         public float CostFactor { get; set; }
         public float MaxData { get; set; }
@@ -32,9 +31,8 @@ namespace TestFlightCore
             TestFlightUtil.Log(message, debug);
         }
 
-        public TestFlightRnDTeam(string name, float points, float costFactor)
+        public TestFlightRnDTeam(float points, float costFactor)
         {
-            Name = name;
             Points = points;
             CostFactor = costFactor;
             PartInResearch = "";
@@ -76,6 +74,12 @@ namespace TestFlightCore
         }
     }
 
+    public struct TestFlightRNDTeamSettings
+    {
+        public float points;
+        public float costFactor;
+    }
+
     [KSPScenario(ScenarioCreationOptions.AddToAllGames, 
         new GameScenes[]
     { 
@@ -97,13 +101,66 @@ namespace TestFlightCore
         [KSPField(isPersistant=true)]
         protected double lastUpdateTime = 0f;
 
-        protected double updateFrequency = 86400d;
+        // Config settings
+        public double updateFrequency = 86400d;
+        List<TestFlightRNDTeamSettings> teamSettings;
+
 
         internal void Log(string message)
         {
             bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
             message = "TestFlightRnDScenario: " + message;
             TestFlightUtil.Log(message, debug);
+        }
+
+        public void Awake()
+        {
+            Log("Awake");
+            teamSettings = new List<TestFlightRNDTeamSettings>();
+            ConfigNode node = GameDatabase.Instance.GetConfigNode("TFRNDSETTINGS");
+            if (node != null)
+            {
+                node.TryGetValue("updateFrequency", ref updateFrequency);
+                ConfigNode[] teamNodes = node.GetNodes("TEAM");
+                if (teamNodes != null)
+                {
+                    foreach (ConfigNode teamNode in teamNodes)
+                    {
+                        TestFlightRNDTeamSettings team = new TestFlightRNDTeamSettings();
+                        team.points = 100f;
+                        team.costFactor = 1.0f;
+                        teamNode.TryGetValue("points", ref team.points);
+                        teamNode.TryGetValue("costFactor", ref team.costFactor);
+                        teamSettings.Add(team);
+                    }
+                }
+                else
+                {
+                    TestFlightRNDTeamSettings team = new TestFlightRNDTeamSettings();
+                    team.points = 100f;
+                    team.costFactor = 1.0f;
+                    teamSettings.Add(team);
+                    team.points = 125f;
+                    team.costFactor = 1.5f;
+                    teamSettings.Add(team);
+                    team.points = 150f;
+                    team.costFactor = 2.0f;
+                    teamSettings.Add(team);
+                }
+            }
+            else
+            {
+                TestFlightRNDTeamSettings team = new TestFlightRNDTeamSettings();
+                team.points = 100f;
+                team.costFactor = 1.0f;
+                teamSettings.Add(team);
+                team.points = 125f;
+                team.costFactor = 1.5f;
+                teamSettings.Add(team);
+                team.points = 150f;
+                team.costFactor = 2.0f;
+                teamSettings.Add(team);
+            }
         }
 
         public void Start()
@@ -180,11 +237,14 @@ namespace TestFlightCore
             if (availableTeams != null)
                 return;
             
-            availableTeams = new List<TestFlightRnDTeam>(3);
-
-            availableTeams.Add(new TestFlightRnDTeam("Skilled Engineering Team", 100f, 1f));
-            availableTeams.Add(new TestFlightRnDTeam("Advanced Engineering Team", 125f, 1.5f));
-            availableTeams.Add(new TestFlightRnDTeam("Expert Engineering Team", 150f, 2.0f));
+            availableTeams = new List<TestFlightRnDTeam>();
+            if (teamSettings == null)
+                return;
+            
+            foreach (TestFlightRNDTeamSettings team in teamSettings)
+            {
+                availableTeams.Add(new TestFlightRnDTeam(team.points, team.costFactor));
+            }
 
             activeTeams = new Dictionary<string, TestFlightRnDTeam>();
         }
@@ -206,7 +266,7 @@ namespace TestFlightCore
             if (team < availableTeams.Count)
             {
                 TestFlightRnDTeam template = availableTeams[team];
-                activeTeams.Add(partName, new TestFlightRnDTeam(template.Name, template.Points, template.CostFactor));
+                activeTeams.Add(partName, new TestFlightRnDTeam(template.Points, template.CostFactor));
                 activeTeams[partName].PartInResearch = partName;
                 activeTeams[partName].MaxData = core.GetMaximumRnDData();
                 activeTeams[partName].PartRnDCost = core.GetRnDCost();
@@ -256,18 +316,9 @@ namespace TestFlightCore
             }
         }
 
-
-        protected TestFlightRnDTeam GetTeamTemplate(string templateName)
+        public List<TestFlightRNDTeamSettings> GetAvailableTeams()
         {
-            if (availableTeams == null)
-                CreateTeams();
-            
-            foreach (TestFlightRnDTeam team in availableTeams)
-            {
-                if (team.Name == templateName)
-                    return team;
-            }
-            return null;
+            return teamSettings;
         }
 
         public override void OnLoad(ConfigNode node)
@@ -279,17 +330,17 @@ namespace TestFlightCore
                     activeTeams = new Dictionary<string, TestFlightRnDTeam>();
                 foreach (ConfigNode teamNode in node.GetNodes("TESTFLIGHT_RNDTEAM"))
                 {
-                    TestFlightRnDTeam template = GetTeamTemplate(teamNode.GetValue("template"));
-                    if (template != null)
-                    {
-                        string partName = teamNode.GetValue("PartInResearch");
-                        activeTeams.Add(partName, new TestFlightRnDTeam(template.Name, template.Points, template.CostFactor));
-                        activeTeams[partName].PartInResearch = partName;
-                        activeTeams[partName].MaxData = float.Parse(teamNode.GetValue("MaxData"));
-                        activeTeams[partName].PartRnDCost = float.Parse(teamNode.GetValue("PartRnDCost"));
-                        activeTeams[partName].PartRnDRate = float.Parse(teamNode.GetValue("PartRnDRate"));
-                        activeTeams[partName].ResearchActive = bool.Parse(teamNode.GetValue("ResearchActive"));
-                    }
+                    string partName = teamNode.GetValue("PartInResearch");
+                    float points = 100f;
+                    float costFactor = 1.0f;
+                    teamNode.TryGetValue("Points", ref points);
+                    teamNode.TryGetValue("CostFactor", ref costFactor);
+                    activeTeams.Add(partName, new TestFlightRnDTeam(points, costFactor));
+                    activeTeams[partName].PartInResearch = partName;
+                    activeTeams[partName].MaxData = float.Parse(teamNode.GetValue("MaxData"));
+                    activeTeams[partName].PartRnDCost = float.Parse(teamNode.GetValue("PartRnDCost"));
+                    activeTeams[partName].PartRnDRate = float.Parse(teamNode.GetValue("PartRnDRate"));
+                    activeTeams[partName].ResearchActive = bool.Parse(teamNode.GetValue("ResearchActive"));
                 }
             }
         }
@@ -305,7 +356,8 @@ namespace TestFlightCore
                 foreach (KeyValuePair<string, TestFlightRnDTeam> entry in activeTeams)
                 {
                     ConfigNode teamNode = node.AddNode("TESTFLIGHT_RNDTEAM");
-                    teamNode.AddValue("template", entry.Value.Name);
+                    teamNode.AddValue("Points", entry.Value.Points);
+                    teamNode.AddValue("CostFactor", entry.Value.CostFactor);
                     teamNode.AddValue("PartInResearch", entry.Value.PartInResearch);
                     teamNode.AddValue("MaxData", entry.Value.MaxData);
                     teamNode.AddValue("PartRnDCost", entry.Value.PartRnDCost);

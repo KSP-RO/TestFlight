@@ -140,7 +140,7 @@ namespace TestFlightCore
             }
         }
 
-        [KSPEvent(guiActiveEditor=true, guiName = "R&D Window")]
+        [KSPEvent(guiActiveEditor=true, guiName = "R&D Window")]            
         public void ToggleRNDGUI()
         {
             TestFlightEditorWindow.Instance.LockPart(this.part);
