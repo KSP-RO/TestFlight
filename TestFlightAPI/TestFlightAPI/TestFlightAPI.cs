@@ -639,7 +639,7 @@ namespace TestFlightAPI
         /// Should return a string if the module wants to report any information to the user in the TestFlight Editor window.
         /// </summary>
         /// <returns>A string of information to display to the user, or "" if none</returns>
-        string GetTestFlightInfo();
+        List<string> GetTestFlightInfo();
     }
 
 	public interface ITestFlightReliability
@@ -672,7 +672,14 @@ namespace TestFlightAPI
         /// <returns>The reliability curve for scope.  MUST return null if the reliability module does not handle Base Failure Rate</returns>
         /// <param name="scope">Scope.</param>
         FloatCurve GetReliabilityCurve();
-	}
+
+        /// <summary>
+        /// Should return a string if the module wants to report any information to the user in the TestFlight Editor window.
+        /// </summary>
+        /// <returns>A string of information to display to the user, or "" if none</returns>
+        List<string> GetTestFlightInfo();
+
+    }
 
 	public interface ITestFlightFailure
 	{
@@ -735,6 +742,12 @@ namespace TestFlightAPI
         /// </summary>
         /// <returns>The seconds until repair is complete, <c>0</c> if repair is completed instantly, and <c>-1</c> if repair failed and the part is still broken.</returns>
         float ForceRepair();
+
+        /// <summary>
+        /// Should return a string if the module wants to report any information to the user in the TestFlight Editor window.
+        /// </summary>
+        /// <returns>A string of information to display to the user, or "" if none</returns>
+        List<string> GetTestFlightInfo();
 	}
 
     public interface ITestFlightInterop
@@ -889,6 +902,12 @@ namespace TestFlightAPI
         float GetMaximumRnDData();
         float GetRnDCost();
         float GetRnDRate();
+
+        /// <summary>
+        /// Should return a string if the module wants to report any information to the user in the TestFlight Editor window.
+        /// </summary>
+        /// <returns>A string of information to display to the user, or "" if none</returns>
+        List<string> GetTestFlightInfo();
     }
 }
 

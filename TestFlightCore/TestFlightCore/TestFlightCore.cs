@@ -1067,23 +1067,13 @@ namespace TestFlightCore
 
             return tooltip;
         }
-        public string GetTestFlightInfo()
+        public List<string> GetTestFlightInfo()
         {
-            string info = "";
-//            List<ITestFlightFailure> failureModules = TestFlightUtil.GetFailureModules(this.part);
-//            List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part);
-//            IFlightDataRecorder dataRecorder = TestFlightUtil.GetDataRecorder(this.part);
-//
-//            foreach (ITestFlightFailure fm in failureModules)
-//            {
-//                info += fm.GetTestFlightInfo();
-//            }
-//            foreach (ITestFlightReliability rm in reliabilityModules)
-//            {
-//                info += rm.GetTestFlightInfo();
-//            }
-//            info += dataRecorder.GetTestFlightInfo();
-            return info;
+            List<string> infoStrings = new List<string>();
+            infoStrings.Add("<b>Core</b>");
+            infoStrings.Add(String.Format("<b>Flight Data</b>: {0:f2}/{1:f2}", currentFlightData, maxData));
+
+            return infoStrings;
         }
 
         public void UpdatePartConfig()

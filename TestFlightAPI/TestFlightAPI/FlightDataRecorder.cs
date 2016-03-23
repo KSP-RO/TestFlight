@@ -140,9 +140,9 @@ namespace TestFlightAPI
             base.OnSave(node);
         }
 
-        public virtual string GetTestFlightInfo()
+        public virtual List<string> GetTestFlightInfo()
         {
-            return "";
+            return null;
         }
     }
 }

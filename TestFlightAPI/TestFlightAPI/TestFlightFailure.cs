@@ -409,9 +409,9 @@ namespace TestFlightAPI
             return 0;
         }
 
-        public virtual string GetTestFlightInfo()
+        public virtual List<string> GetTestFlightInfo()
         {
-            return "";
+            return null;
         }
 
         public override void OnAwake()

@@ -50,14 +50,24 @@ namespace TestFlightCore
         {
             if (selectedPart != null)
             {
-                GUILayout.Label(selectedPart.partInfo.title, Styles.styleEditorTitle);
-                if (show)
+                ITestFlightCore core = TestFlightUtil.GetCore(selectedPart);
+                if (core != null)
                 {
-                }
-                else
-                {
-                    GUILayout.Space(2.0f);
-                    GUILayout.Label("Middle mouse (or cmd/ctrl+t) to show TestFlight info...", Styles.styleEditorText);
+                    GUILayout.Label(selectedPart.partInfo.title, Styles.styleEditorTitle);
+                    if (show)
+                    {
+                        List<string> infoParts = core.GetTestFlightInfo();
+                        foreach (string info in infoParts)
+                        {
+                            GUILayout.BeginVertical();
+                            GUILayout.Label(info, Styles.styleEditorText);
+                        }
+                    }
+                    else
+                    {
+                        GUILayout.Space(2.0f);
+                        GUILayout.Label("Middle mouse (or cmd/ctrl+t) to show TestFlight info...", Styles.styleEditorText);
+                    }
                 }
             }
         }
@@ -196,7 +206,7 @@ namespace TestFlightCore
             TooltipMouseOffset = new Vector2d(10, 10);
             TooltipStatic = true;
             WindowCaption = "";
-            StartCoroutine("AddToToolbar");
+//            StartCoroutine("AddToToolbar");
             onWindowMoveComplete += EditorWindow_OnWindowMoveComplete;
             isReady = true;
         }
@@ -332,7 +342,6 @@ namespace TestFlightCore
             GUILayout.BeginVertical();
             GUILayout.Label(String.Format("Selected Part: {0}", TestFlightUtil.GetFullPartName(SelectedPart)), Styles.styleEditorTitle);
 
-            tfScenario.userSettings.currentEditorScrollPosition = GUILayout.BeginScrollView(tfScenario.userSettings.currentEditorScrollPosition);
             float flightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(TestFlightUtil.GetFullPartName(SelectedPart));
             core = TestFlightUtil.GetCore(SelectedPart);
             if (core != null)
@@ -341,7 +350,6 @@ namespace TestFlightCore
                 GUILayout.BeginHorizontal();
                 double failureRate = core.GetBaseFailureRate();
                 String mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
-                // 10 characters for body max plus 10 characters for situation plus underscore = 21 characters needed for longest scope string
                 GUILayout.Label(String.Format("{0,-7:F2}<b>du</b>", flightData), GUILayout.Width(75));
                 GUILayout.Label(String.Format("{0,-5:F2} MTBF", mtbfString), GUILayout.Width(125));
                 GUILayout.EndHorizontal();
@@ -388,7 +396,6 @@ namespace TestFlightCore
                     }
                 }
             }
-            GUILayout.EndScrollView();
             if (DrawToggle(ref tfScenario.userSettings.editorWindowLocked, "Lock Window", Styles.styleToggle))
             {
                 if (tfScenario.userSettings.editorWindowLocked)

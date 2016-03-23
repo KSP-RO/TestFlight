@@ -328,6 +328,7 @@ namespace TestFlightCore
             {
                 if (activeTeams == null)
                     activeTeams = new Dictionary<string, TestFlightRnDTeam>();
+                
                 foreach (ConfigNode teamNode in node.GetNodes("TESTFLIGHT_RNDTEAM"))
                 {
                     string partName = teamNode.GetValue("PartInResearch");
