@@ -113,7 +113,7 @@ namespace TestFlightCore
             TestFlightUtil.Log(message, debug);
         }
 
-        public void Awake()
+        public override void OnAwake()
         {
             Log("Awake");
             teamSettings = new List<TestFlightRNDTeamSettings>();
