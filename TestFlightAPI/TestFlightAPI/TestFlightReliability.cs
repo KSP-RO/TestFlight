@@ -197,8 +197,8 @@ namespace TestFlightAPI
             List<string> infoStrings = new List<string>();
 
             infoStrings.Add("<b>Base Reliability</b>");
-            infoStrings.Add(String.Format("<b>Current Reliability</b>: {0:f2}%, {1} <b>MTBF</b>", 1.0f / (float)core.GetBaseFailureRate(), core.FailureRateToMTBFString(core.GetBaseFailureRate(), TestFlightUtil.MTBFUnits.SECONDS, 999)));
-            infoStrings.Add(String.Format("<b>Maximum Reliability</b>: {0:f2}%, {1} <b>MTBF</b>", 1.0f / (float)GetBaseFailureRate(reliabilityCurve.maxTime), core.FailureRateToMTBFString(GetBaseFailureRate(reliabilityCurve.maxTime), TestFlightUtil.MTBFUnits.SECONDS, 999)));
+            infoStrings.Add(String.Format("<b>Current Reliability</b>: {0} <b>MTBF</b>", core.FailureRateToMTBFString(core.GetBaseFailureRate(), TestFlightUtil.MTBFUnits.SECONDS, 999)));
+            infoStrings.Add(String.Format("<b>Maximum Reliability</b>: {0} <b>MTBF</b>", core.FailureRateToMTBFString(GetBaseFailureRate(reliabilityCurve.maxTime), TestFlightUtil.MTBFUnits.SECONDS, 999)));
 
             return infoStrings;
         }
