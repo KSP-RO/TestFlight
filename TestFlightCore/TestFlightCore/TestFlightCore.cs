@@ -201,17 +201,24 @@ namespace TestFlightCore
         public double GetBaseFailureRate()
         {
             if (baseFailureRate != 0)
+            {
+                Log("Returning cached failure rate");
                 return baseFailureRate;
+            }
 
             double totalBFR = 0f;
             List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part);
             if (reliabilityModules == null)
+            {
+                Log("Unable to locate any reliability modules.  Using min failure rate");
                 return TestFlightUtil.MIN_FAILURE_RATE;
+            }
 
             foreach (ITestFlightReliability rm in reliabilityModules)
             {
                 totalBFR += rm.GetBaseFailureRate(initialFlightData);
             }
+            Log(String.Format("BFR: {0:F7}, Modifier: {1:F7}", totalBFR, failureRateModifier));
             totalBFR = totalBFR * failureRateModifier;
             totalBFR = Math.Max(totalBFR, TestFlightUtil.MIN_FAILURE_RATE);
             baseFailureRate = totalBFR;
@@ -1070,16 +1077,33 @@ namespace TestFlightCore
         public List<string> GetTestFlightInfo()
         {
             List<string> infoStrings = new List<string>();
+            string partName = TestFlightUtil.GetPartName(this.part);
             infoStrings.Add("<b>Core</b>");
-            infoStrings.Add(String.Format("<b>Flight Data</b>: {0:f2}/{1:f2}", currentFlightData, maxData));
+            infoStrings.Add("<b>Active Part</b>: " + partName);
+            float flightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(partName);
+            if (flightData < 0f)
+                flightData = 0f;
+            infoStrings.Add(String.Format("<b>Flight Data</b>: {0:f2}/{1:f2}", flightData, maxData));
 
+            List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part);
+            if (reliabilityModules != null)
+            {
+                Log("Getting info from reliability modules");
+                foreach (ITestFlightReliability reliabilityModule in reliabilityModules)
+                {
+                    infoStrings.AddRange(reliabilityModule.GetTestFlightInfo());
+                }
+            }
             return infoStrings;
         }
 
         public void UpdatePartConfig()
         {
+            if (Events == null)
+                return;
             BaseEvent toggleRNDGUIEvent = Events["ToggleRNDGUI"];
-            toggleRNDGUIEvent.guiActiveEditor = TestFlightEnabled;
+            if (toggleRNDGUIEvent != null)
+                toggleRNDGUIEvent.guiActiveEditor = TestFlightEnabled;
         }
 
         public float GetMaximumRnDData()

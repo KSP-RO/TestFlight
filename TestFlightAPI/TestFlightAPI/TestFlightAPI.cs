@@ -212,7 +212,9 @@ namespace TestFlightAPI
 
             // If this query defines an alias, just trim it off
             if (query.Contains(":"))
+            {
                 query = query.Split(new char[1]{ ':' })[0];
+            }
 
             // split into list elements.  For a query to be valid only one list element has to evaluate to true
             string[] elements = query.Split(new char[1] { ',' });
@@ -438,7 +440,7 @@ namespace TestFlightAPI
             else
             {
                 // if there are no "parts" to this block, then it must be just a simple part name or an alias
-                if (block == GetPartName(part).ToLower())
+                if (block == GetFullPartName(part).ToLower())
                     return true;
                 
                 return false;

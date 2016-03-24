@@ -57,6 +57,7 @@ namespace TestFlightCore
         internal static GUIStyle styleEditorPanel;
         internal static GUIStyle styleEditorTitle;
         internal static GUIStyle styleEditorText;
+        internal static GUIStyle styleEditorTextAligned;
 
         // Solarized Light Styles
 
@@ -279,6 +280,14 @@ namespace TestFlightCore
             styleEditorText.fontSize = 11;
             styleEditorText.fontStyle = FontStyle.Normal;
             styleEditorText.richText = true;
+
+            styleEditorTextAligned = new GUIStyle();
+            styleEditorTextAligned.normal.textColor = Color.white;
+            styleEditorTextAligned.fontSize = 11;
+            styleEditorTextAligned.fontStyle = FontStyle.Normal;
+            styleEditorTextAligned.richText = true;
+//            styleEditorTextAligned.alignment = TextAnchor.MiddleLeft;
+            styleEditorTextAligned.padding.top = 8;
             #endregion
         }
         #endregion

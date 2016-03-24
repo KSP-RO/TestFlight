@@ -9,10 +9,15 @@ namespace TestFlightCore
     public class TestFlightRnDTeam
     {
         public float Points { get; set; }
+
         public float CostFactor { get; set; }
+
         public float MaxData { get; set; }
+
         public float PartRnDRate { get; set; }
+
         public float PartRnDCost { get; set; }
+
         public float Cost
         {
             get
@@ -22,6 +27,7 @@ namespace TestFlightCore
         }
 
         public string PartInResearch { get; set; }
+
         public bool ResearchActive { get; set; }
 
         internal void Log(string message)
@@ -82,23 +88,24 @@ namespace TestFlightCore
 
     [KSPScenario(ScenarioCreationOptions.AddToAllGames, 
         new GameScenes[]
-    { 
-        GameScenes.FLIGHT,
-        GameScenes.EDITOR,
-        GameScenes.SPACECENTER,
-        GameScenes.TRACKSTATION
-    }
+        { 
+            GameScenes.FLIGHT,
+            GameScenes.EDITOR,
+            GameScenes.SPACECENTER,
+            GameScenes.TRACKSTATION
+        }
     )]
     public class TestFlightRnDScenario : ScenarioModule
     {
         public static TestFlightRnDScenario Instance { get; private set; }
+
         public bool isReady = false;
 
         protected TestFlightManagerScenario tfScenario = null;
         protected List<TestFlightRnDTeam> availableTeams = null;
         protected Dictionary<string, TestFlightRnDTeam> activeTeams = null;
 
-        [KSPField(isPersistant=true)]
+        [KSPField(isPersistant = true)]
         protected double lastUpdateTime = 0f;
 
         // Config settings
@@ -121,9 +128,9 @@ namespace TestFlightCore
             if (node != null)
             {
                 node.TryGetValue("updateFrequency", ref updateFrequency);
-                ConfigNode[] teamNodes = node.GetNodes("TEAM");
-                if (teamNodes != null)
+                if (node.HasNode("TEAM"))
                 {
+                    ConfigNode[] teamNodes = node.GetNodes("TEAM");
                     foreach (ConfigNode teamNode in teamNodes)
                     {
                         TestFlightRNDTeamSettings team = new TestFlightRNDTeamSettings();
@@ -150,6 +157,7 @@ namespace TestFlightCore
             }
             else
             {
+                updateFrequency = 86400d;
                 TestFlightRNDTeamSettings team = new TestFlightRNDTeamSettings();
                 team.points = 100f;
                 team.costFactor = 1.0f;
@@ -173,7 +181,6 @@ namespace TestFlightCore
         {
             double currentTime = Planetarium.GetUniversalTime();
             List<string> teamsToStop = new List<string>();
-            Log("Update.  Current Time " + currentTime + ", Last Update " + lastUpdateTime);
             if (currentTime - lastUpdateTime >= updateFrequency)
             {
                 float normalizedTime = (float)((currentTime - lastUpdateTime) / updateFrequency);

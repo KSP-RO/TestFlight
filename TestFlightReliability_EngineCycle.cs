@@ -39,6 +39,7 @@ namespace TestFlight
 
         public override double GetBaseFailureRate(float flightData)
         {
+            Log("MFR based reliability module.  Returning 0 failure rate");
             return 0;
         }
 
@@ -104,6 +105,16 @@ namespace TestFlight
             thrustModifier.Add(0f, 1f);
             cycle = new FloatCurve();
             cycle.Add(0f, 1f);
+        }
+
+        public override List<string> GetTestFlightInfo()
+        {
+            List<string> infoStrings = new List<string>();
+
+            infoStrings.Add("<b>Engine Cycle</b>");
+            infoStrings.Add(String.Format("<b>Rated Burn Time</b>: {0:F2} seconds", ratedBurnTime));
+
+            return infoStrings;
         }
     }
 }

@@ -29,6 +29,7 @@ namespace TestFlightAPI
                     return false;
                 if (string.IsNullOrEmpty(Configuration))
                     return true;
+//                Log(String.Format("Configuration: {0}, Status: {1}", Configuration, TestFlightUtil.EvaluateQuery(Configuration, this.part)));
                 return TestFlightUtil.EvaluateQuery(Configuration, this.part);
             }
         }
@@ -63,9 +64,15 @@ namespace TestFlightAPI
         public virtual double GetBaseFailureRate(float flightData)
         {
             if (reliabilityCurve != null)
+            {
+                Log(String.Format("{0:F2} data evaluates to {1:F2} failure rate", flightData, reliabilityCurve.Evaluate(flightData)));
                 return reliabilityCurve.Evaluate(flightData);
+            }
             else
+            {
+                Log("No eliability curve. Returning min failure rate.");
                 return TestFlightUtil.MIN_FAILURE_RATE;
+            }
         }
         public FloatCurve GetReliabilityCurve()
         {
@@ -189,9 +196,10 @@ namespace TestFlightAPI
         {
             List<string> infoStrings = new List<string>();
 
-            infoStrings.Add("<b>Reliability</b>");
+            infoStrings.Add("<b>Base Reliability</b>");
             infoStrings.Add(String.Format("<b>Current Reliability</b>: {0:f2}%, {1} <b>MTBF</b>", 1.0f / (float)core.GetBaseFailureRate(), core.FailureRateToMTBFString(core.GetBaseFailureRate(), TestFlightUtil.MTBFUnits.SECONDS, 999)));
             infoStrings.Add(String.Format("<b>Maximum Reliability</b>: {0:f2}%, {1} <b>MTBF</b>", 1.0f / (float)GetBaseFailureRate(reliabilityCurve.maxTime), core.FailureRateToMTBFString(GetBaseFailureRate(reliabilityCurve.maxTime), TestFlightUtil.MTBFUnits.SECONDS, 999)));
+
             return infoStrings;
         }
     }

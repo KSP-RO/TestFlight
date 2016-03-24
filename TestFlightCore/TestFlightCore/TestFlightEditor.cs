@@ -21,7 +21,10 @@ namespace TestFlightCore
         {
             if (selectedPart == null)
                 return;
-            
+            ITestFlightCore core = TestFlightUtil.GetCore(selectedPart);
+            if (core == null)
+                return;
+
             position = GUILayout.Window(GetInstanceID(), position, DrawWindow, String.Empty, Styles.styleEditorPanel);
         }
 
@@ -32,18 +35,18 @@ namespace TestFlightCore
                 return;
             }
 
-            position.x = Mathf.Clamp(Input.mousePosition.x + 16.0f, 0.0f, Screen.width - position.width);
+            position.x = Mathf.Clamp(Input.mousePosition.x - 20f - position.width, 0.0f, Screen.width - position.width);
             position.y = Mathf.Clamp(Screen.height - Input.mousePosition.y, 0.0f, Screen.height - position.height);
             selectedPart = EditorLogic.fetch.ship.parts.Find(p => p.stackIcon.highlightIcon) ?? EditorLogic.SelectedPart;
             if (selectedPart != null)
             {
-                if ( (!show && Input.GetMouseButtonDown(2))
-                    || (!show && Input.GetKeyDown(KeyCode.T) && Input.GetKeyDown(KeyCode.LeftCommand))
-                    || (!show && Input.GetKeyDown(KeyCode.T) && Input.GetKeyDown(KeyCode.LeftControl)))
+                if (Input.GetMouseButtonDown(2))
                 {
-                    show = true;
+                    show = !show;
                 }
             } // End selectedPart
+            else
+                show = false;
         }
 
         public void DrawWindow(int windowID)
@@ -57,16 +60,17 @@ namespace TestFlightCore
                     if (show)
                     {
                         List<string> infoParts = core.GetTestFlightInfo();
+                        GUILayout.BeginVertical();
                         foreach (string info in infoParts)
                         {
-                            GUILayout.BeginVertical();
                             GUILayout.Label(info, Styles.styleEditorText);
                         }
+                        GUILayout.EndVertical();
                     }
                     else
                     {
                         GUILayout.Space(2.0f);
-                        GUILayout.Label("Middle mouse (or cmd/ctrl+t) to show TestFlight info...", Styles.styleEditorText);
+                        GUILayout.Label("Middle click to show TestFlight info...", Styles.styleEditorText);
                     }
                 }
             }
@@ -225,11 +229,8 @@ namespace TestFlightCore
             windowHeight += 20f;
             float top = Screen.height - windowHeight - 60f;
 
-            if (!tfScenario.userSettings.editorWindowLocked)
-            {
-                left = tfScenario.userSettings.editorWindowPosition.xMin;
-                top = tfScenario.userSettings.editorWindowPosition.yMin;
-            }
+            left = tfScenario.userSettings.editorWindowPosition.xMin;
+            top = tfScenario.userSettings.editorWindowPosition.yMin;
             WindowRect = new Rect(left, top, windowWidth, windowHeight);
         }
 
@@ -315,40 +316,22 @@ namespace TestFlightCore
                 return;
 
             if (SelectedPart == null)
-            {
-                GUILayout.BeginVertical();
-                GUILayout.Label("Select a part to display its details", Styles.styleEditorTitle);
-                GUILayout.Label("MouseOver part in bin or 3D view to quickview", Styles.styleEditorText);
-                GUILayout.Label("RightClick part in bin (not 3D) to toggle window lock on that part", Styles.styleEditorText);
-                GUILayout.EndVertical();
-                if (DrawToggle(ref tfScenario.userSettings.editorWindowLocked, "Lock Window", Styles.styleToggle))
-                {
-                    if (tfScenario.userSettings.editorWindowLocked)
-                    {
-                        CalculateWindowBounds();
-                        tfScenario.userSettings.editorWindowPosition = WindowRect;
-                        DragEnabled = false;
-                    }
-                    else
-                    {
-                        DragEnabled = true;
-                    }
-                    tfScenario.userSettings.Save();
-                }
                 return;
-            }
 
             ITestFlightCore core = null;
             GUILayout.BeginVertical();
             GUILayout.Label(String.Format("Selected Part: {0}", TestFlightUtil.GetFullPartName(SelectedPart)), Styles.styleEditorTitle);
 
             float flightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(TestFlightUtil.GetFullPartName(SelectedPart));
+            if (flightData < 0f)
+                flightData = 0f;
             core = TestFlightUtil.GetCore(SelectedPart);
             if (core != null)
             {
                 core.InitializeFlightData(flightData);
                 GUILayout.BeginHorizontal();
                 double failureRate = core.GetBaseFailureRate();
+                Log(String.Format("Failure rate is {0:f2}", failureRate));
                 String mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
                 GUILayout.Label(String.Format("{0,-7:F2}<b>du</b>", flightData), GUILayout.Width(75));
                 GUILayout.Label(String.Format("{0,-5:F2} MTBF", mtbfString), GUILayout.Width(125));
@@ -367,7 +350,24 @@ namespace TestFlightCore
                     if (!tfRnDScenario.IsPartBeingResearched(partName))
                     {
                         Log("Part is not being researched.  Show research buttons");
+                        int frequency = (int)tfRnDScenario.updateFrequency;
+                        Log(String.Format("Update Frequency is {0}",frequency)); 
+                        TimeSpan span = new TimeSpan(0, 0, frequency);
+                        string cycleString;
+                        if (span.TotalDays > 1d)
+                        {
+                            cycleString = String.Format("{0:F2} days", span.TotalDays);
+                        }
+                        else
+                        {
+                            cycleString = String.Format("{0:F2} day", span.TotalDays);
+                        }
                         GUILayout.Label("Hire Research Team", Styles.styleEditorTitle);
+                        GUILayout.Label("Research teams deduct funds and add flight data to your part", Styles.styleEditorText);
+                        GUILayout.Label("A research cycle lasts <b>" + cycleString + "</b>", Styles.styleEditorText);
+                        GUILayout.Label("At the end of each cycle, funds will be deducted and data added", Styles.styleEditorText);
+                        GUILayout.Label("The costs and research rate varies by team", Styles.styleEditorText);
+
                         List<TestFlightRNDTeamSettings> teams = tfRnDScenario.GetAvailableTeams();
                         if (teams != null)
                         {
@@ -375,13 +375,12 @@ namespace TestFlightCore
                             for (int i = 0; i < numTeams; i++)
                             {
                                 GUILayout.BeginHorizontal();
-                                if (GUILayout.Button("Hire Team", GUILayout.Width(100)))
+                                if (GUILayout.Button(String.Format("Hire Team"), GUILayout.Width(100)))
                                 {
                                     tfRnDScenario.AddResearchTeam(SelectedPart, i);
                                 }
-                                GUILayout.Label(String.Format("{0,-7:F2}<b>points</b>", teams[i].points), GUILayout.Width(75));
-                                GUILayout.Label(String.Format("{0,-7:F2}<b>funds/point</b>", teams[i].costFactor), GUILayout.Width(75));
-                                GUILayout.Label(String.Format("Total Cost {0,-7:F2} every {1}", teams[i].costFactor * teams[i].points, TestFlightUtil.FormatTime(tfRnDScenario.updateFrequency)), GUILayout.Width(75));
+                                Log(String.Format("cycle is {0}", cycleString));
+                                GUILayout.Label(String.Format("<b>{0,7:F2}</b> data, <b>{1,7:F2}</b> funds", teams[i].points, teams[i].costFactor * teams[i].points), Styles.styleEditorTextAligned);
                                 GUILayout.EndHorizontal();
                             }
                         }
