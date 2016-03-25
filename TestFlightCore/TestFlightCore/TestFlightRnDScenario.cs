@@ -43,6 +43,7 @@ namespace TestFlightCore
             CostFactor = costFactor;
             PartInResearch = "";
             ResearchActive = false;
+            Log("New team started");
         }
 
         /// <summary>
@@ -122,7 +123,7 @@ namespace TestFlightCore
 
         public override void OnAwake()
         {
-            Log("Awake");
+            Log("OnAwake");
             teamSettings = new List<TestFlightRNDTeamSettings>();
             ConfigNode node = GameDatabase.Instance.GetConfigNode("TFRNDSETTINGS");
             if (node != null)
@@ -337,14 +338,17 @@ namespace TestFlightCore
         public override void OnLoad(ConfigNode node)
         {
             base.OnLoad(node);
+            Log("OnLoad");
             if (node.HasNode("TESTFLIGHT_RNDTEAM"))
             {
+                Log("Teams available for load");
                 if (activeTeams == null)
                     activeTeams = new Dictionary<string, TestFlightRnDTeam>();
                 
                 foreach (ConfigNode teamNode in node.GetNodes("TESTFLIGHT_RNDTEAM"))
                 {
                     string partName = teamNode.GetValue("PartInResearch");
+                    Log(String.Format("Loading team for part {0}", partName));
                     float points = 100f;
                     float costFactor = 1.0f;
                     teamNode.TryGetValue("Points", ref points);
@@ -362,6 +366,7 @@ namespace TestFlightCore
         public override void OnSave(ConfigNode node)
         {
             base.OnSave(node);
+            Log("OnSave");
             if (activeTeams == null)
                 return;
             
@@ -369,6 +374,7 @@ namespace TestFlightCore
             {
                 foreach (KeyValuePair<string, TestFlightRnDTeam> entry in activeTeams)
                 {
+                    Log(String.Format("Saving team researching part {0}", entry.Value.PartInResearch));
                     ConfigNode teamNode = node.AddNode("TESTFLIGHT_RNDTEAM");
                     teamNode.AddValue("Points", entry.Value.Points);
                     teamNode.AddValue("CostFactor", entry.Value.CostFactor);
