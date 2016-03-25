@@ -180,6 +180,9 @@ namespace TestFlightCore
 
         public void Update()
         {
+            if (activeTeams == null || activeTeams.Count <= 0)
+                return;
+            
             double currentTime = Planetarium.GetUniversalTime();
             List<string> teamsToStop = new List<string>();
             if (currentTime - lastUpdateTime >= updateFrequency)
@@ -254,7 +257,8 @@ namespace TestFlightCore
                 availableTeams.Add(new TestFlightRnDTeam(team.points, team.costFactor));
             }
 
-            activeTeams = new Dictionary<string, TestFlightRnDTeam>();
+            if (activeTeams == null)
+                activeTeams = new Dictionary<string, TestFlightRnDTeam>();
         }
 
         public void AddResearchTeam(Part part, int team)
@@ -287,6 +291,7 @@ namespace TestFlightCore
             {
                 Log(String.Format("Team #{0} is not valid.  There are {1} teams.", team, availableTeams.Count));
             }
+            Log(String.Format("New active team count is {0}", activeTeams.Count));
         }
 
         public void RemoveResearch(string partName)
@@ -361,14 +366,22 @@ namespace TestFlightCore
                     activeTeams[partName].ResearchActive = bool.Parse(teamNode.GetValue("ResearchActive"));
                 }
             }
+            else
+                Log("No TESTFLIGHT_RNDTEAM nodes found");
+
+            Log(String.Format("After load, active team count is {0}", activeTeams.Count));
         }
 
         public override void OnSave(ConfigNode node)
         {
             base.OnSave(node);
             Log("OnSave");
+
             if (activeTeams == null)
+            {
+                Log("activeTeams == null");
                 return;
+            }
             
             if (activeTeams.Count > 0)
             {
@@ -385,6 +398,8 @@ namespace TestFlightCore
                     teamNode.AddValue("ResearchActive", entry.Value.ResearchActive);
                 }
             }
+            else
+                Log("No active teams to save");
         }
     }
 }

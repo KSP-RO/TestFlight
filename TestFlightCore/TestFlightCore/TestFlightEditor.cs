@@ -201,6 +201,7 @@ namespace TestFlightCore
 
         internal void Startup()
         {
+            Log("Startup");
             CalculateWindowBounds();
             DragEnabled = !tfScenario.userSettings.editorWindowLocked;
             WindowMoveEventsEnabled = true;
@@ -217,8 +218,6 @@ namespace TestFlightCore
 
         internal void CalculateWindowBounds()
         {
-            if (appLauncherButton == null)
-                return;
             if (tfScenario == null)
                 return;
 
