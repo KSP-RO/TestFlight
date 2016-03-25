@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 
 using UnityEngine;
@@ -197,6 +198,7 @@ namespace TestFlightCore
         float lastDataPoll = 0.0f;
         float lastFailurePoll = 0.0f;
         float lastMasterStatusUpdate = 0.0f;
+
 
         internal void Log(string message)
         {
@@ -734,14 +736,52 @@ namespace TestFlightCore
             }
         }
 
+        #region Assembly/Class Information
+        /// <summary>
+        /// Name of the Assembly that is running this MonoBehaviour
+        /// </summary>
+        internal static String _AssemblyName
+        { get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Name; } }
+
+        /// <summary>
+        /// Full Path of the executing Assembly
+        /// </summary>
+        internal static String _AssemblyLocation
+        { get { return System.Reflection.Assembly.GetExecutingAssembly().Location; } }
+
+        /// <summary>
+        /// Folder containing the executing Assembly
+        /// </summary>
+        internal static String _AssemblyFolder
+        { get { return System.IO.Path.GetDirectoryName(_AssemblyLocation); } }
+
+        #endregion  
+
 
         public override void OnAwake()
         {
             Instance = this;
-            if (userSettings == null)
+
+            // v1.5.4 moved settings to PluginData but to avoid screwing over existing installs we want to migrate existing settings
+            string pdSettingsFile = System.IO.Path.Combine(_AssemblyFolder, "PluginData/settings.cfg");
+            string settingsFile = System.IO.Path.Combine(_AssemblyFolder, "../settings.cfg");
+            if (!System.IO.File.Exists(pdSettingsFile) && System.IO.File.Exists(settingsFile))
+            {
                 userSettings = new UserSettings("../settings.cfg");
-            if (bodySettings == null)
-                bodySettings = new BodySettings("../settings_bodies.cfg");
+                userSettings.Load();
+                string pdDir = System.IO.Path.Combine(_AssemblyFolder, "PluginData");
+                System.IO.Directory.CreateDirectory(pdDir);
+                userSettings.Save(pdSettingsFile);
+                System.IO.File.Delete(settingsFile);
+            }
+
+            if (userSettings == null)
+                userSettings = new UserSettings("PluginData/settings.cfg");
+            if (userSettings.FileExists)
+            {
+                userSettings.Load();
+
+            }
 
             if (userSettings.FileExists)
                 userSettings.Load();
