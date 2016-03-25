@@ -258,6 +258,7 @@ namespace TestFlightCore
 
         public void AddResearchTeam(Part part, int team)
         {
+            Log(String.Format("Assign team #{0} to part", team));
             string partName = TestFlightUtil.GetFullPartName(part);
 
             if (IsPartBeingResearched(partName))
@@ -279,6 +280,11 @@ namespace TestFlightCore
                 activeTeams[partName].PartRnDCost = core.GetRnDCost();
                 activeTeams[partName].PartRnDRate = core.GetRnDRate();
                 activeTeams[partName].ResearchActive = true;
+                Log(String.Format("Team #{0} has been assigned to part {1}", team, partName));
+            }
+            else
+            {
+                Log(String.Format("Team #{0} is not valid.  There are {1} teams.", team, availableTeams.Count));
             }
         }
 
