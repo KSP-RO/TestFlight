@@ -14,13 +14,6 @@ namespace TestFlightCore
     /// </summary>
     public class TestFlightCore : PartModuleExtended, ITestFlightCore
     {
-        // New API
-
-        // New v1.3
-        [KSPField(isPersistant=true)]
-        public float currentFlightData;
-        [KSPField(isPersistant=true)]
-        public float initialFlightData;
         [KSPField]
         public float startFlightData;
 
@@ -34,12 +27,6 @@ namespace TestFlightCore
         public float techTransferMax = 1000;
         [KSPField]
         public float techTransferGenerationPenalty = 0.05f;
-        [KSPField(isPersistant=true)]
-        public float operatingTime;
-        [KSPField(isPersistant=true)]
-        public float lastMET;
-        [KSPField(isPersistant=true)]
-        public bool initialized = false;
         [KSPField]
         public float maxData = 0f;
         [KSPField]
@@ -54,6 +41,23 @@ namespace TestFlightCore
         [KSPField]
         public float rndCost = 1f;
 
+        #region Persistant KSP Fields
+
+        [KSPField(isPersistant=true)]
+        public float operatingTime;
+        [KSPField(isPersistant=true)]
+        public double lastMET;
+        [KSPField(isPersistant=true)]
+        public bool initialized = false;
+        [KSPField(isPersistant=true)]
+        public float currentFlightData;
+        [KSPField(isPersistant=true)]
+        public float initialFlightData;
+        [KSPField(isPersistant=true)]
+        private double missionStartTime;
+
+        #endregion
+
         private double baseFailureRate;
         // We store the base, or initial, flight data for calculation of Base Failure Rate
         // Momentary Failure Rates are calculated based on modifiers.  Those modifiers
@@ -61,7 +65,6 @@ namespace TestFlightCore
         private List<MomentaryFailureRate> momentaryFailureRates;
         private List<MomentaryFailureModifier> momentaryFailureModifiers;
         private List<String> disabledFailures;
-        private float missionStartTime;
         private bool firstStaged;
 
         // These were created for KCT integration but might have other uses
@@ -748,7 +751,7 @@ namespace TestFlightCore
         {
             GameEvents.onStageActivate.Remove(OnStageActivate);
             firstStaged = true;
-            missionStartTime = (float)Planetarium.GetUniversalTime();
+            missionStartTime = Planetarium.GetUniversalTime();
             Log("First stage activated");
         }
         /// <summary>
@@ -796,13 +799,13 @@ namespace TestFlightCore
                 }
 
 
-                float currentMET = (float)Planetarium.GetUniversalTime() - (float)missionStartTime;
+                double currentMET = Planetarium.GetUniversalTime() - missionStartTime;
                 Log("Operating Time: " + operatingTime);
                 Log("Current MET: " + currentMET + ", Last MET: " + lastMET);
                 if (operatingTime != -1 && IsPartOperating())
                 {
                     Log("Adding " + (currentMET - lastMET) + " seconds to operatingTime");
-                    operatingTime += currentMET - lastMET;
+                    operatingTime += (float)(currentMET - lastMET);
                 }
 
                 lastMET = currentMET;
@@ -826,7 +829,7 @@ namespace TestFlightCore
                 else
                 {
                     firstStaged = true;
-                    missionStartTime = (float)Planetarium.GetUniversalTime();
+                    missionStartTime = Planetarium.GetUniversalTime();
                 }
             }
         }
@@ -877,7 +880,7 @@ namespace TestFlightCore
             currentFlightData = flightData;
             initialFlightData = flightData;
 
-            missionStartTime = (float)Planetarium.GetUniversalTime();
+            missionStartTime = Planetarium.GetUniversalTime();
 
             if (HighLogic.LoadedSceneIsFlight)
                 initialized = true;

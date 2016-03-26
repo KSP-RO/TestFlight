@@ -58,12 +58,13 @@ namespace TestFlight
                 else
                 {
                     // If so then we add burn time based on time passed, optionally modified by the thrust
+                    Log(String.Format("TestFlightReliability_EngineCycle: Engine Thrust {0:F4}", engine.finalThrust));
                     float actualThrustModifier = thrustModifier.Evaluate(engine.finalThrust);
                     engineOperatingTime = engineOperatingTime + (deltaTime * actualThrustModifier);
 
                     // Check for failure
                     float penalty = cycle.Evaluate((float)engineOperatingTime);
-                    Log(String.Format("TestFlightFailure_EngineCycle: Applying modifier {0:F4} at cycle time {1:F4}", penalty, engineOperatingTime));
+                    Log(String.Format("TestFlightReliability_EngineCycle: Applying modifier {0:F4} at cycle time {1:F4}", penalty, engineOperatingTime));
                     core.SetTriggerMomentaryFailureModifier("EngineCycle", penalty, this);
                 }
             }

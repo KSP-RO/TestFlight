@@ -25,7 +25,7 @@ namespace TestFlightCore
         internal bool acknowledged;
         internal String mtbfString;
         internal float timeToRepair;
-        internal float lastSeen;
+        internal double lastSeen;
         internal float flightData;
     }
 
@@ -194,10 +194,10 @@ namespace TestFlightCore
 
         private Dictionary<Guid, MasterStatusItem> masterStatus = null;
 
-        float currentUTC = 0.0f;
-        float lastDataPoll = 0.0f;
-        float lastFailurePoll = 0.0f;
-        float lastMasterStatusUpdate = 0.0f;
+        double currentUTC = 0.0f;
+        double lastDataPoll = 0.0f;
+        double lastFailurePoll = 0.0f;
+        double lastMasterStatusUpdate = 0.0f;
 
 
         internal void Log(string message)
@@ -394,7 +394,7 @@ namespace TestFlightCore
             if (masterStatus == null)
                 masterStatus = new Dictionary<Guid, MasterStatusItem>();
 
-            currentUTC = (float)Planetarium.GetUniversalTime();
+            currentUTC = Planetarium.GetUniversalTime();
             // ensure out vessel list is up to date
             CacheVessels();
             if (currentUTC >= lastMasterStatusUpdate + tfScenario.userSettings.masterStatusUpdateFrequency)
@@ -416,7 +416,6 @@ namespace TestFlightCore
                             // Poll for flight data and part status
                             if (currentUTC >= lastDataPoll + tfScenario.userSettings.masterStatusUpdateFrequency)
                             {
-
                                 // Old data structure deprecated v1.3
                                 PartStatus partStatus = new PartStatus();
                                 partStatus.lastSeen = currentUTC;
