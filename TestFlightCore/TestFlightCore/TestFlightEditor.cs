@@ -379,7 +379,11 @@ namespace TestFlightCore
                                     tfRnDScenario.AddResearchTeam(SelectedPart, i);
                                 }
                                 Log(String.Format("cycle is {0}", cycleString));
-                                GUILayout.Label(String.Format("<b>{0,7:F2}</b> data, <b>{1,7:F2}</b> funds", teams[i].points, teams[i].costFactor * teams[i].points), Styles.styleEditorTextAligned);
+                                float points = teams[i].points;
+                                float cost = teams[i].costFactor * points;
+                                points = points * core.GetRnDRate();
+                                cost = cost * core.GetRnDCost();
+                                GUILayout.Label(String.Format("<b>{0,7:F2}</b> data, <b>{1,7:F2}</b> funds", points, cost), Styles.styleEditorTextAligned);
                                 GUILayout.EndHorizontal();
                             }
                         }
