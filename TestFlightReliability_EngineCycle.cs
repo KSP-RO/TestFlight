@@ -25,7 +25,7 @@ namespace TestFlight
 
 
         [KSPField(isPersistant = true)]
-        public double engineOperatingTime = 0f;
+        public double engineOperatingTime = 0d;
         [KSPField(isPersistant = true)]
         public double previousOperatingTime = 0d;
 
@@ -47,19 +47,22 @@ namespace TestFlight
         {
             double currentTime = Planetarium.GetUniversalTime();
             double deltaTime = (currentTime - previousOperatingTime) / 1d;
+            Log(String.Format("TestFlightReliability_EngineCycle: previous time: {0:F4}, current time: {1:F4}, delta time: {2:F4}", previousOperatingTime, currentTime, deltaTime));
             if (deltaTime >= 1d)
             {
+                previousOperatingTime = currentTime;
                 // Is our engine running?
                 if (!core.IsPartOperating())
                 {
                     // If not then we optionally cool down the engine, which decresses the burn time used
-                    engineOperatingTime = engineOperatingTime - (idleDecayRate * deltaTime);
+                    engineOperatingTime = Math.Max(engineOperatingTime - (idleDecayRate * deltaTime), 0d);
                 }
                 else
                 {
                     // If so then we add burn time based on time passed, optionally modified by the thrust
                     Log(String.Format("TestFlightReliability_EngineCycle: Engine Thrust {0:F4}", engine.finalThrust));
                     float actualThrustModifier = thrustModifier.Evaluate(engine.finalThrust);
+                    Log(String.Format("TestFlightReliability_EngineCycle: delta time: {0:F4}, operating time :{1:F4}, thrustModifier: {2:F4}", deltaTime, engineOperatingTime, actualThrustModifier));
                     engineOperatingTime = engineOperatingTime + (deltaTime * actualThrustModifier);
 
                     // Check for failure
