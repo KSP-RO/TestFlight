@@ -117,7 +117,16 @@ namespace TestFlight
 
             infoStrings.Add("<b>Engine Cycle</b>");
             infoStrings.Add(String.Format("<b>Rated Burn Time</b>: {0:F2} seconds", ratedBurnTime));
-
+            if (idleDecayRate > 0)
+                infoStrings.Add(String.Format("Cooling. Burn time decays {0:F2} per sec second engine is off", idleDecayRate));
+            float minThrust, maxThrust;
+            thrustModifier.FindMinMaxValue(out minThrust, out maxThrust);
+            if (minThrust != maxThrust)
+            {
+                infoStrings.Add(String.Format("Engine thrust affects burn time"));
+                infoStrings.Add(String.Format("<b>Min Thrust/b> {0:F2}kn, {1:F2}x", thrustModifier.minTime, minThrust));
+                infoStrings.Add(String.Format("<b>Max Thrust/b> {0:F2}kn, {1:F2}x", thrustModifier.maxTime, maxThrust));
+            }
             return infoStrings;
         }
     }

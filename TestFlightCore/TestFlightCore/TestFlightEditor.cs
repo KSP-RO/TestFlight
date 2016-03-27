@@ -40,9 +40,15 @@ namespace TestFlightCore
             selectedPart = EditorLogic.fetch.ship.parts.Find(p => p.stackIcon.highlightIcon) ?? EditorLogic.SelectedPart;
             if (selectedPart != null)
             {
-                if (Input.GetMouseButtonDown(2))
+                if (!show && Input.GetMouseButtonDown(2))
                 {
-                    show = !show;
+                    show = true;
+                }
+                else if (show && Input.GetMouseButtonDown(2))
+                {
+                    show = false;
+                    position.height = 0;
+                    position.width = 0;
                 }
             } // End selectedPart
             else

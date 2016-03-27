@@ -353,23 +353,28 @@ namespace TestFlightCore
                 foreach (ConfigNode teamNode in node.GetNodes("TESTFLIGHT_RNDTEAM"))
                 {
                     string partName = teamNode.GetValue("PartInResearch");
-                    Log(String.Format("Loading team for part {0}", partName));
-                    float points = 100f;
-                    float costFactor = 1.0f;
-                    teamNode.TryGetValue("Points", ref points);
-                    teamNode.TryGetValue("CostFactor", ref costFactor);
-                    activeTeams.Add(partName, new TestFlightRnDTeam(points, costFactor));
-                    activeTeams[partName].PartInResearch = partName;
-                    activeTeams[partName].MaxData = float.Parse(teamNode.GetValue("MaxData"));
-                    activeTeams[partName].PartRnDCost = float.Parse(teamNode.GetValue("PartRnDCost"));
-                    activeTeams[partName].PartRnDRate = float.Parse(teamNode.GetValue("PartRnDRate"));
-                    activeTeams[partName].ResearchActive = bool.Parse(teamNode.GetValue("ResearchActive"));
+                    if (partName != null && partName != "")
+                    {
+                        Log(String.Format("Loading team for part {0}", partName));
+                        float points = 100f;
+                        float costFactor = 1.0f;
+                        teamNode.TryGetValue("Points", ref points);
+                        teamNode.TryGetValue("CostFactor", ref costFactor);
+                        activeTeams.Add(partName, new TestFlightRnDTeam(points, costFactor));
+                        activeTeams[partName].PartInResearch = partName;
+                        activeTeams[partName].MaxData = float.Parse(teamNode.GetValue("MaxData"));
+                        activeTeams[partName].PartRnDCost = float.Parse(teamNode.GetValue("PartRnDCost"));
+                        activeTeams[partName].PartRnDRate = float.Parse(teamNode.GetValue("PartRnDRate"));
+                        activeTeams[partName].ResearchActive = bool.Parse(teamNode.GetValue("ResearchActive"));
+                    }
+                    else
+                        Log("Team definition didn't have partName");
                 }
             }
             else
                 Log("No TESTFLIGHT_RNDTEAM nodes found");
-
-            Log(String.Format("After load, active team count is {0}", activeTeams.Count));
+            if (activeTeams != null)
+                Log(String.Format("After load, active team count is {0}", activeTeams.Count));
         }
 
         public override void OnSave(ConfigNode node)
