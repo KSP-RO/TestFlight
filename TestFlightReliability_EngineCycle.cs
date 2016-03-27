@@ -25,7 +25,7 @@ namespace TestFlight
 
 
         [KSPField(isPersistant = true)]
-        public double engineOperatingTime = 0f;
+        public double engineOperatingTime = 0d;
         [KSPField(isPersistant = true)]
         public double previousOperatingTime = 0d;
 
@@ -47,23 +47,27 @@ namespace TestFlight
         {
             double currentTime = Planetarium.GetUniversalTime();
             double deltaTime = (currentTime - previousOperatingTime) / 1d;
+            Log(String.Format("TestFlightReliability_EngineCycle: previous time: {0:F4}, current time: {1:F4}, delta time: {2:F4}", previousOperatingTime, currentTime, deltaTime));
             if (deltaTime >= 1d)
             {
+                previousOperatingTime = currentTime;
                 // Is our engine running?
                 if (!core.IsPartOperating())
                 {
                     // If not then we optionally cool down the engine, which decresses the burn time used
-                    engineOperatingTime = engineOperatingTime - (idleDecayRate * deltaTime);
+                    engineOperatingTime = Math.Max(engineOperatingTime - (idleDecayRate * deltaTime), 0d);
                 }
                 else
                 {
                     // If so then we add burn time based on time passed, optionally modified by the thrust
+                    Log(String.Format("TestFlightReliability_EngineCycle: Engine Thrust {0:F4}", engine.finalThrust));
                     float actualThrustModifier = thrustModifier.Evaluate(engine.finalThrust);
+                    Log(String.Format("TestFlightReliability_EngineCycle: delta time: {0:F4}, operating time :{1:F4}, thrustModifier: {2:F4}", deltaTime, engineOperatingTime, actualThrustModifier));
                     engineOperatingTime = engineOperatingTime + (deltaTime * actualThrustModifier);
 
                     // Check for failure
                     float penalty = cycle.Evaluate((float)engineOperatingTime);
-                    Log(String.Format("TestFlightFailure_EngineCycle: Applying modifier {0:F4} at cycle time {1:F4}", penalty, engineOperatingTime));
+                    Log(String.Format("TestFlightReliability_EngineCycle: Applying modifier {0:F4} at cycle time {1:F4}", penalty, engineOperatingTime));
                     core.SetTriggerMomentaryFailureModifier("EngineCycle", penalty, this);
                 }
             }
@@ -113,7 +117,16 @@ namespace TestFlight
 
             infoStrings.Add("<b>Engine Cycle</b>");
             infoStrings.Add(String.Format("<b>Rated Burn Time</b>: {0:F2} seconds", ratedBurnTime));
-
+            if (idleDecayRate > 0)
+                infoStrings.Add(String.Format("Cooling. Burn time decays {0:F2} per sec second engine is off", idleDecayRate));
+            float minThrust, maxThrust;
+            thrustModifier.FindMinMaxValue(out minThrust, out maxThrust);
+            if (minThrust != maxThrust)
+            {
+                infoStrings.Add(String.Format("Engine thrust affects burn time"));
+                infoStrings.Add(String.Format("<b>Min Thrust/b> {0:F2}kn, {1:F2}x", thrustModifier.minTime, minThrust));
+                infoStrings.Add(String.Format("<b>Max Thrust/b> {0:F2}kn, {1:F2}x", thrustModifier.maxTime, maxThrust));
+            }
             return infoStrings;
         }
     }

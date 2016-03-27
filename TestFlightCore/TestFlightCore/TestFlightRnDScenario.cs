@@ -43,6 +43,7 @@ namespace TestFlightCore
             CostFactor = costFactor;
             PartInResearch = "";
             ResearchActive = false;
+            Log("New team started");
         }
 
         /// <summary>
@@ -122,7 +123,7 @@ namespace TestFlightCore
 
         public override void OnAwake()
         {
-            Log("Awake");
+            Log("OnAwake");
             teamSettings = new List<TestFlightRNDTeamSettings>();
             ConfigNode node = GameDatabase.Instance.GetConfigNode("TFRNDSETTINGS");
             if (node != null)
@@ -179,6 +180,9 @@ namespace TestFlightCore
 
         public void Update()
         {
+            if (activeTeams == null || activeTeams.Count <= 0)
+                return;
+            
             double currentTime = Planetarium.GetUniversalTime();
             List<string> teamsToStop = new List<string>();
             if (currentTime - lastUpdateTime >= updateFrequency)
@@ -253,11 +257,13 @@ namespace TestFlightCore
                 availableTeams.Add(new TestFlightRnDTeam(team.points, team.costFactor));
             }
 
-            activeTeams = new Dictionary<string, TestFlightRnDTeam>();
+            if (activeTeams == null)
+                activeTeams = new Dictionary<string, TestFlightRnDTeam>();
         }
 
         public void AddResearchTeam(Part part, int team)
         {
+            Log(String.Format("Assign team #{0} to part", team));
             string partName = TestFlightUtil.GetFullPartName(part);
 
             if (IsPartBeingResearched(partName))
@@ -279,7 +285,13 @@ namespace TestFlightCore
                 activeTeams[partName].PartRnDCost = core.GetRnDCost();
                 activeTeams[partName].PartRnDRate = core.GetRnDRate();
                 activeTeams[partName].ResearchActive = true;
+                Log(String.Format("Team #{0} has been assigned to part {1}", team, partName));
             }
+            else
+            {
+                Log(String.Format("Team #{0} is not valid.  There are {1} teams.", team, availableTeams.Count));
+            }
+            Log(String.Format("New active team count is {0}", activeTeams.Count));
         }
 
         public void RemoveResearch(string partName)
@@ -331,38 +343,56 @@ namespace TestFlightCore
         public override void OnLoad(ConfigNode node)
         {
             base.OnLoad(node);
+            Log("OnLoad");
             if (node.HasNode("TESTFLIGHT_RNDTEAM"))
             {
+                Log("Teams available for load");
                 if (activeTeams == null)
                     activeTeams = new Dictionary<string, TestFlightRnDTeam>();
                 
                 foreach (ConfigNode teamNode in node.GetNodes("TESTFLIGHT_RNDTEAM"))
                 {
                     string partName = teamNode.GetValue("PartInResearch");
-                    float points = 100f;
-                    float costFactor = 1.0f;
-                    teamNode.TryGetValue("Points", ref points);
-                    teamNode.TryGetValue("CostFactor", ref costFactor);
-                    activeTeams.Add(partName, new TestFlightRnDTeam(points, costFactor));
-                    activeTeams[partName].PartInResearch = partName;
-                    activeTeams[partName].MaxData = float.Parse(teamNode.GetValue("MaxData"));
-                    activeTeams[partName].PartRnDCost = float.Parse(teamNode.GetValue("PartRnDCost"));
-                    activeTeams[partName].PartRnDRate = float.Parse(teamNode.GetValue("PartRnDRate"));
-                    activeTeams[partName].ResearchActive = bool.Parse(teamNode.GetValue("ResearchActive"));
+                    if (partName != null && partName != "")
+                    {
+                        Log(String.Format("Loading team for part {0}", partName));
+                        float points = 100f;
+                        float costFactor = 1.0f;
+                        teamNode.TryGetValue("Points", ref points);
+                        teamNode.TryGetValue("CostFactor", ref costFactor);
+                        activeTeams.Add(partName, new TestFlightRnDTeam(points, costFactor));
+                        activeTeams[partName].PartInResearch = partName;
+                        activeTeams[partName].MaxData = float.Parse(teamNode.GetValue("MaxData"));
+                        activeTeams[partName].PartRnDCost = float.Parse(teamNode.GetValue("PartRnDCost"));
+                        activeTeams[partName].PartRnDRate = float.Parse(teamNode.GetValue("PartRnDRate"));
+                        activeTeams[partName].ResearchActive = bool.Parse(teamNode.GetValue("ResearchActive"));
+                    }
+                    else
+                        Log("Team definition didn't have partName");
                 }
             }
+            else
+                Log("No TESTFLIGHT_RNDTEAM nodes found");
+            if (activeTeams != null)
+                Log(String.Format("After load, active team count is {0}", activeTeams.Count));
         }
 
         public override void OnSave(ConfigNode node)
         {
             base.OnSave(node);
+            Log("OnSave");
+
             if (activeTeams == null)
+            {
+                Log("activeTeams == null");
                 return;
+            }
             
             if (activeTeams.Count > 0)
             {
                 foreach (KeyValuePair<string, TestFlightRnDTeam> entry in activeTeams)
                 {
+                    Log(String.Format("Saving team researching part {0}", entry.Value.PartInResearch));
                     ConfigNode teamNode = node.AddNode("TESTFLIGHT_RNDTEAM");
                     teamNode.AddValue("Points", entry.Value.Points);
                     teamNode.AddValue("CostFactor", entry.Value.CostFactor);
@@ -373,6 +403,8 @@ namespace TestFlightCore
                     teamNode.AddValue("ResearchActive", entry.Value.ResearchActive);
                 }
             }
+            else
+                Log("No active teams to save");
         }
     }
 }
