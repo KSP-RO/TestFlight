@@ -29,6 +29,9 @@ namespace TestFlight
             if (!isEnabled)
                 return false;
 
+            if (this.part.vessel.situation == Vessel.Situations.PRELAUNCH)
+                return false;
+
             List<PartResource> partResources = this.part.Resources.list;
             foreach (PartResource resource in partResources)
             {

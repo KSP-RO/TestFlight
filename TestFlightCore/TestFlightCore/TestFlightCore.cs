@@ -14,13 +14,6 @@ namespace TestFlightCore
     /// </summary>
     public class TestFlightCore : PartModuleExtended, ITestFlightCore
     {
-        // New API
-
-        // New v1.3
-        [KSPField(isPersistant=true)]
-        public float currentFlightData;
-        [KSPField(isPersistant=true)]
-        public float initialFlightData;
         [KSPField]
         public float startFlightData;
 
@@ -34,18 +27,36 @@ namespace TestFlightCore
         public float techTransferMax = 1000;
         [KSPField]
         public float techTransferGenerationPenalty = 0.05f;
-        [KSPField(isPersistant=true)]
-        public float operatingTime;
-        [KSPField(isPersistant=true)]
-        public float lastMET;
-        [KSPField(isPersistant=true)]
-        public bool initialized = false;
         [KSPField]
         public float maxData = 0f;
         [KSPField]
         public float failureRateModifier = 1f;
         [KSPField]
         public int scienceDataValue = 0;
+        // RnD system properties
+        [KSPField]
+        public float rndMaxData = 0f;
+        [KSPField]
+        public float rndRate = 1f;
+        [KSPField]
+        public float rndCost = 1f;
+
+        #region Persistant KSP Fields
+
+        [KSPField(isPersistant=true)]
+        public float operatingTime;
+        [KSPField(isPersistant=true)]
+        public double lastMET;
+        [KSPField(isPersistant=true)]
+        public bool initialized = false;
+        [KSPField(isPersistant=true)]
+        public float currentFlightData;
+        [KSPField(isPersistant=true)]
+        public float initialFlightData;
+        [KSPField(isPersistant=true)]
+        private double missionStartTime;
+
+        #endregion
 
         private double baseFailureRate;
         // We store the base, or initial, flight data for calculation of Base Failure Rate
@@ -54,7 +65,6 @@ namespace TestFlightCore
         private List<MomentaryFailureRate> momentaryFailureRates;
         private List<MomentaryFailureModifier> momentaryFailureModifiers;
         private List<String> disabledFailures;
-        private float missionStartTime;
         private bool firstStaged;
 
         // These were created for KCT integration but might have other uses
@@ -133,6 +143,13 @@ namespace TestFlightCore
             }
         }
 
+        [KSPEvent(guiActiveEditor=true, guiName = "R&D Window")]            
+        public void ToggleRNDGUI()
+        {
+            TestFlightEditorWindow.Instance.LockPart(this.part);
+            TestFlightEditorWindow.Instance.ToggleWindow();
+        }
+
         public System.Random RandomGenerator
         {
             get
@@ -187,17 +204,24 @@ namespace TestFlightCore
         public double GetBaseFailureRate()
         {
             if (baseFailureRate != 0)
+            {
+                Log("Returning cached failure rate");
                 return baseFailureRate;
+            }
 
             double totalBFR = 0f;
             List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part);
             if (reliabilityModules == null)
+            {
+                Log("Unable to locate any reliability modules.  Using min failure rate");
                 return TestFlightUtil.MIN_FAILURE_RATE;
+            }
 
             foreach (ITestFlightReliability rm in reliabilityModules)
             {
                 totalBFR += rm.GetBaseFailureRate(initialFlightData);
             }
+            Log(String.Format("BFR: {0:F7}, Modifier: {1:F7}", totalBFR, failureRateModifier));
             totalBFR = totalBFR * failureRateModifier;
             totalBFR = Math.Max(totalBFR, TestFlightUtil.MIN_FAILURE_RATE);
             baseFailureRate = totalBFR;
@@ -727,7 +751,7 @@ namespace TestFlightCore
         {
             GameEvents.onStageActivate.Remove(OnStageActivate);
             firstStaged = true;
-            missionStartTime = (float)Planetarium.GetUniversalTime();
+            missionStartTime = Planetarium.GetUniversalTime();
             Log("First stage activated");
         }
         /// <summary>
@@ -775,13 +799,13 @@ namespace TestFlightCore
                 }
 
 
-                float currentMET = (float)Planetarium.GetUniversalTime() - (float)missionStartTime;
+                double currentMET = Planetarium.GetUniversalTime() - missionStartTime;
                 Log("Operating Time: " + operatingTime);
                 Log("Current MET: " + currentMET + ", Last MET: " + lastMET);
                 if (operatingTime != -1 && IsPartOperating())
                 {
                     Log("Adding " + (currentMET - lastMET) + " seconds to operatingTime");
-                    operatingTime += currentMET - lastMET;
+                    operatingTime += (float)(currentMET - lastMET);
                 }
 
                 lastMET = currentMET;
@@ -805,7 +829,7 @@ namespace TestFlightCore
                 else
                 {
                     firstStaged = true;
-                    missionStartTime = (float)Planetarium.GetUniversalTime();
+                    missionStartTime = Planetarium.GetUniversalTime();
                 }
             }
         }
@@ -826,6 +850,17 @@ namespace TestFlightCore
 
             if (disabledFailures == null)
                 disabledFailures = new List<string>();
+
+            // poll failure modules for any existing failures
+            List<ITestFlightFailure> failures = TestFlightUtil.GetFailureModules(this.part);
+            foreach (ITestFlightFailure failure in failures)
+            {
+                if (failure.Failed)
+                {
+                    activeFailure = failure;
+                    break;
+                }
+            }
         }
 
         public void InitializeFlightData(float flightData)
@@ -845,7 +880,8 @@ namespace TestFlightCore
             currentFlightData = flightData;
             initialFlightData = flightData;
 
-            missionStartTime = (float)Planetarium.GetUniversalTime();
+            missionStartTime = Planetarium.GetUniversalTime();
+
             if (HighLogic.LoadedSceneIsFlight)
                 initialized = true;
         }
@@ -1041,23 +1077,54 @@ namespace TestFlightCore
 
             return tooltip;
         }
-        public string GetTestFlightInfo()
+        public List<string> GetTestFlightInfo()
         {
-            string info = "";
-//            List<ITestFlightFailure> failureModules = TestFlightUtil.GetFailureModules(this.part);
-//            List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part);
-//            IFlightDataRecorder dataRecorder = TestFlightUtil.GetDataRecorder(this.part);
-//
-//            foreach (ITestFlightFailure fm in failureModules)
-//            {
-//                info += fm.GetTestFlightInfo();
-//            }
-//            foreach (ITestFlightReliability rm in reliabilityModules)
-//            {
-//                info += rm.GetTestFlightInfo();
-//            }
-//            info += dataRecorder.GetTestFlightInfo();
-            return info;
+            List<string> infoStrings = new List<string>();
+            string partName = TestFlightUtil.GetPartName(this.part);
+            infoStrings.Add("<b>Core</b>");
+            infoStrings.Add("<b>Active Part</b>: " + partName);
+            float flightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(partName);
+            if (flightData < 0f)
+                flightData = 0f;
+            infoStrings.Add(String.Format("<b>Flight Data</b>: {0:f2}/{1:f2}", flightData, maxData));
+
+            List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part);
+            if (reliabilityModules != null)
+            {
+                Log("Getting info from reliability modules");
+                foreach (ITestFlightReliability reliabilityModule in reliabilityModules)
+                {
+                    infoStrings.AddRange(reliabilityModule.GetTestFlightInfo());
+                }
+            }
+            return infoStrings;
+        }
+
+        public void UpdatePartConfig()
+        {
+            if (Events == null)
+                return;
+            BaseEvent toggleRNDGUIEvent = Events["ToggleRNDGUI"];
+            if (toggleRNDGUIEvent != null)
+                toggleRNDGUIEvent.guiActiveEditor = TestFlightEnabled;
+        }
+
+        public float GetMaximumRnDData()
+        {
+            if (rndMaxData == 0)
+                return GetMaximumData() * 0.75f;
+            else
+                return rndMaxData;
+        }
+
+        public float GetRnDCost()
+        {
+            return rndCost;
+        }
+
+        public float GetRnDRate()
+        {
+            return rndRate;
         }
     }
 }

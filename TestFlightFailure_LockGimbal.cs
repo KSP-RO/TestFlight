@@ -16,6 +16,14 @@ namespace TestFlight
         /// </summary>
 
         private float gimbalRange;
+
+        public override void OnStart(StartState state)
+        {
+            base.OnStart(state);
+            if (Failed)
+                DoFailure();
+        }
+
         public override void DoFailure()
         {
             base.DoFailure();

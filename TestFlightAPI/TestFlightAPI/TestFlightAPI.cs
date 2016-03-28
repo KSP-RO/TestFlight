@@ -130,6 +130,17 @@ namespace TestFlightAPI
             }
             return null;
         }
+
+        public static void UpdatePartConfigs(Part part)
+        {
+            foreach (PartModule pm in part.Modules)
+            {
+                ITestFlightCore core = pm as ITestFlightCore;
+                if (core != null)
+                    core.UpdatePartConfig();
+            }
+        }
+
         // Get the Data Recorder Module - can only ever be one.
         public static IFlightDataRecorder GetDataRecorder(Part part)
         {
@@ -201,7 +212,9 @@ namespace TestFlightAPI
 
             // If this query defines an alias, just trim it off
             if (query.Contains(":"))
+            {
                 query = query.Split(new char[1]{ ':' })[0];
+            }
 
             // split into list elements.  For a query to be valid only one list element has to evaluate to true
             string[] elements = query.Split(new char[1] { ',' });
@@ -427,10 +440,9 @@ namespace TestFlightAPI
             else
             {
                 // if there are no "parts" to this block, then it must be just a simple part name or an alias
-                if (block == GetPartName(part).ToLower())
+                if (block == GetFullPartName(part).ToLower())
                     return true;
-                if (block == TestFlightUtil.GetFullPartName(part).ToLower())
-                    return true;
+                
                 return false;
             }
         }
@@ -629,7 +641,7 @@ namespace TestFlightAPI
         /// Should return a string if the module wants to report any information to the user in the TestFlight Editor window.
         /// </summary>
         /// <returns>A string of information to display to the user, or "" if none</returns>
-        string GetTestFlightInfo();
+        List<string> GetTestFlightInfo();
     }
 
 	public interface ITestFlightReliability
@@ -662,10 +674,22 @@ namespace TestFlightAPI
         /// <returns>The reliability curve for scope.  MUST return null if the reliability module does not handle Base Failure Rate</returns>
         /// <param name="scope">Scope.</param>
         FloatCurve GetReliabilityCurve();
-	}
+
+        /// <summary>
+        /// Should return a string if the module wants to report any information to the user in the TestFlight Editor window.
+        /// </summary>
+        /// <returns>A string of information to display to the user, or "" if none</returns>
+        List<string> GetTestFlightInfo();
+
+    }
 
 	public interface ITestFlightFailure
 	{
+        bool Failed
+        {
+            get;
+            set;
+        }
         bool TestFlightEnabled
         {
             get;
@@ -720,6 +744,12 @@ namespace TestFlightAPI
         /// </summary>
         /// <returns>The seconds until repair is complete, <c>0</c> if repair is completed instantly, and <c>-1</c> if repair failed and the part is still broken.</returns>
         float ForceRepair();
+
+        /// <summary>
+        /// Should return a string if the module wants to report any information to the user in the TestFlight Editor window.
+        /// </summary>
+        /// <returns>A string of information to display to the user, or "" if none</returns>
+        List<string> GetTestFlightInfo();
 	}
 
     public interface ITestFlightInterop
@@ -866,6 +896,20 @@ namespace TestFlightAPI
         /// Determines whether the part is considered operating or not.
         /// </summary>
         bool IsPartOperating();
+
+        /// <summary>
+        /// Called whenever an Interop value is added, changed, or removed to allow the modules on the part to update to the proper config
+        /// </summary>
+        void UpdatePartConfig();
+        float GetMaximumRnDData();
+        float GetRnDCost();
+        float GetRnDRate();
+
+        /// <summary>
+        /// Should return a string if the module wants to report any information to the user in the TestFlight Editor window.
+        /// </summary>
+        /// <returns>A string of information to display to the user, or "" if none</returns>
+        List<string> GetTestFlightInfo();
     }
 }
 

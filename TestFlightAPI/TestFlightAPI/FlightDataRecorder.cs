@@ -119,6 +119,9 @@ namespace TestFlightAPI
             if (!IsPartOperating())
                 return false;
 
+            if (this.part.vessel.situation == Vessel.Situations.PRELAUNCH)
+                return false;
+
             if (!isEnabled)
                 return false;
 				
@@ -140,9 +143,9 @@ namespace TestFlightAPI
             base.OnSave(node);
         }
 
-        public virtual string GetTestFlightInfo()
+        public virtual List<string> GetTestFlightInfo()
         {
-            return "";
+            return null;
         }
     }
 }

@@ -31,6 +31,9 @@ namespace TestFlight
             if (!isEnabled)
                 return false;
 
+            if (this.part.vessel.situation == Vessel.Situations.PRELAUNCH)
+                return false;
+
             return engine.IgnitionState == EngineModuleWrapper.EngineIgnitionState.IGNITED;
         }
 

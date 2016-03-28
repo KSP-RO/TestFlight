@@ -19,6 +19,8 @@ namespace TestFlight
         {
             base.OnStart(state);
             base.Startup();
+            if (Failed)
+                DoFailure();
         }
         /// <summary>
         /// Triggers the failure controlled by the failure module

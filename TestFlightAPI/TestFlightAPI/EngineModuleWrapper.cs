@@ -290,6 +290,65 @@ public class EngineModuleWrapper
         }
     }
 
+    public void SetIgnitionCount(int numIgnitions)
+    {
+        if (engineType == EngineModuleType.SOLVERENGINE)
+        {
+            if (engine.GetType().Name == "ModuleEnginesRF")
+            {
+                engine.GetType().GetField("ignitions").SetValue(engine, numIgnitions);
+            }
+        }
+    }
+
+    public void AddIgnitions(int numIgnitions)
+    {
+        if (engineType == EngineModuleType.SOLVERENGINE)
+        {
+            if (engine.GetType().Name == "ModuleEnginesRF")
+            {
+                int currentIgnitions = GetIgnitionCount();
+                if (currentIgnitions < 0)
+                    return;
+                SetIgnitionCount(numIgnitions + currentIgnitions);
+            }
+        }
+    }
+
+    public void RemoveIgnitions(int numIgnitions)
+    {
+        // < 0 removes all ignitions
+        if (engineType == EngineModuleType.SOLVERENGINE)
+        {
+            if (engine.GetType().Name == "ModuleEnginesRF")
+            {
+                if (numIgnitions < 0)
+                {
+                    engine.GetType().GetField("ignitions").SetValue(engine, 0);
+                }
+                else
+                {
+                    int currentIgnitions = GetIgnitionCount();
+                    int newIgnitions = Math.Max(0, currentIgnitions - numIgnitions);
+                    SetIgnitionCount(newIgnitions);
+                }
+            }
+        }
+    }
+
+    public int GetIgnitionCount()
+    {
+        int currentIgnitions = -1;
+        if (engineType == EngineModuleType.SOLVERENGINE)
+        {
+            if (engine.GetType().Name == "ModuleEnginesRF")
+            {
+                currentIgnitions = (int)engine.GetType().GetField("ignitions").GetValue(engine);
+            }
+        }
+        return currentIgnitions;
+    }
+
     public EngineModuleWrapper()
     {
     }

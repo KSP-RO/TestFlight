@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 
 using UnityEngine;
@@ -24,7 +25,7 @@ namespace TestFlightCore
         internal bool acknowledged;
         internal String mtbfString;
         internal float timeToRepair;
-        internal float lastSeen;
+        internal double lastSeen;
         internal float flightData;
     }
 
@@ -193,10 +194,11 @@ namespace TestFlightCore
 
         private Dictionary<Guid, MasterStatusItem> masterStatus = null;
 
-        float currentUTC = 0.0f;
-        float lastDataPoll = 0.0f;
-        float lastFailurePoll = 0.0f;
-        float lastMasterStatusUpdate = 0.0f;
+        double currentUTC = 0.0f;
+        double lastDataPoll = 0.0f;
+        double lastFailurePoll = 0.0f;
+        double lastMasterStatusUpdate = 0.0f;
+
 
         internal void Log(string message)
         {
@@ -392,7 +394,7 @@ namespace TestFlightCore
             if (masterStatus == null)
                 masterStatus = new Dictionary<Guid, MasterStatusItem>();
 
-            currentUTC = (float)Planetarium.GetUniversalTime();
+            currentUTC = Planetarium.GetUniversalTime();
             // ensure out vessel list is up to date
             CacheVessels();
             if (currentUTC >= lastMasterStatusUpdate + tfScenario.userSettings.masterStatusUpdateFrequency)
@@ -414,7 +416,6 @@ namespace TestFlightCore
                             // Poll for flight data and part status
                             if (currentUTC >= lastDataPoll + tfScenario.userSettings.masterStatusUpdateFrequency)
                             {
-
                                 // Old data structure deprecated v1.3
                                 PartStatus partStatus = new PartStatus();
                                 partStatus.lastSeen = currentUTC;
@@ -734,14 +735,52 @@ namespace TestFlightCore
             }
         }
 
+        #region Assembly/Class Information
+        /// <summary>
+        /// Name of the Assembly that is running this MonoBehaviour
+        /// </summary>
+        internal static String _AssemblyName
+        { get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Name; } }
+
+        /// <summary>
+        /// Full Path of the executing Assembly
+        /// </summary>
+        internal static String _AssemblyLocation
+        { get { return System.Reflection.Assembly.GetExecutingAssembly().Location; } }
+
+        /// <summary>
+        /// Folder containing the executing Assembly
+        /// </summary>
+        internal static String _AssemblyFolder
+        { get { return System.IO.Path.GetDirectoryName(_AssemblyLocation); } }
+
+        #endregion  
+
 
         public override void OnAwake()
         {
             Instance = this;
-            if (userSettings == null)
+
+            // v1.5.4 moved settings to PluginData but to avoid screwing over existing installs we want to migrate existing settings
+            string pdSettingsFile = System.IO.Path.Combine(_AssemblyFolder, "PluginData/settings.cfg");
+            string settingsFile = System.IO.Path.Combine(_AssemblyFolder, "../settings.cfg");
+            if (!System.IO.File.Exists(pdSettingsFile) && System.IO.File.Exists(settingsFile))
+            {
                 userSettings = new UserSettings("../settings.cfg");
-            if (bodySettings == null)
-                bodySettings = new BodySettings("../settings_bodies.cfg");
+                userSettings.Load();
+                string pdDir = System.IO.Path.Combine(_AssemblyFolder, "PluginData");
+                System.IO.Directory.CreateDirectory(pdDir);
+                userSettings.Save(pdSettingsFile);
+                System.IO.File.Delete(settingsFile);
+            }
+
+            if (userSettings == null)
+                userSettings = new UserSettings("PluginData/settings.cfg");
+            if (userSettings.FileExists)
+            {
+                userSettings.Load();
+
+            }
 
             if (userSettings.FileExists)
                 userSettings.Load();
@@ -749,32 +788,6 @@ namespace TestFlightCore
                 userSettings.Save();
 
             InitDataStore();
-
-            // TODO
-            // The bodySettings don't currently work anyway, so commenting this out for now
-//            if (bodySettings.FileExists)
-//                bodySettings.Load();
-//            else
-//            {
-//                bodySettings.bodyAliases.Add("moho", "Moho");
-//                bodySettings.bodyAliases.Add("eve", "Eve");
-//                bodySettings.bodyAliases.Add("gilly", "Gilly");
-//                bodySettings.bodyAliases.Add("kerbin", "Kerbin");
-//                bodySettings.bodyAliases.Add("mun", "Mun");
-//                bodySettings.bodyAliases.Add("minmus", "Minmus");
-//                bodySettings.bodyAliases.Add("duna", "Duna");
-//                bodySettings.bodyAliases.Add("ike", "Ike");
-//                bodySettings.bodyAliases.Add("dres", "Dres");
-//                bodySettings.bodyAliases.Add("jool", "Jool");
-//                bodySettings.bodyAliases.Add("laythe", "Laythe");
-//                bodySettings.bodyAliases.Add("vall", "Vall");
-//                bodySettings.bodyAliases.Add("tylo", "Tylo");
-//                bodySettings.bodyAliases.Add("bop", "Bop");
-//                bodySettings.bodyAliases.Add("pol", "Pol");
-//                bodySettings.bodyAliases.Add("eeloo", "Eeloo");
-//                bodySettings.Save();
-//            }
-
             base.OnAwake();
         }
 

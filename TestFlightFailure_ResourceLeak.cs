@@ -58,6 +58,13 @@ namespace TestFlight
             }
         }
 
+        public override void OnStart(StartState state)
+        {
+            base.OnStart(state);
+            if (Failed)
+                DoFailure();
+        }
+
         /// <summary>
         /// Triggers the failure controlled by the failure module
         /// </summary>
@@ -102,7 +109,7 @@ namespace TestFlight
                     leaks.Add(new ResourceLeak(resId, _perSecondAmount, _initialAmount));
                 }
             }
-            if (leaks.Count > 0)
+            if (leaks.Count > 0  && !isLeaking)
             {
                 isLeaking = true;
                 foreach (ResourceLeak leak in leaks)
