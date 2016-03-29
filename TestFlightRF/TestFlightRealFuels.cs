@@ -5,7 +5,6 @@ using UnityEngine;
 using RealFuels;
 using TestFlight;
 using TestFlightAPI;
-using TestFlightCore;
 
 namespace TestFlightRF
 {
@@ -13,7 +12,6 @@ namespace TestFlightRF
     public class TestFlightRealFuels : MonoBehaviour
     {
         protected Dictionary<string, float> burnTimes = null;
-        protected TestFlightManagerScenario tfScenario = null;
 
         IEnumerator Setup()
         {
@@ -26,18 +24,11 @@ namespace TestFlightRF
 
         public void Startup()
         {
-            Debug.Log("[TestFlightRF] Injecting burn times into RF");
             burnTimes = new Dictionary<string, float>();
-            Debug.Log(String.Format("Processing {0} parts in LoadedPartsList", PartLoader.LoadedPartsList.Count));
             foreach (AvailablePart part in PartLoader.LoadedPartsList)
             {
-//                Debug.Log("URL: " + part.partUrl);
-//                Debug.Log("Name: " + part.name);
-//                Debug.Log("Prefab Name: " + part.partPrefab.partName);
                 // cache up the burn times first
                 List<ITestFlightReliability> engineCycles = new List<ITestFlightReliability>();
-//                Debug.Log("Scanning prefab modules");
-//                Debug.Log(String.Format("Part Prefab has {0} modules", part.partPrefab.Modules.Count));
                 burnTimes.Clear();
                 foreach (PartModule pm in part.partPrefab.Modules)
                 {
@@ -45,7 +36,6 @@ namespace TestFlightRF
                     if (reliabilityModule != null)
                         engineCycles.Add(reliabilityModule);
                 }
-                Debug.Log(String.Format("Collected {0} engineCycles to inject", burnTimes.Count));
                 if (engineCycles.Count <= 0)
                     continue;
 
@@ -63,7 +53,6 @@ namespace TestFlightRF
                 // now add that info to the RF configs
                 List<ModuleEngineConfigs> allConfigs = new List<ModuleEngineConfigs>();
                 allConfigs.AddRange(part.partPrefab.Modules.GetModules<ModuleEngineConfigs>());
-                Debug.Log(String.Format("Found {0} RF configs", allConfigs.Count));
                 if (allConfigs.Count <= 0)
                     continue;
 
@@ -77,20 +66,20 @@ namespace TestFlightRF
                             string configName = node.GetValue("name");
                             if (burnTimes.ContainsKey(configName))
                             {
-                                Debug.Log(String.Format("Injecting into config named {0}", configName));
-                                if (node.HasValue("configDescription"))
+                                if (node.HasValue("description"))
                                 {
                                     string description = node.GetValue("configDescription");
-                                    description += String.Format("\nRated Burn Time {0:F2}", burnTimes[configName]);
-                                    node.AddValue("configDescription", description);
+                                    description += String.Format("\nRated Burn Time {0:F2} seconds", burnTimes[configName]);
+                                    node.AddValue("description", description);
                                 }
                                 else
                                 {
-                                    node.AddValue("configDescription", String.Format("\nRated Burn Time {0:F2}", burnTimes[configName]));
+                                    node.AddValue("description", String.Format("\nRated Burn Time {0:F2} seconds", burnTimes[configName]));
                                 }
                             }
                         }
                     }
+                    mec.SetConfiguration();
                 }
             }
         }
