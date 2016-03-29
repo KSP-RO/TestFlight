@@ -794,23 +794,23 @@ namespace TestFlightAPI
         }
 
         /// <summary>
-        /// 0 = OK, 1 = Minor Failure, 2 = Failure, 3 = Major Failure
+        /// 0 = OK, 1 = Has Failure
         /// </summary>
         /// <returns>The part status.</returns>
         int GetPartStatus();
 
-        ITestFlightFailure GetFailureModule();
+        ITestFlightFailure GetFailureModule(string severity);
 
         // NEW noscope based as of v1.3
         void InitializeFlightData(float flightData);
 
         void HighlightPart(bool doHighlight);
 
-        float GetRepairTime();
-        bool IsFailureAcknowledged();
-        void AcknowledgeFailure();
+        float GetRepairTime(ITestFlightFailure failure);
+//        bool IsFailureAcknowledged();
+//        void AcknowledgeFailure();
 
-        string GetRequirementsTooltip();
+        string GetRequirementsTooltip(ITestFlightFailure failure);
 
 
 
@@ -886,12 +886,12 @@ namespace TestFlightAPI
         /// Attempt to repair the part's current failure.  The repair conditions must be met before repair will be attempted.
         /// </summary>
         /// <returns>The amount of seconds until repair is complete, <c>0</c> if repair is completed instantly, or <c>-1</c> if rrepair failed.</returns>
-        float AttemptRepair();
+        float AttemptRepair(ITestFlightFailure failure);
         /// <summary>
         /// Forces the repair to be instantly complete, even if the conditions for repair are not met
         /// </summary>
         /// <returns>Time for repairs to finish, <c>0</c> if repair is instantly completed, and <c>-1</c> if repair failed</returns>
-        float ForceRepair();
+        float ForceRepair(ITestFlightFailure failure);
         /// <summary>
         /// Determines whether the part is considered operating or not.
         /// </summary>

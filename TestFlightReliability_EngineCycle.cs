@@ -22,6 +22,8 @@ namespace TestFlight
         public float ratedBurnTime = 0f;
         [KSPField]
         public string engineID = "";
+        [KSPField]
+        public string engineConfig = "";
 
 
         [KSPField(isPersistant = true)]
@@ -92,6 +94,7 @@ namespace TestFlight
         {
             base.OnLoad(node);
         }
+
         public override string GetInfo()
         {
             if (cycle != null)
