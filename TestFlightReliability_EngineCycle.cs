@@ -108,10 +108,16 @@ namespace TestFlight
         public override void OnAwake()
         {
             base.OnAwake();
-            thrustModifier = new FloatCurve();
-            thrustModifier.Add(0f, 1f);
-            cycle = new FloatCurve();
-            cycle.Add(0f, 1f);
+            if (thrustModifier == null)
+            {
+                thrustModifier = new FloatCurve();
+                thrustModifier.Add(0f, 1f);
+            }
+            if (cycle == null)
+            {
+                cycle = new FloatCurve();
+                cycle.Add(0f, 1f);
+            }
         }
 
         public override List<string> GetTestFlightInfo()
