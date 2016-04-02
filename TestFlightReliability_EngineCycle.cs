@@ -66,6 +66,9 @@ namespace TestFlight
                     engineOperatingTime = engineOperatingTime + (deltaTime * actualThrustModifier);
 
                     // Check for failure
+                    float minValue, maxValue = -1f;
+                    cycle.FindMinMaxValue(out minValue, out maxValue);
+                    Log(String.Format("TestFlightReliability_EngineCycle: Cycle Curve, Min Value {0:F2}:{1:F6}, Max Value {2:F2}:{3:F6}", cycle.minTime, minValue, cycle.maxTime, maxValue));
                     float penalty = cycle.Evaluate((float)engineOperatingTime);
                     Log(String.Format("TestFlightReliability_EngineCycle: Applying modifier {0:F4} at cycle time {1:F4}", penalty, engineOperatingTime));
                     core.SetTriggerMomentaryFailureModifier("EngineCycle", penalty, this);
@@ -105,10 +108,16 @@ namespace TestFlight
         public override void OnAwake()
         {
             base.OnAwake();
-            thrustModifier = new FloatCurve();
-            thrustModifier.Add(0f, 1f);
-            cycle = new FloatCurve();
-            cycle.Add(0f, 1f);
+            if (thrustModifier == null)
+            {
+                thrustModifier = new FloatCurve();
+                thrustModifier.Add(0f, 1f);
+            }
+            if (cycle == null)
+            {
+                cycle = new FloatCurve();
+                cycle.Add(0f, 1f);
+            }
         }
 
         public override List<string> GetTestFlightInfo()
