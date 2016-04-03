@@ -20,7 +20,7 @@
     <CustomCommands>
       <CustomCommands>
         <Command type="AfterBuild" command="cp ${TargetFile} ${TargetDir}/../../../../GameData/TestFlight/Plugins" />
-        <Command type="AfterBuild" command="cp -r /Users/john/Developer/KSP/1.0/TestFlightDEV/Dev/_DEV/GitHub/TestFlight/GameData /Users/john/Developer/KSP/1.0/TestFlightDEV/Dev/" />
+        <Command type="AfterBuild" command="cp -r /Users/john/Developer/KSP/1.1/TestFlightDEV/Dev/_DEV/GitHub/TestFlight/GameData /Users/john/Developer/KSP/1.1/TestFlightDEV/Dev/" />
       </CustomCommands>
     </CustomCommands>
     <DebugSymbols>true</DebugSymbols>
@@ -35,7 +35,7 @@
     <CustomCommands>
       <CustomCommands>
         <Command type="AfterBuild" command="cp ${TargetFile} ${TargetDir}/../../../../GameData/TestFlight/Plugins" />
-        <Command type="AfterBuild" command="cp -r /Users/john/Developer/KSP/1.0/TestFlightDEV/Dev/_DEV/GitHub/TestFlight/GameData /Users/john/Developer/KSP/1.0/TestFlightDEV/Dev/" />
+        <Command type="AfterBuild" command="cp -r /Users/john/Developer/KSP/1.1/TestFlightDEV/Dev/_DEV/GitHub/TestFlight/GameData /Users/john/Developer/KSP/1.1/TestFlightDEV/Dev/" />
       </CustomCommands>
     </CustomCommands>
   </PropertyGroup>
@@ -49,6 +49,18 @@
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>..\..\..\..\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="KSPAssets">
+      <HintPath>..\..\..\..\Managed\KSPAssets.dll</HintPath>
+    </Reference>
+    <Reference Include="KSPUtil">
+      <HintPath>..\..\..\..\Managed\KSPUtil.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\..\..\..\Managed\UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="Vectrosity">
+      <HintPath>..\..\..\..\Managed\Vectrosity.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

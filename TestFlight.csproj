@@ -58,6 +58,12 @@
     <Reference Include="UnityEngine">
       <HintPath>..\..\Managed\UnityEngine.dll</HintPath>
     </Reference>
+    <Reference Include="KSPUtil">
+      <HintPath>..\..\Managed\KSPUtil.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\..\Managed\UnityEngine.UI.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Failure Bases\TestFlightFailureBase_Avionics.cs" />
