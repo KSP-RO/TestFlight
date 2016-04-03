@@ -149,6 +149,7 @@ namespace KSPPluginFramework
         }
         internal override void OnGUIEvery()
         {
+            base.OnGUIEvery();
             ddlManager.CloseOnOutsideClicks();
         }
 
