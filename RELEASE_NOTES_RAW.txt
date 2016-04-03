@@ -1,0 +1,11 @@
+1.5.4.2
+=======
+
+KSP Version
+-----------
+KSP 1.0.5
+
+Release Notes
+-------------------------
+
+* **FIX**: Fix major bug in FloatCurve handling that was causing TestFlightFailure_IgnitionFail and TestFlightReliability_EngineCycle to both not apply proper failure chances
