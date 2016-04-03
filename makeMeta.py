@@ -27,7 +27,7 @@ avc = {
 	"NAME" : "TestFlight",
 	"URL" : "http://ksp-avc.cybutek.net/version.php?id=118",
 	"DOWNLOAD" : "https://github.com/KSP-RO/TestFlight/releases/download/{}/TestFlight-{}.zip".format(args.tag[0],args.tag[0]),
-	"CHANGE_LOG_URL" : "https://github.com/KSP-RO/TestFlight/releases/tag/{}".format(args.tag[0]),
+	"CHANGE_LOG_URL" : "https://raw.githubusercontent.com/KSP-RO/TestFlight/master/RELEASE_NOTES_RAW.txt",
 	"VERSION" :
 	{
 		"MAJOR" : major,
@@ -38,8 +38,8 @@ avc = {
 	"KSP_VERSION" :
 	{
 		"MAJOR" : 1,
-		"MINOR" : 0,
-		"PATCH" : 5
+		"MINOR" : 1,
+		"PATCH" : 0
 	}
 }
 with open("TestFlight.version", "w") as f:
