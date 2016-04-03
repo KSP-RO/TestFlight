@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 using UnityEngine;
+using KSP.UI.Screens;
 using KSPPluginFramework;
 
 using TestFlightAPI;
@@ -37,7 +38,7 @@ namespace TestFlightCore
 
             position.x = Mathf.Clamp(Input.mousePosition.x - 20f - position.width, 0.0f, Screen.width - position.width);
             position.y = Mathf.Clamp(Screen.height - Input.mousePosition.y, 0.0f, Screen.height - position.height);
-            selectedPart = EditorLogic.fetch.ship.parts.Find(p => p.stackIcon.highlightIcon) ?? EditorLogic.SelectedPart;
+            selectedPart = EditorLogic.fetch.ship.parts.Find(p => p.stackIcon.Highlighted) ?? EditorLogic.SelectedPart;
             if (selectedPart != null)
             {
                 if (!show && Input.GetMouseButtonDown(2))
@@ -159,7 +160,6 @@ namespace TestFlightCore
         internal override void Start()
         {
             Log("TestFlightEditor: Initializing Editor Hook");
-            EditorPartList.Instance.iconPrefab.gameObject.AddComponent<TestFlightEditorHook>();
             Instance = this;
             StartCoroutine("ConnectToScenario");
         }
@@ -199,7 +199,7 @@ namespace TestFlightCore
             Part selectedPart = EditorLogic.SelectedPart;
 
             if (selectedPart == null)
-                selectedPart = EditorLogic.fetch.ship.parts.Find(p => p.stackIcon.highlightIcon);
+                selectedPart = EditorLogic.fetch.ship.parts.Find(p => p.stackIcon.Highlighted);
 
             if (selectedPart != null)
                 SelectedPart = selectedPart;

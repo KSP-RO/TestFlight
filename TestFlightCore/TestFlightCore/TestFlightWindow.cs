@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 using UnityEngine;
+using KSP.UI.Screens;
 
 using KSPPluginFramework;
 
@@ -172,18 +173,18 @@ namespace TestFlightCore
         {
             while (!ApplicationLauncher.Ready)
             {
+                Log("Application launcher not ready..waiting");
                 yield return null;
             }
             try
             {
                 // Load the icon for the button
-                Debug.Log("TestFlight MasterStatusDisplay: Loading icon texture");
                 Texture iconTexture = GameDatabase.Instance.GetTexture("TestFlight/Resources/AppLauncherIcon", false);
                 if (iconTexture == null)
                 {
                     throw new Exception("TestFlight MasterStatusDisplay: Failed to load icon texture");
                 }
-                Debug.Log("TestFlight MasterStatusDisplay: Creating icon on toolbar");
+                Log("TestFlight MasterStatusDisplay: Creating icon on toolbar");
                 appLauncherButton = ApplicationLauncher.Instance.AddModApplication(
                     OpenWindow,
                     CloseWindow,
@@ -195,10 +196,11 @@ namespace TestFlightCore
                     iconTexture);
                 ApplicationLauncher.Instance.AddOnHideCallback(HideButton);
                 ApplicationLauncher.Instance.AddOnRepositionCallback(RepostionWindow);
+                CalculateWindowBounds();
             }
             catch (Exception e)
             {
-                Debug.Log("TestFlight MasterStatusDisplay: Unable to add button to application launcher: " + e.Message);
+                Log("TestFlight MasterStatusDisplay: Unable to add button to application launcher: " + e.Message);
                 throw e;
             }
         }
@@ -230,7 +232,7 @@ namespace TestFlightCore
         void RepostionWindow()
         {
             CalculateWindowBounds();
-            Debug.Log("TestFlight MasterStatusDisplay: RepositionWindow");
+            Log("TestFlight MasterStatusDisplay: RepositionWindow");
         }
         void HoverInButton()
         {
@@ -256,6 +258,9 @@ namespace TestFlightCore
         }
         internal override void DrawWindow(Int32 id)
         {
+            if (tfManager == null)
+                return;
+            
             Dictionary<Guid, MasterStatusItem> masterStatus = tfManager.GetMasterStatus();
             GUIContent settingsButton = new GUIContent(TestFlight.Resources.btnChevronDown, "Open Settings Panel");
             if (tfScenario.userSettings.displaySettingsWindow)
