@@ -180,9 +180,6 @@ namespace TestFlightCore
 
         public void Update()
         {
-            if (activeTeams == null || activeTeams.Count <= 0)
-                return;
-            
             double currentTime = Planetarium.GetUniversalTime();
             List<string> teamsToStop = new List<string>();
             if (currentTime - lastUpdateTime >= updateFrequency)
@@ -190,6 +187,8 @@ namespace TestFlightCore
                 float normalizedTime = (float)((currentTime - lastUpdateTime) / updateFrequency);
                 Log("Doing research update, normalized time " + normalizedTime);
                 lastUpdateTime = currentTime;
+                if (activeTeams == null || activeTeams.Count <= 0)
+                    return;
                 foreach (KeyValuePair<string, TestFlightRnDTeam> entry in activeTeams)
                 {
                     if (entry.Value.PartInResearch != "" && entry.Value.ResearchActive)
