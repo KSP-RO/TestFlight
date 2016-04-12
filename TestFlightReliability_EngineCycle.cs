@@ -119,7 +119,7 @@ namespace TestFlight
             List<string> infoStrings = new List<string>();
 
             infoStrings.Add("<b>Engine Cycle</b>");
-            infoStrings.Add(String.Format("<b>Rated Burn Time</b>: {0:F2} seconds", ratedBurnTime));
+            infoStrings.Add(String.Format("<b>Rated Burn Time</b>: {0}", TestFlightUtil.FormatTime(ratedBurnTime, TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, true)));
             if (idleDecayRate > 0)
                 infoStrings.Add(String.Format("Cooling. Burn time decays {0:F2} per sec second engine is off", idleDecayRate));
             float minThrust, maxThrust;
