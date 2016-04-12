@@ -59,7 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TestFlightAPI\TestFlightAPI\TestFlightAPI.csproj">
-      <Project>{f212e235-8856-4c7e-afa9-051490e1350f}</Project>
+      <Project>{F212E235-8856-4C7E-AFA9-051490E1350F}</Project>
       <Name>TestFlightAPI</Name>
     </ProjectReference>
   </ItemGroup>
