@@ -191,6 +191,20 @@ namespace TestFlightAPI
             return null;
         }
 
+        public static ITestFlightCore GetCore(Part part, string alias)
+        {
+            if (part == null || part.Modules == null)
+                return null;
+
+            foreach (PartModule pm in part.Modules)
+            {
+                ITestFlightCore core = pm as ITestFlightCore;
+                if (core != null && core.TestFlightEnabled && core.Alias.ToLowerInvariant() == alias.ToLowerInvariant())
+                    return core;
+            }
+            return null;
+        }
+
         public static void UpdatePartConfigs(Part part)
         {
             foreach (PartModule pm in part.Modules)
@@ -827,6 +841,11 @@ namespace TestFlightAPI
         {
             get;
             set;
+        }
+
+        string Alias
+        {
+            get;
         }
 
         string Title

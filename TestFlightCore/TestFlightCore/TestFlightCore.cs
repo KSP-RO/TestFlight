@@ -127,6 +127,17 @@ namespace TestFlightCore
                 configuration = value; 
             }
         }
+        public string Alias
+        {
+            get
+            {
+                if (Configuration.Contains(":"))
+                {
+                    return Configuration.Split(new char[1] { ':' })[1];
+                }
+                return "";
+            }
+        }
         public string Title
         {
             get 
@@ -800,15 +811,18 @@ namespace TestFlightCore
                         if (hasMajorFailure)
                         {
                             this.part.stackIcon.bgColor = XKCDColors.Red;
+                            Log("Color stack icon RED");
                         }
                         else
                         {
                             this.part.stackIcon.bgColor = XKCDColors.KSPNotSoGoodOrange;
+                            Log("Color stack icon ORANGE");
                         }
                     }
                     else
                     {
                         this.part.stackIcon.bgColor = XKCDColors.White;
+                        Log("Color stack icon WHITE");
                     }
                 }
 
@@ -1045,6 +1059,7 @@ namespace TestFlightCore
 
         public void UpdatePartConfig()
         {
+            Log("Updating part config");
             if (Events == null)
                 return;
             BaseEvent toggleRNDGUIEvent = Events["ToggleRNDGUI"];
