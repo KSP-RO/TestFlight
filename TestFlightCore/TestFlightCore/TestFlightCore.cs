@@ -641,6 +641,8 @@ namespace TestFlightCore
             {
                 if (fm.GetFailureDetails().severity.ToLowerInvariant() == severity || severity == "all")
                 {
+                    if (fm.Failed)
+                        continue;
                     PartModule pm = fm as PartModule;
                     if (!disabledFailures.Contains(pm.moduleName.Trim().ToLowerInvariant()))
                     {
@@ -690,7 +692,7 @@ namespace TestFlightCore
                 PartModule pm = fm as PartModule;
                 if (pm.moduleName.ToLower().Trim() == failureModuleName)
                 {                    
-                    if (fm == null && fallbackToRandom)
+                    if ( (fm == null || fm.Failed) && fallbackToRandom)
                         return TriggerFailure();
                     else if (fm == null & !fallbackToRandom)
                         return null;
