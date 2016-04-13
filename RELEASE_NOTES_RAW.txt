@@ -1,0 +1,32 @@
+1.5.4.4
+=====
+
+KSP Version
+-----------
+KSP v1.0.5
+
+Changes
+-------
+* **FIX**: Fix R&D teams eating up insane amount of funds due to no research having been active for very long times
+
+1.5.4.3
+=====
+
+KSP Version
+-----------
+KSP v1.0.5
+
+Changes
+-------
+* **FIX**: Fixed PluginDir not being created on fresh installs which would prevent any settings from being saved
+
+1.5.4.2
+=======
+
+KSP Version
+-----------
+KSP 1.0.5
+
+Changes
+-------
+* **FIX**: Fix major bug in FloatCurve handling that was causing TestFlightFailure_IgnitionFail and TestFlightReliability_EngineCycle to both not apply proper failure chances

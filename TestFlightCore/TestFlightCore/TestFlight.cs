@@ -761,23 +761,22 @@ namespace TestFlightCore
             // v1.5.4 moved settings to PluginData but to avoid screwing over existing installs we want to migrate existing settings
             string pdSettingsFile = System.IO.Path.Combine(_AssemblyFolder, "PluginData/settings.cfg");
             string settingsFile = System.IO.Path.Combine(_AssemblyFolder, "../settings.cfg");
+            string pdDir = System.IO.Path.Combine(_AssemblyFolder, "PluginData");
             if (!System.IO.File.Exists(pdSettingsFile) && System.IO.File.Exists(settingsFile))
             {
                 userSettings = new UserSettings("../settings.cfg");
                 userSettings.Load();
-                string pdDir = System.IO.Path.Combine(_AssemblyFolder, "PluginData");
                 System.IO.Directory.CreateDirectory(pdDir);
                 userSettings.Save(pdSettingsFile);
                 System.IO.File.Delete(settingsFile);
             }
+            if (!System.IO.Directory.Exists(pdDir))
+            {
+                System.IO.Directory.CreateDirectory(pdDir);
+            }
 
             if (userSettings == null)
                 userSettings = new UserSettings("PluginData/settings.cfg");
-            if (userSettings.FileExists)
-            {
-                userSettings.Load();
-
-            }
 
             if (userSettings.FileExists)
                 userSettings.Load();
