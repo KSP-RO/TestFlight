@@ -404,7 +404,7 @@ public class EngineModuleWrapper
         if (EngineType == EngineModuleType.SOLVERENGINE)
             meType = "SOLVERENGINE";
 
-        message = String.Format("TestFlight_EngineModuleWrapper({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(part), meType, message);
+        message = String.Format("TestFlight_EngineModuleWrapper({0}[{1}]): {2}", meType, message);
         TestFlightUtil.Log(message, part);
     }
 }

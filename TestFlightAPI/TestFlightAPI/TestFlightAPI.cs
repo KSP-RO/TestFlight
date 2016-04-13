@@ -216,7 +216,7 @@ namespace TestFlightAPI
         }
 
         // Get the Data Recorder Module - can only ever be one.
-        public static IFlightDataRecorder GetDataRecorder(Part part)
+        public static IFlightDataRecorder GetDataRecorder(Part part, string alias)
         {
             if (part == null || part.Modules == null)
                 return null;
@@ -224,13 +224,13 @@ namespace TestFlightAPI
             foreach (PartModule pm in part.Modules)
             {
                 IFlightDataRecorder dataRecorder = pm as IFlightDataRecorder;
-                if (dataRecorder != null && dataRecorder.TestFlightEnabled)
+                if (dataRecorder != null && dataRecorder.TestFlightEnabled && dataRecorder.Configuration.ToLowerInvariant() == alias.ToLowerInvariant())
                     return dataRecorder;
             }
             return null;
         }
         // Get all Reliability Modules - can be more than one.
-        public static List<ITestFlightReliability> GetReliabilityModules(Part part)
+        public static List<ITestFlightReliability> GetReliabilityModules(Part part, string alias)
         {
             List<ITestFlightReliability> reliabilityModules;
 
@@ -241,14 +241,14 @@ namespace TestFlightAPI
             foreach (PartModule pm in part.Modules)
             {
                 ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
-                if (reliabilityModule != null && reliabilityModule.TestFlightEnabled)
+                if (reliabilityModule != null && reliabilityModule.TestFlightEnabled && reliabilityModule.Configuration.ToLowerInvariant() == alias.ToLowerInvariant())
                     reliabilityModules.Add(reliabilityModule);
             }
 
             return reliabilityModules;
         }
         // Get all Failure Modules - can be more than one.
-        public static List<ITestFlightFailure> GetFailureModules(Part part)
+        public static List<ITestFlightFailure> GetFailureModules(Part part, string alias)
         {
             List<ITestFlightFailure> failureModules;
 
@@ -259,7 +259,7 @@ namespace TestFlightAPI
             foreach (PartModule pm in part.Modules)
             {
                 ITestFlightFailure failureModule = pm as ITestFlightFailure;
-                if (failureModule != null && failureModule.TestFlightEnabled)
+                if (failureModule != null && failureModule.TestFlightEnabled && failureModule.Configuration.ToLowerInvariant() == alias.ToLowerInvariant())
                     failureModules.Add(failureModule);
             }
 

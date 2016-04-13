@@ -51,7 +51,7 @@ namespace TestFlightAPI
 
         protected void Log(string message)
         {
-            message = String.Format("TestFlightReliability({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(this.part), Configuration, message);
+            message = String.Format("TestFlightReliability({0}[{1}]): {2}", Configuration, Configuration, message);
             TestFlightUtil.Log(message, this.part);
         }
 

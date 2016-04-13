@@ -12,7 +12,7 @@ namespace TestFlightAPI
 
         internal void Log(string message)
         {
-            message = String.Format("TestFlightInterop({0}): {1}", TestFlightUtil.GetFullPartName(this.part), message);
+            message = String.Format("TestFlightInterop({0}): {1}", TestFlightUtil.GetPartName(this.part), message);
             TestFlightUtil.Log(message, this.part);
         }
 

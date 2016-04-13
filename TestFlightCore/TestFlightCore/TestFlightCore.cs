@@ -188,7 +188,7 @@ namespace TestFlightCore
             if (maxData > 0f)
                 return;
             
-            List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part);
+            List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part, Alias);
             if (reliabilityModules == null)
                 return;
             
@@ -226,7 +226,7 @@ namespace TestFlightCore
             }
 
             double totalBFR = 0f;
-            List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part);
+            List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part, Alias);
             if (reliabilityModules == null)
             {
                 Log("Unable to locate any reliability modules.  Using min failure rate");
@@ -248,7 +248,7 @@ namespace TestFlightCore
         {
             FloatCurve curve;
 
-            List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part);
+            List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part, Alias);
             if (reliabilityModules == null)
                 return null;
 
@@ -647,7 +647,7 @@ namespace TestFlightCore
 
             // Get all failure modules on the part
             // Then filter only the ones that are not disabled and are of the desired severity
-            List<ITestFlightFailure> allFailureModules = TestFlightUtil.GetFailureModules(this.part);
+            List<ITestFlightFailure> allFailureModules = TestFlightUtil.GetFailureModules(this.part, Alias);
             foreach (ITestFlightFailure fm in allFailureModules)
             {
                 if (fm.GetFailureDetails().severity.ToLowerInvariant() == severity || severity == "all")
@@ -696,7 +696,7 @@ namespace TestFlightCore
 
             List<ITestFlightFailure> failureModules;
 
-            failureModules = TestFlightUtil.GetFailureModules(this.part);
+            failureModules = TestFlightUtil.GetFailureModules(this.part, Alias);
 
             foreach(ITestFlightFailure fm in failureModules)
             {
@@ -731,7 +731,7 @@ namespace TestFlightCore
         {
             List<String> failureModulesString = new List<string>();
             List<ITestFlightFailure> failureModules;
-            failureModules = TestFlightUtil.GetFailureModules(this.part);
+            failureModules = TestFlightUtil.GetFailureModules(this.part, Alias);
 
             foreach (ITestFlightFailure fm in failureModules)
             {
@@ -780,7 +780,7 @@ namespace TestFlightCore
         /// </summary>
         public bool IsPartOperating()
         {
-            IFlightDataRecorder dr = TestFlightUtil.GetDataRecorder(this.part);
+            IFlightDataRecorder dr = TestFlightUtil.GetDataRecorder(this.part, Alias);
             if (dr == null)
                 return false;
 
@@ -882,7 +882,7 @@ namespace TestFlightCore
             // poll failure modules for any existing failures
             if (failures == null)
                 failures = new List<ITestFlightFailure>();
-            List<ITestFlightFailure> failureModules = TestFlightUtil.GetFailureModules(this.part);
+            List<ITestFlightFailure> failureModules = TestFlightUtil.GetFailureModules(this.part, Alias);
             foreach (ITestFlightFailure failure in failureModules)
             {
                 if (failure.Failed)
@@ -1045,7 +1045,7 @@ namespace TestFlightCore
                 flightData = 0f;
             infoStrings.Add(String.Format("<b>Flight Data</b>: {0:f2}/{1:f2}", flightData, maxData));
 
-            List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part);
+            List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part, Alias);
             if (reliabilityModules != null)
             {
                 Log("Getting info from reliability modules");
