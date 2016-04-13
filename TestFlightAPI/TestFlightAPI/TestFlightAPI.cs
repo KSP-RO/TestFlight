@@ -639,7 +639,7 @@ namespace TestFlightAPI
     {
         // Human friendly title to display in the MSD for the failure.  25 characters max
         public string failureTitle;
-        // "minor", "failure", or "major" used to indicate the severity of the failure to the player
+        // "minor", or "major" used to indicate the severity of the failure to the player
         public string severity;
         // chances of the failure occuring relative to other failure modules on the same part
         // This should never be anything except:
@@ -767,11 +767,6 @@ namespace TestFlightAPI
             set;
         }
 
-        bool OneShot
-        {
-            get;
-        }
-
         /// <summary>
         /// Gets the details of the failure encapsulated by this module.  In most cases you can let the base class take care of this unless oyu need to do somethign special
         /// </summary>
@@ -784,35 +779,15 @@ namespace TestFlightAPI
         void DoFailure();
 
         /// <summary>
-        /// Gets the repair requirements from the Failure module for display to the user
-        /// </summary>
-        /// <returns>A List of all repair requirements for attempting repair of the part</returns>
-        List<RepairRequirements> GetRepairRequirements();
-
-        /// <summary>
-        /// Asks the repair module if all condtions have been met for the player to attempt repair of the failure.  Here the module can verify things such as the conditions (landed, eva, splashed), parts requirements, etc
-        /// </summary>
-        /// <returns><c>true</c> if this instance can attempt repair; otherwise, <c>false</c>.</returns>
-        bool CanAttemptRepair();
-
-        /// <summary>
-        /// Gets the seconds until repair is complete
-        /// </summary>
-        /// <returns>The seconds until repair is complete, <c>0</c> if repair is complete, and <c>-1</c> if something changed the inteerupt the repairs and reapir has stopped with the part still broken.</returns>
-        float GetSecondsUntilRepair();
-
-        /// <summary>
-        /// Trigger a repair ATTEMPT of the module's failure.  It is the module's responsability to take care of any consumable resources, data transmission, etc required to perform the repair
-        /// </summary>
-        /// <returns>The seconds until repair is complete, <c>0</c> if repair is completed instantly, and <c>-1</c> if repair failed and the part is still broken.</returns>
-        float AttemptRepair();
-
-        /// <summary>
         /// Forces the repair.  This should instantly repair the part, regardless of whether or not a normal repair can be done.  IOW if at all possible the failure should fixed after this call.
         /// This is made available as an API method to allow things like failure simulations.
         /// </summary>
         /// <returns>The seconds until repair is complete, <c>0</c> if repair is completed instantly, and <c>-1</c> if repair failed and the part is still broken.</returns>
         float ForceRepair();
+
+        float GetRepairTime();
+        float AttemptRepair();
+        bool CanAttemptRepair();
 
         /// <summary>
         /// Should return a string if the module wants to report any information to the user in the TestFlight Editor window.
@@ -875,23 +850,11 @@ namespace TestFlightAPI
         /// <returns>The part status.</returns>
         int GetPartStatus();
 
-        ITestFlightFailure GetFailureModule(string severity);
-
         // NEW noscope based as of v1.3
         void InitializeFlightData(float flightData);
 
         void HighlightPart(bool doHighlight);
 
-        float GetRepairTime(ITestFlightFailure failure);
-        //        bool IsFailureAcknowledged();
-        //        void AcknowledgeFailure();
-
-        string GetRequirementsTooltip(ITestFlightFailure failure);
-
-
-
-
-        // NEW API
         // Get the base or static failure rate
         double GetBaseFailureRate();
 
@@ -975,18 +938,6 @@ namespace TestFlightAPI
         float GetOperatingTime();
 
         /// <summary>
-        /// Attempt to repair the part's current failure.  The repair conditions must be met before repair will be attempted.
-        /// </summary>
-        /// <returns>The amount of seconds until repair is complete, <c>0</c> if repair is completed instantly, or <c>-1</c> if rrepair failed.</returns>
-        float AttemptRepair(ITestFlightFailure failure);
-
-        /// <summary>
-        /// Forces the repair to be instantly complete, even if the conditions for repair are not met
-        /// </summary>
-        /// <returns>Time for repairs to finish, <c>0</c> if repair is instantly completed, and <c>-1</c> if repair failed</returns>
-        float ForceRepair(ITestFlightFailure failure);
-
-        /// <summary>
         /// Determines whether the part is considered operating or not.
         /// </summary>
         bool IsPartOperating();
@@ -1001,6 +952,10 @@ namespace TestFlightAPI
         float GetRnDCost();
 
         float GetRnDRate();
+
+        float ForceRepair(ITestFlightFailure failure);
+
+        List<ITestFlightFailure> GetActiveFailures();
 
         /// <summary>
         /// Should return a string if the module wants to report any information to the user in the TestFlight Editor window.

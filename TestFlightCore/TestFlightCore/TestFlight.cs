@@ -19,14 +19,12 @@ namespace TestFlightCore
         internal double baseFailureRate;
         internal double momentaryFailureRate;
         internal ITestFlightCore flightCore;
-        internal ITestFlightFailure activeFailure;
         internal bool highlightPart;
-        internal string repairRequirements;
         internal bool acknowledged;
         internal String mtbfString;
-        internal float timeToRepair;
         internal double lastSeen;
         internal float flightData;
+        internal List<ITestFlightFailure> failures;
     }
 
     internal struct MasterStatusItem
@@ -423,16 +421,15 @@ namespace TestFlightCore
                                 partStatus.partName = TestFlightUtil.GetPartTitle(part);
                                 partStatus.partID = part.flightID;
                                 partStatus.partStatus = core.GetPartStatus();
-                                partStatus.timeToRepair = core.GetRepairTime();
+                                // get any failures
+                                partStatus.failures = core.GetActiveFailures();
                                 partStatus.flightData = core.GetFlightData();
                                 double failureRate = core.GetBaseFailureRate();
                                 MomentaryFailureRate momentaryFailureRate = core.GetWorstMomentaryFailureRate();
                                 if (momentaryFailureRate.valid && momentaryFailureRate.failureRate > failureRate)
                                     failureRate = momentaryFailureRate.failureRate;
                                 partStatus.momentaryFailureRate = failureRate;
-                                partStatus.repairRequirements = core.GetRequirementsTooltip();
-                                partStatus.acknowledged = core.IsFailureAcknowledged();
-                                partStatus.activeFailure = core.GetFailureModule();
+                                partStatus.acknowledged = false;
                                 partStatus.mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
 
                                 // Update or Add part status in Master Status

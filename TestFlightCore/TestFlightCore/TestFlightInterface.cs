@@ -73,30 +73,18 @@ namespace TestFlightCore
 
             return core.GetPartStatus();
         }
-        public static float AttemptRepair(Part part)
+        public static float AttemptRepair(Part part, ITestFlightFailure failure)
         {
-            ITestFlightCore core = TestFlightInterface.GetCore(part);
-            if (core == null)
-                return -1;
-
-            return core.AttemptRepair();
+            return -1f;
         }
-        public static float GetRepairTime(Part part)
+        public static float GetRepairTime(Part part, ITestFlightFailure failure)
         {
-            ITestFlightCore core = TestFlightInterface.GetCore(part);
-            if (core == null)
-                return -1;
-
-            return core.GetRepairTime();
+            return -1f;
         }
 
-        public static string GetRequirementsTooltip(Part part)
+        public static string GetRequirementsTooltip(Part part, ITestFlightFailure failure)
         {
-            ITestFlightCore core = TestFlightInterface.GetCore(part);
-            if (core == null)
-                return "";
-
-            return core.GetRequirementsTooltip();
+            return "";
         }
         // Get the base or static failure rate
         public static double GetBaseFailureRate(Part part)
@@ -351,13 +339,13 @@ namespace TestFlightCore
 
             return core.GetOperatingTime();
         }
-        public static float ForceRepair(Part part)
+        public static float ForceRepair(Part part, ITestFlightFailure failure)
         {
             ITestFlightCore core = TestFlightInterface.GetCore(part);
             if (core == null)
                 return -1;
 
-            return core.ForceRepair();
+            return core.ForceRepair(failure);
         }
         public static bool IsPartOperating(Part part)
         {

@@ -153,8 +153,6 @@ namespace TestFlightAPI
 
             // NEW RELIABILITY CODE
             float operatingTime = core.GetOperatingTime();
-            if (operatingTime == -1)
-                lastCheck = 0;
 
             if (operatingTime < lastCheck + 1f)
                 return;
