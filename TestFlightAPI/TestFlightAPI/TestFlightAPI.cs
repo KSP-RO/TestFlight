@@ -126,30 +126,7 @@ namespace TestFlightAPI
             partName = partName.Replace(".", "-");
             return partName.Replace("_", "-");
         }
-
-        public static string GetFullPartName(Part part)
-        {
-            string baseName = GetPartName(part);
-
-            if (part.Modules == null)
-                return baseName;
-
-            // New query system
-            // Find the active core
-            ITestFlightCore core = TestFlightUtil.GetCore(part);
-            if (core == null)
-                return baseName;
-            // Look if it has an alias and use that if present
-            string query = core.Configuration;
-            if (query.Contains(":"))
-            {
-                return query.Split(new char[1]{ ':' })[1];
-            }
-            // Otherwise use part.name
-            else
-                return baseName;
-        }
-
+            
         public static ITestFlightCore ResolveAlias(Part part, string alias)
         {
             // Look at each Core on the part and find the one that defines the given alias
@@ -159,7 +136,7 @@ namespace TestFlightAPI
             return null;
         }
 
-        public static string GetPartTitle(Part part)
+        public static string GetPartTitle(Part part, string alias)
         {
             string baseName = part.partInfo.title;
 
@@ -167,7 +144,7 @@ namespace TestFlightAPI
                 return baseName;
 
             // Find the active core
-            ITestFlightCore core = TestFlightUtil.GetCore(part);
+            ITestFlightCore core = TestFlightUtil.GetCore(part, alias);
             if (core == null)
                 return baseName;
 
@@ -195,7 +172,8 @@ namespace TestFlightAPI
         {
             if (part == null || part.Modules == null)
                 return null;
-
+            if (alias == "")
+                return null;
             foreach (PartModule pm in part.Modules)
             {
                 ITestFlightCore core = pm as ITestFlightCore;
@@ -514,10 +492,6 @@ namespace TestFlightAPI
             }
             else
             {
-                // if there are no "parts" to this block, then it must be just a simple part name or an alias
-                if (block == GetFullPartName(part).ToLower())
-                    return true;
-                
                 return false;
             }
         }

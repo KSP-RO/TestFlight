@@ -40,9 +40,7 @@ namespace TestFlightAPI
         {
             get
             {
-                if (string.IsNullOrEmpty(Configuration))
-                    return true;
-                return TestFlightUtil.EvaluateQuery(Configuration, this.part);
+                return TestFlightUtil.GetCore(this.part, Configuration).TestFlightEnabled;
             }
         }
         public string Configuration
@@ -88,10 +86,12 @@ namespace TestFlightAPI
         public virtual void DoFailure()
         {
             Failed = true;
-            ITestFlightCore core = TestFlightUtil.GetCore(this.part);
+            ITestFlightCore core = TestFlightUtil.GetCore(this.part, Configuration);
             if (core != null)
+            {
                 core.ModifyFlightData(duFail, true);
-            FlightLogger.eventLog.Add(String.Format("[{0}] {1} failed: {2}", TestFlightUtil.FormatTime(this.vessel.missionTime), TestFlightUtil.GetPartTitle(this.part), failureTitle));
+                FlightLogger.eventLog.Add(String.Format("[{0}] {1} failed: {2}", TestFlightUtil.FormatTime(this.vessel.missionTime), core.Title, failureTitle));
+            }
         }
         
         /// <summary>
@@ -107,7 +107,7 @@ namespace TestFlightAPI
         public virtual float DoRepair()
         {
             Failed = false;
-            ITestFlightCore core = TestFlightUtil.GetCore(this.part);
+            ITestFlightCore core = TestFlightUtil.GetCore(this.part, Configuration);
             if (core != null)
                 core.ModifyFlightData(duRepair, true);
             return 0;

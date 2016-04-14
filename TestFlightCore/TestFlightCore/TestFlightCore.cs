@@ -159,10 +159,10 @@ namespace TestFlightCore
             }
         }
 
-        [KSPEvent(guiActiveEditor=true, guiName = "R&D Window")]            
+        [KSPEvent(guiActiveEditor=false, guiName = "R&D Window")]            
         public void ToggleRNDGUI()
         {
-            TestFlightEditorWindow.Instance.LockPart(this.part);
+            TestFlightEditorWindow.Instance.LockPart(this.part, Alias);
             TestFlightEditorWindow.Instance.ToggleWindow();
         }
 
@@ -180,7 +180,7 @@ namespace TestFlightCore
                 return;
 
             bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
-            message = String.Format("TestFlightCore({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(this.part), Configuration, message);
+            message = String.Format("TestFlightCore({0}[{1}]): {2}", Alias, Configuration, message);
             TestFlightUtil.Log(message, debug);
         }
         private void CalculateMaximumData()
@@ -500,7 +500,7 @@ namespace TestFlightCore
         {
             if (TestFlightManagerScenario.Instance != null)
             {
-                TestFlightPartData partData = TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part));
+                TestFlightPartData partData = TestFlightManagerScenario.Instance.GetPartDataForPart(Alias);
                 return partData.GetFloat("flightTime");
             }
             else
@@ -538,7 +538,7 @@ namespace TestFlightCore
         {
             if (TestFlightManagerScenario.Instance != null)
             {
-                TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part)).SetValue("flightTime", flightTime);
+                TestFlightManagerScenario.Instance.GetPartDataForPart(Alias).SetValue("flightTime", flightTime);
             }
         }
 
@@ -555,7 +555,7 @@ namespace TestFlightCore
             // The flight data as it stands before modification
             float existingData = currentFlightData;
             // Amount of data stored in the scenario store
-            float existingStoredFlightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(TestFlightUtil.GetFullPartName(this.part));
+            float existingStoredFlightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(Alias);
 
             // Calculate the new flight data
             if (additive)
@@ -573,7 +573,7 @@ namespace TestFlightCore
             if (newFlightData > maxData)
                 newFlightData = maxData;
             // update the scenario store to add (or subtract) the difference between the flight data before calculation and the flight data after (IE the relative change)
-            TestFlightManagerScenario.Instance.SetFlightDataForPartName(TestFlightUtil.GetFullPartName(this.part), existingStoredFlightData + (newFlightData - existingData));
+            TestFlightManagerScenario.Instance.SetFlightDataForPartName(Alias, existingStoredFlightData + (newFlightData - existingData));
             // and update our part's saved data on the vessel
             currentFlightData = newFlightData;
 
@@ -590,12 +590,12 @@ namespace TestFlightCore
             float newFlightTime = -1f;
             if (TestFlightManagerScenario.Instance != null)
             {
-                newFlightTime = TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part)).GetFloat("flightTime");
+                newFlightTime = TestFlightManagerScenario.Instance.GetPartDataForPart(Alias).GetFloat("flightTime");
                 if (additive)
                     newFlightTime += flightTime;
                 else
                     newFlightTime *= flightTime;
-                TestFlightManagerScenario.Instance.GetPartDataForPart(TestFlightUtil.GetFullPartName(this.part)).SetValue("flightTime", newFlightTime);
+                TestFlightManagerScenario.Instance.GetPartDataForPart(Alias).SetValue("flightTime", newFlightTime);
             }
 
             return newFlightTime;
@@ -904,7 +904,7 @@ namespace TestFlightCore
             
             if (startFlightData > flightData)
             {
-                TestFlightManagerScenario.Instance.AddFlightDataForPartName(TestFlightUtil.GetFullPartName(this.part), startFlightData);
+                TestFlightManagerScenario.Instance.AddFlightDataForPartName(Alias, startFlightData);
                 flightData = startFlightData;
             }
 
@@ -1037,7 +1037,7 @@ namespace TestFlightCore
         public List<string> GetTestFlightInfo()
         {
             List<string> infoStrings = new List<string>();
-            string partName = TestFlightUtil.GetFullPartName(this.part);
+            string partName = Alias;
             infoStrings.Add("<b>Core</b>");
             infoStrings.Add("<b>Active Part</b>: " + partName);
             float flightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(partName);
@@ -1062,9 +1062,13 @@ namespace TestFlightCore
             Log("Updating part config");
             if (Events == null)
                 return;
+            
             BaseEvent toggleRNDGUIEvent = Events["ToggleRNDGUI"];
             if (toggleRNDGUIEvent != null)
+            {
                 toggleRNDGUIEvent.guiActiveEditor = TestFlightEnabled;
+                toggleRNDGUIEvent.guiName = string.Format("R&D {0}", Alias);
+            }
         }
 
         public float GetMaximumRnDData()

@@ -27,10 +27,7 @@ namespace TestFlightAPI
                 // Verify we have a valid core attached
                 if (core == null)
                     return false;
-                if (string.IsNullOrEmpty(Configuration))
-                    return true;
-//                Log(String.Format("Configuration: {0}, Status: {1}", Configuration, TestFlightUtil.EvaluateQuery(Configuration, this.part)));
-                return TestFlightUtil.EvaluateQuery(Configuration, this.part);
+                return core.TestFlightEnabled;
             }
         }
 
@@ -90,7 +87,7 @@ namespace TestFlightAPI
 
             while (core == null)
             {
-                core = TestFlightUtil.GetCore(this.part);
+                core = TestFlightUtil.GetCore(this.part, Configuration);
                 yield return null;
             }
 

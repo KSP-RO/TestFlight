@@ -110,13 +110,15 @@ namespace TestFlightCore
         internal bool isReady = false;
         private ApplicationLauncherButton appLauncherButton;
         bool stickyWindow = false;
+        private string selectedAlias = "";
 
-        public void LockPart(Part partToLock)
+        public void LockPart(Part partToLock, string alias)
         {
             if (!locked)
             {
                 locked = true;
                 SelectedPart = partToLock;
+                selectedAlias = alias;
                 return;
             }
 
@@ -159,7 +161,6 @@ namespace TestFlightCore
         internal override void Start()
         {
             Log("TestFlightEditor: Initializing Editor Hook");
-            EditorPartList.Instance.iconPrefab.gameObject.AddComponent<TestFlightEditorHook>();
             Instance = this;
             StartCoroutine("ConnectToScenario");
         }
@@ -325,12 +326,12 @@ namespace TestFlightCore
 
             ITestFlightCore core = null;
             GUILayout.BeginVertical();
-            GUILayout.Label(String.Format("Selected Part: {0}", TestFlightUtil.GetFullPartName(SelectedPart)), Styles.styleEditorTitle);
+            GUILayout.Label(String.Format("Selected Part: {0}", selectedAlias), Styles.styleEditorTitle);
 
-            float flightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(TestFlightUtil.GetFullPartName(SelectedPart));
+            float flightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(selectedAlias);
             if (flightData < 0f)
                 flightData = 0f;
-            core = TestFlightUtil.GetCore(SelectedPart);
+            core = TestFlightUtil.GetCore(SelectedPart, selectedAlias);
             if (core != null)
             {
                 core.InitializeFlightData(flightData);
@@ -342,7 +343,7 @@ namespace TestFlightCore
                 GUILayout.Label(String.Format("{0,-5:F2} MTBF", mtbfString), GUILayout.Width(125));
                 GUILayout.EndHorizontal();
                 Log("Checking for RnD Status");
-                string partName = TestFlightUtil.GetFullPartName(SelectedPart);
+                string partName = selectedAlias;
                 float maxRnDData = core.GetMaximumRnDData();
                 if (flightData >= maxRnDData)
                 {
@@ -382,7 +383,7 @@ namespace TestFlightCore
                                 GUILayout.BeginHorizontal();
                                 if (GUILayout.Button(String.Format("Hire Team"), GUILayout.Width(100)))
                                 {
-                                    tfRnDScenario.AddResearchTeam(SelectedPart, i);
+                                    tfRnDScenario.AddResearchTeam(SelectedPart, selectedAlias, i);
                                 }
                                 Log(String.Format("cycle is {0}", cycleString));
                                 float points = teams[i].points;
@@ -431,69 +432,6 @@ namespace TestFlightCore
             base.OnGUIEvery();
         }
     }
-    // MEGA thanks to xxEvilReeperxx for pointing me in the right direction on this!
-    // Never would have found out that KSP uses EZGUI rather than stock Unity GUI on my own.
-    class TestFlightEditorHook : MonoBehaviourExtended
-    {
-        AvailablePart selectedPart;
-        bool mouseFlag = false;
-
-        internal void Log(string message)
-        {
-            if (TestFlightManagerScenario.Instance == null || TestFlightManagerScenario.Instance.userSettings == null)
-                return;
-
-            bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
-            message = "TestFlightEditor: " + message;
-            TestFlightUtil.Log(message, debug);
-        }
-
-        internal override void Start()
-        {
-            GetComponent<UIButton>().AddInputDelegate(OnInput);
-            selectedPart = GetComponent<EditorPartIcon>().partInfo;
-//            Log("TestFlightEditor: Added input delegate to " + TestFlightUtil.GetFullPartName(selectedPart.partPrefab));
-        }
-
-        internal void OnInput(ref POINTER_INFO ptr)
-        {
-            switch (ptr.evt)
-            {
-                case POINTER_INFO.INPUT_EVENT.PRESS:
-                    if (Input.GetMouseButtonDown(0))
-                    {
-                        // Left button press
-                        // If the player left clicks then we assume they are placing a part (We don't bother to figure out if its valid or not)
-                        // so we unlock our window
-                        TestFlightEditorWindow.Instance.UnlockPart();
-                    }
-                    else if (Input.GetMouseButtonDown(1))
-                    {
-                        // Right button press
-                        // On a right click we have one of three things to do
-                        // 1. If the window is unlocked, lock it on the current item
-                        // 2. If the window is curently locked, and this is the same item it was locked on, unlock it
-                        // 3. If the window is currently locked and this is a different item, lock it to that one instead
-                        TestFlightEditorWindow.Instance.LockPart(selectedPart.partPrefab);
-                    }
-                    break;
-                case POINTER_INFO.INPUT_EVENT.MOVE:
-                    if (!mouseFlag)
-                    {
-                        mouseFlag = true;
-                        TestFlightEditorWindow.Instance.SelectedPart = selectedPart.partPrefab;
-//                        TestFlightEditorWindow.Instance.Visible = true;
-                    }
-                    break;
-                case POINTER_INFO.INPUT_EVENT.MOVE_OFF:
-                    mouseFlag = false;
-                    TestFlightEditorWindow.Instance.SelectedPart = null;
-//                    TestFlightEditorWindow.Instance.Visible = false;
-                    break;
-            }
-        }
-    }
-
     public static class Drawing
     {
         private static Texture2D lineTex = null;

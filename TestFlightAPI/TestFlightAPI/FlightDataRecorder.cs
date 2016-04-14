@@ -36,9 +36,8 @@ namespace TestFlightAPI
                 // Verify we have a valid core attached
                 if (core == null)
                     return false;
-                if (string.IsNullOrEmpty(Configuration))
-                    return true;
-                return TestFlightUtil.EvaluateQuery(Configuration, this.part);
+                // Our enabled status is the same as our bound core
+                return core.TestFlightEnabled;
             }
         }
         public string Configuration
@@ -60,7 +59,7 @@ namespace TestFlightAPI
         {
             base.OnStart(state);
 
-            core = TestFlightUtil.GetCore(this.part);
+            core = TestFlightUtil.GetCore(this.part, Configuration);
 
             if (core == null)
                 StartCoroutine("GetCore");
@@ -98,7 +97,7 @@ namespace TestFlightAPI
         {
             while (core == null)
             {
-                core = TestFlightUtil.GetCore(this.part);
+                core = TestFlightUtil.GetCore(this.part, Configuration);
                 yield return null;
             }
         }
