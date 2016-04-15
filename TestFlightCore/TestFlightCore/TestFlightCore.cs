@@ -1083,7 +1083,7 @@ namespace TestFlightCore
             string partName = TestFlightUtil.GetPartName(this.part);
             infoStrings.Add("<b>Core</b>");
             infoStrings.Add("<b>Active Part</b>: " + partName);
-            float flightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(partName);
+            float flightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(TestFlightUtil.GetFullPartName(this.part));
             if (flightData < 0f)
                 flightData = 0f;
             infoStrings.Add(String.Format("<b>Flight Data</b>: {0:f2}/{1:f2}", flightData, maxData));
