@@ -40,7 +40,10 @@ namespace TestFlightAPI
         {
             get
             {
-                return TestFlightUtil.GetCore(this.part, Configuration).TestFlightEnabled;
+                ITestFlightCore core = TestFlightUtil.GetCore(this.part, Configuration);
+                if (core != null)
+                    return core.TestFlightEnabled;
+                return false;
             }
         }
         public string Configuration
