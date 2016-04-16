@@ -638,6 +638,7 @@ namespace TestFlightCore
         public ITestFlightFailure TriggerFailure(string severity)
         {
             severity = severity.ToLowerInvariant();
+            Log(string.Format("Triggering random {0} failure", severity));
 
             // Failure occurs.  Determine which failure module to trigger
             int totalWeight = 0;
@@ -650,11 +651,14 @@ namespace TestFlightCore
             List<ITestFlightFailure> allFailureModules = TestFlightUtil.GetFailureModules(this.part, Alias);
             foreach (ITestFlightFailure fm in allFailureModules)
             {
-                if (fm.GetFailureDetails().severity.ToLowerInvariant() == severity || severity == "all")
+                PartModule pm = fm as PartModule;
+                if (fm.GetFailureDetails().severity.ToLowerInvariant() == severity || severity == "any")
                 {
                     if (fm.Failed)
+                    {
+                        Log(string.Format("Skipping {0} because it is already active", pm.moduleName));
                         continue;
-                    PartModule pm = fm as PartModule;
+                    }
                     if (!disabledFailures.Contains(pm.moduleName.Trim().ToLowerInvariant()))
                     {
                         if (failureModules == null)
@@ -662,10 +666,17 @@ namespace TestFlightCore
                         failureModules.Add(fm);
                     }
                 }
+                else
+                {
+                    Log(string.Format("Skipping {0} because it doesn't have a matching severity ({1} != {2}", pm.moduleName, fm.GetFailureDetails().severity, severity));
+                }
             }
 
             if (failureModules == null || failureModules.Count == 0)
+            {
+                Log("No failure modules to trigger");
                 return null;
+            }
             
             foreach(ITestFlightFailure fm in failureModules)
             {
@@ -810,18 +821,18 @@ namespace TestFlightCore
                     {
                         if (hasMajorFailure)
                         {
-                            this.part.stackIcon.bgColor = XKCDColors.Red;
+                            this.part.stackIcon.SetBgColor(XKCDColors.Red);
                             Log("Color stack icon RED");
                         }
                         else
                         {
-                            this.part.stackIcon.bgColor = XKCDColors.KSPNotSoGoodOrange;
+                            this.part.stackIcon.SetBgColor(XKCDColors.KSPNotSoGoodOrange);
                             Log("Color stack icon ORANGE");
                         }
                     }
                     else
                     {
-                        this.part.stackIcon.bgColor = XKCDColors.White;
+                        this.part.stackIcon.SetBgColor(XKCDColors.White);
                         Log("Color stack icon WHITE");
                     }
                 }
