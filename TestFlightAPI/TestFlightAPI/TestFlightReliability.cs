@@ -11,10 +11,11 @@ namespace TestFlightAPI
     public class TestFlightReliabilityBase : PartModule, ITestFlightReliability
     {
         protected ITestFlightCore core = null;
-        protected FloatCurve reliabilityCurve = null;
 
         [KSPField]
         public string configuration = "";
+        [KSPField]
+        public FloatCurve reliabilityCurve;
         [KSPField(isPersistant=true)]
         public float lastCheck = 0;
         [KSPField(isPersistant=true)]
@@ -27,6 +28,7 @@ namespace TestFlightAPI
                 // Verify we have a valid core attached
                 if (core == null)
                     return false;
+                Log("TestFlightEnabled");
                 return core.TestFlightEnabled;
             }
         }
@@ -67,7 +69,7 @@ namespace TestFlightAPI
             }
             else
             {
-                Log("No eliability curve. Returning min failure rate.");
+                Log("No reliability curve. Returning min failure rate.");
                 return TestFlightUtil.MIN_FAILURE_RATE;
             }
         }
@@ -93,39 +95,20 @@ namespace TestFlightAPI
 
             Startup();
         }
-
-        protected void LoadDataFromPrefab()
-        {
-            Log("Loading data from prefab");
-            Part prefab = this.part.partInfo.partPrefab;
-            foreach (PartModule pm in prefab.Modules)
-            {
-                TestFlightReliabilityBase modulePrefab = pm as TestFlightReliabilityBase;
-                // As of v1.3 this is simpler because we don't have scope or reliability bodies
-                if (modulePrefab != null && TestFlightUtil.EvaluateQuery(modulePrefab.Configuration, this.part))
-                {
-                    Log("Found matching prefab");
-                    if (modulePrefab.reliabilityCurve != null && modulePrefab.reliabilityCurve.maxTime > 0)
-                    {
-                        Log(String.Format("Found reliabilityCurve with data point between {0:F2} and {1:F2}.  Loading curve from prefab", modulePrefab.reliabilityCurve.minTime, modulePrefab.reliabilityCurve.maxTime));
-                        reliabilityCurve = modulePrefab.reliabilityCurve;
-                        return;
-                    }
-                }
-            }
-        }
-
+            
         protected void Startup()
         {
-            Log("Startup");
-            LoadDataFromPrefab();
-            Log("Startup::DONE");
         }
 
         // PARTMODULE Implementation
         public override void OnAwake()
         {
             StartCoroutine("Attach");
+            if (reliabilityCurve == null)
+            {
+                reliabilityCurve = new FloatCurve();
+                reliabilityCurve.Add(0f, 1f);
+            }
         }
 
 
@@ -190,6 +173,17 @@ namespace TestFlightAPI
         public virtual List<string> GetTestFlightInfo()
         {
             List<string> infoStrings = new List<string>();
+
+            if (core == null)
+            {
+                Log("Core is null");
+                return infoStrings;
+            }
+            if (reliabilityCurve == null)
+            {
+                Log("Curve is null");
+                return infoStrings;
+            }
 
             infoStrings.Add("<b>Base Reliability</b>");
             infoStrings.Add(String.Format("<b>Current Reliability</b>: {0} <b>MTBF</b>", core.FailureRateToMTBFString(core.GetBaseFailureRate(), TestFlightUtil.MTBFUnits.SECONDS, 999)));
