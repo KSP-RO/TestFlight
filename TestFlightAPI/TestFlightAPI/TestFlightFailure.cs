@@ -93,7 +93,7 @@ namespace TestFlightAPI
             if (core != null)
             {
                 core.ModifyFlightData(duFail, true);
-                FlightLogger.eventLog.Add(String.Format("[{0}] {1} failed: {2}", TestFlightUtil.FormatTime(this.vessel.missionTime), core.Title, failureTitle));
+                FlightLogger.eventLog.Add(String.Format("[{0}] {1} failed: {2}", KSPUtil.PrintTimeCompact((int)Math.Floor(this.vessel.missionTime), false), core.Title, failureTitle));
             }
         }
         
