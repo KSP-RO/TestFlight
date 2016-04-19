@@ -74,7 +74,7 @@ namespace TestFlightRF
                                 }
                                 else
                                 {
-                                    node.AddValue("description", String.Format("\nRated Burn Time {0:F2} seconds", TestFlightUtil.FormatTime(burnTimes[configName], TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, true)));
+                                    node.AddValue("description", String.Format("\nRated Burn Time {0}", TestFlightUtil.FormatTime(burnTimes[configName], TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, true)));
                                 }
                             }
                         }
