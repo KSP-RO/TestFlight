@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 
 using UnityEngine;
+using KSP.UI.Screens;
 using TestFlightAPI;
 
 namespace TestFlightCore
