@@ -343,10 +343,8 @@ namespace TestFlightCore
         public override void OnLoad(ConfigNode node)
         {
             base.OnLoad(node);
-            Log("OnLoad");
             if (node.HasNode("TESTFLIGHT_RNDTEAM"))
             {
-                Log("Teams available for load");
                 if (activeTeams == null)
                     activeTeams = new Dictionary<string, TestFlightRnDTeam>();
                 
@@ -355,7 +353,6 @@ namespace TestFlightCore
                     string partName = teamNode.GetValue("PartInResearch");
                     if (partName != null && partName != "")
                     {
-                        Log(String.Format("Loading team for part {0}", partName));
                         float points = 100f;
                         float costFactor = 1.0f;
                         teamNode.TryGetValue("Points", ref points);
@@ -367,24 +364,16 @@ namespace TestFlightCore
                         activeTeams[partName].PartRnDRate = float.Parse(teamNode.GetValue("PartRnDRate"));
                         activeTeams[partName].ResearchActive = bool.Parse(teamNode.GetValue("ResearchActive"));
                     }
-                    else
-                        Log("Team definition didn't have partName");
                 }
             }
-            else
-                Log("No TESTFLIGHT_RNDTEAM nodes found");
-            if (activeTeams != null)
-                Log(String.Format("After load, active team count is {0}", activeTeams.Count));
         }
 
         public override void OnSave(ConfigNode node)
         {
             base.OnSave(node);
-            Log("OnSave");
 
             if (activeTeams == null)
             {
-                Log("activeTeams == null");
                 return;
             }
             
@@ -403,8 +392,6 @@ namespace TestFlightCore
                     teamNode.AddValue("ResearchActive", entry.Value.ResearchActive);
                 }
             }
-            else
-                Log("No active teams to save");
         }
     }
 }

@@ -19,7 +19,7 @@ install: clean meta
 	-rm ~/Developer/KSP/1.0/TestFlightDEV/Dev/GameData/TestFlight/Config/*.cfg
 	cp -r GameData/TestFlight/ ~/Dropbox/KSP/TestFlight/
 
-install11: clean meta configs
+install11: clean meta
 	-rm ~/Developer/KSP/1.1/TestFlightDEV/Dev/GameData/TestFlight/Config/*.cfg
 	cp -r GameData/TestFlight/ ~/Dropbox/KSP11/TestFlight/
 
