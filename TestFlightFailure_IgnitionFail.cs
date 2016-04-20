@@ -58,7 +58,7 @@ namespace TestFlight
 
             while (core == null)
             {
-                core = TestFlightUtil.GetCore(this.part);
+                core = TestFlightUtil.GetCore(this.part, Configuration);
                 yield return null;
             }
 
@@ -105,6 +105,11 @@ namespace TestFlight
                         if (multiplier <= 0f)
                             multiplier = 1f;
 
+                        float minValue, maxValue = -1f;
+                        baseIgnitionChance.FindMinMaxValue(out minValue, out maxValue);
+                        Log(String.Format("TestFlightFailure_IgnitionFail: IgnitionChance Curve, Min Value {0:F2}:{1:F6}, Max Value {2:F2}:{3:F6}", baseIgnitionChance.minTime, minValue, baseIgnitionChance.maxTime, maxValue));
+
+
                         if (this.vessel.situation != Vessel.Situations.PRELAUNCH)
                             ignitionChance = ignitionChance * multiplier * ignitionUseMultiplier.Evaluate(numIgnitions);
 
@@ -139,7 +144,7 @@ namespace TestFlight
                 if (engine.failEngine)
                 {
                     engine.engine.Shutdown();
-                    if ((OneShot && restoreIgnitionCharge) || (OneShot && this.vessel.situation == Vessel.Situations.PRELAUNCH) )
+                    if ((restoreIgnitionCharge) || (this.vessel.situation == Vessel.Situations.PRELAUNCH) )
                         RestoreIgnitor();
                     engines[i].failEngine = false;
                 }
@@ -174,12 +179,21 @@ namespace TestFlight
         public override void OnAwake()
         {
             base.OnAwake();
-            baseIgnitionChance = new FloatCurve();
-            baseIgnitionChance.Add(0f, 1f);
-            pressureCurve = new FloatCurve();
-            pressureCurve.Add(0f, 1f);
-            ignitionUseMultiplier = new FloatCurve();
-            ignitionUseMultiplier.Add(0f, 1f);
+            if (baseIgnitionChance == null)
+            {
+                baseIgnitionChance = new FloatCurve();
+                baseIgnitionChance.Add(0f, 1f);
+            }
+            if (pressureCurve == null)
+            {
+                pressureCurve = new FloatCurve();
+                pressureCurve.Add(0f, 1f);
+            }
+            if (ignitionUseMultiplier == null)
+            {
+                ignitionUseMultiplier = new FloatCurve();
+                ignitionUseMultiplier.Add(0f, 1f);
+            }
         }
     }
 }

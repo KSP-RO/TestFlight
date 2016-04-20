@@ -27,7 +27,7 @@ namespace TestFlight.Failure_Modules
 
             while (core == null)
             {
-                core = TestFlightUtil.GetCore(this.part);
+                core = TestFlightUtil.GetCore(this.part, Configuration);
                 yield return null;
             }
 

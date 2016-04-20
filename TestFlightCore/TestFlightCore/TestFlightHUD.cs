@@ -84,82 +84,43 @@ namespace TestFlightCore
 
             // Display information on active vessel
             Guid currentVessl = FlightGlobals.ActiveVessel.id;
-            if (masterStatus[currentVessl].allPartsStatus.Count(ps => ps.activeFailure != null) < lastPartCount)
+//            if (masterStatus[currentVessl].allPartsStatus.Count(ps => ps.activeFailure != null) < lastPartCount)
+            if (masterStatus[currentVessl].allPartsStatus.Count < lastPartCount)
             {
                 Log("TestFlightHUD less parts to display than last time.  Need to recalculate window bounds");
                 CalculateWindowBounds();
             }
-            lastPartCount = masterStatus[currentVessl].allPartsStatus.Count(ps => ps.activeFailure != null);
+//            lastPartCount = masterStatus[currentVessl].allPartsStatus.Count(ps => ps.activeFailure != null);
+            lastPartCount = masterStatus[currentVessl].allPartsStatus.Count;
 
             GUILayout.BeginVertical();
 
             foreach (PartStatus status in masterStatus[currentVessl].allPartsStatus)
             {
                 // We only show failed parts in Flight HUD
-                if (status.activeFailure == null || status.acknowledged)
+                if (status.failures == null || status.failures.Count <= 0)
                     continue;
 
                 GUILayout.BeginHorizontal();
                 // Part Name
-                string tooltip = status.activeFailure.GetFailureDetails().failureTitle + "\n";
-                if (status.timeToRepair > 0)
-                    tooltip += GetColonFormattedTime(status.timeToRepair) + "\n";
-                tooltip += status.repairRequirements;
-                if (status.activeFailure.GetFailureDetails().severity == "minor")
-                    GUILayout.Label(new GUIContent(String.Format("<color=#859900ff>{0}</color>", status.partName), tooltip), GUILayout.Width(200));
-                else if (status.activeFailure.GetFailureDetails().severity == "failure")
-                    GUILayout.Label(new GUIContent(String.Format("<color=#b58900ff>{0}</color>", status.partName), tooltip), GUILayout.Width(200));
-                else if (status.activeFailure.GetFailureDetails().severity == "major")
-                    GUILayout.Label(new GUIContent(String.Format("<color=#dc322fff>{0}</color>", status.partName), tooltip), GUILayout.Width(200));
+//                string tooltip = status.activeFailure.GetFailureDetails().failureTitle + "\n";
+                string tooltip = "";
+//                if (status.timeToRepair > 0)
+//                    tooltip += GetColonFormattedTime(status.timeToRepair) + "\n";
+//                tooltip += status.repairRequirements;
+                ITestFlightFailure latestFailure = status.failures.Last();
+                string label = string.Format("<color=#{0}>{1}</color>\n", latestFailure.GetFailureDetails().severity.ToLowerInvariant() == "major" ? "dc322fff" : "b58900ff", status.partName);
+                GUILayout.Label(new GUIContent(label, tooltip), GUILayout.Width(200));
+//                if (status.activeFailure.GetFailureDetails().severity == "minor")
+//                    GUILayout.Label(new GUIContent(String.Format("<color=#859900ff>{0}</color>", status.partName), tooltip), GUILayout.Width(200));
+//                else if (status.activeFailure.GetFailureDetails().severity == "failure")
+//                    GUILayout.Label(new GUIContent(String.Format("<color=#b58900ff>{0}</color>", status.partName), tooltip), GUILayout.Width(200));
+//                else if (status.activeFailure.GetFailureDetails().severity == "major")
+//                    GUILayout.Label(new GUIContent(String.Format("<color=#dc322fff>{0}</color>", status.partName), tooltip), GUILayout.Width(200));
                 GUILayout.Space(10);
-                if (status.activeFailure != null)
-                {
-                    if (status.activeFailure.CanAttemptRepair())
-                    {
-                        if (GUILayout.Button("R", GUILayout.Width(38)))
-                        {
-                            // attempt repair
-                            status.flightCore.AttemptRepair();
-                        }
-                    }
-                    if (GUILayout.Button("A", GUILayout.Width(38)))
-                    {
-                        // attempt repair
-                        status.flightCore.AcknowledgeFailure();
-                    }
-                }
                 GUILayout.EndHorizontal();
             }
             GUILayout.EndVertical();
-        }
-        // nicked from magico13's Kerbal Construction Time mod
-        // Hope he doesn't mind!  Just seemed silly to reimplement the wheel here
-        public static string GetColonFormattedTime(double time)
-        {
-            if (time > 0)
-            {
-                StringBuilder formatedTime = new StringBuilder();
-                if (GameSettings.KERBIN_TIME)
-                {
-                    formatedTime.AppendFormat("{0,2:00}<b>:</b>", Math.Floor(time / 21600));
-                    time = time % 21600;
-                }
-                else
-                {
-                    formatedTime.AppendFormat("{0,2:00}<b>:</b>", Math.Floor(time / 86400));
-                    time = time % 86400;
-                }
-                formatedTime.AppendFormat("{0,2:00}<b>:</b>", Math.Floor(time / 3600));
-                time = time % 3600;
-                formatedTime.AppendFormat("{0,2:00}<b>:</b>", Math.Floor(time / 60));
-                time = time % 60;
-                formatedTime.AppendFormat("{0,2:00}", time);
-                return formatedTime.ToString();
-            }
-            else
-            {
-                return "00<b>:</b>00<b>:</b>00<b>:</b>00";
-            }
         }
 
         // GUI EVent Handlers

@@ -22,6 +22,8 @@ namespace TestFlight
         public float ratedBurnTime = 0f;
         [KSPField]
         public string engineID = "";
+        [KSPField]
+        public string engineConfig = "";
 
 
         [KSPField(isPersistant = true)]
@@ -47,7 +49,7 @@ namespace TestFlight
         {
             double currentTime = Planetarium.GetUniversalTime();
             double deltaTime = (currentTime - previousOperatingTime) / 1d;
-            Log(String.Format("TestFlightReliability_EngineCycle: previous time: {0:F4}, current time: {1:F4}, delta time: {2:F4}", previousOperatingTime, currentTime, deltaTime));
+//            Log(String.Format("TestFlightReliability_EngineCycle: previous time: {0:F4}, current time: {1:F4}, delta time: {2:F4}", previousOperatingTime, currentTime, deltaTime));
             if (deltaTime >= 1d)
             {
                 previousOperatingTime = currentTime;
@@ -66,6 +68,9 @@ namespace TestFlight
                     engineOperatingTime = engineOperatingTime + (deltaTime * actualThrustModifier);
 
                     // Check for failure
+                    float minValue, maxValue = -1f;
+                    cycle.FindMinMaxValue(out minValue, out maxValue);
+                    Log(String.Format("TestFlightReliability_EngineCycle: Cycle Curve, Min Value {0:F2}:{1:F6}, Max Value {2:F2}:{3:F6}", cycle.minTime, minValue, cycle.maxTime, maxValue));
                     float penalty = cycle.Evaluate((float)engineOperatingTime);
                     Log(String.Format("TestFlightReliability_EngineCycle: Applying modifier {0:F4} at cycle time {1:F4}", penalty, engineOperatingTime));
                     core.SetTriggerMomentaryFailureModifier("EngineCycle", penalty, this);
@@ -92,6 +97,7 @@ namespace TestFlight
         {
             base.OnLoad(node);
         }
+
         public override string GetInfo()
         {
             if (cycle != null)
@@ -105,10 +111,16 @@ namespace TestFlight
         public override void OnAwake()
         {
             base.OnAwake();
-            thrustModifier = new FloatCurve();
-            thrustModifier.Add(0f, 1f);
-            cycle = new FloatCurve();
-            cycle.Add(0f, 1f);
+            if (thrustModifier == null)
+            {
+                thrustModifier = new FloatCurve();
+                thrustModifier.Add(0f, 1f);
+            }
+            if (cycle == null)
+            {
+                cycle = new FloatCurve();
+                cycle.Add(0f, 1f);
+            }
         }
 
         public override List<string> GetTestFlightInfo()
@@ -116,7 +128,7 @@ namespace TestFlight
             List<string> infoStrings = new List<string>();
 
             infoStrings.Add("<b>Engine Cycle</b>");
-            infoStrings.Add(String.Format("<b>Rated Burn Time</b>: {0:F2} seconds", ratedBurnTime));
+            infoStrings.Add(String.Format("<b>Rated Burn Time</b>: {0}", TestFlightUtil.FormatTime(ratedBurnTime, TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, true)));
             if (idleDecayRate > 0)
                 infoStrings.Add(String.Format("Cooling. Burn time decays {0:F2} per sec second engine is off", idleDecayRate));
             float minThrust, maxThrust;

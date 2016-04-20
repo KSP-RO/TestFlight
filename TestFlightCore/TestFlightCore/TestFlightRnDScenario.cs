@@ -180,9 +180,6 @@ namespace TestFlightCore
 
         public void Update()
         {
-            if (activeTeams == null || activeTeams.Count <= 0)
-                return;
-            
             double currentTime = Planetarium.GetUniversalTime();
             List<string> teamsToStop = new List<string>();
             if (currentTime - lastUpdateTime >= updateFrequency)
@@ -190,6 +187,8 @@ namespace TestFlightCore
                 float normalizedTime = (float)((currentTime - lastUpdateTime) / updateFrequency);
                 Log("Doing research update, normalized time " + normalizedTime);
                 lastUpdateTime = currentTime;
+                if (activeTeams == null || activeTeams.Count <= 0)
+                    return;
                 foreach (KeyValuePair<string, TestFlightRnDTeam> entry in activeTeams)
                 {
                     if (entry.Value.PartInResearch != "" && entry.Value.ResearchActive)
@@ -261,15 +260,14 @@ namespace TestFlightCore
                 activeTeams = new Dictionary<string, TestFlightRnDTeam>();
         }
 
-        public void AddResearchTeam(Part part, int team)
+        public void AddResearchTeam(Part part, string alias, int team)
         {
             Log(String.Format("Assign team #{0} to part", team));
-            string partName = TestFlightUtil.GetFullPartName(part);
 
-            if (IsPartBeingResearched(partName))
+            if (IsPartBeingResearched(alias))
                 return;
 
-            ITestFlightCore core = TestFlightUtil.GetCore(part);
+            ITestFlightCore core = TestFlightUtil.GetCore(part, alias);
             if (core == null)
                 return;
 
@@ -279,13 +277,13 @@ namespace TestFlightCore
             if (team < availableTeams.Count)
             {
                 TestFlightRnDTeam template = availableTeams[team];
-                activeTeams.Add(partName, new TestFlightRnDTeam(template.Points, template.CostFactor));
-                activeTeams[partName].PartInResearch = partName;
-                activeTeams[partName].MaxData = core.GetMaximumRnDData();
-                activeTeams[partName].PartRnDCost = core.GetRnDCost();
-                activeTeams[partName].PartRnDRate = core.GetRnDRate();
-                activeTeams[partName].ResearchActive = true;
-                Log(String.Format("Team #{0} has been assigned to part {1}", team, partName));
+                activeTeams.Add(alias, new TestFlightRnDTeam(template.Points, template.CostFactor));
+                activeTeams[alias].PartInResearch = alias;
+                activeTeams[alias].MaxData = core.GetMaximumRnDData();
+                activeTeams[alias].PartRnDCost = core.GetRnDCost();
+                activeTeams[alias].PartRnDRate = core.GetRnDRate();
+                activeTeams[alias].ResearchActive = true;
+                Log(String.Format("Team #{0} has been assigned to part {1}", team, alias));
             }
             else
             {

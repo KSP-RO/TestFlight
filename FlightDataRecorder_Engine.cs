@@ -7,10 +7,6 @@ using TestFlightAPI;
 
 namespace TestFlight
 {
-
-    // Method for determing distance from kerbal to part
-    // float kerbalDistanceToPart = Vector3.Distance(kerbal.transform.position, targetPart.collider.ClosestPointOnBounds(kerbal.transform.position));
-
     public class FlightDataRecorder_Engine : FlightDataRecorderBase
     {
         private EngineModuleWrapper engine;
@@ -31,14 +27,14 @@ namespace TestFlight
             if (!isEnabled)
                 return false;
 
-            if (this.part.vessel.situation == Vessel.Situations.PRELAUNCH)
-                return false;
-
             return engine.IgnitionState == EngineModuleWrapper.EngineIgnitionState.IGNITED;
         }
 
         public override bool IsRecordingFlightData()
         {
+            if (this.part.vessel.situation == Vessel.Situations.PRELAUNCH)
+                return false;
+
             return IsPartOperating();
         }
     }

@@ -19,14 +19,12 @@ namespace TestFlightCore
         internal double baseFailureRate;
         internal double momentaryFailureRate;
         internal ITestFlightCore flightCore;
-        internal ITestFlightFailure activeFailure;
         internal bool highlightPart;
-        internal string repairRequirements;
         internal bool acknowledged;
         internal String mtbfString;
-        internal float timeToRepair;
         internal double lastSeen;
         internal float flightData;
+        internal List<ITestFlightFailure> failures;
     }
 
     internal struct MasterStatusItem
@@ -251,23 +249,30 @@ namespace TestFlightCore
             }
             foreach (Part part in vessel.parts)
             {
-                ITestFlightCore core = TestFlightUtil.GetCore(part);
-                if (core != null)
+                // Each KSP part can be composed of N virtual parts
+                List<string> cores = TestFlightInterface.GetActiveCores(part);
+                if (cores == null || cores.Count <= 0)
+                    continue;
+                foreach (string activeCore in cores)
                 {
-                    Log("TestFlightManager: Found core.  Getting part data");
-                    if (TestFlightManagerScenario.Instance.SettingsAlwaysMaxData)
+                    ITestFlightCore core = TestFlightUtil.GetCore(part, activeCore);
+                    if (core != null)
                     {
-                        core.InitializeFlightData(core.GetMaximumData());
-                    }
-                    else
-                    {
-                        TestFlightPartData partData = tfScenario.GetPartDataForPart(TestFlightUtil.GetFullPartName(part));
-                        if (partData != null)
+                        Log("TestFlightManager: Found core.  Getting part data");
+                        if (TestFlightManagerScenario.Instance.SettingsAlwaysMaxData)
                         {
-                            core.InitializeFlightData(partData.GetFloat("flightData"));
+                            core.InitializeFlightData(core.GetMaximumData());
                         }
                         else
-                            core.InitializeFlightData(0f);
+                        {
+                            TestFlightPartData partData = tfScenario.GetPartDataForPart(activeCore);
+                            if (partData != null)
+                            {
+                                core.InitializeFlightData(partData.GetFloat("flightData"));
+                            }
+                            else
+                                core.InitializeFlightData(0f);
+                        }
                     }
                 }
             }
@@ -410,62 +415,68 @@ namespace TestFlightCore
                 {
                     foreach (Part part in vessel.parts)
                     {
-                        ITestFlightCore core = TestFlightUtil.GetCore(part);
-                        if (core != null)
+                        // Each KSP part can be composed of N virtual parts
+                        List<string> cores = TestFlightInterface.GetActiveCores(part);
+                        if (cores == null || cores.Count <= 0)
+                            continue;
+                        foreach (string activeCore in cores)
                         {
-                            // Poll for flight data and part status
-                            if (currentUTC >= lastDataPoll + tfScenario.userSettings.masterStatusUpdateFrequency)
+                            ITestFlightCore core = TestFlightUtil.GetCore(part, activeCore);
+                            if (core != null)
                             {
-                                // Old data structure deprecated v1.3
-                                PartStatus partStatus = new PartStatus();
-                                partStatus.lastSeen = currentUTC;
-                                partStatus.flightCore = core;
-                                partStatus.partName = TestFlightUtil.GetPartTitle(part);
-                                partStatus.partID = part.flightID;
-                                partStatus.partStatus = core.GetPartStatus();
-                                partStatus.timeToRepair = core.GetRepairTime();
-                                partStatus.flightData = core.GetFlightData();
-                                double failureRate = core.GetBaseFailureRate();
-                                MomentaryFailureRate momentaryFailureRate = core.GetWorstMomentaryFailureRate();
-                                if (momentaryFailureRate.valid && momentaryFailureRate.failureRate > failureRate)
-                                    failureRate = momentaryFailureRate.failureRate;
-                                partStatus.momentaryFailureRate = failureRate;
-                                partStatus.repairRequirements = core.GetRequirementsTooltip();
-                                partStatus.acknowledged = core.IsFailureAcknowledged();
-                                partStatus.activeFailure = core.GetFailureModule();
-                                partStatus.mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
-
-                                // Update or Add part status in Master Status
-                                if (masterStatus.ContainsKey(vessel.id))
+                                // Poll for flight data and part status
+                                if (currentUTC >= lastDataPoll + tfScenario.userSettings.masterStatusUpdateFrequency)
                                 {
-                                    // Vessel is already in the Master Status, so check if part is in there as well
-                                    int numItems = masterStatus[vessel.id].allPartsStatus.Count(p => p.partID == part.flightID);
-                                    int existingPartIndex;
-                                    if (numItems == 1)
+                                    // Old data structure deprecated v1.3
+                                    PartStatus partStatus = new PartStatus();
+                                    partStatus.lastSeen = currentUTC;
+                                    partStatus.flightCore = core;
+                                    partStatus.partName = core.Title;
+                                    partStatus.partID = part.flightID;
+                                    partStatus.partStatus = core.GetPartStatus();
+                                    // get any failures
+                                    partStatus.failures = core.GetActiveFailures();
+                                    partStatus.flightData = core.GetFlightData();
+                                    double failureRate = core.GetBaseFailureRate();
+                                    MomentaryFailureRate momentaryFailureRate = core.GetWorstMomentaryFailureRate();
+                                    if (momentaryFailureRate.valid && momentaryFailureRate.failureRate > failureRate)
+                                        failureRate = momentaryFailureRate.failureRate;
+                                    partStatus.momentaryFailureRate = failureRate;
+                                    partStatus.acknowledged = false;
+                                    partStatus.mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
+
+                                    // Update or Add part status in Master Status
+                                    if (masterStatus.ContainsKey(vessel.id))
                                     {
-                                        existingPartIndex = masterStatus[vessel.id].allPartsStatus.FindIndex(p => p.partID == part.flightID);
-                                        masterStatus[vessel.id].allPartsStatus[existingPartIndex] = partStatus;
-                                    }
-                                    else if (numItems == 0)
-                                    {
-                                        masterStatus[vessel.id].allPartsStatus.Add(partStatus);
+                                        // Vessel is already in the Master Status, so check if part is in there as well
+                                        int numItems = masterStatus[vessel.id].allPartsStatus.Count(p => p.partID == part.flightID);
+                                        int existingPartIndex;
+                                        if (numItems == 1)
+                                        {
+                                            existingPartIndex = masterStatus[vessel.id].allPartsStatus.FindIndex(p => p.partID == part.flightID);
+                                            masterStatus[vessel.id].allPartsStatus[existingPartIndex] = partStatus;
+                                        }
+                                        else if (numItems == 0)
+                                        {
+                                            masterStatus[vessel.id].allPartsStatus.Add(partStatus);
+                                        }
+                                        else
+                                        {
+                                            existingPartIndex = masterStatus[vessel.id].allPartsStatus.FindIndex(p => p.partID == part.flightID);
+                                            masterStatus[vessel.id].allPartsStatus[existingPartIndex] = partStatus;
+                                            Log("[ERROR] TestFlightManager: Found " + numItems + " matching parts in Master Status Display!");
+                                        }
                                     }
                                     else
                                     {
-                                        existingPartIndex = masterStatus[vessel.id].allPartsStatus.FindIndex(p => p.partID == part.flightID);
-                                        masterStatus[vessel.id].allPartsStatus[existingPartIndex] = partStatus;
-                                        Log("[ERROR] TestFlightManager: Found " + numItems + " matching parts in Master Status Display!");
+                                        // Vessel is not in the Master Status so create a new entry for it and add this part
+                                        MasterStatusItem masterStatusItem = new MasterStatusItem();
+                                        masterStatusItem.vesselID = vessel.id;
+                                        masterStatusItem.vesselName = vessel.GetName();
+                                        masterStatusItem.allPartsStatus = new List<PartStatus>();
+                                        masterStatusItem.allPartsStatus.Add(partStatus);
+                                        masterStatus.Add(vessel.id, masterStatusItem);
                                     }
-                                }
-                                else
-                                {
-                                    // Vessel is not in the Master Status so create a new entry for it and add this part
-                                    MasterStatusItem masterStatusItem = new MasterStatusItem();
-                                    masterStatusItem.vesselID = vessel.id;
-                                    masterStatusItem.vesselName = vessel.GetName();
-                                    masterStatusItem.allPartsStatus = new List<PartStatus>();
-                                    masterStatusItem.allPartsStatus.Add(partStatus);
-                                    masterStatus.Add(vessel.id, masterStatusItem);
                                 }
                             }
                         }
@@ -764,23 +775,22 @@ namespace TestFlightCore
             // v1.5.4 moved settings to PluginData but to avoid screwing over existing installs we want to migrate existing settings
             string pdSettingsFile = System.IO.Path.Combine(_AssemblyFolder, "PluginData/settings.cfg");
             string settingsFile = System.IO.Path.Combine(_AssemblyFolder, "../settings.cfg");
+            string pdDir = System.IO.Path.Combine(_AssemblyFolder, "PluginData");
             if (!System.IO.File.Exists(pdSettingsFile) && System.IO.File.Exists(settingsFile))
             {
                 userSettings = new UserSettings("../settings.cfg");
                 userSettings.Load();
-                string pdDir = System.IO.Path.Combine(_AssemblyFolder, "PluginData");
                 System.IO.Directory.CreateDirectory(pdDir);
                 userSettings.Save(pdSettingsFile);
                 System.IO.File.Delete(settingsFile);
             }
+            if (!System.IO.Directory.Exists(pdDir))
+            {
+                System.IO.Directory.CreateDirectory(pdDir);
+            }
 
             if (userSettings == null)
                 userSettings = new UserSettings("PluginData/settings.cfg");
-            if (userSettings.FileExists)
-            {
-                userSettings.Load();
-
-            }
 
             if (userSettings.FileExists)
                 userSettings.Load();
