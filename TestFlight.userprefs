@@ -57,6 +57,5 @@
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <DisabledProjects>
     <String>TestFlightContracts/TestFlightContracts.csproj</String>
-    <String>TestFlightRF/TestFlightRF.csproj</String>
   </DisabledProjects>
 </Properties>
