@@ -821,18 +821,18 @@ namespace TestFlightCore
                     {
                         if (hasMajorFailure)
                         {
-                            this.part.stackIcon.SetBgColor(XKCDColors.Red);
+                            this.part.stackIcon.SetBackgroundColor(XKCDColors.Red);
                             Log("Color stack icon RED");
                         }
                         else
                         {
-                            this.part.stackIcon.SetBgColor(XKCDColors.KSPNotSoGoodOrange);
+                            this.part.stackIcon.SetBackgroundColor(XKCDColors.KSPNotSoGoodOrange);
                             Log("Color stack icon ORANGE");
                         }
                     }
                     else
                     {
-                        this.part.stackIcon.SetBgColor(XKCDColors.White);
+                        this.part.stackIcon.SetBackgroundColor(XKCDColors.White);
                         Log("Color stack icon WHITE");
                     }
                 }
