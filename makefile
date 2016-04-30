@@ -15,8 +15,7 @@ endif
 all: clean meta configs
 	cp -r GameData/TestFlight/ ~/Dropbox/KSP/TestFlight/
 
-install: clean
-	-rm ~/Developer/KSP/1.0/TestFlightDEV/Dev/GameData/TestFlight/Config/*.cfg
+install: clean meta
 	cp -r GameData/TestFlight/ ~/Dropbox/KSP/TestFlight/
 
 release: zip

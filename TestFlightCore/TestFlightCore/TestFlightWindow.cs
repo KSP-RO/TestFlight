@@ -191,7 +191,7 @@ namespace TestFlightCore
                     HoverOutButton,
                     null,
                     null,
-                    ApplicationLauncher.AppScenes.FLIGHT,
+                    ApplicationLauncher.AppScenes.FLIGHT | ApplicationLauncher.AppScenes.MAPVIEW,
                     iconTexture);
                 ApplicationLauncher.Instance.AddOnHideCallback(HideButton);
                 ApplicationLauncher.Instance.AddOnRepositionCallback(RepostionWindow);
@@ -309,15 +309,24 @@ namespace TestFlightCore
                         //                    GUILayout.Label(String.Format("{0,7:F2}du", status.flightData));
                         //                    GUILayout.Label(String.Format("{0,7:F2}%", status.reliability));
 
-                        if (tfScenario.userSettings.showFailedPartsOnlyInMSD && status.activeFailure == null)
+                        if (tfScenario.userSettings.showFailedPartsOnlyInMSD && status.failures == null)
                             continue;
-                        if (tfScenario.userSettings.showFailedPartsOnlyInMSD && status.acknowledged)
+                        if (tfScenario.userSettings.showFailedPartsOnlyInMSD && status.failures.Count <= 0)
                             continue;
 
                         GUILayout.BeginHorizontal();
                         string partDisplay;
                         // Part Name
-                        string tooltip = status.repairRequirements;
+                        string tooltip = "";
+                        if (status.failures == null || status.failures.Count <= 0)
+                            tooltip = "Status OK";
+                        else
+                        {
+                            for (int i = 0; i < status.failures.Count; i++)
+                            {
+                                tooltip += string.Format("<color=#{0}>{1}</color>\n", status.failures[i].GetFailureDetails().severity.ToLowerInvariant() == "major" ? "dc322fff" : "b58900ff", status.failures[i].GetFailureDetails().failureTitle);
+                            }
+                        }
                         if (tfScenario.userSettings.shortenPartNameInMSD)
                             GUILayout.Label(new GUIContent(status.partName, tooltip), GUILayout.Width(100));
                         else
@@ -344,42 +353,21 @@ namespace TestFlightCore
                         // Part Status Text
                         if (tfScenario.userSettings.showStatusTextInMSD)
                         {
-                            if (status.activeFailure == null)
+                            if (status.failures == null || status.failures.Count <= 0)
                                 partDisplay = String.Format("<color=#859900ff>{0,-30}</color>", "OK");
                             else
                             {
-                                if (status.timeToRepair > 0)
+                                ITestFlightFailure latestFailure = status.failures.Last();
+                                if (latestFailure.GetFailureDetails().severity.ToLowerInvariant() == "major")
                                 {
-                                    if (status.activeFailure.GetFailureDetails().severity == "major")
-                                        partDisplay = String.Format("<color=#dc322fff>{0,-30}</color>", GetColonFormattedTime(status.timeToRepair));
-                                    else
-                                        partDisplay = String.Format("<color=#b58900ff>{0,-30}</color>", GetColonFormattedTime(status.timeToRepair));
+                                    partDisplay = String.Format("<color=#dc322fff>{0,-30}</color>", latestFailure.GetFailureDetails().failureTitle);
                                 }
                                 else
                                 {
-                                    if (status.activeFailure.GetFailureDetails().severity == "major")
-                                        partDisplay = String.Format("<color=#dc322fff>{0,-30}</color>", status.activeFailure.GetFailureDetails().failureTitle);
-                                    else
-                                        partDisplay = String.Format("<color=#b58900ff>{0,-30}</color>", status.activeFailure.GetFailureDetails().failureTitle);
+                                    partDisplay = String.Format("<color=#b58900ff>{0,-30}</color>", latestFailure.GetFailureDetails().failureTitle);
                                 }
                             }
                             GUILayout.Label(partDisplay, GUILayout.Width(100));
-                        }
-                        if (status.activeFailure != null)
-                        {
-                            if (status.activeFailure.CanAttemptRepair() && status.timeToRepair <= 0)
-                            {
-                                if (GUILayout.Button("R", GUILayout.Width(38)))
-                                {
-                                    // attempt repair
-                                    status.flightCore.AttemptRepair();
-                                }
-                            }
-                            if (GUILayout.Button("A", GUILayout.Width(38)))
-                            {
-                                // attempt repair
-                                status.flightCore.AcknowledgeFailure();
-                            }
                         }
                         GUILayout.EndHorizontal();
                     }
@@ -579,37 +567,7 @@ namespace TestFlightCore
                 tfScenario.userSettings.Save();
             }
         }
-
-        // nicked from magico13's Kerbal Construction Time mod with permission
-        // https://github.com/magico13/KCT/blob/master/Kerbal_Construction_Time/KCT_Utilities.cs#L46-L73
-        public static string GetColonFormattedTime(double time)
-        {
-            if (time > 0)
-            {
-                StringBuilder formatedTime = new StringBuilder();
-                if (GameSettings.KERBIN_TIME)
-                {
-                    formatedTime.AppendFormat("{0,2:00}<b>:</b>", Math.Floor(time / 21600));
-                    time = time % 21600;
-                }
-                else
-                {
-                    formatedTime.AppendFormat("{0,2:00}<b>:</b>", Math.Floor(time / 86400));
-                    time = time % 86400;
-                }
-                formatedTime.AppendFormat("{0,2:00}<b>:</b>", Math.Floor(time / 3600));
-                time = time % 3600;
-                formatedTime.AppendFormat("{0,2:00}<b>:</b>", Math.Floor(time / 60));
-                time = time % 60;
-                formatedTime.AppendFormat("{0,2:00}", time);
-                return formatedTime.ToString();
-            }
-            else
-            {
-                return "00<b>:</b>00<b>:</b>00<b>:</b>00";
-            }
-        }
-
+            
         // GUI EVent Handlers
         void SettingsPage_OnSelectionChanged(MonoBehaviourWindowPlus.DropDownList sender, int oldIndex, int newIndex)
         {

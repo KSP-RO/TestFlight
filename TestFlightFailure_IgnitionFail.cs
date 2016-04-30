@@ -58,7 +58,7 @@ namespace TestFlight
 
             while (core == null)
             {
-                core = TestFlightUtil.GetCore(this.part);
+                core = TestFlightUtil.GetCore(this.part, Configuration);
                 yield return null;
             }
 
@@ -144,7 +144,7 @@ namespace TestFlight
                 if (engine.failEngine)
                 {
                     engine.engine.Shutdown();
-                    if ((OneShot && restoreIgnitionCharge) || (OneShot && this.vessel.situation == Vessel.Situations.PRELAUNCH) )
+                    if ((restoreIgnitionCharge) || (this.vessel.situation == Vessel.Situations.PRELAUNCH) )
                         RestoreIgnitor();
                     engines[i].failEngine = false;
                 }

@@ -22,6 +22,8 @@ namespace TestFlight
         public float ratedBurnTime = 0f;
         [KSPField]
         public string engineID = "";
+        [KSPField]
+        public string engineConfig = "";
 
 
         [KSPField(isPersistant = true)]
@@ -47,7 +49,7 @@ namespace TestFlight
         {
             double currentTime = Planetarium.GetUniversalTime();
             double deltaTime = (currentTime - previousOperatingTime) / 1d;
-            Log(String.Format("TestFlightReliability_EngineCycle: previous time: {0:F4}, current time: {1:F4}, delta time: {2:F4}", previousOperatingTime, currentTime, deltaTime));
+//            Log(String.Format("TestFlightReliability_EngineCycle: previous time: {0:F4}, current time: {1:F4}, delta time: {2:F4}", previousOperatingTime, currentTime, deltaTime));
             if (deltaTime >= 1d)
             {
                 previousOperatingTime = currentTime;
@@ -95,6 +97,7 @@ namespace TestFlight
         {
             base.OnLoad(node);
         }
+
         public override string GetInfo()
         {
             if (cycle != null)
@@ -125,7 +128,7 @@ namespace TestFlight
             List<string> infoStrings = new List<string>();
 
             infoStrings.Add("<b>Engine Cycle</b>");
-            infoStrings.Add(String.Format("<b>Rated Burn Time</b>: {0:F2} seconds", ratedBurnTime));
+            infoStrings.Add(String.Format("<b>Rated Burn Time</b>: {0}", TestFlightUtil.FormatTime(ratedBurnTime, TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, true)));
             if (idleDecayRate > 0)
                 infoStrings.Add(String.Format("Cooling. Burn time decays {0:F2} per sec second engine is off", idleDecayRate));
             float minThrust, maxThrust;

@@ -31,7 +31,7 @@ namespace TestFlight
             // for each engine change its fuelFlow which will affect thrust
             foreach (EngineHandler engine in engines)
             {
-                float jitter = ispMultiplierJitter - ((float)TestFlightUtil.GetCore(this.part).RandomGenerator.NextDouble() * (ispMultiplierJitter * 2));
+                float jitter = ispMultiplierJitter - ((float)TestFlightUtil.GetCore(this.part, Configuration).RandomGenerator.NextDouble() * (ispMultiplierJitter * 2));
                 float actualMultiplier = ispMultiplier + jitter;
                 engine.engine.SetFuelIspMult(actualMultiplier);
             }

@@ -35,5 +35,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("0.4.0.0")]
 [assembly: AssemblyFileVersion("0.4.0.0")]
 
+[assembly: KSPAssembly("TestFlight", 1, 5)]
 [assembly: KSPAssemblyDependency("TestFlightAPI", 1, 5)]
 

@@ -11,10 +11,11 @@ namespace TestFlightAPI
     public class TestFlightReliabilityBase : PartModule, ITestFlightReliability
     {
         protected ITestFlightCore core = null;
-        protected FloatCurve reliabilityCurve = null;
 
         [KSPField]
         public string configuration = "";
+        [KSPField]
+        public FloatCurve reliabilityCurve;
         [KSPField(isPersistant=true)]
         public float lastCheck = 0;
         [KSPField(isPersistant=true)]
@@ -27,10 +28,8 @@ namespace TestFlightAPI
                 // Verify we have a valid core attached
                 if (core == null)
                     return false;
-                if (string.IsNullOrEmpty(Configuration))
-                    return true;
-//                Log(String.Format("Configuration: {0}, Status: {1}", Configuration, TestFlightUtil.EvaluateQuery(Configuration, this.part)));
-                return TestFlightUtil.EvaluateQuery(Configuration, this.part);
+                Log("TestFlightEnabled");
+                return core.TestFlightEnabled;
             }
         }
 
@@ -51,7 +50,7 @@ namespace TestFlightAPI
 
         protected void Log(string message)
         {
-            message = String.Format("TestFlightReliability({0}[{1}]): {2}", TestFlightUtil.GetFullPartName(this.part), Configuration, message);
+            message = String.Format("TestFlightReliability({0}[{1}]): {2}", Configuration, Configuration, message);
             TestFlightUtil.Log(message, this.part);
         }
 
@@ -70,7 +69,7 @@ namespace TestFlightAPI
             }
             else
             {
-                Log("No eliability curve. Returning min failure rate.");
+                Log("No reliability curve. Returning min failure rate.");
                 return TestFlightUtil.MIN_FAILURE_RATE;
             }
         }
@@ -90,45 +89,26 @@ namespace TestFlightAPI
 
             while (core == null)
             {
-                core = TestFlightUtil.GetCore(this.part);
+                core = TestFlightUtil.GetCore(this.part, Configuration);
                 yield return null;
             }
 
             Startup();
         }
-
-        protected void LoadDataFromPrefab()
-        {
-            Log("Loading data from prefab");
-            Part prefab = this.part.partInfo.partPrefab;
-            foreach (PartModule pm in prefab.Modules)
-            {
-                TestFlightReliabilityBase modulePrefab = pm as TestFlightReliabilityBase;
-                // As of v1.3 this is simpler because we don't have scope or reliability bodies
-                if (modulePrefab != null && TestFlightUtil.EvaluateQuery(modulePrefab.Configuration, this.part))
-                {
-                    Log("Found matching prefab");
-                    if (modulePrefab.reliabilityCurve != null && modulePrefab.reliabilityCurve.maxTime > 0)
-                    {
-                        Log(String.Format("Found reliabilityCurve with data point between {0:F2} and {1:F2}.  Loading curve from prefab", modulePrefab.reliabilityCurve.minTime, modulePrefab.reliabilityCurve.maxTime));
-                        reliabilityCurve = modulePrefab.reliabilityCurve;
-                        return;
-                    }
-                }
-            }
-        }
-
+            
         protected void Startup()
         {
-            Log("Startup");
-            LoadDataFromPrefab();
-            Log("Startup::DONE");
         }
 
         // PARTMODULE Implementation
         public override void OnAwake()
         {
             StartCoroutine("Attach");
+            if (reliabilityCurve == null)
+            {
+                reliabilityCurve = new FloatCurve();
+                reliabilityCurve.Add(0f, 1f);
+            }
         }
 
 
@@ -153,8 +133,6 @@ namespace TestFlightAPI
 
             // NEW RELIABILITY CODE
             float operatingTime = core.GetOperatingTime();
-            if (operatingTime == -1)
-                lastCheck = 0;
 
             if (operatingTime < lastCheck + 1f)
                 return;
@@ -195,6 +173,17 @@ namespace TestFlightAPI
         public virtual List<string> GetTestFlightInfo()
         {
             List<string> infoStrings = new List<string>();
+
+            if (core == null)
+            {
+                Log("Core is null");
+                return infoStrings;
+            }
+            if (reliabilityCurve == null)
+            {
+                Log("Curve is null");
+                return infoStrings;
+            }
 
             infoStrings.Add("<b>Base Reliability</b>");
             infoStrings.Add(String.Format("<b>Current Reliability</b>: {0} <b>MTBF</b>", core.FailureRateToMTBFString(core.GetBaseFailureRate(), TestFlightUtil.MTBFUnits.SECONDS, 999)));
