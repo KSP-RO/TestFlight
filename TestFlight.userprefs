@@ -1,14 +1,14 @@
 ﻿<Properties StartupItem="TestFlight.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="TestFlightRF/TestFlightRealFuels.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="TestFlightRF/Properties/AssemblyInfo.cs">
     <Files>
       <File FileName="TestFlightCore/TestFlightCore/TestFlight.cs" Line="1" Column="1" />
-      <File FileName="TestFlightCore/TestFlightCore/TestFlightCore.cs" Line="818" Column="49" />
+      <File FileName="TestFlightCore/TestFlightCore/TestFlightCore.cs" Line="1" Column="1" />
       <File FileName="TestFlightAPI/TestFlightAPI/TestFlightAPI.cs" Line="1" Column="1" />
       <File FileName="TestFlightContracts/TestFlightContractConfigurator.cs" Line="1" Column="1" />
       <File FileName="TestFlightCore/TestFlightCore/TestFlightInterface.cs" Line="1" Column="1" />
       <File FileName="TestFlightAPI/TestFlightAPI/TestFlightPartData.cs" Line="1" Column="1" />
-      <File FileName="TestFlightAPI/TestFlightAPI/EngineModuleWrapper.cs" Line="36" Column="6" />
+      <File FileName="TestFlightAPI/TestFlightAPI/EngineModuleWrapper.cs" Line="1" Column="1" />
       <File FileName="TestFlightFailure_Explode.cs" Line="1" Column="1" />
       <File FileName="TestFlightFailure_ResourceLeak.cs" Line="1" Column="1" />
       <File FileName="FlightDataRecorder_Engine.cs" Line="1" Column="1" />
@@ -28,7 +28,8 @@
       <File FileName="TestFlightAPI/TestFlightAPI/TestFlightReliability.cs" Line="1" Column="1" />
       <File FileName="TestFlightReliability_EngineCycle.cs" Line="1" Column="1" />
       <File FileName="TestFlightCore/TestFlightCore/TestFlightRnDScenario.cs" Line="1" Column="1" />
-      <File FileName="TestFlightRF/TestFlightRealFuels.cs" Line="61" Column="26" />
+      <File FileName="TestFlightRF/TestFlightRealFuels.cs" Line="37" Column="61" />
+      <File FileName="TestFlightRF/Properties/AssemblyInfo.cs" Line="17" Column="46" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
