@@ -5,9 +5,12 @@ using System.Collections;
 using System.Collections.Generic;
 
 using UnityEngine;
+using KSP.UI.Screens;
+
 using KSPPluginFramework;
 
 using TestFlightAPI;
+using KSPAssets.Loaders;
 
 namespace TestFlightCore
 {
@@ -21,6 +24,9 @@ namespace TestFlightCore
         private ApplicationLauncherButton appLauncherButton;
         bool stickyWindow = false;
         private DropDownList ddlSettingsPage = null;
+
+        bool assetBundleLoaded = false;
+        Canvas kscCanvas = null;
 
         internal void Log(string message)
         {
@@ -36,7 +42,24 @@ namespace TestFlightCore
         {
             Log("Initializing KSC Window Hook");
             Instance = this;
+            // Load out AssetBundle
+            AssetLoader.LoadAssets(AssetLoaded, AssetLoader.GetAssetDefinitionWithName("TestFlight/testflight", "TFKSCCanvas"));
             StartCoroutine("ConnectToScenario");
+        }
+
+        void AssetLoaded(AssetLoader.Loader loader)
+        {
+            // You get a object that contains all the object that match your laoding request
+            for (int i = 0; i < loader.definitions.Length; i++ )
+            {
+                UnityEngine.Object o = loader.objects[i];
+                if (o == null)
+                    continue;
+
+                if (o.GetType() == typeof(Canvas))
+                    kscCanvas = o as Canvas;
+            }
+            assetBundleLoaded = true;
         }
 
         IEnumerator ConnectToScenario()
@@ -95,11 +118,13 @@ namespace TestFlightCore
 
         internal void CalculateWindowBounds()
         {
+            Log("CalculateWindowBounds PreCheck");
             if (appLauncherButton == null)
                 return;
             if (tfScenario == null)
                 return;
 
+            Log("CalculateWindowBounds");
             float windowWidth = 500f;
             float left = Screen.width - windowWidth - 75f;
             float windowHeight = 100f;
@@ -134,6 +159,7 @@ namespace TestFlightCore
                     iconTexture);
                 ApplicationLauncher.Instance.AddOnHideCallback(HideButton);
                 ApplicationLauncher.Instance.AddOnRepositionCallback(RepostionWindow);
+                CalculateWindowBounds();
             }
             catch (Exception e)
             {
@@ -143,12 +169,14 @@ namespace TestFlightCore
         }
         void OpenWindow()
         {
+            Log("Open Window");
             CalculateWindowBounds();
             Visible = true;
             stickyWindow = true;
         }
         void CloseWindow()
         {
+            Log("Close Window");
             Visible = false;
             stickyWindow = false;
         }
@@ -158,15 +186,18 @@ namespace TestFlightCore
         }
         void RepostionWindow()
         {
+            Log("Reposition Window");
             CalculateWindowBounds();
         }
         void HoverInButton()
         {
+            Log("Hover In");
             CalculateWindowBounds();
             Visible = true;
         }
         void HoverOutButton()
         {
+            Log("Hover Out");
             if (!stickyWindow)
                 Visible = false;
         }

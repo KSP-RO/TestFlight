@@ -25,13 +25,14 @@ namespace TestFlightContracts
         private double lastUpdate = 0;
         private float lastData = 0f;
 
-        private TitleTracker titleTracker = new TitleTracker();
+        private TitleTracker titleTracker;
 
         public CollectFlightData(float requiredData, string partName)
         {
             this.requiredData = requiredData;
             this.partName = partName;
             disableOnStateChange = false;
+            titleTracker = new TitleTracker(this);
         }
 
         protected override bool VesselMeetsCondition(Vessel vessel)
@@ -123,7 +124,7 @@ namespace TestFlightContracts
                 if (ReadyToComplete())
                 {
                     flightData = flightData + newFlightData;    
-                    titleTracker.UpdateContractWindow(this, GetTitle());
+                    titleTracker.UpdateContractWindow(GetTitle());
                 }
             }
         }
