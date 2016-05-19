@@ -28,7 +28,7 @@
       <File FileName="TestFlightAPI/TestFlightAPI/TestFlightReliability.cs" Line="1" Column="1" />
       <File FileName="TestFlightReliability_EngineCycle.cs" Line="1" Column="1" />
       <File FileName="TestFlightCore/TestFlightCore/TestFlightRnDScenario.cs" Line="1" Column="1" />
-      <File FileName="TestFlightRF/TestFlightRealFuels.cs" Line="37" Column="61" />
+      <File FileName="TestFlightRF/TestFlightRealFuels.cs" Line="1" Column="1" />
       <File FileName="TestFlightRF/Properties/AssemblyInfo.cs" Line="17" Column="46" />
     </Files>
   </MonoDevelop.Ide.Workbench>
