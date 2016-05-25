@@ -69,7 +69,7 @@ namespace TestFlightRF
                                 if (node.HasValue("description"))
                                 {
                                     string description = node.GetValue("description");
-                                    description += String.Format("\n" + "    " + <b>Rated Burn Time</b>: {0}", TestFlightUtil.FormatTime(burnTimes[configName], TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, true));
+                                    description += String.Format("\n" + "    " + "<b>Rated Burn Time</b>: {0}", TestFlightUtil.FormatTime(burnTimes[configName], TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, true));
                                     node.SetValue("description", description, true);
                                 }
                                 else

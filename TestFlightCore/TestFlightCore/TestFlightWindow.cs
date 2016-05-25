@@ -227,7 +227,32 @@ namespace TestFlightCore
         }
         void HideButton()
         {
+            ApplicationLauncher.Instance.RemoveOnHideCallback(HideButton);
+            ApplicationLauncher.Instance.RemoveOnRepositionCallback(RepostionWindow);
             ApplicationLauncher.Instance.RemoveModApplication(appLauncherButton);
+            ApplicationLauncher.Instance.AddOnShowCallback(ShowButton);
+        }
+        void ShowButton()
+        {
+            // Load the icon for the button
+            Texture iconTexture = GameDatabase.Instance.GetTexture("TestFlight/Resources/AppLauncherIcon", false);
+            if (iconTexture == null)
+            {
+                throw new Exception("TestFlight MasterStatusDisplay: Failed to load icon texture");
+            }
+            Log("TestFlight MasterStatusDisplay: Creating icon on toolbar");
+            appLauncherButton = ApplicationLauncher.Instance.AddModApplication(
+                OpenWindow,
+                CloseWindow,
+                HoverInButton,
+                HoverOutButton,
+                null,
+                null,
+                ApplicationLauncher.AppScenes.FLIGHT | ApplicationLauncher.AppScenes.MAPVIEW,
+                iconTexture);
+            ApplicationLauncher.Instance.AddOnHideCallback(HideButton);
+            ApplicationLauncher.Instance.AddOnRepositionCallback(RepostionWindow);
+            CalculateWindowBounds();
         }
         void RepostionWindow()
         {
