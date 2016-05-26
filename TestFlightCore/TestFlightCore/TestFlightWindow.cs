@@ -230,36 +230,6 @@ namespace TestFlightCore
             ApplicationLauncher.Instance.RemoveOnHideCallback(HideButton);
             ApplicationLauncher.Instance.RemoveOnRepositionCallback(RepostionWindow);
             ApplicationLauncher.Instance.RemoveModApplication(appLauncherButton);
-            ApplicationLauncher.Instance.AddOnShowCallback(ShowButton);
-        }
-        void ShowButton()
-        {
-            if (HighLogic.LoadedScene == GameScenes.FLIGHT)
-            {
-                // Load the icon for the button
-                Texture iconTexture = GameDatabase.Instance.GetTexture("TestFlight/Resources/AppLauncherIcon", false);
-                if (iconTexture == null)
-                {
-                    throw new Exception("TestFlight MasterStatusDisplay: Failed to load icon texture");
-                }
-                Log("TestFlight MasterStatusDisplay: Creating icon on toolbar");
-                appLauncherButton = ApplicationLauncher.Instance.AddModApplication(
-                    OpenWindow,
-                    CloseWindow,
-                    HoverInButton,
-                    HoverOutButton,
-                    null,
-                    null,
-                    ApplicationLauncher.AppScenes.FLIGHT | ApplicationLauncher.AppScenes.MAPVIEW,
-                    iconTexture);
-                ApplicationLauncher.Instance.AddOnHideCallback(HideButton);
-                ApplicationLauncher.Instance.AddOnRepositionCallback(RepostionWindow);
-                CalculateWindowBounds();
-            }
-            else
-            {
-                ApplicationLauncher.Instance.RemoveOnShowCallback(ShowButton);
-            }
         }
         void RepostionWindow()
         {
@@ -602,6 +572,17 @@ namespace TestFlightCore
             {
                 CalculateWindowBounds();
                 tfScenario.userSettings.Save();
+            }
+        }
+
+        public void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.T) && Input.GetKeyDown(KeyCode.LeftAlt))
+            {
+                if (Visible)
+                    CloseWindow();
+                else
+                    OpenWindow();
             }
         }
             
