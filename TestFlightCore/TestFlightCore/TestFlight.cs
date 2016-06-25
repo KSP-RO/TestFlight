@@ -391,8 +391,8 @@ namespace TestFlightCore
                         vesselsToDelete.Add(entry.Key);
                 }
             }
-            if (vesselsToDelete.Count() > 0)
-                Log("TestFlightManager: Deleting " + vesselsToDelete.Count() + " vessels from cached vessels");
+            if (vesselsToDelete.Count > 0)
+                Log("TestFlightManager: Deleting " + vesselsToDelete.Count + " vessels from cached vessels");
             for (int i = 0; i < vesselsToDelete.Count; i++)
             {
                 knownVessels.Remove(vesselsToDelete[i]);
@@ -439,35 +439,55 @@ namespace TestFlightCore
 
             currentUTC = Planetarium.GetUniversalTime();
             // ensure out vessel list is up to date
+            Profiler.BeginSample("CacheVessels");
             CacheVessels();
+            Profiler.EndSample();
             if (currentUTC >= lastMasterStatusUpdate + tfScenario.userSettings.masterStatusUpdateFrequency)
             {
                 lastMasterStatusUpdate = currentUTC;
+                Profiler.BeginSample("VerifyMasterStatus");
                 VerifyMasterStatus();
+                Profiler.EndSample();
             }
             // process vessels
+            Profiler.BeginSample("ProcessVessels");
             knownVesselsEnumerator = knownVessels.GetEnumerator();
             while (knownVesselsEnumerator.MoveNext())
             {
                 KeyValuePair<Guid, double> entry = knownVesselsEnumerator.Current;
                 Vessel vessel = null;
+                Profiler.BeginSample("FindVessel");
                 for (int i = 0; i < FlightGlobals.Vessels.Count; i++)
                 {
                     if (FlightGlobals.Vessels[i].id == entry.Key)
                         vessel = FlightGlobals.Vessels[i];
                 }
+                Profiler.EndSample();
                 if (vessel == null)
                     continue;
 
                 if (vessel.loaded)
                 {
-                    for (int j = 0; j < vessel.Parts.Count; j++)
+                    Profiler.BeginSample("ProcessParts");
+                    List<Part> parts = vessel.Parts;
+                    for (int j = 0; j < parts.Count; j++)
                     {
                         // Each KSP part can be composed of N virtual parts
+                        Profiler.BeginSample("Reset Core List");
                         cores.Clear();
-                        cores = TestFlightInterface.GetActiveCores(vessel.parts[j]);
+                        Profiler.EndSample();
+                        Profiler.BeginSample("Get Cores");
+                        for (int k = 0; k < parts[j].Modules.Count; k++)
+                        {
+                            ITestFlightCore core = parts[j].Modules[k] as ITestFlightCore;
+                            if (core != null && core.TestFlightEnabled)
+                                cores.Add(core.Alias);
+                        }
+                        Profiler.EndSample();
+                        //cores = TestFlightInterface.GetActiveCores(vessel.parts[j]);
                         if (cores == null || cores.Count <= 0)
                             continue;
+                        Profiler.BeginSample("ProcessCores");
                         for (int k = 0; k < cores.Count; k++)
                         {
                             ITestFlightCore core = TestFlightUtil.GetCore(vessel.parts[j], cores[k]);
@@ -480,7 +500,6 @@ namespace TestFlightCore
                                     if (masterStatus.ContainsKey(vessel.id))
                                     {
                                         // Vessel is already in the Master Status, so check if part is in there as well
-                                        int numItems = 0;
                                         int existingPartIndex = -1;
                                         for (int msIndex = 0; msIndex < masterStatus[vessel.id].allPartsStatus.Count; msIndex++)
                                         {
@@ -508,6 +527,7 @@ namespace TestFlightCore
                                             partStatus.momentaryFailureRate = failureRate;
                                             partStatus.acknowledged = false;
                                             partStatus.mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
+                                            masterStatus[vessel.id].allPartsStatus[existingPartIndex] = partStatus;
                                         }
                                         else
                                         {
@@ -559,8 +579,10 @@ namespace TestFlightCore
                                 }
                             }
                         }
+                        Profiler.EndSample();
                     }
                 }
+                Profiler.EndSample();
                 if (currentUTC >= lastDataPoll + tfScenario.userSettings.minTimeBetweenDataPoll)
                 {
                     lastDataPoll = currentUTC;
@@ -570,8 +592,9 @@ namespace TestFlightCore
                     lastFailurePoll = currentUTC;
                 }
             }
+            Profiler.EndSample();
         }
-    
+
     }
 
 

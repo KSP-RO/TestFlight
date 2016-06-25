@@ -508,6 +508,7 @@ namespace TestFlightAPI
 
         public static void Log(string message, Part loggingPart)
         {
+            return;
             ITestFlightCore core = TestFlightUtil.GetCore(loggingPart);
             bool debug = false;
             if (core != null)

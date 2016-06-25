@@ -55,6 +55,8 @@ namespace TestFlight
         public override void Startup()
         {
             base.Startup();
+            if (core == null)
+                return;
             // We don't want this getting triggered as a random failure
             core.DisableFailure("TestFlightFailure_IgnitionFail");
         }

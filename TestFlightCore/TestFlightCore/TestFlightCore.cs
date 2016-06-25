@@ -75,6 +75,7 @@ namespace TestFlightCore
         private List<ITestFlightFailure> failures = null;
         private bool hasMajorFailure = false;
 
+        private string[] ops = { "=", "!=", "<", "<=", ">", ">=", "<>", "<=>" };
 
         public bool TestFlightEnabled
         {
@@ -88,7 +89,6 @@ namespace TestFlightCore
                 if (string.IsNullOrEmpty(Configuration))
                     return true;
                 
-                string[] ops = { "=", "!=", "<", "<=", ">", ">=", "<>", "<=>" };
                 bool opFound = false;
                 for (int i = 0; i < 8; i++)
                 {
@@ -107,7 +107,10 @@ namespace TestFlightCore
                         return true;
                     return false;
                 }
-                return TestFlightUtil.EvaluateQuery(Configuration, this.part);
+                Profiler.BeginSample("EvaluateQuery");
+                bool pass = TestFlightUtil.EvaluateQuery(Configuration, this.part);
+                Profiler.EndSample();
+                return pass;
             }
         }
         public string Configuration
@@ -176,6 +179,8 @@ namespace TestFlightCore
 
         internal void Log(string message)
         {
+            return;
+
             if (TestFlightManagerScenario.Instance == null)
                 return;
 
@@ -265,21 +270,32 @@ namespace TestFlightCore
         // These  methods will let you get a list of all momentary rates or you can get the best (lowest chance of failure)/worst (highest chance of failure) rates
         public MomentaryFailureRate GetWorstMomentaryFailureRate()
         {
-            MomentaryFailureRate worstMFR;
+            //MomentaryFailureRate worstMFR;
 
-            worstMFR = new MomentaryFailureRate();
-            worstMFR.valid = false;
-            worstMFR.failureRate = TestFlightUtil.MIN_FAILURE_RATE;
+            //worstMFR = new MomentaryFailureRate();
+            //worstMFR.valid = false;
+            //worstMFR.failureRate = TestFlightUtil.MIN_FAILURE_RATE;
 
-            foreach (MomentaryFailureRate mfr in momentaryFailureRates)
+            //foreach (MomentaryFailureRate mfr in momentaryFailureRates)
+            //{
+            //    if (mfr.failureRate > worstMFR.failureRate)
+            //    {
+            //        worstMFR = mfr;
+            //    }
+            //}
+
+            double failureRate = TestFlightUtil.MIN_FAILURE_RATE;
+            int mfrIndex = -1;
+            for (int i = 0; i < momentaryFailureRates.Count; i++)
             {
-                if (mfr.failureRate > worstMFR.failureRate)
-                {
-                    worstMFR = mfr;
-                }
+                if (momentaryFailureRates[i].failureRate > failureRate)
+                    mfrIndex = i;
             }
 
-            return worstMFR;
+            if (mfrIndex > -1)
+                return momentaryFailureRates[mfrIndex];
+
+            return new MomentaryFailureRate();
         }
         public MomentaryFailureRate GetBestMomentaryFailureRate()
         {
@@ -801,24 +817,36 @@ namespace TestFlightCore
         // PARTMODULE functions
         public override void Update()
         {
+            Profiler.BeginSample("Base update");
             base.Update();
+            Profiler.EndSample();
 
+            Profiler.BeginSample("Stage check");
             if (!firstStaged)
                 return;
+            Profiler.EndSample();
 
+            Profiler.BeginSample("Enabled check");
             if (!TestFlightEnabled)
                 return;
+            Profiler.EndSample();
 
+            Profiler.BeginSample("Flight check");
             if (HighLogic.LoadedSceneIsFlight)
             {
 
+                Profiler.BeginSample("Scenario check");
                 if (TestFlightManagerScenario.Instance == null)
                     return;
+                Profiler.EndSample();
 
+                Profiler.BeginSample("Icon check");
                 if (this.part.stackIcon != null)
                 {
+                    Profiler.BeginSample("Failure check");
                     if (failures != null && failures.Count > 0)
                     {
+                        Profiler.BeginSample("Icon fail coloring");
                         if (hasMajorFailure)
                         {
                             this.part.stackIcon.SetBackgroundColor(XKCDColors.Red);
@@ -829,26 +857,33 @@ namespace TestFlightCore
                             this.part.stackIcon.SetBackgroundColor(XKCDColors.KSPNotSoGoodOrange);
                             Log("Color stack icon ORANGE");
                         }
+                        Profiler.EndSample();
                     }
                     else
                     {
                         this.part.stackIcon.SetBackgroundColor(XKCDColors.White);
                         Log("Color stack icon WHITE");
                     }
+                    Profiler.EndSample();
                 }
+                Profiler.EndSample();
 
 
+                Profiler.BeginSample("Time logging");
                 double currentMET = Planetarium.GetUniversalTime() - missionStartTime;
                 Log("Operating Time: " + operatingTime);
                 Log("Current MET: " + currentMET + ", Last MET: " + lastMET);
+                Profiler.EndSample();
+                Profiler.BeginSample("Operating check");
                 if (IsPartOperating())
                 {
                     Log("Adding " + (currentMET - lastMET) + " seconds to operatingTime");
                     operatingTime += (float)(currentMET - lastMET);
                 }
-
+                Profiler.EndSample();
                 lastMET = currentMET;
             }
+            Profiler.EndSample();
         }
 
         public override void Start()

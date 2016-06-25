@@ -105,6 +105,8 @@ namespace TestFlightCore
         protected TestFlightManagerScenario tfScenario = null;
         protected List<TestFlightRnDTeam> availableTeams = null;
         protected Dictionary<string, TestFlightRnDTeam> activeTeams = null;
+        protected List<string> teamsToStop = null;
+        protected Dictionary<string, TestFlightRnDTeam>.Enumerator teamsEnumerator;
 
         [KSPField(isPersistant = true)]
         protected double lastUpdateTime = 0f;
@@ -124,6 +126,7 @@ namespace TestFlightCore
         public override void OnAwake()
         {
             Log("OnAwake");
+            teamsToStop = new List<string>();
             teamSettings = new List<TestFlightRNDTeamSettings>();
             ConfigNode node = GameDatabase.Instance.GetConfigNode("TFRNDSETTINGS");
             if (node != null)
@@ -181,7 +184,7 @@ namespace TestFlightCore
         public void Update()
         {
             double currentTime = Planetarium.GetUniversalTime();
-            List<string> teamsToStop = new List<string>();
+            teamsToStop.Clear();
             if (currentTime - lastUpdateTime >= updateFrequency)
             {
                 float normalizedTime = (float)((currentTime - lastUpdateTime) / updateFrequency);
@@ -189,11 +192,11 @@ namespace TestFlightCore
                 lastUpdateTime = currentTime;
                 if (activeTeams == null || activeTeams.Count <= 0)
                     return;
-                Dictionary<string, TestFlightRnDTeam>.Enumerator enumerator = activeTeams.GetEnumerator();
+                teamsEnumerator = activeTeams.GetEnumerator();
                 KeyValuePair<string, TestFlightRnDTeam> entry;
-                while (enumerator.MoveNext())
+                while (teamsEnumerator.MoveNext())
                 {
-                    entry = enumerator.Current;
+                    entry = teamsEnumerator.Current;
                     if (entry.Value.PartInResearch != "" && entry.Value.ResearchActive)
                     {
                         float partCurrentData = tfScenario.GetFlightDataForPartName(entry.Value.PartInResearch);
@@ -215,9 +218,9 @@ namespace TestFlightCore
                 }
                 if (teamsToStop.Count > 0)
                 {
-                    foreach (string team in teamsToStop)
+                    for (int i = 0; i < teamsToStop.Count; i++)
                     {
-                        activeTeams.Remove(team);
+                        activeTeams.Remove(teamsToStop[i]);
                     }
                 }
             }
