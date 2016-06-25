@@ -80,22 +80,6 @@ namespace TestFlightAPI
 
         // INTERNAL methods
 
-        IEnumerator Attach()
-        {
-            while (this.part == null || this.part.partInfo == null || this.part.partInfo.partPrefab == null || this.part.Modules == null)
-            {
-                yield return null;
-            }
-
-            while (core == null)
-            {
-                core = TestFlightUtil.GetCore(this.part, Configuration);
-                yield return null;
-            }
-
-            Startup();
-        }
-            
         protected void Startup()
         {
         }
@@ -103,12 +87,19 @@ namespace TestFlightAPI
         // PARTMODULE Implementation
         public override void OnAwake()
         {
-            StartCoroutine("Attach");
             if (reliabilityCurve == null)
             {
                 reliabilityCurve = new FloatCurve();
                 reliabilityCurve.Add(0f, 1f);
             }
+        }
+
+        public override void OnStart(StartState state)
+        {
+            base.OnStart(state);
+            core = TestFlightUtil.GetCore(this.part, Configuration);
+            if (core != null)
+                Startup();
         }
 
 

@@ -189,8 +189,11 @@ namespace TestFlightCore
                 lastUpdateTime = currentTime;
                 if (activeTeams == null || activeTeams.Count <= 0)
                     return;
-                foreach (KeyValuePair<string, TestFlightRnDTeam> entry in activeTeams)
+                Dictionary<string, TestFlightRnDTeam>.Enumerator enumerator = activeTeams.GetEnumerator();
+                KeyValuePair<string, TestFlightRnDTeam> entry;
+                while (enumerator.MoveNext())
                 {
+                    entry = enumerator.Current;
                     if (entry.Value.PartInResearch != "" && entry.Value.ResearchActive)
                     {
                         float partCurrentData = tfScenario.GetFlightDataForPartName(entry.Value.PartInResearch);

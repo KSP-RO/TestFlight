@@ -159,9 +159,9 @@ namespace TestFlightAPI
             if (part == null || part.Modules == null)
                 return null;
 
-            foreach (PartModule pm in part.Modules)
+            for (int i = 0; i < part.Modules.Count; i++)
             {
-                ITestFlightCore core = pm as ITestFlightCore;
+                ITestFlightCore core = part.Modules[i] as ITestFlightCore;
                 if (core != null && core.TestFlightEnabled)
                     return core;
             }
@@ -271,9 +271,9 @@ namespace TestFlightAPI
 
             // split into list elements.  For a query to be valid only one list element has to evaluate to true
             string[] elements = query.Split(new char[1] { ',' });
-            foreach (string element in elements)
+            for (int i = 0; i < elements.Length; i++)
             {
-                if (EvaluateElement(element, part))
+                if (EvaluateElement(elements[i], part))
                     return true;
             }
 
@@ -287,15 +287,15 @@ namespace TestFlightAPI
             if (element.Contains("||"))
             {
                 string[] orSections = element.Split(new string[1] { "||" }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string section in orSections)
+                for (int i = 0; i < orSections.Length; i++)
                 {
-                    if (section.Trim().Contains("&&"))
+                    if (orSections[i].Trim().Contains("&&"))
                     {
                         bool sectionIsTrue = true;
-                        string[] andSections = section.Trim().Split(new string[1] { "&&" }, StringSplitOptions.RemoveEmptyEntries);
-                        foreach (string block in andSections)
+                        string[] andSections = orSections[i].Trim().Split(new string[1] { "&&" }, StringSplitOptions.RemoveEmptyEntries);
+                        for (int j = 0; j < andSections.Length; j++)
                         {
-                            if (!EvaluateBlock(block.Trim(), part))
+                            if (!EvaluateBlock(andSections[j].Trim(), part))
                             {
                                 sectionIsTrue = false;
                                 break;
@@ -306,7 +306,7 @@ namespace TestFlightAPI
                     }
                     else
                     {
-                        if (EvaluateBlock(section, part))
+                        if (EvaluateBlock(orSections[i], part))
                             return true;
                     }
                 }

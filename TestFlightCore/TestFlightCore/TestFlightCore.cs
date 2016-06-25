@@ -90,9 +90,9 @@ namespace TestFlightCore
                 
                 string[] ops = { "=", "!=", "<", "<=", ">", ">=", "<>", "<=>" };
                 bool opFound = false;
-                foreach (string op in ops)
+                for (int i = 0; i < 8; i++)
                 {
-                    if (Configuration.Contains(op))
+                    if (Configuration.Contains(ops[i]))
                         opFound = true;
                 }
                 if (!opFound)
