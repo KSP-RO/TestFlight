@@ -896,11 +896,19 @@ namespace TestFlightCore
             if (!TestFlightEnabled)
                 return;
 
-            GameEvents.onCrewTransferred += OnCrewChange;
-            if (crew = null)
+            GameEvents.onCrewTransferred.Add(OnCrewChange);
+            if (crew == null)
                 crew = new List<ProtoCrewMember>();
-            
-            OnCrewChange();
+
+            crew.Clear();
+            List<ProtoCrewMember> allCrew = part.vessel.GetVesselCrew();
+            for (int i = 0, crewCount = allCrew.Count; i < crewCount; i++)
+            {
+                if (allCrew[i].experienceTrait.Title == "Engineer")
+                {
+                    crew.Add(allCrew[i]);
+                }
+            }
 
             CalculateMaximumData();
 
@@ -922,7 +930,7 @@ namespace TestFlightCore
         public override void OnDestroy()
         {
             base.OnDestroy();
-            GameEvents.onCrewTransferred -= OnCrewChange;
+            GameEvents.onCrewTransferred.Remove(OnCrewChange);
         }
 
         public override void OnAwake()
@@ -957,7 +965,7 @@ namespace TestFlightCore
             }
         }
 
-        public void OnCrewChange()
+        public void OnCrewChange(GameEvents.HostedFromToAction<ProtoCrewMember, Part> e)
         {
             crew.Clear();
             List<ProtoCrewMember> allCrew = part.vessel.GetVesselCrew();
