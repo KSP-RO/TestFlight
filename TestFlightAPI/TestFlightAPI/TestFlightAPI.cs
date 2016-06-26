@@ -174,8 +174,9 @@ namespace TestFlightAPI
                 return null;
             if (alias == "")
                 return null;
-            foreach (PartModule pm in part.Modules)
+            for (int i = 0, partModulesCount = part.Modules.Count; i < partModulesCount; i++)
             {
+                PartModule pm = part.Modules[i];
                 ITestFlightCore core = pm as ITestFlightCore;
                 if (core != null && core.TestFlightEnabled && core.Alias.ToLowerInvariant() == alias.ToLowerInvariant())
                     return core;
@@ -185,11 +186,14 @@ namespace TestFlightAPI
 
         public static void UpdatePartConfigs(Part part)
         {
-            foreach (PartModule pm in part.Modules)
+            for (int i = 0, partModulesCount = part.Modules.Count; i < partModulesCount; i++)
             {
+                PartModule pm = part.Modules[i];
                 ITestFlightCore core = pm as ITestFlightCore;
                 if (core != null)
+                {
                     core.UpdatePartConfig();
+                }
             }
         }
 
@@ -199,8 +203,9 @@ namespace TestFlightAPI
             if (part == null || part.Modules == null)
                 return null;
 
-            foreach (PartModule pm in part.Modules)
+            for (int i = 0, partModulesCount = part.Modules.Count; i < partModulesCount; i++)
             {
+                PartModule pm = part.Modules[i];
                 IFlightDataRecorder dataRecorder = pm as IFlightDataRecorder;
                 if (dataRecorder != null && dataRecorder.TestFlightEnabled && dataRecorder.Configuration.ToLowerInvariant() == alias.ToLowerInvariant())
                     return dataRecorder;
@@ -216,8 +221,9 @@ namespace TestFlightAPI
                 return null;
 
             reliabilityModules = new List<ITestFlightReliability>();
-            foreach (PartModule pm in part.Modules)
+            for (int i = 0, partModulesCount = part.Modules.Count; i < partModulesCount; i++)
             {
+                PartModule pm = part.Modules[i];
                 ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
                 if (reliabilityModule != null && reliabilityModule.TestFlightEnabled && reliabilityModule.Configuration.ToLowerInvariant() == alias.ToLowerInvariant())
                     reliabilityModules.Add(reliabilityModule);
@@ -234,8 +240,9 @@ namespace TestFlightAPI
                 return null;
 
             failureModules = new List<ITestFlightFailure>();
-            foreach (PartModule pm in part.Modules)
+            for (int i = 0, partModulesCount = part.Modules.Count; i < partModulesCount; i++)
             {
+                PartModule pm = part.Modules[i];
                 ITestFlightFailure failureModule = pm as ITestFlightFailure;
                 if (failureModule != null && failureModule.TestFlightEnabled && failureModule.Configuration.ToLowerInvariant() == alias.ToLowerInvariant())
                     failureModules.Add(failureModule);
@@ -271,7 +278,7 @@ namespace TestFlightAPI
 
             // split into list elements.  For a query to be valid only one list element has to evaluate to true
             string[] elements = query.Split(new char[1] { ',' });
-            for (int i = 0; i < elements.Length; i++)
+            for (int i = 0, elementsCount = elements.Length; i < elementsCount; i++)
             {
                 if (EvaluateElement(elements[i], part))
                     return true;
@@ -287,13 +294,13 @@ namespace TestFlightAPI
             if (element.Contains("||"))
             {
                 string[] orSections = element.Split(new string[1] { "||" }, StringSplitOptions.RemoveEmptyEntries);
-                for (int i = 0; i < orSections.Length; i++)
+                for (int i = 0, orSectionsCount = orSections.Length; i < orSectionsCount; i++)
                 {
                     if (orSections[i].Trim().Contains("&&"))
                     {
                         bool sectionIsTrue = true;
                         string[] andSections = orSections[i].Trim().Split(new string[1] { "&&" }, StringSplitOptions.RemoveEmptyEntries);
-                        for (int j = 0; j < andSections.Length; j++)
+                        for (int j = 0, andSectionsCount = andSections.Length; j < andSectionsCount; j++)
                         {
                             if (!EvaluateBlock(andSections[j].Trim(), part))
                             {
@@ -509,11 +516,11 @@ namespace TestFlightAPI
         public static void Log(string message, Part loggingPart)
         {
             return;
-            ITestFlightCore core = TestFlightUtil.GetCore(loggingPart);
-            bool debug = false;
-            if (core != null)
-                debug = core.DebugEnabled;
-            TestFlightUtil.Log(message, debug);
+//            ITestFlightCore core = TestFlightUtil.GetCore(loggingPart);
+//            bool debug = false;
+//            if (core != null)
+//                debug = core.DebugEnabled;
+//            TestFlightUtil.Log(message, debug);
         }
 
         public static void Log(string message, bool debug)
@@ -719,14 +726,12 @@ namespace TestFlightAPI
         /// </summary>
         /// <returns>The base failure rate for scope.  0 if this module only implements Momentary Failure Rates</returns>
         /// <param name="flightData">The flight data that failure rate should be calculated on.</param>
-        /// <param name="scope">Scope.</param>
         double GetBaseFailureRate(float flightData);
 
         /// <summary>
         /// Gets the reliability curve for the given scope.
         /// </summary>
         /// <returns>The reliability curve for scope.  MUST return null if the reliability module does not handle Base Failure Rate</returns>
-        /// <param name="scope">Scope.</param>
         FloatCurve GetReliabilityCurve();
 
         /// <summary>
@@ -807,6 +812,10 @@ namespace TestFlightAPI
     /// </summary>
     public interface ITestFlightCore
     {
+        bool ActiveConfiguration
+        {
+            get;
+        }
         bool TestFlightEnabled
         {
             get;
