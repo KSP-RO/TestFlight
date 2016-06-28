@@ -156,6 +156,7 @@ namespace TestFlightAPI
         // Get the active Core Module - can only ever be one.
         public static ITestFlightCore GetCore(Part part)
         {
+            Profiler.BeginSample("GetCore1");
             if (part == null || part.Modules == null)
                 return null;
 
@@ -165,11 +166,13 @@ namespace TestFlightAPI
                 if (core != null && core.TestFlightEnabled)
                     return core;
             }
+            Profiler.EndSample();
             return null;
         }
 
         public static ITestFlightCore GetCore(Part part, string alias)
         {
+            Profiler.BeginSample("GetCore1");
             if (part == null || part.Modules == null)
                 return null;
             if (alias == "")
@@ -178,9 +181,10 @@ namespace TestFlightAPI
             {
                 PartModule pm = part.Modules[i];
                 ITestFlightCore core = pm as ITestFlightCore;
-                if (core != null && core.TestFlightEnabled && core.Alias.ToLowerInvariant() == alias.ToLowerInvariant())
+                if (core != null && core.TestFlightEnabled && String.Equals(core.Alias, alias, StringComparison.InvariantCultureIgnoreCase))
                     return core;
             }
+            Profiler.EndSample();
             return null;
         }
 
@@ -200,6 +204,7 @@ namespace TestFlightAPI
         // Get the Data Recorder Module - can only ever be one.
         public static IFlightDataRecorder GetDataRecorder(Part part, string alias)
         {
+            Profiler.BeginSample("GetFlightDataRecorder");
             if (part == null || part.Modules == null)
                 return null;
 
@@ -207,25 +212,28 @@ namespace TestFlightAPI
             {
                 PartModule pm = part.Modules[i];
                 IFlightDataRecorder dataRecorder = pm as IFlightDataRecorder;
-                if (dataRecorder != null && dataRecorder.TestFlightEnabled && dataRecorder.Configuration.ToLowerInvariant() == alias.ToLowerInvariant())
+                if (dataRecorder != null && dataRecorder.TestFlightEnabled &&
+                    dataRecorder.Configuration.Equals(alias, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    Profiler.EndSample();
                     return dataRecorder;
+                }
             }
+            Profiler.EndSample();
             return null;
         }
         // Get all Reliability Modules - can be more than one.
         public static List<ITestFlightReliability> GetReliabilityModules(Part part, string alias)
         {
-            List<ITestFlightReliability> reliabilityModules;
-
             if (part == null || part.Modules == null)
                 return null;
 
-            reliabilityModules = new List<ITestFlightReliability>();
+            var reliabilityModules = new List<ITestFlightReliability>();
             for (int i = 0, partModulesCount = part.Modules.Count; i < partModulesCount; i++)
             {
                 PartModule pm = part.Modules[i];
                 ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
-                if (reliabilityModule != null && reliabilityModule.TestFlightEnabled && reliabilityModule.Configuration.ToLowerInvariant() == alias.ToLowerInvariant())
+                if (reliabilityModule != null && reliabilityModule.TestFlightEnabled && String.Equals(reliabilityModule.Configuration, alias, StringComparison.InvariantCultureIgnoreCase))
                     reliabilityModules.Add(reliabilityModule);
             }
 
@@ -234,17 +242,15 @@ namespace TestFlightAPI
         // Get all Failure Modules - can be more than one.
         public static List<ITestFlightFailure> GetFailureModules(Part part, string alias)
         {
-            List<ITestFlightFailure> failureModules;
-
             if (part == null || part.Modules == null)
                 return null;
 
-            failureModules = new List<ITestFlightFailure>();
+            var failureModules = new List<ITestFlightFailure>();
             for (int i = 0, partModulesCount = part.Modules.Count; i < partModulesCount; i++)
             {
                 PartModule pm = part.Modules[i];
                 ITestFlightFailure failureModule = pm as ITestFlightFailure;
-                if (failureModule != null && failureModule.TestFlightEnabled && failureModule.Configuration.ToLowerInvariant() == alias.ToLowerInvariant())
+                if (failureModule != null && failureModule.TestFlightEnabled && String.Equals(failureModule.Configuration, alias, StringComparison.InvariantCultureIgnoreCase))
                     failureModules.Add(failureModule);
             }
 
@@ -253,7 +259,7 @@ namespace TestFlightAPI
 
         public static ITestFlightInterop GetInteropModule(Part part)
         {
-            if (part == null | part.Modules == null)
+            if (part == null || part.Modules == null)
                 return null;
 
             if (part.Modules.Contains("TestFlightInterop"))
@@ -267,7 +273,8 @@ namespace TestFlightAPI
         // best to split it out into a common method for all handling of configuration matches
         public static bool EvaluateQuery(string query, Part part)
         {
-            if (String.IsNullOrEmpty(query))
+            Profiler.BeginSample("EvaluateQuery");
+            if (string.IsNullOrEmpty(query))
                 return true;
 
             // If this query defines an alias, just trim it off
@@ -285,6 +292,8 @@ namespace TestFlightAPI
             }
 
             return false;
+            Profiler.EndSample();
+            ;
         }
 
         protected static bool EvaluateElement(string element, Part part)
@@ -293,7 +302,7 @@ namespace TestFlightAPI
             // otherwise we just evaluate the block
             if (element.Contains("||"))
             {
-                string[] orSections = element.Split(new string[1] { "||" }, StringSplitOptions.RemoveEmptyEntries);
+                string[] orSections = element.Split(new[] { "||" }, StringSplitOptions.RemoveEmptyEntries);
                 for (int i = 0, orSectionsCount = orSections.Length; i < orSectionsCount; i++)
                 {
                     if (orSections[i].Trim().Contains("&&"))
@@ -348,8 +357,7 @@ namespace TestFlightAPI
                 ITestFlightInterop interop = TestFlightUtil.GetInteropModule(part);
                 if (interop == null)
                     return false;
-                InteropValue val;
-                val = interop.GetInterop(qualifier);
+                var val = interop.GetInterop(qualifier);
                 if (val.valueType == InteropValueType.INVALID)
                     return false;
                 switch (op)
@@ -358,140 +366,80 @@ namespace TestFlightAPI
                         switch (val.valueType)
                         {
                             case InteropValueType.BOOL:
-                                if (bool.Parse(val.value) == bool.Parse(term))
-                                    return true;
-                                else
-                                    return false;
+                                return bool.Parse(val.value) == bool.Parse(term);
                             case InteropValueType.FLOAT:
-                                if (float.Parse(val.value) == float.Parse(term))
-                                    return true;
-                                else
-                                    return false;
+                                return Math.Abs(float.Parse(val.value) - float.Parse(term)) < .0001;
                             case InteropValueType.INT:
-                                if (int.Parse(val.value) == int.Parse(term))
-                                    return true;
-                                else
-                                    return false;
+                                return int.Parse(val.value) == int.Parse(term);
                             case InteropValueType.STRING:
-                                if (val.value.ToLowerInvariant() == term.ToLowerInvariant())
-                                    return true;
-                                else
-                                    return false;
+                                return string.Equals(val.value, term, StringComparison.InvariantCultureIgnoreCase);
                         }
                         break;
                     case "!=":
                         switch (val.valueType)
                         {
                             case InteropValueType.BOOL:
-                                if (bool.Parse(val.value) != bool.Parse(term))
-                                    return true;
-                                else
-                                    return false;
+                                return bool.Parse(val.value) != bool.Parse(term);
                             case InteropValueType.FLOAT:
-                                if (float.Parse(val.value) != float.Parse(term))
-                                    return true;
-                                else
-                                    return false;
+                                return Math.Abs(float.Parse(val.value) - float.Parse(term)) > .0001;
                             case InteropValueType.INT:
-                                if (int.Parse(val.value) != int.Parse(term))
-                                    return true;
-                                else
-                                    return false;
+                                return int.Parse(val.value) != int.Parse(term);
                             case InteropValueType.STRING:
-                                if (val.value.ToLowerInvariant() != term.ToLowerInvariant())
-                                    return true;
-                                else
-                                    return false;
+                                return !string.Equals(val.value, term, StringComparison.InvariantCultureIgnoreCase);
                         }
                         break;
                     case "<":
                         switch (val.valueType)
                         {
                             case InteropValueType.FLOAT:
-                                if (float.Parse(val.value) < float.Parse(term))
-                                    return true;
-                                else
-                                    return false;
+                                return float.Parse(val.value) < float.Parse(term);
                             case InteropValueType.INT:
-                                if (int.Parse(val.value) < int.Parse(term))
-                                    return true;
-                                else
-                                    return false;
+                                return int.Parse(val.value) < int.Parse(term);
                         }
                         break;
                     case ">":
                         switch (val.valueType)
                         {
                             case InteropValueType.FLOAT:
-                                if (float.Parse(val.value) > float.Parse(term))
-                                    return true;
-                                else
-                                    return false;
+                                return float.Parse(val.value) > float.Parse(term);
                             case InteropValueType.INT:
-                                if (int.Parse(val.value) > int.Parse(term))
-                                    return true;
-                                else
-                                    return false;
+                                return int.Parse(val.value) > int.Parse(term);
                         }
                         break;
                     case "<=":
                         switch (val.valueType)
                         {
                             case InteropValueType.FLOAT:
-                                if (float.Parse(val.value) <= float.Parse(term))
-                                    return true;
-                                else
-                                    return false;
+                                return float.Parse(val.value) <= float.Parse(term);
                             case InteropValueType.INT:
-                                if (int.Parse(val.value) <= int.Parse(term))
-                                    return true;
-                                else
-                                    return false;
+                                return int.Parse(val.value) <= int.Parse(term);
                         }
                         break;
                     case ">=":
                         switch (val.valueType)
                         {
                             case InteropValueType.FLOAT:
-                                if (float.Parse(val.value) >= float.Parse(term))
-                                    return true;
-                                else
-                                    return false;
+                                return float.Parse(val.value) >= float.Parse(term);
                             case InteropValueType.INT:
-                                if (int.Parse(val.value) >= int.Parse(term))
-                                    return true;
-                                else
-                                    return false;
+                                return int.Parse(val.value) >= int.Parse(term);
                         }
                         break;
                     case "<>":
                         switch (val.valueType)
                         {
                             case InteropValueType.FLOAT:
-                                if (float.Parse(val.value) > float.Parse(term1) && float.Parse(val.value) < float.Parse(term2))
-                                    return true;
-                                else
-                                    return false;
+                                return float.Parse(val.value) > float.Parse(term1) && float.Parse(val.value) < float.Parse(term2);
                             case InteropValueType.INT:
-                                if (int.Parse(val.value) > int.Parse(term1) && int.Parse(val.value) < int.Parse(term1))
-                                    return true;
-                                else
-                                    return false;
+                                return int.Parse(val.value) > int.Parse(term1) && int.Parse(val.value) < int.Parse(term1);
                         }
                         break;
                     case "<=>":
                         switch (val.valueType)
                         {
                             case InteropValueType.FLOAT:
-                                if (float.Parse(val.value) >= float.Parse(term1) && float.Parse(val.value) <= float.Parse(term2))
-                                    return true;
-                                else
-                                    return false;
+                                return float.Parse(val.value) >= float.Parse(term1) && float.Parse(val.value) <= float.Parse(term2);
                             case InteropValueType.INT:
-                                if (int.Parse(val.value) >= int.Parse(term1) && int.Parse(val.value) <= int.Parse(term1))
-                                    return true;
-                                else
-                                    return false;
+                                return int.Parse(val.value) >= int.Parse(term1) && int.Parse(val.value) <= int.Parse(term1);
                         }
                         break;
                 }
@@ -505,12 +453,9 @@ namespace TestFlightAPI
 
         protected static string Configuration(Part part)
         {
-            if (part.Modules.Contains("ModuleEngineConfigs"))
-            {
-                string configuration = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
-                return configuration.ToLower();
-            }
-            return "";
+            if (!part.Modules.Contains("ModuleEngineConfigs")) return "";
+            string configuration = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
+            return configuration.ToLower();
         }
 
         public static void Log(string message, Part loggingPart)
@@ -892,6 +837,7 @@ namespace TestFlightAPI
         String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, bool shortForm);
 
         String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, bool shortForm, int maximum);
+        void FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, bool shortForm, int maximum, out string output);
         // Simply converts the failure rate to a MTBF number, without any string formatting
         double FailureRateToMTBF(double failureRate, TestFlightUtil.MTBFUnits units);
         // Get the FlightData or FlightTime for the part

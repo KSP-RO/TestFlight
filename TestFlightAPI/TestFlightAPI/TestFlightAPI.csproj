@@ -78,4 +78,11 @@
       </Properties>
     </MonoDevelop>
   </ProjectExtensions>
+  <PropertyGroup>
+    <PostBuildEvent>"E:\Games\Steam\SteamApps\common\Kerbal Space Program\pdb2mdb\pdb2mdb.exe" "$(TargetPath)"
+xcopy /Y "$(TargetPath)" "E:\Games\KSP11_GameData\TestFlight\Plugins"
+xcopy /Y "$(TargetDir)$(TargetName).pdb" "E:\Games\KSP11_GameData\TestFlight\Plugins"
+xcopy /Y "$(TargetDir)$(TargetName).dll.mdb" "E:\Games\KSP11_GameData\TestFlight\Plugins"
+</PostBuildEvent>
+  </PropertyGroup>
 </Project>

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Text;
 using UnityEngine;
 using KSPPluginFramework;
 using TestFlightAPI;
@@ -79,6 +79,7 @@ namespace TestFlightCore
         private bool active;
 
         private string[] ops = { "=", "!=", "<", "<=", ">", ">=", "<>", "<=>" };
+        private StringBuilder sb;
 
         public bool ActiveConfiguration
         {
@@ -442,10 +443,10 @@ namespace TestFlightCore
         {
             return FailureRateToMTBFString(failureRate, units, shortForm, int.MaxValue);
         }
-        public String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, bool shortForm, int maximum)
+        public string FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, bool shortForm, int maximum)
         {
-            int currentUnit = (int)TestFlightUtil.MTBFUnits.SECONDS;
-            double mtbf = FailureRateToMTBF(failureRate, (TestFlightUtil.MTBFUnits)currentUnit);
+            var currentUnit = (int)TestFlightUtil.MTBFUnits.SECONDS;
+            var mtbf = FailureRateToMTBF(failureRate, (TestFlightUtil.MTBFUnits)currentUnit);
             while (mtbf > maximum)
             {
                 currentUnit++;
@@ -456,14 +457,42 @@ namespace TestFlightCore
 
             if (shortForm)
             {
-                return String.Format("{0:F2}{1}", mtbf, UnitStringForMTBFUnit((TestFlightUtil.MTBFUnits)currentUnit)[0]);
+                return string.Format("{0:F2}{1}", mtbf, UnitStringForMTBFUnit((TestFlightUtil.MTBFUnits)currentUnit)[0]);
             }
             else
             {
-                return String.Format("{0:F2} {1}", mtbf, UnitStringForMTBFUnit((TestFlightUtil.MTBFUnits)currentUnit));
+                return string.Format("{0:F2} {1}", mtbf, UnitStringForMTBFUnit((TestFlightUtil.MTBFUnits)currentUnit));
             }
         }
-        internal String UnitStringForMTBFUnit(TestFlightUtil.MTBFUnits units)
+
+        public void FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, bool shortForm,
+            int maximum, out string output)
+        {
+            if (sb == null)
+                sb = new StringBuilder(256);
+            sb.Length = 0;
+            var currentUnit = (int)TestFlightUtil.MTBFUnits.SECONDS;
+            var mtbf = FailureRateToMTBF(failureRate, (TestFlightUtil.MTBFUnits)currentUnit);
+            while (mtbf > maximum)
+            {
+                currentUnit++;
+                mtbf = FailureRateToMTBF(failureRate, (TestFlightUtil.MTBFUnits)currentUnit);
+                if ((TestFlightUtil.MTBFUnits)currentUnit == TestFlightUtil.MTBFUnits.INVALID)
+                    break;
+            }
+
+            if (shortForm)
+            {
+                output = sb.AppendFormat("{0:F2}{1}", mtbf,
+                    UnitStringForMTBFUnitShort((TestFlightUtil.MTBFUnits) currentUnit)).ToString();
+            }
+            else
+            {
+                output = sb.AppendFormat("{0:F2}{1}", mtbf,
+                    UnitStringForMTBFUnit((TestFlightUtil.MTBFUnits)currentUnit)).ToString();
+            }
+        }
+        internal static string UnitStringForMTBFUnit(TestFlightUtil.MTBFUnits units)
         {
             switch (units)
             {
@@ -479,6 +508,24 @@ namespace TestFlightCore
                     return "years";
                 default:
                     return "invalid";
+            }
+        }
+        internal static string UnitStringForMTBFUnitShort(TestFlightUtil.MTBFUnits units)
+        {
+            switch (units)
+            {
+                case TestFlightUtil.MTBFUnits.SECONDS:
+                    return "s";
+                case TestFlightUtil.MTBFUnits.MINUTES:
+                    return "m";
+                case TestFlightUtil.MTBFUnits.HOURS:
+                    return "h";
+                case TestFlightUtil.MTBFUnits.DAYS:
+                    return "d";
+                case TestFlightUtil.MTBFUnits.YEARS:
+                    return "y";
+                default:
+                    return "-";
             }
         }
         // Simply converts the failure rate to a MTBF number, without any string formatting
@@ -820,9 +867,10 @@ namespace TestFlightCore
         /// </summary>
         public bool IsPartOperating()
         {
+            Profiler.BeginSample("IsPartOperating");
             IFlightDataRecorder dr = TestFlightUtil.GetDataRecorder(this.part, Alias);
+            Profiler.EndSample();
             return dr != null && dr.IsPartOperating();
-
         }
 
         // PARTMODULE functions
@@ -858,19 +906,14 @@ namespace TestFlightCore
                     if (failures != null && failures.Count > 0)
                     {
                         Profiler.BeginSample("Icon fail coloring");
-                        if (hasMajorFailure)
-                        {
-                            this.part.stackIcon.SetBackgroundColor(XKCDColors.Red);
-                        }
-                        else
-                        {
-                            this.part.stackIcon.SetBackgroundColor(XKCDColors.KSPNotSoGoodOrange);
-                        }
+                        part.stackIcon.SetBackgroundColor(hasMajorFailure
+                            ? XKCDColors.Red
+                            : XKCDColors.KSPNotSoGoodOrange);
                         Profiler.EndSample();
                     }
                     else
                     {
-                        this.part.stackIcon.SetBackgroundColor(XKCDColors.White);
+                        part.stackIcon.SetBackgroundColor(XKCDColors.White);
                     }
                     Profiler.EndSample();
                 }
@@ -896,11 +939,19 @@ namespace TestFlightCore
             if (!TestFlightEnabled)
                 return;
 
-            GameEvents.onCrewTransferred += OnCrewChange;
-            if (crew = null)
+            GameEvents.onCrewTransferred.Add(OnCrewChange);
+            if (crew == null)
                 crew = new List<ProtoCrewMember>();
-            
-            OnCrewChange();
+
+            crew.Clear();
+            List<ProtoCrewMember> allCrew = part.vessel.GetVesselCrew();
+            for (int i = 0, crewCount = allCrew.Count; i < crewCount; i++)
+            {
+                if (allCrew[i].experienceTrait.Title == "Engineer")
+                {
+                    crew.Add(allCrew[i]);
+                }
+            }
 
             CalculateMaximumData();
 
@@ -922,7 +973,7 @@ namespace TestFlightCore
         public override void OnDestroy()
         {
             base.OnDestroy();
-            GameEvents.onCrewTransferred -= OnCrewChange;
+            GameEvents.onCrewTransferred.Remove(OnCrewChange);
         }
 
         public override void OnAwake()
@@ -957,7 +1008,7 @@ namespace TestFlightCore
             }
         }
 
-        public void OnCrewChange()
+        public void OnCrewChange(GameEvents.HostedFromToAction<ProtoCrewMember, Part> e)
         {
             crew.Clear();
             List<ProtoCrewMember> allCrew = part.vessel.GetVesselCrew();
