@@ -289,6 +289,11 @@ namespace TestFlightCore
                 activeTeams[alias].PartRnDCost = core.GetRnDCost();
                 activeTeams[alias].PartRnDRate = core.GetRnDRate();
                 activeTeams[alias].ResearchActive = true;
+                float techTransfer = core.GetTechTransfer();
+                if (techTransfer > 0f)
+                {
+                    TestFlightManagerScenario.Instance.AddFlightDataForPartName(alias, techTransfer);
+                }
                 Log(String.Format("Team #{0} has been assigned to part {1}", team, alias));
             }
             else

@@ -992,6 +992,11 @@ namespace TestFlightCore
             initialized |= HighLogic.LoadedSceneIsFlight;
         }
 
+        public float GetTechTransfer()
+        {
+            return AttemptTechTransfer();
+        }
+
         internal float AttemptTechTransfer()
         {
             // attempts to transfer data from a predecessor part

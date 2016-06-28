@@ -965,6 +965,8 @@ namespace TestFlightAPI
         /// </summary>
         /// <returns>A string of information to display to the user, or "" if none</returns>
         List<string> GetTestFlightInfo();
+
+        float GetTechTransfer();
     }
 }
 
