@@ -183,6 +183,12 @@ namespace TestFlightCore
 
         public void Update()
         {
+            if (TestFlightManagerScenario.Instance == null)
+                return;
+
+            if (!TestFlightManagerScenario.Instance.SettingsEnabled)
+                return;
+            
             double currentTime = Planetarium.GetUniversalTime();
             teamsToStop.Clear();
             if (currentTime - lastUpdateTime >= updateFrequency)
@@ -275,6 +281,12 @@ namespace TestFlightCore
 
             ITestFlightCore core = TestFlightUtil.GetCore(part, alias);
             if (core == null)
+                return;
+
+            if (TestFlightManagerScenario.Instance == null)
+                return;
+
+            if (!TestFlightManagerScenario.Instance.SettingsEnabled)
                 return;
 
             if (availableTeams == null)

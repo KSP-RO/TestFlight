@@ -897,6 +897,8 @@ namespace TestFlightCore
                 Profiler.BeginSample("Scenario check");
                 if (TestFlightManagerScenario.Instance == null)
                     return;
+                if (!TestFlightManagerScenario.Instance.SettingsEnabled)
+                    return;
                 Profiler.EndSample();
 
                 Profiler.BeginSample("Icon check");

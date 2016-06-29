@@ -249,8 +249,9 @@ namespace TestFlightCore
 
         private void InitializeParts(Vessel vessel)
         {
-            Log("TestFlightManager: Initializing parts for vessel " + vessel.GetName());
-
+            if (!tfScenario.SettingsEnabled)
+                return;
+            
             // Launch time is equal to current UT unless we have already cached this vessel's launch time
             double launchTime = Planetarium.GetUniversalTime();
             if (knownVessels.ContainsKey(vessel.id))
@@ -293,6 +294,10 @@ namespace TestFlightCore
         {
             if (!isReady)
                 return;
+
+            if (!tfScenario.SettingsEnabled)
+                return;
+
             // iterate through our cached vessels and delete ones that are no longer valid
             vesselsToDelete.Clear();
             masterStatusEnumerator = masterStatus.GetEnumerator();
@@ -360,6 +365,10 @@ namespace TestFlightCore
         {
             if (!isReady)
                 return;
+
+            if (!tfScenario.SettingsEnabled)
+                return;
+            
             // build a list of vessels to process based on setting
             if (knownVessels == null)
                 knownVessels = new Dictionary<Guid, double>();
@@ -418,6 +427,9 @@ namespace TestFlightCore
         internal override void Update()
         {
             if (!isReady)
+                return;
+
+            if (!tfScenario.SettingsEnabled)
                 return;
 
             if (masterStatus == null)
@@ -915,10 +927,7 @@ namespace TestFlightCore
         {
             Log("Scenario Start");
             RandomGenerator = new System.Random();
-            if (!SettingsEnabled)
-                isReady = false;
-            else
-                isReady = true; 
+            isReady = true; 
         }
 
 

@@ -223,7 +223,9 @@ namespace TestFlightCore
                 case 0:
                     GUILayout.Label("Research & Development");
                     List<string> partsInResearch = tfRnDScenario.GetPartsInResearch();
-                    if (partsInResearch == null || partsInResearch.Count == 0)
+                    if (!tfScenario.SettingsEnabled)
+                        GUILayout.Label("R&D is not available because TestFlight is disabled in this save.\nYou can enable it from the settings tab.");
+                    else if (partsInResearch == null || partsInResearch.Count == 0)
                         GUILayout.Label("Here you can manage engineering teams working on your hardware.\nYou can start new research programs from the VAB.");
                     else
                     {

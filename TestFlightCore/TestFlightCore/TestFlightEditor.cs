@@ -20,6 +20,11 @@ namespace TestFlightCore
 
         public void OnGUI()
         {
+            if (TestFlightManagerScenario.Instance == null)
+                return;
+            if (!TestFlightManagerScenario.Instance.SettingsEnabled)
+                return;
+
             if (selectedPart == null)
                 return;
             ITestFlightCore core = TestFlightUtil.GetCore(selectedPart);
@@ -31,6 +36,11 @@ namespace TestFlightCore
 
         public void Update()
         {
+            if (TestFlightManagerScenario.Instance == null)
+                return;
+            if (!TestFlightManagerScenario.Instance.SettingsEnabled)
+                return;
+
             if (EditorLogic.RootPart == null || EditorLogic.fetch.editorScreen != EditorScreen.Parts)
             {
                 return;
@@ -58,6 +68,10 @@ namespace TestFlightCore
 
         public void DrawWindow(int windowID)
         {
+            if (TestFlightManagerScenario.Instance == null)
+                return;
+            if (!TestFlightManagerScenario.Instance.SettingsEnabled)
+                return;
             if (selectedPart != null)
             {
                 ITestFlightCore core = TestFlightUtil.GetCore(selectedPart);
@@ -195,6 +209,9 @@ namespace TestFlightCore
 
         internal override void Update()
         {
+            if (!tfScenario.SettingsEnabled)
+                return;
+
             if (locked)
                 return;
 
@@ -209,6 +226,9 @@ namespace TestFlightCore
 
         internal void Startup()
         {
+            if (!tfScenario.SettingsEnabled)
+                return;
+
             Log("Startup");
             CalculateWindowBounds();
             DragEnabled = !tfScenario.userSettings.editorWindowLocked;
@@ -319,6 +339,9 @@ namespace TestFlightCore
         }
         internal override void DrawWindow(int id)
         {
+            if (!tfScenario.SettingsEnabled)
+                return;
+
             if (!isReady)
                 return;
 

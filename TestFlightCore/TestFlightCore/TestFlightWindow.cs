@@ -64,6 +64,9 @@ namespace TestFlightCore
         internal void Startup()
         {
             tfScenario = TestFlightManagerScenario.Instance;
+            if (!tfScenario.SettingsEnabled)
+                return;
+            
             tfScenario.userSettings.Load();
             tfManager = TestFlightManager.Instance;
             Log("Starting coroutine to add toolbar icon");
