@@ -577,7 +577,7 @@ namespace TestFlightCore
             }
         }
 
-        public void Update()
+        internal override void Update()
         {
             if (Input.GetKeyDown(KeyCode.T) && Input.GetKeyDown(KeyCode.LeftAlt))
             {
