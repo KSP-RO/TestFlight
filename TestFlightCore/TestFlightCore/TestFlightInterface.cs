@@ -372,13 +372,11 @@ namespace TestFlightCore
         {
             if (part == null)
             {
-                Debug.Log("TestFlightInterface: part is null");
                 return null;
             }
 
             if (part.Modules == null)
             {
-                Debug.Log("TestFlightInterface: part.Modules is null");
                 return null;
             }
 
@@ -386,7 +384,6 @@ namespace TestFlightCore
             {
                 return part.Modules["TestFlightInterop"] as ITestFlightInterop;
             }
-            Debug.Log("TestFlightInterface: Could not find TestFlightInterop module");
             return null;
         }
         public static bool AddInteropValue(Part part, string name, string value, string owner)

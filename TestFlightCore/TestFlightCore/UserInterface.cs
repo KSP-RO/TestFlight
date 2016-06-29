@@ -33,7 +33,6 @@ namespace TestFlightCore
 
         internal static void Init()
         {
-            Debug.Log("TestFlight Styles: Init");
             panelStyle = new GUIStyle(SkinsLibrary.DefKSPSkin.window);
 //            panelStyle.border = new RectOffset(6, 6, 6, 6);
 //            panelStyle.padding = new RectOffset(8, 3, 7, 0);

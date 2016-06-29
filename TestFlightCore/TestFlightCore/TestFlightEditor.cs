@@ -270,13 +270,11 @@ namespace TestFlightCore
             try
             {
                 // Load the icon for the button
-                Debug.Log("TestFlight MasterStatusDisplay: Loading icon texture");
                 Texture iconTexture = GameDatabase.Instance.GetTexture("TestFlight/Resources/AppLauncherIcon", false);
                 if (iconTexture == null)
                 {
                     throw new Exception("TestFlight MasterStatusDisplay: Failed to load icon texture");
                 }
-                Debug.Log("TestFlight MasterStatusDisplay: Creating icon on toolbar");
                 appLauncherButton = ApplicationLauncher.Instance.AddModApplication(
                     OpenWindow,
                     CloseWindow,
@@ -291,7 +289,6 @@ namespace TestFlightCore
             }
             catch (Exception e)
             {
-                Debug.Log("TestFlight MasterStatusDisplay: Unable to add button to application launcher: " + e.Message);
                 throw e;
             }
         }
@@ -313,7 +310,6 @@ namespace TestFlightCore
         void RepostionWindow()
         {
             CalculateWindowBounds();
-            Debug.Log("TestFlight MasterStatusDisplay: RepositionWindow");
         }
         void HoverInButton()
         {
