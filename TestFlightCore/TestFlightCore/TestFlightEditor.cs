@@ -129,22 +129,9 @@ namespace TestFlightCore
 
         public void LockPart(Part partToLock, string alias)
         {
-            if (!locked)
-            {
                 locked = true;
                 SelectedPart = partToLock;
                 selectedAlias = alias;
-                return;
-            }
-
-            if (partToLock == SelectedPart)
-                locked = false;
-            else
-            {
-                locked = false;
-                SelectedPart = partToLock;
-                locked = true;
-            }
         }
 
         public void UnlockPart()
@@ -209,7 +196,7 @@ namespace TestFlightCore
 
         internal override void Update()
         {
-            if (!tfScenario.SettingsEnabled)
+            if (tfScenario == null || !tfScenario.SettingsEnabled)
                 return;
 
             if (locked)
