@@ -294,18 +294,16 @@ namespace TestFlightCore
             
             if (team < availableTeams.Count)
             {
+                float techTransfer = core.GetTechTransfer();
+                if (techTransfer > 0f)
+                    TestFlightManagerScenario.Instance.AddFlightDataForPartName(alias, techTransfer);
                 TestFlightRnDTeam template = availableTeams[team];
                 activeTeams.Add(alias, new TestFlightRnDTeam(template.Points, template.CostFactor));
                 activeTeams[alias].PartInResearch = alias;
-                activeTeams[alias].MaxData = core.GetMaximumRnDData();
+                activeTeams[alias].MaxData = core.GetMaximumRnDData() + techTransfer;
                 activeTeams[alias].PartRnDCost = core.GetRnDCost();
                 activeTeams[alias].PartRnDRate = core.GetRnDRate();
                 activeTeams[alias].ResearchActive = true;
-                float techTransfer = core.GetTechTransfer();
-                if (techTransfer > 0f)
-                {
-                    TestFlightManagerScenario.Instance.AddFlightDataForPartName(alias, techTransfer);
-                }
                 Log(String.Format("Team #{0} has been assigned to part {1}", team, alias));
             }
             else
