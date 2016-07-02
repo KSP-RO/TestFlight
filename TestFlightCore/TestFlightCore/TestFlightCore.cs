@@ -231,7 +231,7 @@ namespace TestFlightCore
         // Get the base or static failure rate
         public double GetBaseFailureRate()
         {
-            if (baseFailureRate != 0)
+            if (baseFailureRate > 0)
             {
                 Log("Returning cached failure rate");
                 return baseFailureRate;
@@ -941,24 +941,23 @@ namespace TestFlightCore
             if (!TestFlightEnabled)
                 return;
 
-            GameEvents.onCrewTransferred.Add(OnCrewChange);
-            if (crew == null)
-                crew = new List<ProtoCrewMember>();
-
-            crew.Clear();
-            List<ProtoCrewMember> allCrew = part.vessel.GetVesselCrew();
-            for (int i = 0, crewCount = allCrew.Count; i < crewCount; i++)
-            {
-                if (allCrew[i].experienceTrait.Title == "Engineer")
-                {
-                    crew.Add(allCrew[i]);
-                }
-            }
-
             CalculateMaximumData();
 
             if (HighLogic.LoadedSceneIsFlight)
             {
+                GameEvents.onCrewTransferred.Add(OnCrewChange);
+                if (crew == null)
+                    crew = new List<ProtoCrewMember>();
+
+                crew.Clear();
+                List<ProtoCrewMember> allCrew = part.vessel.GetVesselCrew();
+                for (int i = 0, crewCount = allCrew.Count; i < crewCount; i++)
+                {
+                    if (allCrew[i].experienceTrait.Title == "Engineer")
+                    {
+                        crew.Add(allCrew[i]);
+                    }
+                }
                 if (vessel.situation == Vessel.Situations.PRELAUNCH)
                 {
                     GameEvents.onStageActivate.Add(OnStageActivate);
@@ -975,7 +974,10 @@ namespace TestFlightCore
         public override void OnDestroy()
         {
             base.OnDestroy();
-            GameEvents.onCrewTransferred.Remove(OnCrewChange);
+            if (HighLogic.LoadedSceneIsFlight)
+            {
+                GameEvents.onCrewTransferred.Remove(OnCrewChange);
+            }
         }
 
         public override void OnAwake()
@@ -1199,15 +1201,14 @@ namespace TestFlightCore
         {
             Log("Updating part config");
 
-            if (!ActiveConfiguration)
-            {
-                enabled = false;
-                active = false;
-                return;
-            }
+            enabled = ActiveConfiguration;
+            active = enabled;
 
-            enabled = true;
-            active = true;
+            List<PartModule> testFlightModules = TestFlightUtil.GetAllTestFlightModulesForAlias(this.part, Alias);
+            for (int i = 0; i < testFlightModules.Count; i++)
+            {
+                testFlightModules[i].enabled = enabled;
+            }
 
             if (Events == null)
                 return;
@@ -1215,7 +1216,7 @@ namespace TestFlightCore
             BaseEvent toggleRNDGUIEvent = Events["ToggleRNDGUI"];
             if (toggleRNDGUIEvent != null)
             {
-                toggleRNDGUIEvent.guiActiveEditor = true;
+                toggleRNDGUIEvent.guiActiveEditor = enabled;
                 toggleRNDGUIEvent.guiName = string.Format("R&D {0}", Alias);
             }
         }

@@ -94,10 +94,19 @@ namespace TestFlightAPI
             }
         }
 
+        public void OnEnable()
+        {
+            if (core == null)
+                core = TestFlightUtil.GetCore(this.part, Configuration);
+            if (core != null)
+                Startup();
+        }
+
         public override void OnStart(StartState state)
         {
             base.OnStart(state);
-            core = TestFlightUtil.GetCore(this.part, Configuration);
+            if (core == null)
+                core = TestFlightUtil.GetCore(this.part, Configuration);
             if (core != null)
                 Startup();
         }

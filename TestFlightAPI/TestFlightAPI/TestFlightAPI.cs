@@ -27,9 +27,11 @@ namespace TestFlightAPI
         public string owner;
     };
 
-    public class TestFlightUtil
+    public static class TestFlightUtil
     {
         public const double MIN_FAILURE_RATE = 0.00000000000001f;
+
+        private static Type[] testFlightModulesTypes = {typeof(IFlightDataRecorder), typeof(ITestFlightFailure), typeof(ITestFlightReliability)};
 
         public enum MTBFUnits : int
         {
@@ -53,6 +55,19 @@ namespace TestFlightAPI
         public static int HoursPerDay { get { return GameSettings.KERBIN_TIME ? 6 : 24; } }
 
         public static int DaysPerYear { get { return GameSettings.KERBIN_TIME ? 426 : 365; } }
+
+        public static Type[] TestFlightModulesTypes
+        {
+            get
+            {
+                return testFlightModulesTypes;
+            }
+
+            set
+            {
+                testFlightModulesTypes = value;
+            }
+        }
 
         public static string FormatTime(float time, TIMEFORMAT format, bool richText)
         {
@@ -201,6 +216,44 @@ namespace TestFlightAPI
             }
         }
 
+        public static List<PartModule> GetAllTestFlightModulesForAlias(Part part, string alias)
+        {
+            if (part == null || part.Modules == null)
+                return null;
+
+            List<PartModule> modules = new List<PartModule>();
+            for (int i = 0, partModulesCount = part.Modules.Count; i < partModulesCount; i++)
+            {
+                PartModule pm = part.Modules[i];
+                
+                // FlightDataRecorder
+                IFlightDataRecorder dataRecorder = pm as IFlightDataRecorder;
+                if (dataRecorder != null && dataRecorder.Configuration.Equals(alias, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    modules.Add(pm);
+                    continue;
+                }
+                // TestFlightReliability
+                ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
+                if (reliabilityModule != null &&
+                    reliabilityModule.Configuration.Equals(alias, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    modules.Add(pm);
+                    continue;
+                }
+                // TestFlightFailure
+                ITestFlightFailure failureModule = pm as ITestFlightFailure;
+                if (failureModule != null &&
+                    failureModule.Configuration.Equals(alias, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    modules.Add(pm);
+                    continue;
+                }
+            }
+
+            return modules;
+        }
+
         // Get the Data Recorder Module - can only ever be one.
         public static IFlightDataRecorder GetDataRecorder(Part part, string alias)
         {
@@ -296,7 +349,7 @@ namespace TestFlightAPI
             ;
         }
 
-        protected static bool EvaluateElement(string element, Part part)
+        public static bool EvaluateElement(string element, Part part)
         {
             // If the element contains conditionals, then it needs to be further broken down and those conditions evaluated left to right
             // otherwise we just evaluate the block
@@ -332,7 +385,7 @@ namespace TestFlightAPI
             return false;
         }
 
-        protected static bool EvaluateBlock(string block, Part part)
+        public static bool EvaluateBlock(string block, Part part)
         {
             block = block.ToLower();
             // The meat of the evaluation is done here
@@ -451,7 +504,7 @@ namespace TestFlightAPI
             }
         }
 
-        protected static string Configuration(Part part)
+        public static string Configuration(Part part)
         {
             if (!part.Modules.Contains("ModuleEngineConfigs")) return "";
             string configuration = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
