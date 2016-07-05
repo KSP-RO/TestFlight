@@ -14,10 +14,10 @@
     <ReleaseVersion>0.4.0</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugType>none</DebugType>
+    <DebugType>pdbonly</DebugType>
     <Optimize>False</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CustomCommands>
@@ -25,6 +25,7 @@
         <Command type="AfterBuild" command="cp ${TargetFile} ${TargetDir}/../../GameData/TestFlight/Plugins" />
       </CustomCommands>
     </CustomCommands>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -175,4 +176,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
+  <PropertyGroup>
+    <PostBuildEvent>"E:\Games\Steam\SteamApps\common\Kerbal Space Program\pdb2mdb\pdb2mdb.exe" "$(TargetPath)"
+xcopy /Y "$(TargetPath)" "E:\Games\KSP11_GameData\TestFlight\Plugins"
+xcopy /Y "$(TargetDir)$(TargetName).pdb" "E:\Games\KSP11_GameData\TestFlight\Plugins"
+xcopy /Y "$(TargetDir)$(TargetName).dll.mdb" "E:\Games\KSP11_GameData\TestFlight\Plugins"
+</PostBuildEvent>
+  </PropertyGroup>
 </Project>

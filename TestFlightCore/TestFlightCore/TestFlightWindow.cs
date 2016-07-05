@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
@@ -65,6 +64,9 @@ namespace TestFlightCore
         internal void Startup()
         {
             tfScenario = TestFlightManagerScenario.Instance;
+            if (!tfScenario.SettingsEnabled)
+                return;
+            
             tfScenario.userSettings.Load();
             tfManager = TestFlightManager.Instance;
             Log("Starting coroutine to add toolbar icon");
@@ -575,7 +577,7 @@ namespace TestFlightCore
             }
         }
 
-        public void Update()
+        internal override void Update()
         {
             if (Input.GetKeyDown(KeyCode.T) && Input.GetKeyDown(KeyCode.LeftAlt))
             {

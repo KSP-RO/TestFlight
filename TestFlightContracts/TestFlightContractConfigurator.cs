@@ -242,7 +242,6 @@ namespace TestFlightContracts
             string selectedPart = SelectPart(part);
             if (String.IsNullOrEmpty(selectedPart.Trim()))
             {
-                Debug.Log(String.Format("TestFlightContracts: Unable to generate contract because the part query '{0}' could not be evaluted", part));
                 return null;
             }
             
