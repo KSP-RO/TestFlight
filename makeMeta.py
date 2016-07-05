@@ -39,7 +39,7 @@ avc = {
 	{
 		"MAJOR" : 1,
 		"MINOR" : 1,
-		"PATCH" : 2
+		"PATCH" : 3
 	}
 }
 with open("TestFlight.version", "w") as f:
