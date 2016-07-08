@@ -344,9 +344,8 @@ namespace TestFlightAPI
                     return true;
             }
 
-            return false;
             Profiler.EndSample();
-            ;
+            return false;
         }
 
         public static bool EvaluateElement(string element, Part part)
