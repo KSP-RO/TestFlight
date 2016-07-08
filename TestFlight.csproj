@@ -51,19 +51,19 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>$(KSP_DLL_PATH)\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>..\..\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>$(KSP_DLL_PATH)\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\Managed\UnityEngine.dll</HintPath>
+      <HintPath>$(KSP_DLL_PATH)\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="KSPUtil">
-      <HintPath>..\..\Managed\KSPUtil.dll</HintPath>
+      <HintPath>$(KSP_DLL_PATH)\KSPUtil.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>..\..\Managed\UnityEngine.UI.dll</HintPath>
+      <HintPath>$(KSP_DLL_PATH)\UnityEngine.UI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -177,10 +177,6 @@
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>
-    <PostBuildEvent>"E:\Games\Steam\SteamApps\common\Kerbal Space Program\pdb2mdb\pdb2mdb.exe" "$(TargetPath)"
-xcopy /Y "$(TargetPath)" "E:\Games\KSP11_GameData\TestFlight\Plugins"
-xcopy /Y "$(TargetDir)$(TargetName).pdb" "E:\Games\KSP11_GameData\TestFlight\Plugins"
-xcopy /Y "$(TargetDir)$(TargetName).dll.mdb" "E:\Games\KSP11_GameData\TestFlight\Plugins"
-</PostBuildEvent>
   </PropertyGroup>
+  <Import Project="custom.targets" />
 </Project>
