@@ -103,17 +103,13 @@ namespace TestFlightCore
     {
         internal static TestFlightEditorWindow Instance;
         internal TestFlightEditorInfoWindow infoWindow = null;
-        private bool locked = false;
         private Part _selectedPart;
         internal Part SelectedPart
         {
             set
             {
-                if (!locked)
-                {
-                    this._selectedPart = value;
-                    CalculateWindowBounds();
-                }
+                this._selectedPart = value;
+                CalculateWindowBounds();
             }
             get
             {
@@ -129,14 +125,8 @@ namespace TestFlightCore
 
         public void LockPart(Part partToLock, string alias)
         {
-                locked = true;
                 SelectedPart = partToLock;
                 selectedAlias = alias;
-        }
-
-        public void UnlockPart()
-        {
-            locked = false;
         }
 
         internal void Log(string message)
@@ -196,19 +186,6 @@ namespace TestFlightCore
 
         internal override void Update()
         {
-            if (tfScenario == null || !tfScenario.SettingsEnabled)
-                return;
-
-            if (locked)
-                return;
-
-            Part selectedPart = EditorLogic.SelectedPart;
-
-            if (selectedPart == null)
-                selectedPart = EditorLogic.fetch.ship.parts.Find(p => p.stackIcon.Highlighted);
-
-            if (selectedPart != null)
-                SelectedPart = selectedPart;
         }
 
         internal void Startup()
