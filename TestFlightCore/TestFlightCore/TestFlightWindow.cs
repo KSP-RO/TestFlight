@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using KSP.UI.Screens;
 
-using KSPPluginFramework;
+using TestFlightCore.KSPPluginFramework;
 
 using TestFlightAPI;
 

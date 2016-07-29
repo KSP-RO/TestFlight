@@ -20,7 +20,7 @@ using System.Text;
 using KSP;
 using UnityEngine;
 
-namespace KSPPluginFramework
+namespace TestFlightCore.KSPPluginFramework
 {
     /// <summary>
     /// An Extended version of the UnityEngine.PartModule Class
