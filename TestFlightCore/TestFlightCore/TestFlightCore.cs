@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using KSPPluginFramework;
+using TestFlightCore.KSPPluginFramework;
 using TestFlightAPI;
 
 namespace TestFlightCore

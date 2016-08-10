@@ -13,7 +13,7 @@ using System.Text;
 using KSP;
 using UnityEngine;
 
-namespace KSPPluginFramework
+namespace TestFlightCore.KSPPluginFramework
 { 
     public abstract class ConfigNodeStorage : IPersistenceLoad, IPersistenceSave
     {

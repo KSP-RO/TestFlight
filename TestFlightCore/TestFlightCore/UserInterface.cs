@@ -10,7 +10,7 @@
 using System;
 using KSP;
 using UnityEngine;
-using KSPPluginFramework;
+using TestFlightCore.KSPPluginFramework;
 
 namespace TestFlightCore
 {

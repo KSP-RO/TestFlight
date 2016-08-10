@@ -42,25 +42,25 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="Assembly-CSharp">
-      <HintPath>$(KSP_DLL_PATH)\Assembly-CSharp.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\TestFlightDEV\Dev\_DEV\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>$(KSP_DLL_PATH)\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\TestFlightDEV\Dev\_DEV\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>$(KSP_DLL_PATH)\UnityEngine.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\TestFlightDEV\Dev\_DEV\Managed\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="KSPAssets">
-      <HintPath>$(KSP_DLL_PATH)\KSPAssets.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\TestFlightDEV\Dev\_DEV\Managed\KSPAssets.dll</HintPath>
     </Reference>
     <Reference Include="KSPUtil">
-      <HintPath>$(KSP_DLL_PATH)\KSPUtil.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\TestFlightDEV\Dev\_DEV\Managed\KSPUtil.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>$(KSP_DLL_PATH)\UnityEngine.UI.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\TestFlightDEV\Dev\_DEV\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="Vectrosity">
-      <HintPath>$(KSP_DLL_PATH)\Vectrosity.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\TestFlightDEV\Dev\_DEV\Managed\Vectrosity.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -74,9 +74,7 @@
     <Compile Include="Framework\MonoBehaviourExtended.cs" />
     <Compile Include="Framework\MonoBehaviourWindow.cs" />
     <Compile Include="Framework\SkinsLibrary.cs" />
-    <Compile Include="FrameworkExt\ClassDefinitions.cs" />
     <Compile Include="FrameworkExt\Extensions.cs" />
-    <Compile Include="FrameworkExt\ExtensionsKSP.cs" />
     <Compile Include="FrameworkExt\MonoBehaviourWindowPlus.cs" />
     <Compile Include="StylesAndSkins.cs" />
     <Compile Include="Resources.cs" />
