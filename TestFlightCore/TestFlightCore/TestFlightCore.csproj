@@ -42,25 +42,25 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\..\..\..\..\TestFlightDEV\Dev\_DEV\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>$(KSP_DLL_PATH)\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>..\..\..\..\..\..\..\TestFlightDEV\Dev\_DEV\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>$(KSP_DLL_PATH)\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\..\..\..\..\TestFlightDEV\Dev\_DEV\Managed\UnityEngine.dll</HintPath>
+      <HintPath>$(KSP_DLL_PATH)\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="KSPAssets">
-      <HintPath>..\..\..\..\..\..\..\TestFlightDEV\Dev\_DEV\Managed\KSPAssets.dll</HintPath>
+      <HintPath>$(KSP_DLL_PATH)\KSPAssets.dll</HintPath>
     </Reference>
     <Reference Include="KSPUtil">
-      <HintPath>..\..\..\..\..\..\..\TestFlightDEV\Dev\_DEV\Managed\KSPUtil.dll</HintPath>
+      <HintPath>$(KSP_DLL_PATH)\KSPUtil.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>..\..\..\..\..\..\..\TestFlightDEV\Dev\_DEV\Managed\UnityEngine.UI.dll</HintPath>
+      <HintPath>$(KSP_DLL_PATH)\UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="Vectrosity">
-      <HintPath>..\..\..\..\..\..\..\TestFlightDEV\Dev\_DEV\Managed\Vectrosity.dll</HintPath>
+      <HintPath>$(KSP_DLL_PATH)\Vectrosity.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
