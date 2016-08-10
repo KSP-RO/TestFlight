@@ -7,6 +7,5 @@
 </ItemGroup>
 <Target Name="AfterBuild">
   <Copy SourceFiles="@(FilesToCopy)" DestinationFolder=".\GameData\TestFlight\Plugins\" />
-  <Copy SourceFiles="@(MDBFilesToCopy)" DestinationFolder="..\..\GameData\TestFlight\Plugins\" />
 </Target>
 </Project>
