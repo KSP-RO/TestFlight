@@ -12,7 +12,7 @@ namespace TestFlight.Failure_Modules
     public class TestFlightFailure_SolarMech : TestFlightFailureBase_Solar
     {
         private ITestFlightCore core = null;
-        private ModuleDeployableSolarPanel.panelStates panelState;
+        private ModuleDeployableSolarPanel.DeployState panelState;
         private bool failureActive = false;
         public override void OnStart(StartState state)
         {
@@ -36,8 +36,8 @@ namespace TestFlight.Failure_Modules
         public void Startup()
         {
 
-            this.panelState = base.module.panelState;
-            if (this.panelState == ModuleDeployableSolarPanel.panelStates.EXTENDED)
+            this.panelState = base.module.deployState;
+            if (this.panelState == ModuleDeployableSolarPanel.DeployState.EXTENDED)
             {
                 core.EnableFailure("TestFlightFailure_SolarMechFail");
             }
@@ -48,10 +48,10 @@ namespace TestFlight.Failure_Modules
         }
         public override void OnUpdate()
         {
-            if (this.panelState != base.module.panelState)
+            if (this.panelState != base.module.deployState)
             {
-                this.panelState = base.module.panelState;
-                if (TestFlightEnabled && !base.part.ShieldedFromAirstream && (this.panelState == ModuleDeployableSolarPanel.panelStates.EXTENDED) != this.failureActive)
+                this.panelState = base.module.deployState;
+                if (TestFlightEnabled && !base.part.ShieldedFromAirstream && (this.panelState == ModuleDeployableSolarPanel.DeployState.EXTENDED) != this.failureActive)
                 {
                     this.failureActive = !this.failureActive;
                     if (this.failureActive)

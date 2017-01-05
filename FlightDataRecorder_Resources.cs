@@ -31,7 +31,7 @@ namespace TestFlight
             if (this.part.vessel.situation == Vessel.Situations.PRELAUNCH)
                 return false;
 
-            List<PartResource> partResources = this.part.Resources.list;
+            List<PartResource> partResources = this.part.Resources.ToList();
             foreach (PartResource resource in partResources)
             {
                 if (resource.amount > emptyThreshold)
