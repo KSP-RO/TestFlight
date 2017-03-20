@@ -9,7 +9,7 @@ namespace TestFlight.Failure_Modules
     {
         public override void OnFlyByWire(FlightCtrlState s)
         {
-            if (base.vessel == null || base.vessel != FlightGlobals.ActiveVessel || base.part.isControlSource)
+            if (base.vessel == null || base.vessel != FlightGlobals.ActiveVessel || base.part.isControlSource != Vessel.ControlLevel.FULL)
             {
                 s.pitch = 0;
                 s.roll = 0;

@@ -27,9 +27,9 @@ namespace TestFlight.Failure_Modules
         {
             List<string> blacklist = this.resourceBlacklist.Split(',').ToList();
             List<PartResource> valid = null;
-            for (int i = 0; i < base.part.Resources.list.Count; i++)
+            for (int i = 0; i < base.part.Resources.ToList().Count; i++)
             {
-                PartResource res = base.part.Resources.list[i];
+                PartResource res = base.part.Resources.ToList()[i];
                 if (!blacklist.Contains(res.resourceName) && res.info.resourceFlowMode != ResourceFlowMode.NO_FLOW)
                 {
                     if (this.resourceName == "ALL" || res.resourceName == this.resourceName)

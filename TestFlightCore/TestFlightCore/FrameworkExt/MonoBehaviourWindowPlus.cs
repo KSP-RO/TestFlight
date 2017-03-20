@@ -6,9 +6,8 @@ using System.Text;
 
 using KSP;
 using UnityEngine;
-using KSPPluginFramework;
 
-namespace KSPPluginFramework
+namespace TestFlightCore.KSPPluginFramework
 {
     public abstract class MonoBehaviourWindowPlus : MonoBehaviourWindow
     {

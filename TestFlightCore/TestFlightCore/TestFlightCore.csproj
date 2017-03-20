@@ -74,9 +74,7 @@
     <Compile Include="Framework\MonoBehaviourExtended.cs" />
     <Compile Include="Framework\MonoBehaviourWindow.cs" />
     <Compile Include="Framework\SkinsLibrary.cs" />
-    <Compile Include="FrameworkExt\ClassDefinitions.cs" />
     <Compile Include="FrameworkExt\Extensions.cs" />
-    <Compile Include="FrameworkExt\ExtensionsKSP.cs" />
     <Compile Include="FrameworkExt\MonoBehaviourWindowPlus.cs" />
     <Compile Include="StylesAndSkins.cs" />
     <Compile Include="Resources.cs" />

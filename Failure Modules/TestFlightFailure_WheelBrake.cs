@@ -10,12 +10,12 @@ namespace TestFlight.Failure_Modules
         public override void DoFailure()
         {
             base.DoFailure();
-            base.module.Actions["BrakesAction"].active = false;
+            base.wheelBrakes.Actions["BrakesAction"].active = false;
         }
         public override float DoRepair()
         {
             base.DoRepair();
-            base.module.Actions["BrakesAction"].active = true;
+            base.wheelBrakes.Actions["BrakesAction"].active = true;
             return 0f;
         }
     }

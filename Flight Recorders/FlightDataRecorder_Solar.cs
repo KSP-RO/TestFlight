@@ -20,11 +20,11 @@ namespace TestFlight.Flight_Recorders
             {
                 return false;
             }
-            if (this.module.panelState == ModuleDeployableSolarPanel.panelStates.BROKEN || this.module.panelState == ModuleDeployableSolarPanel.panelStates.RETRACTED)
+            if (this.module.deployState == ModuleDeployableSolarPanel.DeployState.BROKEN || this.module.deployState == ModuleDeployableSolarPanel.DeployState.RETRACTED)
             {
                 return false;
             }
-            if (this.module.panelState == ModuleDeployableSolarPanel.panelStates.EXTENDED && this.module.flowRate < 0.01)
+            if (this.module.deployState == ModuleDeployableSolarPanel.DeployState.EXTENDED && this.module.flowRate < 0.01)
             {
                 return false;
             }
