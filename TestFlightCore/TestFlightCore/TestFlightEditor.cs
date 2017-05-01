@@ -5,7 +5,8 @@ using System.Collections;
 using System.Collections.Generic;
 
 using UnityEngine;
-using KSPPluginFramework;
+using KSP.UI.Screens;
+using TestFlightCore.KSPPluginFramework;
 
 using TestFlightAPI;
 
@@ -19,6 +20,11 @@ namespace TestFlightCore
 
         public void OnGUI()
         {
+            if (TestFlightManagerScenario.Instance == null)
+                return;
+            if (!TestFlightManagerScenario.Instance.SettingsEnabled)
+                return;
+
             if (selectedPart == null)
                 return;
             ITestFlightCore core = TestFlightUtil.GetCore(selectedPart);
@@ -30,6 +36,11 @@ namespace TestFlightCore
 
         public void Update()
         {
+            if (TestFlightManagerScenario.Instance == null)
+                return;
+            if (!TestFlightManagerScenario.Instance.SettingsEnabled)
+                return;
+
             if (EditorLogic.RootPart == null || EditorLogic.fetch.editorScreen != EditorScreen.Parts)
             {
                 return;
@@ -37,7 +48,7 @@ namespace TestFlightCore
 
             position.x = Mathf.Clamp(Input.mousePosition.x - 20f - position.width, 0.0f, Screen.width - position.width);
             position.y = Mathf.Clamp(Screen.height - Input.mousePosition.y, 0.0f, Screen.height - position.height);
-            selectedPart = EditorLogic.fetch.ship.parts.Find(p => p.stackIcon.highlightIcon) ?? EditorLogic.SelectedPart;
+            selectedPart = EditorLogic.fetch.ship.parts.Find(p => p.stackIcon.Highlighted) ?? EditorLogic.SelectedPart;
             if (selectedPart != null)
             {
                 if (!show && Input.GetMouseButtonDown(2))
@@ -57,6 +68,10 @@ namespace TestFlightCore
 
         public void DrawWindow(int windowID)
         {
+            if (TestFlightManagerScenario.Instance == null)
+                return;
+            if (!TestFlightManagerScenario.Instance.SettingsEnabled)
+                return;
             if (selectedPart != null)
             {
                 ITestFlightCore core = TestFlightUtil.GetCore(selectedPart);
@@ -88,17 +103,13 @@ namespace TestFlightCore
     {
         internal static TestFlightEditorWindow Instance;
         internal TestFlightEditorInfoWindow infoWindow = null;
-        private bool locked = false;
         private Part _selectedPart;
         internal Part SelectedPart
         {
             set
             {
-                if (!locked)
-                {
-                    this._selectedPart = value;
-                    CalculateWindowBounds();
-                }
+                this._selectedPart = value;
+                CalculateWindowBounds();
             }
             get
             {
@@ -114,27 +125,8 @@ namespace TestFlightCore
 
         public void LockPart(Part partToLock, string alias)
         {
-            if (!locked)
-            {
-                locked = true;
                 SelectedPart = partToLock;
                 selectedAlias = alias;
-                return;
-            }
-
-            if (partToLock == SelectedPart)
-                locked = false;
-            else
-            {
-                locked = false;
-                SelectedPart = partToLock;
-                locked = true;
-            }
-        }
-
-        public void UnlockPart()
-        {
-            locked = false;
         }
 
         internal void Log(string message)
@@ -194,20 +186,13 @@ namespace TestFlightCore
 
         internal override void Update()
         {
-            if (locked)
-                return;
-
-            Part selectedPart = EditorLogic.SelectedPart;
-
-            if (selectedPart == null)
-                selectedPart = EditorLogic.fetch.ship.parts.Find(p => p.stackIcon.highlightIcon);
-
-            if (selectedPart != null)
-                SelectedPart = selectedPart;
         }
 
         internal void Startup()
         {
+            if (!tfScenario.SettingsEnabled)
+                return;
+
             Log("Startup");
             CalculateWindowBounds();
             DragEnabled = !tfScenario.userSettings.editorWindowLocked;
@@ -249,13 +234,11 @@ namespace TestFlightCore
             try
             {
                 // Load the icon for the button
-                Debug.Log("TestFlight MasterStatusDisplay: Loading icon texture");
                 Texture iconTexture = GameDatabase.Instance.GetTexture("TestFlight/Resources/AppLauncherIcon", false);
                 if (iconTexture == null)
                 {
                     throw new Exception("TestFlight MasterStatusDisplay: Failed to load icon texture");
                 }
-                Debug.Log("TestFlight MasterStatusDisplay: Creating icon on toolbar");
                 appLauncherButton = ApplicationLauncher.Instance.AddModApplication(
                     OpenWindow,
                     CloseWindow,
@@ -270,7 +253,6 @@ namespace TestFlightCore
             }
             catch (Exception e)
             {
-                Debug.Log("TestFlight MasterStatusDisplay: Unable to add button to application launcher: " + e.Message);
                 throw e;
             }
         }
@@ -292,7 +274,6 @@ namespace TestFlightCore
         void RepostionWindow()
         {
             CalculateWindowBounds();
-            Debug.Log("TestFlight MasterStatusDisplay: RepositionWindow");
         }
         void HoverInButton()
         {
@@ -318,6 +299,9 @@ namespace TestFlightCore
         }
         internal override void DrawWindow(int id)
         {
+            if (!tfScenario.SettingsEnabled)
+                return;
+
             if (!isReady)
                 return;
 

@@ -55,14 +55,17 @@ namespace TestFlightAPI
             }
         }
 
+        public void OnEnable()
+        {
+            if (core == null)
+                core = TestFlightUtil.GetCore(this.part, Configuration);
+        }
+
         public override void OnStart(StartState state)
         {
             base.OnStart(state);
-
-            core = TestFlightUtil.GetCore(this.part, Configuration);
-
             if (core == null)
-                StartCoroutine("GetCore");
+                core = TestFlightUtil.GetCore(this.part, Configuration);
         }
 
         public override void OnUpdate()
@@ -91,15 +94,6 @@ namespace TestFlightAPI
             core.ModifyFlightTime(currentMet - lastRecordedMet, true);
 
             lastRecordedMet = currentMet;
-        }
-
-        IEnumerator GetCore()
-        {
-            while (core == null)
-            {
-                core = TestFlightUtil.GetCore(this.part, Configuration);
-                yield return null;
-            }
         }
 
         public virtual bool IsPartOperating()

@@ -41,16 +41,19 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>$(KSP_DLL_PATH)\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>..\..\..\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>$(KSP_DLL_PATH)\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\Managed\UnityEngine.dll</HintPath>
+      <HintPath>$(KSP_DLL_PATH)\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="ContractConfigurator">
-      <HintPath>..\..\..\Managed\ContractConfigurator.dll</HintPath>
+      <HintPath>$(KSP_DLL_PATH)\ContractConfigurator.dll</HintPath>
+    </Reference>
+    <Reference Include="KSPUtil">
+      <HintPath>$(KSP_DLL_PATH)\KSPUtil.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -64,4 +67,7 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+  </PropertyGroup>
+  <Import Project="custom.targets" />
 </Project>

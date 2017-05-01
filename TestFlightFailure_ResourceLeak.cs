@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 
 using UnityEngine;
-using KSPPluginFramework;
 using TestFlightAPI;
 
 namespace TestFlight
@@ -88,7 +87,7 @@ namespace TestFlight
                 {
                     if (part.Resources.Count > 0)
                     {
-                        List<PartResource> allResources = this.part.Resources.list;
+                        List<PartResource> allResources = this.part.Resources.ToList();
                         int randomResource = TestFlightUtil.GetCore(this.part, Configuration).RandomGenerator.Next(0, allResources.Count());
                         resId = allResources[randomResource].info.id;
                         found = true;
@@ -96,7 +95,7 @@ namespace TestFlight
                 }
                 else
                 {
-                    List<PartResource> resources = this.part.Resources.list.Where(n => n.resourceName == resourceToLeak).ToList();
+                    List<PartResource> resources = this.part.Resources.ToList().Where(n => n.resourceName == resourceToLeak).ToList();
                     if (resources != null && resources.Count > 0)
                     {
                         resId = resources[0].info.id;

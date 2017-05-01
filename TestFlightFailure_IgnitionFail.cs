@@ -48,26 +48,15 @@ namespace TestFlight
         public override void OnStart(StartState state)
         {
             base.OnStart(state);
-            StartCoroutine("Attach");
+            core = TestFlightUtil.GetCore(this.part, Configuration);
+            if (core != null)
+                Startup();
         }
-
-        IEnumerator Attach()
-        {
-            while (this.part == null || this.part.partInfo == null || this.part.partInfo.partPrefab == null || this.part.Modules == null)
-                yield return null;
-
-            while (core == null)
-            {
-                core = TestFlightUtil.GetCore(this.part, Configuration);
-                yield return null;
-            }
-
-            Startup();
-        }
-
         public override void Startup()
         {
             base.Startup();
+            if (core == null)
+                return;
             // We don't want this getting triggered as a random failure
             core.DisableFailure("TestFlightFailure_IgnitionFail");
         }

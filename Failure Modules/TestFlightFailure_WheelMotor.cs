@@ -11,18 +11,18 @@ namespace TestFlight.Failure_Modules
         public override void DoFailure()
         {
             base.DoFailure();
-            this.state = base.module.motorEnabled;
-            base.module.motorEnabled = false;
-            base.module.Events["EnableMotor"].active = false;
-            base.module.Events["DisableMotor"].active = false;
+            this.state = base.wheelMotor.motorEnabled;
+            base.wheelMotor.motorEnabled = false;
+            base.wheelMotor.Events["EnableMotor"].active = false;
+            base.wheelMotor.Events["DisableMotor"].active = false;
 
         }
         public override float DoRepair()
         {
             base.DoRepair();
-            base.module.motorEnabled = state;
-            base.module.Events["EnableMotor"].active = state;
-            base.module.Events["DisableMotor"].active = !state;
+            base.wheelMotor.motorEnabled = state;
+            base.wheelMotor.Events["EnableMotor"].active = state;
+            base.wheelMotor.Events["DisableMotor"].active = !state;
             return 0f;
         }
     }

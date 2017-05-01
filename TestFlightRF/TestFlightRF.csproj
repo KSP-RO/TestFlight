@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -42,16 +42,22 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="RealFuels">
-      <HintPath>..\..\..\Managed\RealFuels.dll</HintPath>
+      <HintPath>$(KSP_DLL_PATH)\RealFuels.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>..\..\..\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>$(KSP_DLL_PATH)\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>$(KSP_DLL_PATH)\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\Managed\UnityEngine.dll</HintPath>
+      <HintPath>$(KSP_DLL_PATH)\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(KSP_DLL_PATH)\UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="KSPUtil">
+      <HintPath>$(KSP_DLL_PATH)\KSPUtil.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -69,4 +75,7 @@
       <Name>TestFlight</Name>
     </ProjectReference>
   </ItemGroup>
+  <PropertyGroup>
+  </PropertyGroup>
+  <Import Project="custom.targets" />
 </Project>

@@ -13,14 +13,14 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Optimize>False</Optimize>
     <OutputPath>bin\Debug</OutputPath>
-    <DefineConstants>DEBUG;</DefineConstants>
+    <DefineConstants>DEBUG;ENABLE_PROFILER</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>False</ConsolePause>
     <CustomCommands>
       <CustomCommands>
         <Command type="AfterBuild" command="cp ${TargetFile} ${TargetDir}/../../../../GameData/TestFlight/Plugins" />
-        <Command type="AfterBuild" command="cp -r /Users/john/Developer/KSP/1.0/TestFlightDEV/Dev/_DEV/GitHub/TestFlight/GameData /Users/john/Developer/KSP/1.0/TestFlightDEV/Dev/" />
+        <Command type="AfterBuild" command="cp -r /Users/john/Developer/KSP/1.1/TestFlightDEV/Dev/_DEV/GitHub/TestFlight/GameData /Users/john/Developer/KSP/1.1/TestFlightDEV/Dev/" />
       </CustomCommands>
     </CustomCommands>
     <DebugSymbols>true</DebugSymbols>
@@ -35,20 +35,32 @@
     <CustomCommands>
       <CustomCommands>
         <Command type="AfterBuild" command="cp ${TargetFile} ${TargetDir}/../../../../GameData/TestFlight/Plugins" />
-        <Command type="AfterBuild" command="cp -r /Users/john/Developer/KSP/1.0/TestFlightDEV/Dev/_DEV/GitHub/TestFlight/GameData /Users/john/Developer/KSP/1.0/TestFlightDEV/Dev/" />
+        <Command type="AfterBuild" command="cp -r /Users/john/Developer/KSP/1.1/TestFlightDEV/Dev/_DEV/GitHub/TestFlight/GameData /Users/john/Developer/KSP/1.1/TestFlightDEV/Dev/" />
       </CustomCommands>
     </CustomCommands>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\..\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>$(KSP_DLL_PATH)\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>..\..\..\..\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>$(KSP_DLL_PATH)\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\..\Managed\UnityEngine.dll</HintPath>
+      <HintPath>$(KSP_DLL_PATH)\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="KSPAssets">
+      <HintPath>$(KSP_DLL_PATH)\KSPAssets.dll</HintPath>
+    </Reference>
+    <Reference Include="KSPUtil">
+      <HintPath>$(KSP_DLL_PATH)\KSPUtil.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(KSP_DLL_PATH)\UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="Vectrosity">
+      <HintPath>$(KSP_DLL_PATH)\Vectrosity.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -62,9 +74,7 @@
     <Compile Include="Framework\MonoBehaviourExtended.cs" />
     <Compile Include="Framework\MonoBehaviourWindow.cs" />
     <Compile Include="Framework\SkinsLibrary.cs" />
-    <Compile Include="FrameworkExt\ClassDefinitions.cs" />
     <Compile Include="FrameworkExt\Extensions.cs" />
-    <Compile Include="FrameworkExt\ExtensionsKSP.cs" />
     <Compile Include="FrameworkExt\MonoBehaviourWindowPlus.cs" />
     <Compile Include="StylesAndSkins.cs" />
     <Compile Include="Resources.cs" />
@@ -97,10 +107,9 @@
       <Name>TestFlightAPI</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Framework\" />
-    <Folder Include="FrameworkExt\" />
-    <Folder Include="Utilities\" />
-  </ItemGroup>
   <ItemGroup />
+  <ItemGroup />
+  <PropertyGroup>
+  </PropertyGroup>
+  <Import Project="custom.targets" />
 </Project>

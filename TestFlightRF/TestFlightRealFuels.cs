@@ -68,13 +68,13 @@ namespace TestFlightRF
                             {
                                 if (node.HasValue("description"))
                                 {
-                                    string description = node.GetValue("configDescription");
-                                    description += String.Format("\n<b>Rated Burn Time</b>: {0}", TestFlightUtil.FormatTime(burnTimes[configName], TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, true));
-                                    node.AddValue("description", description);
+                                    string description = node.GetValue("description");
+                                    description += String.Format("\n" + "    " + "<b>Rated Burn Time</b>: {0}", TestFlightUtil.FormatTime(burnTimes[configName], TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, true));
+                                    node.SetValue("description", description, true);
                                 }
                                 else
                                 {
-                                    node.AddValue("description", String.Format("\nRated Burn Time {0:F2} seconds", TestFlightUtil.FormatTime(burnTimes[configName], TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, true)));
+                                    node.AddValue("description", String.Format("\nRated Burn Time {0}", TestFlightUtil.FormatTime(burnTimes[configName], TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, true)));
                                 }
                             }
                         }

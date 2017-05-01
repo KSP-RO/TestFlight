@@ -51,7 +51,7 @@ namespace TestFlight
         }
         public virtual void OnFlyByWire(FlightCtrlState s)
         {
-            if (base.vessel == null || base.vessel != FlightGlobals.ActiveVessel || base.part.isControlSource)
+            if (base.vessel == null || base.vessel != FlightGlobals.ActiveVessel || base.part.isControlSource != Vessel.ControlLevel.FULL)
             {
                 return;
             }

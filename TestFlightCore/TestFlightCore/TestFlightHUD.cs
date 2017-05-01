@@ -6,7 +6,9 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
-using KSPPluginFramework;
+using TestFlightCore.KSPPluginFramework;
+using KSP.UI.Screens;
+
 
 using TestFlightAPI;
 
@@ -84,6 +86,9 @@ namespace TestFlightCore
 
             // Display information on active vessel
             Guid currentVessl = FlightGlobals.ActiveVessel.id;
+            if (!masterStatus.ContainsKey(currentVessl))
+                return;
+            
 //            if (masterStatus[currentVessl].allPartsStatus.Count(ps => ps.activeFailure != null) < lastPartCount)
             if (masterStatus[currentVessl].allPartsStatus.Count < lastPartCount)
             {
