@@ -38,8 +38,8 @@ avc = {
 	"KSP_VERSION" :
 	{
 		"MAJOR" : 1,
-		"MINOR" : 1,
-		"PATCH" : 3
+		"MINOR" : 2,
+		"PATCH" : 2
 	}
 }
 with open("TestFlight.version", "w") as f:
