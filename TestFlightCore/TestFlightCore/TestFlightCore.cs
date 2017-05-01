@@ -948,7 +948,6 @@ namespace TestFlightCore
             float dataToTransfer = 0f;
             string[] branches;
             string[] modifiers;
-            int generation = 0;
 
             branches = techTransfer.Split(new char[1]{ '&' });
 
@@ -960,6 +959,7 @@ namespace TestFlightCore
                 string[] partsInBranch = modifiers[0].Split(new char[1]{ ',' });
                 float branchModifier = float.Parse(modifiers[1]);
                 branchModifier /= 100f;
+                int generation = 0;
                 foreach (string partName in partsInBranch)
                 {
                     float partFlightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(partName);
