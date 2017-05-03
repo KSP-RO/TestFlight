@@ -42,7 +42,7 @@ namespace TestFlight
             // for each engine restore its fuell flow back to 1.0
             foreach (EngineHandler engine in engines)
             {
-                engine.engine.SetFuelFlowMult(1.0f);
+                engine.engine.SetFuelIspMult(1.0f);
             }
             return 0;
         }
