@@ -27,7 +27,7 @@ namespace TestFlight
         public override void DoFailure()
         {
             base.DoFailure();
-            // for each engine change its fuelFlow which will affect thrust
+            // for each engine change its specific impulse
             foreach (EngineHandler engine in engines)
             {
                 float jitter = ispMultiplierJitter - ((float)TestFlightUtil.GetCore(this.part, Configuration).RandomGenerator.NextDouble() * (ispMultiplierJitter * 2));
@@ -39,7 +39,7 @@ namespace TestFlight
         public override float DoRepair()
         {
             base.DoRepair();
-            // for each engine restore its fuell flow back to 1.0
+            // for each engine restore its specific impulse back to 1.0
             foreach (EngineHandler engine in engines)
             {
                 engine.engine.SetFuelIspMult(1.0f);
