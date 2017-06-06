@@ -133,6 +133,11 @@ namespace TestFlight
                 if (engine.failEngine)
                 {
                     engine.engine.Shutdown();
+                    // For some reason, need to disable GUI as well
+                    engine.engine.Events["Activate"].active = false;
+                    engine.engine.Events["Shutdown"].active = false;
+                    engine.engine.Events["Activate"].guiActive = false;
+                    engine.engine.Events["Shutdown"].guiActive = false;
                     if ((restoreIgnitionCharge) || (this.vessel.situation == Vessel.Situations.PRELAUNCH) )
                         RestoreIgnitor();
                     engines[i].failEngine = false;
@@ -148,6 +153,9 @@ namespace TestFlight
                 EngineHandler engine = engines[i];
                 {
                     engine.engine.Shutdown();
+                    engine.engine.Events["Activate"].active = true;
+                    engine.engine.Events["Activate"].guiActive = true;
+                    engine.engine.Events["Shutdown"].guiActive = true;
                     if (restoreIgnitionCharge || this.vessel.situation == Vessel.Situations.PRELAUNCH)
                         RestoreIgnitor();
                     engines[i].failEngine = false;
