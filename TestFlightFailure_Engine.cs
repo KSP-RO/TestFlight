@@ -27,13 +27,19 @@ namespace TestFlight
         {
             get
             {
+                ITestFlightCore core = TestFlightUtil.GetCore (this.part, Configuration);
+                if (core == null)
+                {
+                    Log ("EngineBase: No TestFlight core found");
+                    return false;
+                }
                 // Make sure we have valid engines
                 if (engines == null)
                 {
                     Log("EngineBase: No valid engines found");
                     return false;
                 }
-                return TestFlightUtil.EvaluateQuery(Configuration, this.part);
+                return core.TestFlightEnabled;
             }
         }
 

@@ -31,20 +31,6 @@ namespace TestFlight
 
         private ITestFlightCore core = null;
 
-        public new bool TestFlightEnabled
-        {
-            get
-            {
-                // verify we have a valid core attached
-                if (core == null)
-                    return false;
-                // and a valid engine
-                if (engines == null)
-                    return false;
-                return TestFlightUtil.EvaluateQuery(Configuration, this.part);
-            }
-        }
-
         public override void OnStart(StartState state)
         {
             base.OnStart(state);
@@ -152,6 +138,7 @@ namespace TestFlight
             {
                 EngineHandler engine = engines[i];
                 {
+                    // Prevent auto-ignition on repair
                     engine.engine.Shutdown();
                     engine.engine.Events["Activate"].active = true;
                     engine.engine.Events["Activate"].guiActive = true;
