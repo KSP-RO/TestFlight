@@ -133,6 +133,7 @@ namespace TestFlight
             {
                 EngineHandler engine = engines[i];
                 {
+                    // Prevent auto-ignition on repair
                     engine.engine.Shutdown();
                     if (restoreIgnitionCharge || this.vessel.situation == Vessel.Situations.PRELAUNCH)
                         RestoreIgnitor();
