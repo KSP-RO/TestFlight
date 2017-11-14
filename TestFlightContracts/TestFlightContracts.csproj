@@ -52,9 +52,6 @@
     <Reference Include="ContractConfigurator">
       <HintPath>$(KSP_DLL_PATH)\ContractConfigurator.dll</HintPath>
     </Reference>
-    <Reference Include="KSPUtil">
-      <HintPath>$(KSP_DLL_PATH)\KSPUtil.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
