@@ -53,9 +53,6 @@
     <Reference Include="KSPAssets">
       <HintPath>$(KSP_DLL_PATH)\KSPAssets.dll</HintPath>
     </Reference>
-    <Reference Include="KSPUtil">
-      <HintPath>$(KSP_DLL_PATH)\KSPUtil.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>$(KSP_DLL_PATH)\UnityEngine.UI.dll</HintPath>
     </Reference>
