@@ -56,9 +56,6 @@
     <Reference Include="UnityEngine.UI">
       <HintPath>$(KSP_DLL_PATH)\UnityEngine.UI.dll</HintPath>
     </Reference>
-    <Reference Include="KSPUtil">
-      <HintPath>$(KSP_DLL_PATH)\KSPUtil.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
