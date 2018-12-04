@@ -15,7 +15,7 @@ namespace TestFlight {
     public override GameParameters.GameMode GameMode { get { return GameParameters.GameMode.ANY; } }
     public override string Section { get { return "TestFlight"; } }
     public override string DisplaySection { get { return Section; } }
-    public override int SelectionOrder { get { return 1; } }
+    public override int SectionOrder { get { return 1; } }
     public override bool HasPresets { get { return true; } }
     
     [GameParameters.CustomParameterUI("Pre-Launch Ignition Failures Enabled?", toolTip = "Set to enable ignition failures on the Launch Pad.")]

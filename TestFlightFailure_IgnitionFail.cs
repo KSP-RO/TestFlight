@@ -30,6 +30,7 @@ namespace TestFlight
         public int numIgnitions = 0;
 
         private ITestFlightCore core = null;
+        private bool preLaunchFailures;
 
         public override void OnStart(StartState state)
         {
