@@ -1,6 +1,6 @@
 # Change Log
 
-Release moved from beta to full release
+Release moved from beta
 
 **Fixed bugs:**
 
