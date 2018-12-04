@@ -23,17 +23,17 @@ deploy:
     repo: KSP-RO/TestFlight
     tags: true
     all_branches: true
-notifications:
-  irc:
-    channels:
-    - irc.esper.net#RO
-    skip_join: true
-    use_notice: true
-    on_success: change
-    on_failure: change
-    template:
-    - 'Build #%{build_number} - %{branch} - %{result}'
-    - "%{commit_message}"
+# notifications: 
+#  irc:
+#    channels:
+#    - irc.esper.net#RO
+#    skip_join: true
+#    use_notice: true
+#    on_success: change
+#    on_failure: change
+#    template:
+#    - 'Build #%{build_number} - %{branch} - %{result}'
+#    - "%{commit_message}"
 after_success:
 - make deploy
 env:

@@ -71,9 +71,12 @@ deploy:
 else
 ifeq ($(TRAVIS_SECURE_ENV_VARS),true)
 deploy:
-	@curl --ftp-create-dirs -T ${ZIP_CORE} -u ${FTP_USER}:${FTP_PASSWD} ftp://stantonspacebarn.com/webapps/buildtracker/builds/TestFlight/build_$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER)/$(ZIP_CORE)
-	@curl --ftp-create-dirs -T ${ZIP_STOCK} -u ${FTP_USER}:${FTP_PASSWD} ftp://stantonspacebarn.com/webapps/buildtracker/builds/TestFlight/build_$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER)/$(ZIP_STOCK)
-	python buildServer.py all --project-id 0 --project-name TestFlight --build-name $(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER) --changelog changes.md --files $(ZIP_CORE) $(ZIP_STOCK) $(ZIP_RO)
+	cp ${ZIP_CORE} GameData/TestFlight/Built/$(ZIP_CORE)
+	cp ${ZIP_STOCK} GameData/TestFlight/Built/$(ZIP_STOCK)
+	cp ${ZIP_RO} GameData/TestFlight/Built/$(ZIP_RO)
+	#@curl --ftp-create-dirs -T ${ZIP_CORE} -u ${FTP_USER}:${FTP_PASSWD} ftp://stantonspacebarn.com/webapps/buildtracker/builds/TestFlight/build_$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER)/$(ZIP_CORE) 
+	#@curl --ftp-create-dirs -T ${ZIP_STOCK} -u ${FTP_USER}:${FTP_PASSWD} ftp://stantonspacebarn.com/webapps/buildtracker/builds/TestFlight/build_$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER)/$(ZIP_STOCK)
+	#python buildServer.py all --project-id 0 --project-name TestFlight --build-name $(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER) --changelog changes.md --files $(ZIP_CORE) $(ZIP_STOCK) $(ZIP_RO)
 else
 deploy:
 	echo No secure environment available. Skipping deploy.

@@ -1,8 +1,6 @@
 # Change Log
 
-## [1.3.1.1](https://github.com/jwvanderbeck/TestFlight/tree/1.3.1.1) (2015-05-18)
-
-[Full Changelog](https://github.com/jwvanderbeck/TestFlight/compare/1.3.1.0...1.3.1.1)
+Release moved from beta to full release
 
 **Fixed bugs:**
 
