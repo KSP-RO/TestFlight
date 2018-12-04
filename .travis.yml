@@ -23,7 +23,7 @@ deploy:
     repo: KSP-RO/TestFlight
     tags: true
     all_branches: true
-# notifications:
+# notifications: 
 #  irc:
 #    channels:
 #    - irc.esper.net#RO
