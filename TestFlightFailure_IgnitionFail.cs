@@ -78,7 +78,7 @@ namespace TestFlight
                         float multiplier = 1f;
                         
                         // Check to see if the vessel has not launched and if the player disabled pad failures
-                        if (this.vessel.situation == Vessel.Situations.PRELAUNCH && preLaunchFailures) {
+                        if (this.vessel.situation == Vessel.Situations.PRELAUNCH && !preLaunchFailures) {
                           ignitionChance = 1.0f;
                         } else {
                           ignitionChance = baseIgnitionChance.Evaluate((float)initialFlightData);
