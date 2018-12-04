@@ -37,6 +37,9 @@ namespace TestFlight
             core = TestFlightUtil.GetCore(this.part, Configuration);
             if (core != null)
                 Startup();
+            
+            // Get the in-game setting for Launch Pad Ignition Failures
+            preLaunchFailures = HighLogic.CurrentGame.Parameters.CustomParams<TestFlightGameSettings>().preLaunchFailures;
         }
         public override void Startup()
         {
@@ -72,9 +75,15 @@ namespace TestFlight
                         double initialFlightData = core.GetInitialFlightData();
                         float ignitionChance = 1f;
                         float multiplier = 1f;
-                        ignitionChance = baseIgnitionChance.Evaluate((float)initialFlightData);
-                        if (ignitionChance <= 0)    
-                            ignitionChance = 1f;
+                        
+                        // Check to see if the vessel has not launched and if the player disabled pad failures
+                        if (this.vessel.situation == Vessel.Situations.PRELAUNCH && preLaunchFailures) {
+                          ignitionChance = 1.0f;
+                        } else {
+                          ignitionChance = baseIgnitionChance.Evaluate((float)initialFlightData);
+                          if (ignitionChance <= 0)    
+                              ignitionChance = 1f;
+                        }
 
                         multiplier = pressureCurve.Evaluate((float)(part.dynamicPressurekPa * 1000d));
                         if (multiplier <= 0f)
@@ -83,8 +92,7 @@ namespace TestFlight
                         float minValue, maxValue = -1f;
                         baseIgnitionChance.FindMinMaxValue(out minValue, out maxValue);
                         Log(String.Format("TestFlightFailure_IgnitionFail: IgnitionChance Curve, Min Value {0:F2}:{1:F6}, Max Value {2:F2}:{3:F6}", baseIgnitionChance.minTime, minValue, baseIgnitionChance.maxTime, maxValue));
-
-
+                          
                         if (this.vessel.situation != Vessel.Situations.PRELAUNCH)
                             ignitionChance = ignitionChance * multiplier * ignitionUseMultiplier.Evaluate(numIgnitions);
 
