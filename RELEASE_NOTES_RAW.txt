@@ -1,3 +1,12 @@
+1.9.0.0
+===========
+KSP Version v1.3.1
+
+Changes
+-----------
+* Added the ability to toggle Pre-Launch Ignition failure
+
+
 1.5.4.4
 =====
 
