@@ -1,6 +1,6 @@
 {
 "NAME": "TestFlight",
-"URL": "http://ksp-avc.cybutek.net/version.php?id=118", 
+"URL": "https://raw.githubusercontent.com/KSP-RO/TestFlight/master/GameData/TestFlight/TestFlight.version", 
 "CHANGE_LOG_URL": "https://raw.githubusercontent.com/KSP-RO/TestFlight/master/RELEASE_NOTES_RAW.txt", 
 "KSP_VERSION": 
 	{
