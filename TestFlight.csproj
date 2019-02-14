@@ -161,6 +161,10 @@
       <Project>{F212E235-8856-4C7E-AFA9-051490E1350F}</Project>
       <Name>TestFlightAPI</Name>
     </ProjectReference>
+    <ProjectReference Include="TestFlightCore\TestFlightCore\TestFlightCore.csproj">
+      <Project>{CD4D0CF1-16A8-4FB9-A7CC-6566160B8CD2}</Project>
+      <Name>TestFlightCore</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>

@@ -191,6 +191,11 @@ namespace TestFlightAPI
 
             return infoStrings;
         }
+
+        public virtual string GetModuleInfo()
+        {
+            return string.Empty;
+        }
     }
 }
 

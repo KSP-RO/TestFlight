@@ -116,7 +116,114 @@ namespace TestFlightAPI
             }
             return ret;
         }
-            
+
+        public static string FailureRateToMTBFString(double failureRate, MTBFUnits units, bool shortForm, int maximum)
+        {
+            var currentUnit = (int)MTBFUnits.SECONDS;
+            var mtbf = FailureRateToMTBF(failureRate, (MTBFUnits)currentUnit);
+            while (mtbf > maximum)
+            {
+                currentUnit++;
+                mtbf = FailureRateToMTBF(failureRate, (MTBFUnits)currentUnit);
+                if ((MTBFUnits)currentUnit == MTBFUnits.INVALID)
+                    break;
+            }
+
+            if (shortForm)
+            {
+                return string.Format("{0:F2}{1}", mtbf, UnitStringForMTBFUnit((MTBFUnits)currentUnit)[0]);
+            }
+            else
+            {
+                return string.Format("{0:F2} {1}", mtbf, UnitStringForMTBFUnit((MTBFUnits)currentUnit));
+            }
+        }
+
+        public static void FailureRateToMTBFString(double failureRate, MTBFUnits units, bool shortForm,
+            int maximum, out string output)
+        {
+            var currentUnit = (int)MTBFUnits.SECONDS;
+            var mtbf = FailureRateToMTBF(failureRate, (MTBFUnits)currentUnit);
+            while (mtbf > maximum)
+            {
+                currentUnit++;
+                mtbf = FailureRateToMTBF(failureRate, (MTBFUnits)currentUnit);
+                if ((MTBFUnits)currentUnit == MTBFUnits.INVALID)
+                    break;
+            }
+
+            if (shortForm)
+            {
+                output = string.Format("{0:F2}{1}", mtbf,
+                    UnitStringForMTBFUnitShort((MTBFUnits)currentUnit)).ToString();
+            }
+            else
+            {
+                output = string.Format("{0:F2}{1}", mtbf,
+                    UnitStringForMTBFUnit((MTBFUnits)currentUnit)).ToString();
+            }
+        }
+
+        // Simply converts the failure rate to a MTBF number, without any string formatting
+        public static double FailureRateToMTBF(double failureRate, MTBFUnits units)
+        {
+            failureRate = Math.Max(failureRate, MIN_FAILURE_RATE);
+            double mtbfSeconds = 1.0f / failureRate;
+
+            switch (units)
+            {
+                case MTBFUnits.SECONDS:
+                    return mtbfSeconds;
+                case MTBFUnits.MINUTES:
+                    return mtbfSeconds / 60;
+                case MTBFUnits.HOURS:
+                    return mtbfSeconds / 60 / 60;
+                case MTBFUnits.DAYS:
+                    return mtbfSeconds / 60 / 60 / 24;
+                case MTBFUnits.YEARS:
+                    return mtbfSeconds / 60 / 60 / 24 / 365;
+                default:
+                    return mtbfSeconds;
+            }
+        }
+
+        internal static string UnitStringForMTBFUnit(MTBFUnits units)
+        {
+            switch (units)
+            {
+                case MTBFUnits.SECONDS:
+                    return "seconds";
+                case MTBFUnits.MINUTES:
+                    return "minutes";
+                case MTBFUnits.HOURS:
+                    return "hours";
+                case MTBFUnits.DAYS:
+                    return "days";
+                case MTBFUnits.YEARS:
+                    return "years";
+                default:
+                    return "invalid";
+            }
+        }
+        internal static string UnitStringForMTBFUnitShort(MTBFUnits units)
+        {
+            switch (units)
+            {
+                case MTBFUnits.SECONDS:
+                    return "s";
+                case MTBFUnits.MINUTES:
+                    return "m";
+                case MTBFUnits.HOURS:
+                    return "h";
+                case MTBFUnits.DAYS:
+                    return "d";
+                case MTBFUnits.YEARS:
+                    return "y";
+                default:
+                    return "-";
+            }
+        }
+
         public static string FormatTime(double time)
         {
             return FormatTime((float)time, TIMEFORMAT.COLON_SEPERATED, false);
@@ -276,7 +383,7 @@ namespace TestFlightAPI
             return null;
         }
         // Get all Reliability Modules - can be more than one.
-        public static List<ITestFlightReliability> GetReliabilityModules(Part part, string alias)
+        public static List<ITestFlightReliability> GetReliabilityModules(Part part, string alias, bool checkEnabled = true)
         {
             if (part == null || part.Modules == null)
                 return null;
@@ -286,14 +393,18 @@ namespace TestFlightAPI
             {
                 PartModule pm = part.Modules[i];
                 ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
-                if (reliabilityModule != null && reliabilityModule.TestFlightEnabled && String.Equals(reliabilityModule.Configuration, alias, StringComparison.InvariantCultureIgnoreCase))
+                if (reliabilityModule != null && 
+                    (!checkEnabled || reliabilityModule.TestFlightEnabled) &&
+                    String.Equals(reliabilityModule.Configuration, alias, StringComparison.InvariantCultureIgnoreCase))
+                {
                     reliabilityModules.Add(reliabilityModule);
+                }
             }
 
             return reliabilityModules;
         }
         // Get all Failure Modules - can be more than one.
-        public static List<ITestFlightFailure> GetFailureModules(Part part, string alias)
+        public static List<ITestFlightFailure> GetFailureModules(Part part, string alias, bool checkEnabled = true)
         {
             if (part == null || part.Modules == null)
                 return null;
@@ -303,8 +414,12 @@ namespace TestFlightAPI
             {
                 PartModule pm = part.Modules[i];
                 ITestFlightFailure failureModule = pm as ITestFlightFailure;
-                if (failureModule != null && failureModule.TestFlightEnabled && String.Equals(failureModule.Configuration, alias, StringComparison.InvariantCultureIgnoreCase))
+                if (failureModule != null &&
+                    (!checkEnabled || failureModule.TestFlightEnabled) &&
+                    String.Equals(failureModule.Configuration, alias, StringComparison.InvariantCultureIgnoreCase))
+                {
                     failureModules.Add(failureModule);
+                }
             }
 
             return failureModules;
@@ -513,11 +628,11 @@ namespace TestFlightAPI
         public static void Log(string message, Part loggingPart)
         {
             return;
-//            ITestFlightCore core = TestFlightUtil.GetCore(loggingPart);
-//            bool debug = false;
-//            if (core != null)
-//                debug = core.DebugEnabled;
-//            TestFlightUtil.Log(message, debug);
+            //            ITestFlightCore core = TestFlightUtil.GetCore(loggingPart);
+            //            bool debug = false;
+            //            if (core != null)
+            //                debug = core.DebugEnabled;
+            //            TestFlightUtil.Log(message, debug);
         }
 
         public static void Log(string message, bool debug)
@@ -737,6 +852,11 @@ namespace TestFlightAPI
         /// <returns>A string of information to display to the user, or "" if none</returns>
         List<string> GetTestFlightInfo();
 
+        /// <summary>
+        /// Should return a string if the module wants to report any information to the user in the stock part info panel.
+        /// </summary>
+        /// <returns>A string of information to display to the user, or "" if none</returns>
+        string GetModuleInfo();
     }
 
     public interface ITestFlightFailure
@@ -785,6 +905,12 @@ namespace TestFlightAPI
         /// </summary>
         /// <returns>A string of information to display to the user, or "" if none</returns>
         List<string> GetTestFlightInfo();
+
+        /// <summary>
+        /// Should return a string if the module wants to report any information to the user in the stock part info panel.
+        /// </summary>
+        /// <returns>A string of information to display to the user, or "" if none</returns>
+        string GetModuleInfo();
     }
 
     public interface ITestFlightInterop

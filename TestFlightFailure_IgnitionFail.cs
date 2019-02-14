@@ -199,6 +199,17 @@ namespace TestFlight
             }
         }
 
+        public override string GetModuleInfo()
+        {
+            if (baseIgnitionChance != null)
+            {
+                float pMin = baseIgnitionChance.Evaluate(baseIgnitionChance.minTime);
+                float pMax = baseIgnitionChance.Evaluate(baseIgnitionChance.maxTime);
+                return String.Format("Ignition chance at 0 data: <color=#859900ff>{0:P}</color>\nIgnition chance at max data: <color=#859900ff>{1:P}</color>", pMin, pMax);
+            }
+            return base.GetModuleInfo();
+        }
+
         public override List<string> GetTestFlightInfo()
         {
             List<string> infoStrings = new List<string>();

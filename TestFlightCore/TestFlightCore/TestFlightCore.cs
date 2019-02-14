@@ -79,7 +79,6 @@ namespace TestFlightCore
         private bool active;
 
         private string[] ops = { "=", "!=", "<", "<=", ">", ">=", "<>", "<=>" };
-        private StringBuilder sb;
 
         public bool ActiveConfiguration
         {
@@ -443,112 +442,22 @@ namespace TestFlightCore
         {
             return FailureRateToMTBFString(failureRate, units, shortForm, int.MaxValue);
         }
+
         public string FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, bool shortForm, int maximum)
         {
-            var currentUnit = (int)TestFlightUtil.MTBFUnits.SECONDS;
-            var mtbf = FailureRateToMTBF(failureRate, (TestFlightUtil.MTBFUnits)currentUnit);
-            while (mtbf > maximum)
-            {
-                currentUnit++;
-                mtbf = FailureRateToMTBF(failureRate, (TestFlightUtil.MTBFUnits)currentUnit);
-                if ((TestFlightUtil.MTBFUnits)currentUnit == TestFlightUtil.MTBFUnits.INVALID)
-                    break;
-            }
-
-            if (shortForm)
-            {
-                return string.Format("{0:F2}{1}", mtbf, UnitStringForMTBFUnit((TestFlightUtil.MTBFUnits)currentUnit)[0]);
-            }
-            else
-            {
-                return string.Format("{0:F2} {1}", mtbf, UnitStringForMTBFUnit((TestFlightUtil.MTBFUnits)currentUnit));
-            }
+            return TestFlightUtil.FailureRateToMTBFString(failureRate, units, shortForm, maximum);
         }
 
         public void FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, bool shortForm,
             int maximum, out string output)
         {
-            if (sb == null)
-                sb = new StringBuilder(256);
-            sb.Length = 0;
-            var currentUnit = (int)TestFlightUtil.MTBFUnits.SECONDS;
-            var mtbf = FailureRateToMTBF(failureRate, (TestFlightUtil.MTBFUnits)currentUnit);
-            while (mtbf > maximum)
-            {
-                currentUnit++;
-                mtbf = FailureRateToMTBF(failureRate, (TestFlightUtil.MTBFUnits)currentUnit);
-                if ((TestFlightUtil.MTBFUnits)currentUnit == TestFlightUtil.MTBFUnits.INVALID)
-                    break;
-            }
+            TestFlightUtil.FailureRateToMTBFString(failureRate, units, shortForm, maximum, out output);
+        }
 
-            if (shortForm)
-            {
-                output = sb.AppendFormat("{0:F2}{1}", mtbf,
-                    UnitStringForMTBFUnitShort((TestFlightUtil.MTBFUnits) currentUnit)).ToString();
-            }
-            else
-            {
-                output = sb.AppendFormat("{0:F2}{1}", mtbf,
-                    UnitStringForMTBFUnit((TestFlightUtil.MTBFUnits)currentUnit)).ToString();
-            }
-        }
-        internal static string UnitStringForMTBFUnit(TestFlightUtil.MTBFUnits units)
-        {
-            switch (units)
-            {
-                case TestFlightUtil.MTBFUnits.SECONDS:
-                    return "seconds";
-                case TestFlightUtil.MTBFUnits.MINUTES:
-                    return "minutes";
-                case TestFlightUtil.MTBFUnits.HOURS:
-                    return "hours";
-                case TestFlightUtil.MTBFUnits.DAYS:
-                    return "days";
-                case TestFlightUtil.MTBFUnits.YEARS:
-                    return "years";
-                default:
-                    return "invalid";
-            }
-        }
-        internal static string UnitStringForMTBFUnitShort(TestFlightUtil.MTBFUnits units)
-        {
-            switch (units)
-            {
-                case TestFlightUtil.MTBFUnits.SECONDS:
-                    return "s";
-                case TestFlightUtil.MTBFUnits.MINUTES:
-                    return "m";
-                case TestFlightUtil.MTBFUnits.HOURS:
-                    return "h";
-                case TestFlightUtil.MTBFUnits.DAYS:
-                    return "d";
-                case TestFlightUtil.MTBFUnits.YEARS:
-                    return "y";
-                default:
-                    return "-";
-            }
-        }
         // Simply converts the failure rate to a MTBF number, without any string formatting
         public double FailureRateToMTBF(double failureRate, TestFlightUtil.MTBFUnits units)
         {
-            failureRate = Math.Max(failureRate, TestFlightUtil.MIN_FAILURE_RATE);
-            double mtbfSeconds = 1.0f / failureRate;
-
-            switch (units)
-            {
-                case TestFlightUtil.MTBFUnits.SECONDS:
-                    return mtbfSeconds;
-                case TestFlightUtil.MTBFUnits.MINUTES:
-                    return mtbfSeconds / 60;
-                case TestFlightUtil.MTBFUnits.HOURS:
-                    return mtbfSeconds / 60 / 60;
-                case TestFlightUtil.MTBFUnits.DAYS:
-                    return mtbfSeconds / 60 / 60 / 24;
-                case TestFlightUtil.MTBFUnits.YEARS:
-                    return mtbfSeconds / 60 / 60 / 24 / 365;
-                default:
-                    return mtbfSeconds;
-            }
+            return TestFlightUtil.FailureRateToMTBF(failureRate, units);
         }
         // Get the FlightData or FlightTime for the part
 
@@ -1173,6 +1082,47 @@ namespace TestFlightCore
                 return 1;
         }
 
+        public override string GetModuleDisplayName()
+        {
+            return string.Format("Test Flight reliability for {0}", Alias);
+        }
+
+        public override string GetInfo()
+        {
+            // This methods collects data from all the TestFlight modules and combines it into one string
+            List<string> infoStrings = new List<string>();
+
+            List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part, Alias, false);
+            if (reliabilityModules != null)
+            {
+                for (int i = 0, reliabilityModulesCount = reliabilityModules.Count; i < reliabilityModulesCount; i++)
+                {
+                    ITestFlightReliability reliabilityModule = reliabilityModules[i];
+                    var s = reliabilityModule.GetModuleInfo();
+                    if (!string.IsNullOrEmpty(s))
+                        infoStrings.Add(s);
+                }
+            }
+
+            List<ITestFlightFailure> failureModules = TestFlightUtil.GetFailureModules(this.part, Alias, false);
+            if (failureModules != null)
+            {
+                for (int i = 0, failureModulesCount = failureModules.Count; i < failureModulesCount; i++)
+                {
+                    ITestFlightFailure failureModule = failureModules[i];
+                    var s = failureModule.GetModuleInfo();
+                    if (!string.IsNullOrEmpty(s))
+                        infoStrings.Add(s);
+                }
+            }
+
+            if (infoStrings.Count > 0)
+            {
+                return string.Join("\n", infoStrings.ToArray());
+            }
+
+            return base.GetInfo();
+        }
 
         public List<string> GetTestFlightInfo()
         {
