@@ -7,6 +7,7 @@ using System.Reflection;
 using UnityEngine;
 
 using TestFlightAPI;
+using TestFlightCore;
 
 namespace TestFlight
 {
@@ -213,8 +214,12 @@ namespace TestFlight
                 return infoStrings;
             }
 
+            float flightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(Configuration);
+            if (flightData < 0f)
+                flightData = 0f;
+
             infoStrings.Add("<b>Ignition Reliability</b>");
-            infoStrings.Add(String.Format("<b>Current Ignition Chance</b>: {0:P}", baseIgnitionChance.Evaluate(core.GetInitialFlightData())));
+            infoStrings.Add(String.Format("<b>Current Ignition Chance</b>: {0:P}", baseIgnitionChance.Evaluate(flightData)));
             infoStrings.Add(String.Format("<b>Maximum Ignition Chance</b>: {0:P}", baseIgnitionChance.Evaluate(baseIgnitionChance.maxTime)));
 
             if (additionalFailureChance > 0f)
