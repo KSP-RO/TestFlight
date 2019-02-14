@@ -42,6 +42,7 @@ namespace TestFlight
             // Get the in-game setting for Launch Pad Ignition Failures
             preLaunchFailures = HighLogic.CurrentGame.Parameters.CustomParams<TestFlightGameSettings>().preLaunchFailures;
         }
+
         public override void Startup()
         {
             base.Startup();
@@ -49,6 +50,14 @@ namespace TestFlight
                 return;
             // We don't want this getting triggered as a random failure
             core.DisableFailure("TestFlightFailure_IgnitionFail");
+        }
+
+        public void OnEnable()
+        {
+            if (core == null)
+                core = TestFlightUtil.GetCore(this.part, Configuration);
+            if (core != null)
+                Startup();
         }
 
         public override void OnUpdate()
@@ -187,6 +196,31 @@ namespace TestFlight
                 ignitionUseMultiplier = new FloatCurve();
                 ignitionUseMultiplier.Add(0f, 1f);
             }
+        }
+
+        public override List<string> GetTestFlightInfo()
+        {
+            List<string> infoStrings = new List<string>();
+
+            if (core == null)
+            {
+                Log("Core is null");
+                return infoStrings;
+            }
+            if (baseIgnitionChance == null)
+            {
+                Log("Curve is null");
+                return infoStrings;
+            }
+
+            infoStrings.Add("<b>Ignition Reliability</b>");
+            infoStrings.Add(String.Format("<b>Current Ignition Chance</b>: {0:P}", baseIgnitionChance.Evaluate(core.GetInitialFlightData())));
+            infoStrings.Add(String.Format("<b>Maximum Ignition Chance</b>: {0:P}", baseIgnitionChance.Evaluate(baseIgnitionChance.maxTime)));
+
+            if (additionalFailureChance > 0f)
+                infoStrings.Add(String.Format("<b>Additional Failure Chance</b>: {0:P}", additionalFailureChance));
+
+            return infoStrings;
         }
     }
 }

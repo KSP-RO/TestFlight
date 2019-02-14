@@ -1194,6 +1194,19 @@ namespace TestFlightCore
                     infoStrings.AddRange(reliabilityModule.GetTestFlightInfo());
                 }
             }
+
+            List<ITestFlightFailure> failureModules = TestFlightUtil.GetFailureModules(this.part, Alias);
+            if (failureModules != null)
+            {
+                for (int i = 0, failureModulesCount = failureModules.Count; i < failureModulesCount; i++)
+                {
+                    ITestFlightFailure failureModule = failureModules[i];
+                    List<string> infoColl = failureModule.GetTestFlightInfo();
+                    if (infoColl != null)
+                        infoStrings.AddRange(infoColl);
+                }
+            }
+
             return infoStrings;
         }
 
