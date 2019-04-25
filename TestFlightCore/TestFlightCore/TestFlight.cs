@@ -634,7 +634,7 @@ namespace TestFlightCore
 
         public static TestFlightManagerScenario Instance { get; private set; }
 
-        public System.Random RandomGenerator { get; private set; }
+        public static System.Random RandomGenerator { get; private set; }
 
         public bool isReady = false;
         // For storing save specific arbitrary data
@@ -926,7 +926,11 @@ namespace TestFlightCore
         public void Start()
         {
             Log("Scenario Start");
-            RandomGenerator = new System.Random();
+            if (RandomGenerator == null)
+            {
+                RandomGenerator = new System.Random();
+            }
+
             isReady = true; 
         }
 

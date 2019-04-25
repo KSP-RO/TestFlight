@@ -178,7 +178,7 @@ namespace TestFlightCore
         {
             get
             {
-                return TestFlightManagerScenario.Instance.RandomGenerator;
+                return TestFlightManagerScenario.RandomGenerator;
             }
         }
 
