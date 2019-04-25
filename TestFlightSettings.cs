@@ -25,5 +25,22 @@ namespace TestFlight
 
         [GameParameters.CustomParameterUI("Penalty For High Dynamic Pressure Enabled?", toolTip = "Whether engine ignition chance will suffer a penalty based on dynamic pressure.")]
         public bool dynPressurePenalties = true;
+
+        public override void SetDifficultyPreset(GameParameters.Preset preset)
+        {
+            switch (preset)
+            {
+                case GameParameters.Preset.Easy:
+                case GameParameters.Preset.Normal:
+                case GameParameters.Preset.Moderate:
+                    preLaunchFailures = false;
+                    dynPressurePenalties = false;
+                    break;
+                case GameParameters.Preset.Hard:
+                    preLaunchFailures = true;
+                    dynPressurePenalties = true;
+                    break;
+            }
+        }
     }
 }
