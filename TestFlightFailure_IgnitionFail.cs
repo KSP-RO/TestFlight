@@ -32,6 +32,7 @@ namespace TestFlight
 
         private ITestFlightCore core = null;
         private bool preLaunchFailures;
+        private bool dynPressurePenalties;
 
         public override void OnStart(StartState state)
         {
@@ -40,8 +41,9 @@ namespace TestFlight
             if (core != null)
                 Startup();
             
-            // Get the in-game setting for Launch Pad Ignition Failures
+            // Get the in-game settings
             preLaunchFailures = HighLogic.CurrentGame.Parameters.CustomParams<TestFlightGameSettings>().preLaunchFailures;
+            dynPressurePenalties = HighLogic.CurrentGame.Parameters.CustomParams<TestFlightGameSettings>().dynPressurePenalties;
         }
 
         public override void Startup()
@@ -96,9 +98,12 @@ namespace TestFlight
                               ignitionChance = 1f;
                         }
 
-                        multiplier = pressureCurve.Evaluate((float)(part.dynamicPressurekPa * 1000d));
-                        if (multiplier <= 0f)
-                            multiplier = 1f;
+                        if (dynPressurePenalties)
+                        {
+                            multiplier = pressureCurve.Evaluate((float)(part.dynamicPressurekPa * 1000d));
+                            if (multiplier <= 0f)
+                                multiplier = 1f;
+                        }
 
                         float minValue, maxValue = -1f;
                         baseIgnitionChance.FindMinMaxValue(out minValue, out maxValue);
