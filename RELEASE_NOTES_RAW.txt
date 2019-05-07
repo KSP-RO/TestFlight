@@ -1,3 +1,16 @@
+1.9.1.0
+===========
+KSP Version v1.3.1
+
+Changes
+-----------
+* Added ignition reliability to middle click info panel
+* Fixed Current Reliability values in the middle click info panel
+* Reworked how TF shows data in the part modules window. It now combines info from all modules into one and shows that in the same section.
+* Added option to disable dynamic-pressure-based ignition chance penalties
+* Made RandomGenerator static so that it wouldn't get reinitialized on each scene change
+* Disabled prelaunch ignition failures & dyn pressure penalties for any other diff preset other than Hard
+
 1.9.0.0
 ===========
 KSP Version v1.3.1
