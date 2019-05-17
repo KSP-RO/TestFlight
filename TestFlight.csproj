@@ -44,26 +44,23 @@
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\..\..\..\..\..\Games\Kerbal Space Program 1.3.1 - RO\KSP_x64_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Assembly-CSharp">
-      <HintPath>$(KSP_DLL_PATH)\Assembly-CSharp.dll</HintPath>
-    </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>$(KSP_DLL_PATH)\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Games\Kerbal Space Program 1.3.1 - RO\KSP_x64_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>$(KSP_DLL_PATH)\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="KSPUtil">
-      <HintPath>$(KSP_DLL_PATH)\KSPUtil.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Games\Kerbal Space Program 1.3.1 - RO\KSP_x64_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>$(KSP_DLL_PATH)\UnityEngine.UI.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Games\Kerbal Space Program 1.3.1 - RO\KSP_x64_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -138,6 +135,7 @@
     <Compile Include="TestFlightFailure_Engine.cs" />
     <Compile Include="TestFlightReliability_TestFail.cs" />
     <Compile Include="TestFlightFailure_EnginePerformanceLoss.cs" />
+    <Compile Include="TestFlightSettings.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -162,6 +160,10 @@
     <ProjectReference Include="TestFlightAPI\TestFlightAPI\TestFlightAPI.csproj">
       <Project>{F212E235-8856-4C7E-AFA9-051490E1350F}</Project>
       <Name>TestFlightAPI</Name>
+    </ProjectReference>
+    <ProjectReference Include="TestFlightCore\TestFlightCore\TestFlightCore.csproj">
+      <Project>{CD4D0CF1-16A8-4FB9-A7CC-6566160B8CD2}</Project>
+      <Name>TestFlightCore</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

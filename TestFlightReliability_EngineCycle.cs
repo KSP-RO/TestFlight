@@ -98,14 +98,14 @@ namespace TestFlight
             base.OnLoad(node);
         }
 
-        public override string GetInfo()
+        public override string GetModuleInfo()
         {
             if (cycle != null)
             {
                 float burnThrough = cycle.Evaluate(cycle.maxTime);
-                return String.Format("Engine Cycle Information for: \n{3}: Rated Burn Time: <color=#859900ff>{0:F2}</color> seconds\nBurn through penalty is <color=#dc322fff>{1:F2}</color> at {2:F2} seconds", ratedBurnTime, burnThrough, cycle.maxTime, Configuration);
+                return String.Format("Rated Burn Time: <color=#859900ff>{0:F2}</color> seconds\nBurn through penalty is <color=#dc322fff>{1:F2}</color> at {2:F2} seconds", ratedBurnTime, burnThrough, cycle.maxTime);
             }
-            return base.GetInfo();
+            return base.GetModuleInfo();
         }
 
         public override void OnAwake()

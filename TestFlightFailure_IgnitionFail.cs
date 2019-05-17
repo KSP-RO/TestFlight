@@ -7,6 +7,7 @@ using System.Reflection;
 using UnityEngine;
 
 using TestFlightAPI;
+using TestFlightCore;
 
 namespace TestFlight
 {
@@ -30,20 +31,8 @@ namespace TestFlight
         public int numIgnitions = 0;
 
         private ITestFlightCore core = null;
-
-        public new bool TestFlightEnabled
-        {
-            get
-            {
-                // verify we have a valid core attached
-                if (core == null)
-                    return false;
-                // and a valid engine
-                if (engines == null)
-                    return false;
-                return TestFlightUtil.EvaluateQuery(Configuration, this.part);
-            }
-        }
+        private bool preLaunchFailures;
+        private bool dynPressurePenalties;
 
         public override void OnStart(StartState state)
         {
@@ -51,7 +40,12 @@ namespace TestFlight
             core = TestFlightUtil.GetCore(this.part, Configuration);
             if (core != null)
                 Startup();
+            
+            // Get the in-game settings
+            preLaunchFailures = HighLogic.CurrentGame.Parameters.CustomParams<TestFlightGameSettings>().preLaunchFailures;
+            dynPressurePenalties = HighLogic.CurrentGame.Parameters.CustomParams<TestFlightGameSettings>().dynPressurePenalties;
         }
+
         public override void Startup()
         {
             base.Startup();
@@ -59,6 +53,14 @@ namespace TestFlight
                 return;
             // We don't want this getting triggered as a random failure
             core.DisableFailure("TestFlightFailure_IgnitionFail");
+        }
+
+        public void OnEnable()
+        {
+            if (core == null)
+                core = TestFlightUtil.GetCore(this.part, Configuration);
+            if (core != null)
+                Startup();
         }
 
         public override void OnUpdate()
@@ -86,19 +88,27 @@ namespace TestFlight
                         double initialFlightData = core.GetInitialFlightData();
                         float ignitionChance = 1f;
                         float multiplier = 1f;
-                        ignitionChance = baseIgnitionChance.Evaluate((float)initialFlightData);
-                        if (ignitionChance <= 0)    
-                            ignitionChance = 1f;
+                        
+                        // Check to see if the vessel has not launched and if the player disabled pad failures
+                        if (this.vessel.situation == Vessel.Situations.PRELAUNCH && !preLaunchFailures) {
+                          ignitionChance = 1.0f;
+                        } else {
+                          ignitionChance = baseIgnitionChance.Evaluate((float)initialFlightData);
+                          if (ignitionChance <= 0)    
+                              ignitionChance = 1f;
+                        }
 
-                        multiplier = pressureCurve.Evaluate((float)(part.dynamicPressurekPa * 1000d));
-                        if (multiplier <= 0f)
-                            multiplier = 1f;
+                        if (dynPressurePenalties)
+                        {
+                            multiplier = pressureCurve.Evaluate((float)(part.dynamicPressurekPa * 1000d));
+                            if (multiplier <= 0f)
+                                multiplier = 1f;
+                        }
 
                         float minValue, maxValue = -1f;
                         baseIgnitionChance.FindMinMaxValue(out minValue, out maxValue);
                         Log(String.Format("TestFlightFailure_IgnitionFail: IgnitionChance Curve, Min Value {0:F2}:{1:F6}, Max Value {2:F2}:{3:F6}", baseIgnitionChance.minTime, minValue, baseIgnitionChance.maxTime, maxValue));
-
-
+                          
                         if (this.vessel.situation != Vessel.Situations.PRELAUNCH)
                             ignitionChance = ignitionChance * multiplier * ignitionUseMultiplier.Evaluate(numIgnitions);
 
@@ -133,6 +143,11 @@ namespace TestFlight
                 if (engine.failEngine)
                 {
                     engine.engine.Shutdown();
+                    // For some reason, need to disable GUI as well
+                    engine.engine.Events["Activate"].active = false;
+                    engine.engine.Events["Shutdown"].active = false;
+                    engine.engine.Events["Activate"].guiActive = false;
+                    engine.engine.Events["Shutdown"].guiActive = false;
                     if ((restoreIgnitionCharge) || (this.vessel.situation == Vessel.Situations.PRELAUNCH) )
                         RestoreIgnitor();
                     engines[i].failEngine = false;
@@ -147,7 +162,11 @@ namespace TestFlight
             {
                 EngineHandler engine = engines[i];
                 {
+                    // Prevent auto-ignition on repair
                     engine.engine.Shutdown();
+                    engine.engine.Events["Activate"].active = true;
+                    engine.engine.Events["Activate"].guiActive = true;
+                    engine.engine.Events["Shutdown"].guiActive = true;
                     if (restoreIgnitionCharge || this.vessel.situation == Vessel.Situations.PRELAUNCH)
                         RestoreIgnitor();
                     engines[i].failEngine = false;
@@ -183,6 +202,46 @@ namespace TestFlight
                 ignitionUseMultiplier = new FloatCurve();
                 ignitionUseMultiplier.Add(0f, 1f);
             }
+        }
+
+        public override string GetModuleInfo()
+        {
+            if (baseIgnitionChance != null)
+            {
+                float pMin = baseIgnitionChance.Evaluate(baseIgnitionChance.minTime);
+                float pMax = baseIgnitionChance.Evaluate(baseIgnitionChance.maxTime);
+                return String.Format("Ignition chance at 0 data: <color=#859900ff>{0:P}</color>\nIgnition chance at max data: <color=#859900ff>{1:P}</color>", pMin, pMax);
+            }
+            return base.GetModuleInfo();
+        }
+
+        public override List<string> GetTestFlightInfo()
+        {
+            List<string> infoStrings = new List<string>();
+
+            if (core == null)
+            {
+                Log("Core is null");
+                return infoStrings;
+            }
+            if (baseIgnitionChance == null)
+            {
+                Log("Curve is null");
+                return infoStrings;
+            }
+
+            float flightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(Configuration);
+            if (flightData < 0f)
+                flightData = 0f;
+
+            infoStrings.Add("<b>Ignition Reliability</b>");
+            infoStrings.Add(String.Format("<b>Current Ignition Chance</b>: {0:P}", baseIgnitionChance.Evaluate(flightData)));
+            infoStrings.Add(String.Format("<b>Maximum Ignition Chance</b>: {0:P}", baseIgnitionChance.Evaluate(baseIgnitionChance.maxTime)));
+
+            if (additionalFailureChance > 0f)
+                infoStrings.Add(String.Format("<b>Additional Failure Chance</b>: {0:P}", additionalFailureChance));
+
+            return infoStrings;
         }
     }
 }

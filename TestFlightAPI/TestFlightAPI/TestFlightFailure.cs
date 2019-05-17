@@ -155,5 +155,10 @@ namespace TestFlightAPI
         {
             return true;
         }
+
+        public virtual string GetModuleInfo()
+        {
+            return string.Empty;
+        }
     }
 }

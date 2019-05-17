@@ -1,0 +1,19 @@
+{
+"NAME": "TestFlight",
+"URL": "https://raw.githubusercontent.com/KSP-RO/TestFlight/master/GameData/TestFlight/TestFlight.version", 
+"CHANGE_LOG_URL": "https://raw.githubusercontent.com/KSP-RO/TestFlight/master/RELEASE_NOTES_RAW.txt", 
+"KSP_VERSION": 
+	{
+	"MAJOR": 1, 
+	"MINOR": 3, 
+	"PATCH": 1
+	}, 
+"VERSION": 
+	{
+	"MAJOR": 1, 
+	"MINOR": 9, 
+	"PATCH": 1,
+	"BUILD": 0 
+	}, 
+"DOWNLOAD": "https://github.com/KSP-RO/TestFlight/releases/download/1.9.1.0/TestFlight-1.9.1.0.zip"
+}
