@@ -6,6 +6,7 @@ using System.Reflection;
 
 
 using UnityEngine;
+using UnityEngine.Profiling;
 using TestFlightCore.KSPPluginFramework;
 using TestFlightAPI;
 
