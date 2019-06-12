@@ -1,3 +1,11 @@
+1.10.0.0
+===========
+KSP Version v1.6.1
+
+Changes
+-----------
+* Build for KSP 1.6.1
+
 1.9.1.0
 ===========
 KSP Version v1.3.1
