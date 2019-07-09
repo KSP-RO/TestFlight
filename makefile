@@ -39,7 +39,7 @@ endif
 
 configs: $(CONFIG_DIR)/Stock/%.cfg
 	cp $(CONFIG_DIR)/Stock/*.cfg GameData/TestFlight/Config
-	zip $(ZIP_STOCK) GameData/TestFlight/Config/*
+	zip $(ZIP_STOCK) GameData/TestFlight/Config/* -x ignore.txt
 
 $(CONFIG_DIR)/Stock/%.cfg:
 	cd $(CONFIG_DIR);python compileYamlConfigs.py Stock
@@ -54,7 +54,7 @@ meta:
 endif
 
 zip: meta configs
-	zip $(ZIP_CORE) GameData GameData/TestFlight/* GameData/TestFlight/Plugins/* GameData/TestFlight/Resources/* GameData/TestFlight/Resources/Textures/*
+	zip $(ZIP_CORE) GameData GameData/TestFlight/* GameData/TestFlight/Plugins/* GameData/TestFlight/Resources/* GameData/TestFlight/Resources/Textures/* -x ignore.txt
 
 clean:
 	-rm $(CONFIG_DIR)/Stock/*.cfg
