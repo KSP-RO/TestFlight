@@ -39,7 +39,7 @@ endif
 
 configs: $(CONFIG_DIR)/Stock/%.cfg
 	cp $(CONFIG_DIR)/Stock/*.cfg GameData/TestFlight/Config
-	zip $(ZIP_STOCK) GameData/TestFlight/Config/* -x ignore.txt
+	zip $(ZIP_STOCK) -r GameData/TestFlight/Config -x ignore.txt
 
 $(CONFIG_DIR)/Stock/%.cfg:
 	cd $(CONFIG_DIR);python compileYamlConfigs.py Stock
