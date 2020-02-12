@@ -17,7 +17,7 @@ namespace TestFlight
         internal static String PathApp = KSPUtil.ApplicationRootPath.Replace("\\", "/");
         internal static String PathTestFlight = string.Format("{0}GameData/TestFlight", PathApp);
         //internal static String PathPlugin = string.Format("{0}/{1}", PathTriggerTech, KSPAlternateResourcePanel._AssemblyName);
-        internal static String PathPlugin = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+        internal static String PathPlugin = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
         internal static String PathPluginResources = string.Format("{0}/Resources", PathTestFlight);
         internal static String PathPluginToolbarIcons = string.Format("{0}/Resources/ToolbarIcons", PathTestFlight);
         internal static String PathPluginTextures = string.Format("{0}/Resources/Textures", PathTestFlight);
@@ -32,37 +32,77 @@ namespace TestFlight
         internal static String DBPathPluginSounds = string.Format("{0}/Resources/Sounds", DBPathPlugin);
 
 
-        internal static Texture2D texPanel = new Texture2D(16, 16, TextureFormat.ARGB32, false);
-        internal static Texture2D texPanelSolarizedDark = new Texture2D(16, 16, TextureFormat.ARGB32, false);
+        internal static Texture2D texPanel;
+        internal static Texture2D texPanelSolarizedDark;
 
-        internal static Texture2D btnChevronUp = new Texture2D(17, 16, TextureFormat.ARGB32, false);
-        internal static Texture2D btnChevronDown = new Texture2D(17, 16, TextureFormat.ARGB32, false);
+        internal static Texture2D btnChevronUp;
+        internal static Texture2D btnChevronDown;
 
-        internal static Texture2D texPartWindowHead = new Texture2D(16, 16, TextureFormat.ARGB32, false);
+        internal static Texture2D texPartWindowHead;
 
-        internal static Texture2D texBox = new Texture2D(9, 9, TextureFormat.ARGB32, false);
-        internal static Texture2D texBoxUnity = new Texture2D(9, 9, TextureFormat.ARGB32, false);
+        internal static Texture2D texBox;
+        internal static Texture2D texBoxUnity;
 
-        internal static Texture2D texSeparatorV = new Texture2D(6, 2, TextureFormat.ARGB32, false);
-        internal static Texture2D texSeparatorH = new Texture2D(2, 20, TextureFormat.ARGB32, false);
+        internal static Texture2D texSeparatorV;
+        internal static Texture2D texSeparatorH;
 
         internal static void LoadTextures()
         {
             MonoBehaviourExtended.LogFormatted("Loading Textures");
 
-            LoadImageFromFile(ref btnChevronUp, "ChevronUp.png", PathPluginResources);
-            LoadImageFromFile(ref btnChevronDown, "ChevronDown.png", PathPluginResources);
+            if (btnChevronUp == null)
+            {
+                btnChevronUp = new Texture2D(17, 16, TextureFormat.ARGB32, false);
+                LoadImageFromFile(ref btnChevronUp, "ChevronUp.png", PathPluginResources);
+            }
 
-            LoadImageFromFile(ref texPanel, "img_PanelBack.png");
-            LoadImageFromFile(ref texPanelSolarizedDark, "img_PanelSolarizedDark.png");
+            if (btnChevronDown == null)
+            {
+                btnChevronDown = new Texture2D(17, 16, TextureFormat.ARGB32, false);
+                LoadImageFromFile(ref btnChevronDown, "ChevronDown.png", PathPluginResources);
+            }
 
-            LoadImageFromFile(ref texPartWindowHead, "img_PartWindowHead.png");
+            if (texPanel == null)
+            {
+                texPanel = new Texture2D(16, 16, TextureFormat.ARGB32, false);
+                LoadImageFromFile(ref texPanel, "img_PanelBack.png");
+            }
 
-            LoadImageFromFile(ref texBox, "tex_Box.png");
-            LoadImageFromFile(ref texBoxUnity, "tex_BoxUnity.png");
+            if (texPanelSolarizedDark == null)
+            {
+                texPanelSolarizedDark = new Texture2D(16, 16, TextureFormat.ARGB32, false);
+                LoadImageFromFile(ref texPanelSolarizedDark, "img_PanelSolarizedDark.png");
+            }
 
-            LoadImageFromFile(ref texSeparatorH, "img_SeparatorHorizontal.png");
-            LoadImageFromFile(ref texSeparatorV, "img_SeparatorVertical.png");
+            if (texPartWindowHead == null)
+            {
+                texPartWindowHead = new Texture2D(16, 16, TextureFormat.ARGB32, false);
+                LoadImageFromFile(ref texPartWindowHead, "img_PartWindowHead.png");
+            }
+
+            if (texBox == null)
+            {
+                texBox = new Texture2D(9, 9, TextureFormat.ARGB32, false);
+                LoadImageFromFile(ref texBox, "tex_Box.png");
+            }
+
+            if (texBoxUnity == null)
+            {
+                texBoxUnity = new Texture2D(9, 9, TextureFormat.ARGB32, false);
+                LoadImageFromFile(ref texBoxUnity, "tex_BoxUnity.png");
+            }
+
+            if (texSeparatorH == null)
+            {
+                texSeparatorH = new Texture2D(2, 20, TextureFormat.ARGB32, false);
+                LoadImageFromFile(ref texSeparatorH, "img_SeparatorHorizontal.png");
+            }
+
+            if (texSeparatorV == null)
+            {
+                texSeparatorV = new Texture2D(6, 2, TextureFormat.ARGB32, false);
+                LoadImageFromFile(ref texSeparatorV, "img_SeparatorVertical.png");
+            }
         }
 
 
@@ -109,12 +149,12 @@ namespace TestFlight
                 if (FolderPath == "") FolderPath = PathPluginTextures;
 
                 //File Exists check
-                if (System.IO.File.Exists(String.Format("{0}/{1}", FolderPath, FileName)))
+                if (File.Exists(String.Format("{0}/{1}", FolderPath, FileName)))
                 {
                     try
                     {
                         MonoBehaviourExtended.LogFormatted_DebugOnly("Loading: {0}", String.Format("{0}/{1}", FolderPath, FileName));
-                        tex.LoadImage(System.IO.File.ReadAllBytes(String.Format("{0}/{1}", FolderPath, FileName)));
+                        tex.LoadImage(File.ReadAllBytes(String.Format("{0}/{1}", FolderPath, FileName)));
                         blnReturn = true;
                     }
                     catch (Exception ex)
@@ -126,8 +166,6 @@ namespace TestFlight
                 {
                     MonoBehaviourExtended.LogFormatted("Cannot find texture to load:{0}", String.Format("{0}/{1}", FolderPath, FileName));
                 }
-
-
             }
             catch (Exception ex)
             {
