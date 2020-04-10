@@ -1,0 +1,33 @@
+{
+"NAME": "TestFlight",
+"URL": "https://raw.githubusercontent.com/KSP-RO/TestFlight/master/GameData/TestFlight/TestFlight.version", 
+"CHANGE_LOG_URL": "https://raw.githubusercontent.com/KSP-RO/TestFlight/master/RELEASE_NOTES_RAW.txt", 
+"KSP_VERSION":
+	{
+	"MAJOR": 1,
+	"MINOR": 8,
+	"PATCH": 1
+	},
+"VERSION":
+	{
+	"MAJOR": 1,
+	"MINOR": 12,
+	"PATCH": 0,
+	"BUILD": 0
+	},
+"KSP_VERSION_MIN":
+	{
+	"MAJOR": 1,
+	"MINOR": 8,
+	"PATCH": 0,
+	"BUILD": 0
+	},
+"KSP_VERSION_MAX":
+	{
+	"MAJOR": 1,
+	"MINOR": 9,
+	"PATCH": 99,
+	"BUILD": 0
+	},
+"DOWNLOAD": "https://github.com/KSP-RO/TestFlight/releases/download/1.12.0.0/TestFlight-1.12.0.0.zip"
+}
