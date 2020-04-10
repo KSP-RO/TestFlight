@@ -4,14 +4,35 @@ CONFIG_DIR = configs
 VERSION = $(shell git describe --tags)
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD 2>&1)
 
-ifdef TRAVIS_TAG
-ZIP_CORE := TestFlightCore-$(TRAVIS_TAG).zip
-ZIP_STOCK := TestFlightConfigStock-$(TRAVIS_TAG).zip
-else
-ZIP_CORE := TestFlightCore-$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER).zip
-ZIP_STOCK := TestFlightConfigStock-$(TRAVIS_BRANCH)_$(TRAVIS_BUILD_NUMBER).zip
+ZIP_CORE := TestFlightCore
+ZIP_STOCK := TestFlightStock
+
+$(info Travis Branch: $(TRAVIS_BRANCH))
+$(info Travis Tag: $(TRAVIS_TAG))
+ifdef TRAVIS_BRANCH
+    ifeq "$(TRAVIS_BRANCH)" "master"
+	    ZIP_CORE := $(ZIP_CORE)-release_$(TRAVIS_BUILD_NUMBER)
+	    ZIP_STOCK := $(ZIP_STOCK)-release_$(TRAVIS_BUILD_NUMBER)
+    else ifeq "$(TRAVIS_BRANCH)" "dev"
+	    ZIP_CORE := $(ZIP_CORE)-prerelease_$(TRAVIS_BUILD_NUMBER)
+	    ZIP_STOCK := $(ZIP_STOCK)-prerelease_$(TRAVIS_BUILD_NUMBER)
+    else
+	    ZIP_CORE := $(ZIP_CORE)-dev_$(TRAVIS_BUILD_NUMBER)
+	    ZIP_STOCK := $(ZIP_STOCK)-dev_$(TRAVIS_BUILD_NUMBER)
+    endif
 endif
 
+ifdef TRAVIS_TAG
+ZIP_CORE := $(ZIP_CORE)-$(TRAVIS_TAG)
+ZIP_STOCK := $(ZIP_STOCK)-$(TRAVIS_TAG)
+else
+endif
+
+ZIP_CORE := $(ZIP_CORE).zip
+ZIP_STOCK := $(ZIP_STOCK).zip
+
+$(info $(ZIP_CORE))
+$(info $(ZIP_STOCK))
 all: clean meta configs
 	cp -r GameData/TestFlight/ ~/Dropbox/KSP/TestFlight/
 

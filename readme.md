@@ -1,7 +1,9 @@
 TestFlight
 ==========
-[![Build Status Master](https://travis-ci.org/KSP-RO/TestFlight.svg?branch=master)](https://travis-ci.org/KSP-RO/TestFlight)
-[![Build Status dev](https://travis-ci.org/KSP-RO/TestFlight.svg?branch=dev)](https://travis-ci.org/KSP-RO/TestFlight)
+Release: [![Build Status Master](https://travis-ci.org/KSP-RO/TestFlight.svg?branch=master)](https://travis-ci.org/KSP-RO/TestFlight)
+
+Prerelease: [![Build Status dev](https://travis-ci.org/KSP-RO/TestFlight.svg?branch=dev)](https://travis-ci.org/KSP-RO/TestFlight)
+
 
 ----------------------------------
 
