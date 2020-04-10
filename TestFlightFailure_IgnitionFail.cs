@@ -33,6 +33,7 @@ namespace TestFlight
         private ITestFlightCore core = null;
         private bool preLaunchFailures;
         private bool dynPressurePenalties;
+        private bool verboseDebugging;
 
         public override void OnStart(StartState state)
         {
@@ -40,6 +41,8 @@ namespace TestFlight
             core = TestFlightUtil.GetCore(this.part, Configuration);
             if (core != null)
                 Startup();
+
+            verboseDebugging = core.DebugEnabled;
             
             // Get the in-game settings
             preLaunchFailures = HighLogic.CurrentGame.Parameters.CustomParams<TestFlightGameSettings>().preLaunchFailures;
@@ -81,9 +84,11 @@ namespace TestFlight
                     if (engine.ignitionState == EngineModuleWrapper.EngineIgnitionState.NOT_IGNITED || engine.ignitionState == EngineModuleWrapper.EngineIgnitionState.UNKNOWN)
                     {
                         double failureRoll = 0d;
-                        Log(String.Format("IgnitionFail: Engine {0} transitioning to INGITED state", engine.engine.Module.GetInstanceID()));
-                        Log(String.Format("IgnitionFail: Checking curves..."));
-                        numIgnitions++;
+                        if (verboseDebugging)
+                        {
+                            Log(String.Format("IgnitionFail: Engine {0} transitioning to INGITED state", engine.engine.Module.GetInstanceID()));
+                            Log(String.Format("IgnitionFail: Checking curves..."));
+                        }                        numIgnitions++;
 
                         double initialFlightData = core.GetInitialFlightData();
                         float ignitionChance = 1f;
@@ -107,13 +112,19 @@ namespace TestFlight
 
                         float minValue, maxValue = -1f;
                         baseIgnitionChance.FindMinMaxValue(out minValue, out maxValue);
-                        Log(String.Format("TestFlightFailure_IgnitionFail: IgnitionChance Curve, Min Value {0:F2}:{1:F6}, Max Value {2:F2}:{3:F6}", baseIgnitionChance.minTime, minValue, baseIgnitionChance.maxTime, maxValue));
+                        if (verboseDebugging)
+                        {
+                            Log(String.Format("TestFlightFailure_IgnitionFail: IgnitionChance Curve, Min Value {0:F2}:{1:F6}, Max Value {2:F2}:{3:F6}", baseIgnitionChance.minTime, minValue, baseIgnitionChance.maxTime, maxValue));
+                        }
                           
                         if (this.vessel.situation != Vessel.Situations.PRELAUNCH)
                             ignitionChance = ignitionChance * multiplier * ignitionUseMultiplier.Evaluate(numIgnitions);
 
                         failureRoll = core.RandomGenerator.NextDouble();
-                        Log(String.Format("IgnitionFail: Engine {0} ignition chance {1:F4}, roll {2:F4}", engine.engine.Module.GetInstanceID(), ignitionChance, failureRoll));
+                        if (verboseDebugging)
+                        {
+                            Log(String.Format("IgnitionFail: Engine {0} ignition chance {1:F4}, roll {2:F4}", engine.engine.Module.GetInstanceID(), ignitionChance, failureRoll));
+                        }
                         if (failureRoll > ignitionChance)
                         {
                             engine.failEngine = true;

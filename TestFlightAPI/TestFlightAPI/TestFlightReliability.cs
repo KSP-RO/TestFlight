@@ -48,6 +48,8 @@ namespace TestFlightAPI
             }
         }
 
+        protected bool verboseDebugging;
+
         protected void Log(string message)
         {
             message = String.Format("TestFlightReliability({0}[{1}]): {2}", Configuration, Configuration, message);
@@ -109,6 +111,7 @@ namespace TestFlightAPI
                 core = TestFlightUtil.GetCore(this.part, Configuration);
             if (core != null)
                 Startup();
+            verboseDebugging = core.DebugEnabled;
         }
 
 
@@ -161,11 +164,17 @@ namespace TestFlightAPI
 //            float failureRoll = Mathf.Min(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f));
 //            float failureRoll = UnityEngine.Random.Range(0f, 1f);
             double failureRoll = core.RandomGenerator.NextDouble();
-            Log(String.Format("Survival Chance at Time {0:F2} is {1:f4}.  Rolled {2:f4}", (float)operatingTime, survivalChance, failureRoll));
+            if (verboseDebugging)
+            {
+                Log(String.Format("Survival Chance at Time {0:F2} is {1:f4}.  Rolled {2:f4}", (float)operatingTime, survivalChance, failureRoll));
+            }
             if (failureRoll > survivalChance)
             {
 //                Debug.Log(String.Format("TestFlightReliability: Survival Chance at Time {0:F2} is {1:f4} -- {2:f4}^({3:f4}*{0:f2}*-1.0)", (float)operatingTime, survivalChance, Mathf.Exp(1), (float)currentFailureRate));
-                Log(String.Format("Part has failed after {1:F1} secodns of operation at MET T+{2:F2} seconds with roll of {0:F4}", failureRoll, operatingTime, this.vessel.missionTime));
+                if (verboseDebugging)
+                {
+                    Log(String.Format("Part has failed after {1:F1} secodns of operation at MET T+{2:F2} seconds with roll of {0:F4}", failureRoll, operatingTime, this.vessel.missionTime));
+                }
                 core.TriggerFailure();
             }
         }
