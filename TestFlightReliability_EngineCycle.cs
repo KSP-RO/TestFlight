@@ -62,17 +62,22 @@ namespace TestFlight
                 else
                 {
                     // If so then we add burn time based on time passed, optionally modified by the thrust
-                    Log(String.Format("TestFlightReliability_EngineCycle: Engine Thrust {0:F4}", engine.finalThrust));
                     float actualThrustModifier = thrustModifier.Evaluate(engine.finalThrust);
-                    Log(String.Format("TestFlightReliability_EngineCycle: delta time: {0:F4}, operating time :{1:F4}, thrustModifier: {2:F4}", deltaTime, engineOperatingTime, actualThrustModifier));
-                    engineOperatingTime = engineOperatingTime + (deltaTime * actualThrustModifier);
+                    if (verboseDebugging)
+                    {
+                        Log(String.Format("TestFlightReliability_EngineCycle: Engine Thrust {0:F4}", engine.finalThrust));
+                        Log(String.Format("TestFlightReliability_EngineCycle: delta time: {0:F4}, operating time :{1:F4}, thrustModifier: {2:F4}", deltaTime, engineOperatingTime, actualThrustModifier));
+                    }                    engineOperatingTime = engineOperatingTime + (deltaTime * actualThrustModifier);
 
                     // Check for failure
                     float minValue, maxValue = -1f;
                     cycle.FindMinMaxValue(out minValue, out maxValue);
-                    Log(String.Format("TestFlightReliability_EngineCycle: Cycle Curve, Min Value {0:F2}:{1:F6}, Max Value {2:F2}:{3:F6}", cycle.minTime, minValue, cycle.maxTime, maxValue));
                     float penalty = cycle.Evaluate((float)engineOperatingTime);
-                    Log(String.Format("TestFlightReliability_EngineCycle: Applying modifier {0:F4} at cycle time {1:F4}", penalty, engineOperatingTime));
+                    if (verboseDebugging)
+                    {
+                        Log(String.Format("TestFlightReliability_EngineCycle: Cycle Curve, Min Value {0:F2}:{1:F6}, Max Value {2:F2}:{3:F6}", cycle.minTime, minValue, cycle.maxTime, maxValue));
+                        Log(String.Format("TestFlightReliability_EngineCycle: Applying modifier {0:F4} at cycle time {1:F4}", penalty, engineOperatingTime));
+                    }   
                     core.SetTriggerMomentaryFailureModifier("EngineCycle", penalty, this);
                 }
             }
