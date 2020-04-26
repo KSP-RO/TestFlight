@@ -239,7 +239,7 @@ namespace TestFlight
 
             if (pressureCurve != null & pressureCurve.Curve.keys.Length > 1)
             {
-                infoString = $"{infoString}. <b>NOTE</b>: This engine suffers a penalty to ignition when air lighting due to dynamic pressure";
+                infoString = $"{infoString}.\n<b>NOTE</b>: This engine suffers a penalty to ignition when air lighting due to dynamic pressure";
             }
 
             return infoString;
@@ -275,8 +275,8 @@ namespace TestFlight
             {
                 float maxTime = pressureCurve.maxTime;
                 infoStrings.Add("<b>This engine suffers a penalty to ignition based on dynamic pressure</b>");
-                infoStrings.Add($"<B>0Pa Pressure Modifier: {pressureCurve.Evaluate(0)}");
-                infoStrings.Add($"<b>{maxTime}Pa Pressure Modifier</b>: {pressureCurve.Evaluate(maxTime)}");
+                infoStrings.Add($"<B>0 Pa Pressure Modifier: {pressureCurve.Evaluate(0)}");
+                infoStrings.Add($"<b>{maxTime} Pa Pressure Modifier</b>: {pressureCurve.Evaluate(maxTime):N}");
             }
 
             return infoStrings;
