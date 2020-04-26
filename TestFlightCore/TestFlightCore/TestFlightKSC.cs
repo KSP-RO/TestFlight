@@ -169,14 +169,12 @@ namespace TestFlightCore
         }
         void OpenWindow()
         {
-            Log("Open Window");
             CalculateWindowBounds();
             Visible = true;
             stickyWindow = true;
         }
         void CloseWindow()
         {
-            Log("Close Window");
             Visible = false;
             stickyWindow = false;
         }
@@ -186,24 +184,20 @@ namespace TestFlightCore
         }
         void RepostionWindow()
         {
-            Log("Reposition Window");
             CalculateWindowBounds();
         }
         void HoverInButton()
         {
-            Log("Hover In");
             CalculateWindowBounds();
             Visible = true;
         }
         void HoverOutButton()
         {
-            Log("Hover Out");
             if (!stickyWindow)
                 Visible = false;
         }
         internal override void OnGUIOnceOnly()
         {
-            Log("Initializing GUI styles and skins");
             Styles.InitStyles();
             Styles.InitSkins();
             SkinsLibrary.SetCurrent("SolarizedDark");

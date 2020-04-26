@@ -92,7 +92,6 @@ namespace TestFlightCore
 //            if (masterStatus[currentVessl].allPartsStatus.Count(ps => ps.activeFailure != null) < lastPartCount)
             if (masterStatus[currentVessl].allPartsStatus.Count < lastPartCount)
             {
-                Log("TestFlightHUD less parts to display than last time.  Need to recalculate window bounds");
                 CalculateWindowBounds();
             }
 //            lastPartCount = masterStatus[currentVessl].allPartsStatus.Count(ps => ps.activeFailure != null);
