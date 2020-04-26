@@ -144,9 +144,31 @@ namespace TestFlight
         // Failure methods
         public override void DoFailure()
         {
-            base.DoFailure();
             if (!TestFlightEnabled)
                 return;
+            Failed = true;
+            float multiplier = 0;
+            ITestFlightCore core = TestFlightUtil.GetCore(this.part, Configuration);
+            if (core != null)
+            {
+                core.ModifyFlightData(duFail, true);
+                string met = KSPUtil.PrintTimeCompact((int)Math.Floor(this.vessel.missionTime), false);
+                if (dynPressurePenalties)
+                {
+                    multiplier = pressureCurve.Evaluate((float)(part.dynamicPressurekPa * 1000d));
+                    if (multiplier <= 0f)
+                        multiplier = 1f;
+                }
+
+                if (multiplier > float.Epsilon)
+                {
+                    FlightLogger.eventLog.Add($"[{met}] {core.Title} failed: Ignition Failure.  {multiplier} penalty for {(float)(part.dynamicPressurekPa * 1000d)}Pa dynamic pressure.");
+                }
+                else
+                {
+                    FlightLogger.eventLog.Add($"[{met}] {core.Title} failed: Ignition Failure");
+                }
+            }
             Log(String.Format("IgnitionFail: Failing {0} engine(s)", engines.Count));
             for (int i = 0; i < engines.Count; i++)
             {
@@ -217,13 +239,21 @@ namespace TestFlight
 
         public override string GetModuleInfo()
         {
+            string infoString = "";
+            
             if (baseIgnitionChance != null)
             {
                 float pMin = baseIgnitionChance.Evaluate(baseIgnitionChance.minTime);
                 float pMax = baseIgnitionChance.Evaluate(baseIgnitionChance.maxTime);
-                return String.Format("Ignition chance at 0 data: <color=#859900ff>{0:P}</color>\nIgnition chance at max data: <color=#859900ff>{1:P}</color>", pMin, pMax);
+                infoString = $"Ignition chance at 0 data: <color=#859900ff>{pMin:P1}</color>\nIgnition chance at max data: <color=#859900ff>{pMax:P1}</color>";
             }
-            return base.GetModuleInfo();
+
+            if (pressureCurve != null & pressureCurve.Curve.keys.Length > 1)
+            {
+                infoString = $"{infoString}.\n<b>NOTE</b>: This engine suffers a penalty to ignition when air lighting due to dynamic pressure";
+            }
+
+            return infoString;
         }
 
         public override List<string> GetTestFlightInfo()
@@ -251,6 +281,14 @@ namespace TestFlight
 
             if (additionalFailureChance > 0f)
                 infoStrings.Add(String.Format("<b>Additional Failure Chance</b>: {0:P}", additionalFailureChance));
+
+            if (pressureCurve != null & pressureCurve.Curve.keys.Length > 1)
+            {
+                float maxTime = pressureCurve.maxTime;
+                infoStrings.Add("<b>This engine suffers a penalty to ignition based on dynamic pressure</b>");
+                infoStrings.Add($"<B>0 Pa Pressure Modifier: {pressureCurve.Evaluate(0)}");
+                infoStrings.Add($"<b>{maxTime} Pa Pressure Modifier</b>: {pressureCurve.Evaluate(maxTime):N}");
+            }
 
             return infoStrings;
         }
