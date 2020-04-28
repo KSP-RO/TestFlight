@@ -16,21 +16,9 @@ namespace TestFlight
         //WHERE SHOULD THESE BE???
         internal static String PathApp = KSPUtil.ApplicationRootPath.Replace("\\", "/");
         internal static String PathTestFlight = string.Format("{0}GameData/TestFlight", PathApp);
-        //internal static String PathPlugin = string.Format("{0}/{1}", PathTriggerTech, KSPAlternateResourcePanel._AssemblyName);
         internal static String PathPlugin = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
         internal static String PathPluginResources = string.Format("{0}/Resources", PathTestFlight);
-        internal static String PathPluginToolbarIcons = string.Format("{0}/Resources/ToolbarIcons", PathTestFlight);
         internal static String PathPluginTextures = string.Format("{0}/Resources/Textures", PathTestFlight);
-        //internal static String PathPluginData = string.Format("{0}/Data", PathPlugin);
-        internal static String PathPluginSounds = string.Format("{0}/Resources/Sounds", PathPlugin);
-
-        internal static String DBPathTestFlight = string.Format("TestFlight");
-        internal static String DBPathPlugin = string.Format("TestFlight/{0}", TestFlightCore.TestFlightWindow._AssemblyName);
-        internal static String DBPathResources = string.Format("{0}/Resources", DBPathPlugin);
-        internal static String DBPathToolbarIcons = string.Format("{0}/Resources/ToolbarIcons", DBPathPlugin);
-        internal static String DBPathTextures = string.Format("{0}/Resources/Textures", DBPathPlugin);
-        internal static String DBPathPluginSounds = string.Format("{0}/Resources/Sounds", DBPathPlugin);
-
 
         internal static Texture2D texPanel;
         internal static Texture2D texPanelSolarizedDark;
