@@ -256,7 +256,6 @@ namespace TestFlightCore
                 return;
             // We update the window bounds here, around twice a second, instead of in the GUI draw
             // This way for one it will cause less overhead, and also shouldn't cause as much flashing
-            Log("Recalculating Window Bounds");
             CalculateWindowBounds();
 
             base.RepeatingWorker();

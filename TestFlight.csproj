@@ -13,6 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <ReleaseVersion>0.4.0</ReleaseVersion>
     <TargetFrameworkProfile />
+    <LangVersion>6</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>portable</DebugType>

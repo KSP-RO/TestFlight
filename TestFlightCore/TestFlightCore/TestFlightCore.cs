@@ -81,6 +81,8 @@ namespace TestFlightCore
 
         private string[] ops = { "=", "!=", "<", "<=", ">", ">=", "<>", "<=>" };
 
+        Dictionary<string, IFlightDataRecorder> m_Recorders;
+
         public bool ActiveConfiguration
         {
             get
@@ -772,28 +774,37 @@ namespace TestFlightCore
             missionStartTime = Planetarium.GetUniversalTime();
             Log("First stage activated");
         }
+
         /// <summary>
         /// Determines whether the part is considered operating or not.
         /// </summary>
         public bool IsPartOperating()
         {
             Profiler.BeginSample("IsPartOperating");
-            IFlightDataRecorder dr = TestFlightUtil.GetDataRecorder(this.part, Alias);
+            if (m_Recorders == null)
+            {
+                m_Recorders = new Dictionary<string, IFlightDataRecorder>();
+            }
+
+            if (!m_Recorders.ContainsKey(Alias))
+            {
+                IFlightDataRecorder dr = TestFlightUtil.GetDataRecorder(this.part, Alias);
+                m_Recorders.Add(Alias, dr);
+                Profiler.EndSample();
+                return dr.IsPartOperating();
+            }
+
             Profiler.EndSample();
-            return dr != null && dr.IsPartOperating();
+            return m_Recorders[Alias].IsPartOperating();
         }
 
         // PARTMODULE functions
         public override void Update()
         {
-            Profiler.BeginSample("Base update");
             base.Update();
-            Profiler.EndSample();
 
-            Profiler.BeginSample("Stage check");
             if (!firstStaged)
                 return;
-            Profiler.EndSample();
 
             Profiler.BeginSample("Enabled check");
             if (!TestFlightEnabled)
