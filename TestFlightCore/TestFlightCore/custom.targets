@@ -1,6 +1,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 <ItemGroup>
-  <FilesToCopy Include="$(OutputPath)\TestFlightCore.dll" />
+  <FilesToCopy Include="$(OutputPath)\TestFlightCore.*" />
 </ItemGroup>
 <ItemGroup>
   <MDBFilesToCopy Include="$(OutputPath)\TestFlightCore.dll.mdb" />
