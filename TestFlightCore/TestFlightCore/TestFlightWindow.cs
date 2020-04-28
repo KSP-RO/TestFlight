@@ -85,6 +85,7 @@ namespace TestFlightCore
             }
             // Default position and size -- will get proper bounds calculated when needed
             WindowRect = new Rect(0, 50, 500, 50);
+            ClampToScreenOffset = new RectOffset(0, 0, 0, 0);
             DragEnabled = !tfScenario.userSettings.mainWindowLocked;
             ClampToScreen = true;
             TooltipsEnabled = true;
