@@ -38,7 +38,7 @@ namespace TestFlightCore.KSPPluginFramework
             : base()
         {
             //do the assembly name add so we get different windowIDs for multiple plugins
-            this.WindowID = UnityEngine.Random.Range(1000, 2000000) + _AssemblyName.GetHashCode();
+            this.WindowID = 153326 + _AssemblyName.GetHashCode();
             this._Visible = false;
             LogFormatted_DebugOnly("WindowID:{0}", WindowID);
 
@@ -54,17 +54,6 @@ namespace TestFlightCore.KSPPluginFramework
                 WindowMoveEventsEnabled = attr.WindowMoveEventsEnabled;
             }
         }
-        ///CANT USE THE ONES BELOW HERE AS WE NEED TO INSTANTIATE THE WINDOW USING AddComponent()
-        //internal MonoBehaviourWindow(String Caption)
-        //    : this()
-        //{
-        //    this.WindowCaption = Caption;
-        //}
-        //internal MonoBehaviourWindow(String Caption, Rect Position)
-        //    : this(Caption)
-        //{
-        //    this.WindowRect = Position;
-        //}
 
         //TODO: Look at using this
         //  http://answers.unity3d.com/questions/445444/add-component-in-one-line-with-parameters.html
@@ -97,6 +86,7 @@ namespace TestFlightCore.KSPPluginFramework
             GameEvents.onGUIAstronautComplexDespawn.Add(ShowUI);
             GameEvents.onGUIRnDComplexSpawn.Add(HideUI);
             GameEvents.onGUIRnDComplexDespawn.Add(ShowUI);
+            ClampToScreenOffset = new RectOffset(0, 0, 0, 0);
         }
 
         internal bool bHideUI = false;
@@ -190,7 +180,7 @@ namespace TestFlightCore.KSPPluginFramework
         /// <summary>
         /// How close to the edges it can get if clamping is enabled - this can be negative if you want to allow it to go off screen by a certain amount
         /// </summary>
-        internal RectOffset ClampToScreenOffset = new RectOffset(0, 0, 0, 0);
+        internal RectOffset ClampToScreenOffset;
 
         internal override void OnGUIEvery()
         {

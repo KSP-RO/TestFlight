@@ -57,7 +57,6 @@ namespace TestFlightCore.KSPPluginFramework
         //}
         static MonoBehaviourExtended()
         {
-            UnityEngine.Random.InitState((int)(DateTime.Now - DateTime.Now.Date).TotalSeconds);
         }
         #endregion
 
