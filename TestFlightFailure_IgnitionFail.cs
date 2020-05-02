@@ -220,6 +220,8 @@ namespace TestFlight
         public override void OnAwake()
         {
             base.OnAwake();
+            var node = ConfigNode.Parse(configNodeData);
+            OnLoad(node);
             if (baseIgnitionChance == null)
             {
                 baseIgnitionChance = new FloatCurve();
@@ -234,6 +236,45 @@ namespace TestFlight
             {
                 ignitionUseMultiplier = new FloatCurve();
                 ignitionUseMultiplier.Add(0f, 1f);
+            }
+        }
+
+        public override void SetActiveConfig(string alias)
+        {
+            base.SetActiveConfig(alias);
+            
+            if (currentConfig == null) return;
+
+            // update current values with those from the current config node
+            currentConfig.TryGetValue("restoreIgnitionCharge", ref restoreIgnitionCharge);
+            currentConfig.TryGetValue("ignorePressureOnPad", ref ignorePressureOnPad);
+            currentConfig.TryGetValue("additionalFailureChance", ref additionalFailureChance);
+            baseIgnitionChance = new FloatCurve();
+            if (currentConfig.HasNode("baseIgnitionChance"))
+            {
+                baseIgnitionChance.Load(currentConfig.GetNode("baseIgnitionChance"));
+            }
+            else
+            {
+                baseIgnitionChance.Add(0f,1f);
+            }
+            pressureCurve = new FloatCurve();
+            if (currentConfig.HasNode("pressureCurve"))
+            {
+                pressureCurve.Load(currentConfig.GetNode("pressureCurve"));
+            }
+            else
+            {
+                pressureCurve.Add(0f,1f);
+            }
+            ignitionUseMultiplier = new FloatCurve();
+            if (currentConfig.HasNode("ignitionUseMultiplier"))
+            {
+                ignitionUseMultiplier.Load(currentConfig.GetNode("ignitionUseMultiplier"));
+            }
+            else
+            {
+                ignitionUseMultiplier.Add(0f,1f);
             }
         }
 

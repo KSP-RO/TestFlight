@@ -102,6 +102,37 @@ namespace TestFlight
         {
             base.OnLoad(node);
         }
+        
+        public override void SetActiveConfig(string alias)
+        {
+            base.SetActiveConfig(alias);
+            
+            if (currentConfig == null) return;
+
+            // update current values with those from the current config node
+            cycle = new FloatCurve();
+            if (currentConfig.HasNode("cycle"))
+            {
+                cycle.Load(currentConfig.GetNode("cycle"));
+            }
+            else
+            {
+                cycle.Add(0f,1f);
+            }
+            thrustModifier = new FloatCurve();
+            if (currentConfig.HasNode("thrustModifier"))
+            {
+                thrustModifier.Load(currentConfig.GetNode("thrustModifier"));
+            }
+            else
+            {
+                thrustModifier.Add(0f,1f);
+            }
+            currentConfig.TryGetValue("idleDecayRate", ref idleDecayRate);
+            currentConfig.TryGetValue("ratedBurnTime", ref ratedBurnTime);
+            currentConfig.TryGetValue("engineID", ref engineID);
+            currentConfig.TryGetValue("engineConfig", ref engineConfig);
+        }
 
         public override string GetModuleInfo()
         {
@@ -116,6 +147,8 @@ namespace TestFlight
         public override void OnAwake()
         {
             base.OnAwake();
+            var node = ConfigNode.Parse(configNodeData);
+            OnLoad(node);
             if (thrustModifier == null)
             {
                 thrustModifier = new FloatCurve();

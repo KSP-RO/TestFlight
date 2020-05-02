@@ -22,6 +22,11 @@ namespace TestFlightAPI
         public string configuration = "";
         #endregion
 
+        public List<ConfigNode> configs;
+        public ConfigNode currentConfig;
+        public string configNodeData;
+        
+
         protected void Log(string message)
         {
             message = String.Format("FlightDataRecorder({0}[{1}]): {2}", Configuration, Configuration, message);
@@ -53,6 +58,56 @@ namespace TestFlightAPI
             { 
                 configuration = value; 
             }
+        }
+
+        public void SetActiveConfig(string alias)
+        {
+            if (configs == null)
+                configs = new List<ConfigNode>();
+            
+            foreach (var configNode in configs)
+            {
+                if (!configNode.HasValue("configuration")) continue;
+
+                var nodeConfiguration = configNode.GetValue("configuration");
+
+                if (string.Equals(nodeConfiguration, alias, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    currentConfig = configNode;
+                }
+            }
+
+            if (currentConfig == null) return;
+
+            // update current values with those from the current config node
+            currentConfig.TryGetValue("flightDataMultiplier", ref flightDataMultiplier);
+            currentConfig.TryGetValue("configuration", ref configuration);
+            currentConfig.TryGetValue("flightDataEngineerModifier", ref flightDataEngineerModifier);
+        }
+
+        public override void OnLoad(ConfigNode node)
+        {
+            base.OnLoad(node);
+
+            if (node.HasNode("MODULE"))
+                node = node.GetNode("MODULE");
+
+            if (configs == null)
+                configs = new List<ConfigNode>();
+
+            ConfigNode[] cNodes = node.GetNodes("CONFIG");
+            if (cNodes != null && cNodes.Length > 0)
+            {
+                configs.Clear();
+
+                foreach (ConfigNode subNode in cNodes) {
+                    var newNode = new ConfigNode("CONFIG");
+                    subNode.CopyTo(newNode);
+                    configs.Add(newNode);
+                }
+            }
+
+            configNodeData = node.ToString();
         }
 
         public void OnEnable()
@@ -123,12 +178,10 @@ namespace TestFlightAPI
 
         public override void OnAwake()
         {
-            base.OnAwake();
-        }
+            var node = ConfigNode.Parse(configNodeData);
+            OnLoad(node);
 
-        public override void OnLoad(ConfigNode node)
-        {
-            base.OnLoad(node);
+            base.OnAwake();
         }
 
         public override void OnSave(ConfigNode node)

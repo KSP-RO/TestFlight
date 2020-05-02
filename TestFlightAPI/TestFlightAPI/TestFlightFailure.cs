@@ -29,6 +29,9 @@ namespace TestFlightAPI
         [KSPField(isPersistant=true)]
         public bool failed;
 
+        public List<ConfigNode> configs;
+        public ConfigNode currentConfig;
+        public string configNodeData;
 
         public bool Failed
         {
@@ -116,6 +119,35 @@ namespace TestFlightAPI
             return 0;
         }
 
+        public virtual void SetActiveConfig(string alias)
+        {
+            if (configs == null)
+                configs = new List<ConfigNode>();
+            
+            foreach (var configNode in configs)
+            {
+                if (!configNode.HasValue("configuration")) continue;
+
+                var nodeConfiguration = configNode.GetValue("configuration");
+
+                if (string.Equals(nodeConfiguration, alias, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    currentConfig = configNode;
+                }
+            }
+
+            if (currentConfig == null) return;
+
+            // update current values with those from the current config node
+            currentConfig.TryGetValue("configuration", ref configuration);
+            currentConfig.TryGetValue("failureType", ref failureType);
+            currentConfig.TryGetValue("severity", ref severity);
+            currentConfig.TryGetValue("weight", ref weight);
+            currentConfig.TryGetValue("failureTitle", ref failureTitle);
+            currentConfig.TryGetValue("duFail", ref duFail);
+            currentConfig.TryGetValue("duRepair", ref duRepair);
+            currentConfig.TryGetValue("oneShot", ref oneShot);
+        }
 
         public virtual List<string> GetTestFlightInfo()
         {
@@ -124,6 +156,9 @@ namespace TestFlightAPI
 
         public override void OnAwake()
         {
+            var node = ConfigNode.Parse(configNodeData);
+            OnLoad(node);
+
             Failed = false;
             base.OnAwake();
         }
@@ -135,11 +170,31 @@ namespace TestFlightAPI
         public override void OnLoad(ConfigNode node)
         {
             base.OnLoad(node);
+
+            if (node.HasNode("MODULE"))
+                node = node.GetNode("MODULE");
+
+            if (configs == null)
+                configs = new List<ConfigNode>();
+
+            ConfigNode[] cNodes = node.GetNodes("CONFIG");
+            if (cNodes != null && cNodes.Length > 0)
+            {
+                configs.Clear();
+
+                foreach (ConfigNode subNode in cNodes) {
+                    var newNode = new ConfigNode("CONFIG");
+                    subNode.CopyTo(newNode);
+                    configs.Add(newNode);
+                }
+            }
+
+            configNodeData = node.ToString();
         }
         
         public override void OnSave(ConfigNode node)
         {
-            base.OnLoad(node);
+            base.OnSave(node);
         }
 
 

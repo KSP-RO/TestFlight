@@ -15,8 +15,10 @@ namespace TestFlightCore
     public class TestFlightCore : PartModuleExtended, ITestFlightCore
     {
         [KSPField]
+        public int configVersion = 1;
+        
+        [KSPField]
         public float startFlightData;
-
         [KSPField]
         public string configuration = "";
         [KSPField]
@@ -54,9 +56,15 @@ namespace TestFlightCore
         [KSPField(isPersistant=true)]
         public float initialFlightData;
         [KSPField(isPersistant=true)]
-        private double missionStartTime;
+        public double missionStartTime;
+        [KSPField(isPersistant=true)]
+        public string activeConfig;
 
         #endregion
+
+        public List<ConfigNode> configs;
+        public ConfigNode currentConfig;
+        public string configNodeData;
 
         private double baseFailureRate;
         // We store the base, or initial, flight data for calculation of Base Failure Rate
@@ -81,7 +89,7 @@ namespace TestFlightCore
 
         private string[] ops = { "=", "!=", "<", "<=", ">", ">=", "<>", "<=>" };
 
-        Dictionary<string, IFlightDataRecorder> m_Recorders;
+        IFlightDataRecorder m_Recorder;
 
         public bool ActiveConfiguration
         {
@@ -93,27 +101,8 @@ namespace TestFlightCore
                         return false;
                 }
 
-                if (string.IsNullOrEmpty(Configuration))
-                    return true;
-                bool opFound = false;
-                for (int i = 0; i < 8; i++)
-                {
-                    opFound |= Configuration.Contains(ops[i]);
-                }
-                if (!opFound)
-                {
-                    // If this configuration defines an alias, just trim it off
-                    string test = Configuration;
-                    if (Configuration.Contains(":"))
-                    {
-                        test = test.Split(new char[1] { ':' })[0];
-                    }
-                    return TestFlightUtil.GetPartName(part).ToLower() == test.ToLower();
-                }
-                Profiler.BeginSample("EvaluateQuery");
-                bool pass = TestFlightUtil.EvaluateQuery(Configuration, this.part);
-                Profiler.EndSample();
-                return pass;
+                SetActiveConfigFromInterop();
+                return true;
             }
         }
 
@@ -170,6 +159,67 @@ namespace TestFlightCore
             }
         }
 
+        void SetActiveConfigFromInterop()
+        {
+            if (configs == null)
+                configs = new List<ConfigNode>();
+            
+            foreach (var configNode in configs)
+            {
+                if (!configNode.HasValue("configuration")) continue;
+
+                var nodeConfiguration = configNode.GetValue("configuration");
+                if (string.IsNullOrEmpty(nodeConfiguration))
+                {
+                    currentConfig = configNode;
+                    break;
+                }
+
+                bool opFound = false;
+                for (int i = 0; i < 8; i++)
+                {
+                    opFound |= nodeConfiguration.Contains(ops[i]);
+                }
+                if (!opFound)
+                {
+                    // If this configuration defines an alias, just trim it off
+                    string test = nodeConfiguration;
+                    if (nodeConfiguration.Contains(":"))
+                    {
+                        test = test.Split(new char[1] { ':' })[0];
+                    }
+
+                    if (string.Equals(TestFlightUtil.GetPartName(part).ToLower(), test.ToLower(), StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        currentConfig = configNode;
+                        break;
+                    }
+                }
+
+                if (TestFlightUtil.EvaluateQuery(nodeConfiguration, this.part))
+                {
+                    currentConfig = configNode;
+                    break;
+                }
+            }
+
+            if (currentConfig == null) return;
+
+            // update current values with those from the current config node
+            currentConfig.TryGetValue("startFlightData", ref startFlightData);
+            currentConfig.TryGetValue("configuration", ref configuration);
+            currentConfig.TryGetValue("title", ref title);
+            currentConfig.TryGetValue("techTransfer", ref techTransfer);
+            currentConfig.TryGetValue("techTransferMax", ref techTransferMax);
+            currentConfig.TryGetValue("techTransferGenerationPenalty", ref techTransferGenerationPenalty);
+            currentConfig.TryGetValue("maxData", ref maxData);
+            currentConfig.TryGetValue("failureRateModifier", ref failureRateModifier);
+            currentConfig.TryGetValue("scienceDataValue", ref scienceDataValue);
+            currentConfig.TryGetValue("rndMaxData", ref rndMaxData);
+            currentConfig.TryGetValue("rndRate", ref rndRate);
+            currentConfig.TryGetValue("rndCost", ref rndCost);
+        }
+
         [KSPEvent(guiActiveEditor=false, guiName = "R&D Window")]            
         public void ToggleRNDGUI()
         {
@@ -183,6 +233,31 @@ namespace TestFlightCore
             {
                 return TestFlightManagerScenario.RandomGenerator;
             }
+        }
+
+        public override void OnLoad(ConfigNode node)
+        {
+            base.OnLoad(node);
+
+            if (node.HasNode("MODULE"))
+                node = node.GetNode("MODULE");
+
+            if (configs == null)
+                configs = new List<ConfigNode>();
+
+            ConfigNode[] cNodes = node.GetNodes("CONFIG");
+            if (cNodes != null && cNodes.Length > 0)
+            {
+                configs.Clear();
+
+                foreach (ConfigNode subNode in cNodes) {
+                    var newNode = new ConfigNode("CONFIG");
+                    subNode.CopyTo(newNode);
+                    configs.Add(newNode);
+                }
+            }
+
+            configNodeData = node.ToString();
         }
 
         internal void Log(string message)
@@ -781,21 +856,13 @@ namespace TestFlightCore
         public bool IsPartOperating()
         {
             Profiler.BeginSample("IsPartOperating");
-            if (m_Recorders == null)
+            if (m_Recorder == null)
             {
-                m_Recorders = new Dictionary<string, IFlightDataRecorder>();
-            }
-
-            if (!m_Recorders.ContainsKey(Alias))
-            {
-                IFlightDataRecorder dr = TestFlightUtil.GetDataRecorder(this.part, Alias);
-                m_Recorders.Add(Alias, dr);
-                Profiler.EndSample();
-                return dr.IsPartOperating();
+                m_Recorder = GetComponent(typeof(IFlightDataRecorder)) as IFlightDataRecorder;
             }
 
             Profiler.EndSample();
-            return m_Recorders[Alias].IsPartOperating();
+            return m_Recorder.IsPartOperating();
         }
 
         // PARTMODULE functions
@@ -903,6 +970,9 @@ namespace TestFlightCore
 
         public override void OnAwake()
         {
+            var node = ConfigNode.Parse(configNodeData);
+            OnLoad(node);
+            
             String partName;
             if (this.part != null)
                 partName = this.part.name;
@@ -1176,8 +1246,37 @@ namespace TestFlightCore
         {
             Log("Updating part config");
 
-            enabled = ActiveConfiguration;
-            active = enabled;
+            SetActiveConfigFromInterop();
+            
+            // enabled = ActiveConfiguration;
+            // active = enabled;
+
+            enabled = true;
+            active = true;
+
+            List<PartModule> tfPartModules = TestFlightAPI.TestFlightUtil.GetAllTestFlightModulesForPart(part);
+            foreach (var partModule in tfPartModules)
+            {
+                // FlightDataRecorder
+                IFlightDataRecorder recorder = partModule as IFlightDataRecorder;
+                if (recorder != null)
+                {
+                    recorder.SetActiveConfig(Alias);
+                }
+
+                // TestFlightReliability
+                ITestFlightReliability reliability = partModule as ITestFlightReliability;
+                if (reliability != null)
+                    reliability.SetActiveConfig(Alias);
+                
+                // TestFlightFailure
+                ITestFlightFailure failure = partModule as ITestFlightFailure;
+                if (failure != null)
+                {
+                    failure.SetActiveConfig(Alias);
+                }
+            }
+            
 
             List<PartModule> testFlightModules = TestFlightUtil.GetAllTestFlightModulesForAlias(this.part, Alias);
             for (int i = 0; i < testFlightModules.Count; i++)
