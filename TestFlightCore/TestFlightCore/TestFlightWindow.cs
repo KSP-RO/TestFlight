@@ -486,24 +486,6 @@ namespace TestFlightCore
                         if (DrawToggle(ref tfScenario.userSettings.enableHUD, "Enable Flight HUD", Styles.styleToggle))
                         {
                             tfScenario.userSettings.Save();
-                            if (tfScenario.userSettings.enableHUD)
-                            {
-                                hud = gameObject.AddComponent(typeof(TestFlightHUD)) as TestFlightHUD;
-                                if (hud != null)
-                                {
-                                    Log("Starting up Flight HUD");
-                                    hud.Startup(this);
-                                }
-                                GameEvents.onGameSceneLoadRequested.Add(Event_OnGameSceneLoadRequested);
-                            }
-                            else
-                            {
-                                Log("Destroying Flight HUD");
-                                hud.Shutdown();
-                                Destroy(hud);
-                                hud = null;
-                                GameEvents.onGameSceneLoadRequested.Remove(Event_OnGameSceneLoadRequested);
-                            }
                         }
                         GUILayout.EndHorizontal();
                         break;
@@ -586,6 +568,31 @@ namespace TestFlightCore
                 else
                     OpenWindow();
             }
+
+            // if (hud == null)
+            // {
+            //     if (tfScenario.userSettings.enableHUD)
+            //     {
+            //         hud = gameObject.AddComponent(typeof(TestFlightHUD)) as TestFlightHUD;
+            //         if (hud != null)
+            //         {
+            //             Log("Starting up Flight HUD");
+            //             hud.Startup(this);
+            //         }
+            //         GameEvents.onGameSceneLoadRequested.Add(Event_OnGameSceneLoadRequested);
+            //     }
+            // }
+            // else
+            // {
+            //     if (!tfScenario.userSettings.enableHUD)
+            //     {
+            //         Log("Destroying Flight HUD");
+            //         hud.Shutdown();
+            //         Destroy(hud);
+            //         hud = null;
+            //         GameEvents.onGameSceneLoadRequested.Remove(Event_OnGameSceneLoadRequested);
+            //     }            
+            // }
         }
             
         // GUI EVent Handlers

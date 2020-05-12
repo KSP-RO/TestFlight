@@ -1287,12 +1287,12 @@ namespace TestFlightCore
             if (Events == null)
                 return;
             
-            BaseEvent toggleRNDGUIEvent = Events["ToggleRNDGUI"];
-            if (toggleRNDGUIEvent != null)
-            {
-                toggleRNDGUIEvent.guiActiveEditor = enabled;
-                toggleRNDGUIEvent.guiName = string.Format("R&D {0}", Alias);
-            }
+            // BaseEvent toggleRNDGUIEvent = Events["ToggleRNDGUI"];
+            // if (toggleRNDGUIEvent != null)
+            // {
+            //     toggleRNDGUIEvent.guiActiveEditor = enabled;
+            //     toggleRNDGUIEvent.guiName = string.Format("R&D {0}", Alias);
+            // }
         }
 
         public float GetMaximumRnDData()
