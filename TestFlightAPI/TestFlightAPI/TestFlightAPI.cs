@@ -295,7 +295,6 @@ namespace TestFlightAPI
 
         public static ITestFlightCore GetCore(Part part, string alias)
         {
-            Profiler.BeginSample("GetCore1");
             if (part == null || part.Modules == null)
                 return null;
             if (alias == "")
@@ -304,10 +303,12 @@ namespace TestFlightAPI
             {
                 PartModule pm = part.Modules[i];
                 ITestFlightCore core = pm as ITestFlightCore;
-                if (core != null && core.TestFlightEnabled && String.Equals(core.Alias, alias, StringComparison.InvariantCultureIgnoreCase))
+                if (core != null)
+                {
+                    core.UpdatePartConfig();
                     return core;
+                }
             }
-            Profiler.EndSample();
             return null;
         }
 
@@ -323,6 +324,43 @@ namespace TestFlightAPI
                 }
             }
         }
+        
+        public static List<PartModule> GetAllTestFlightModulesForPart(Part part)
+        {
+            if (part == null || part.Modules == null)
+                return null;
+
+            List<PartModule> modules = new List<PartModule>();
+            for (int i = 0, partModulesCount = part.Modules.Count; i < partModulesCount; i++)
+            {
+                PartModule pm = part.Modules[i];
+                
+                // FlightDataRecorder
+                IFlightDataRecorder dataRecorder = pm as IFlightDataRecorder;
+                if (dataRecorder != null)
+                {
+                    modules.Add(pm);
+                    continue;
+                }
+                // TestFlightReliability
+                ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
+                if (reliabilityModule != null)
+                {
+                    modules.Add(pm);
+                    continue;
+                }
+                // TestFlightFailure
+                ITestFlightFailure failureModule = pm as ITestFlightFailure;
+                if (failureModule != null)
+                {
+                    modules.Add(pm);
+                    continue;
+                }
+            }
+
+            return modules;
+        }
+        
 
         public static List<PartModule> GetAllTestFlightModulesForAlias(Part part, string alias)
         {
@@ -365,23 +403,10 @@ namespace TestFlightAPI
         // Get the Data Recorder Module - can only ever be one.
         public static IFlightDataRecorder GetDataRecorder(Part part, string alias)
         {
-            Profiler.BeginSample("GetFlightDataRecorder");
-            if (part == null || part.Modules == null)
+            if (part == null)
                 return null;
 
-            for (int i = 0, partModulesCount = part.Modules.Count; i < partModulesCount; i++)
-            {
-                PartModule pm = part.Modules[i];
-                IFlightDataRecorder dataRecorder = pm as IFlightDataRecorder;
-                if (dataRecorder != null && dataRecorder.TestFlightEnabled &&
-                    dataRecorder.Configuration.Equals(alias, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    Profiler.EndSample();
-                    return dataRecorder;
-                }
-            }
-            Profiler.EndSample();
-            return null;
+            return part.GetComponent(typeof(IFlightDataRecorder)) as IFlightDataRecorder;
         }
         // Get all Reliability Modules - can be more than one.
         public static List<ITestFlightReliability> GetReliabilityModules(Part part, string alias, bool checkEnabled = true)
@@ -394,10 +419,9 @@ namespace TestFlightAPI
             {
                 PartModule pm = part.Modules[i];
                 ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
-                if (reliabilityModule != null && 
-                    (!checkEnabled || reliabilityModule.TestFlightEnabled) &&
-                    String.Equals(reliabilityModule.Configuration, alias, StringComparison.InvariantCultureIgnoreCase))
+                if (reliabilityModule != null)
                 {
+                    // reliabilityModule.SetActiveConfig(alias);
                     reliabilityModules.Add(reliabilityModule);
                 }
             }
@@ -415,10 +439,9 @@ namespace TestFlightAPI
             {
                 PartModule pm = part.Modules[i];
                 ITestFlightFailure failureModule = pm as ITestFlightFailure;
-                if (failureModule != null &&
-                    (!checkEnabled || failureModule.TestFlightEnabled) &&
-                    String.Equals(failureModule.Configuration, alias, StringComparison.InvariantCultureIgnoreCase))
+                if (failureModule != null)
                 {
+                    // failureModule.SetActiveConfig(alias);
                     failureModules.Add(failureModule);
                 }
             }
@@ -815,6 +838,8 @@ namespace TestFlightAPI
         /// </summary>
         /// <returns>A string of information to display to the user, or "" if none</returns>
         List<string> GetTestFlightInfo();
+
+        void SetActiveConfig(string configuration);
     }
 
     public interface ITestFlightReliability
@@ -858,6 +883,8 @@ namespace TestFlightAPI
         /// </summary>
         /// <returns>A string of information to display to the user, or "" if none</returns>
         string GetModuleInfo();
+
+        void SetActiveConfig(string configuration);
     }
 
     public interface ITestFlightFailure
@@ -912,6 +939,8 @@ namespace TestFlightAPI
         /// </summary>
         /// <returns>A string of information to display to the user, or "" if none</returns>
         string GetModuleInfo();
+        
+        void SetActiveConfig(string configuration);
     }
 
     public interface ITestFlightInterop

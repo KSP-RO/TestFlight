@@ -21,6 +21,11 @@ namespace TestFlightAPI
         [KSPField(isPersistant=true)]
         public float lastReliability = 1.0f;
 
+    
+        public List<ConfigNode> configs;
+        public ConfigNode currentConfig;
+        public string configNodeData;
+
         public bool TestFlightEnabled
         {
             get
@@ -89,6 +94,9 @@ namespace TestFlightAPI
         // PARTMODULE Implementation
         public override void OnAwake()
         {
+            var node = ConfigNode.Parse(configNodeData);
+            OnLoad(node);
+            
             if (reliabilityCurve == null)
             {
                 reliabilityCurve = new FloatCurve();
@@ -114,17 +122,69 @@ namespace TestFlightAPI
             verboseDebugging = core.DebugEnabled;
         }
 
+        public virtual void SetActiveConfig(string alias)
+        {
+            if (configs == null)
+                configs = new List<ConfigNode>();
+            
+            foreach (var configNode in configs)
+            {
+                if (!configNode.HasValue("configuration")) continue;
+
+                var nodeConfiguration = configNode.GetValue("configuration");
+
+                if (string.Equals(nodeConfiguration, alias, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    currentConfig = configNode;
+                }
+            }
+
+            if (currentConfig == null) return;
+
+            // update current values with those from the current config node
+            currentConfig.TryGetValue("configuration", ref configuration);
+            if (currentConfig.HasNode("reliabilityCurve"))
+            {
+                reliabilityCurve = new FloatCurve();
+                reliabilityCurve.Load(currentConfig.GetNode("reliabilityCurve"));
+            }
+        }
 
         public override void OnLoad(ConfigNode node)
         {
-            // As of v1.3 we dont' need to worry about reliability bodies anymore, just a simple FloatCurve
-            if (node.HasNode("reliabilityCurve"))
-            {
-                reliabilityCurve = new FloatCurve();
-                reliabilityCurve.Load(node.GetNode("reliabilityCurve"));
-            }
             base.OnLoad(node);
+
+            if (node.HasNode("MODULE"))
+                node = node.GetNode("MODULE");
+
+            if (configs == null)
+                configs = new List<ConfigNode>();
+
+            ConfigNode[] cNodes = node.GetNodes("CONFIG");
+            if (cNodes != null && cNodes.Length > 0)
+            {
+                configs.Clear();
+
+                foreach (ConfigNode subNode in cNodes) {
+                    var newNode = new ConfigNode("CONFIG");
+                    subNode.CopyTo(newNode);
+                    configs.Add(newNode);
+                }
+            }
+
+            configNodeData = node.ToString();
         }
+
+        // public override void OnLoad(ConfigNode node)
+        // {
+        //     // As of v1.3 we dont' need to worry about reliability bodies anymore, just a simple FloatCurve
+        //     if (node.HasNode("reliabilityCurve"))
+        //     {
+        //         reliabilityCurve = new FloatCurve();
+        //         reliabilityCurve.Load(node.GetNode("reliabilityCurve"));
+        //     }
+        //     base.OnLoad(node);
+        // }
 
 
         public override void OnUpdate()
