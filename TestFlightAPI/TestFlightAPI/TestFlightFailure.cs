@@ -156,8 +156,11 @@ namespace TestFlightAPI
 
         public override void OnAwake()
         {
-            var node = ConfigNode.Parse(configNodeData);
-            OnLoad(node);
+            if (!string.IsNullOrEmpty(configNodeData))
+            {
+                var node = ConfigNode.Parse(configNodeData);
+                OnLoad(node);
+            }
 
             Failed = false;
             base.OnAwake();
@@ -211,7 +214,7 @@ namespace TestFlightAPI
             return true;
         }
 
-        public virtual string GetModuleInfo()
+        public virtual string GetModuleInfo(string configuration)
         {
             return string.Empty;
         }
