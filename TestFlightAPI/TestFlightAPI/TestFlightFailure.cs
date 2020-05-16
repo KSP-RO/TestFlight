@@ -91,11 +91,15 @@ namespace TestFlightAPI
         /// </summary>
         public virtual void DoFailure()
         {
+            bool previouslyFailed = failed;
             Failed = true;
             ITestFlightCore core = TestFlightUtil.GetCore(this.part, Configuration);
             if (core != null)
             {
-                core.ModifyFlightData(duFail, true);
+                if (!previouslyFailed)
+                {
+                    core.ModifyFlightData(duFail, true);
+                }
                 FlightLogger.eventLog.Add(String.Format("[{0}] {1} failed: {2}", KSPUtil.PrintTimeCompact((int)Math.Floor(this.vessel.missionTime), false), core.Title, failureTitle));
             }
         }
