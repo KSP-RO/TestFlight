@@ -32,8 +32,11 @@ namespace TestFlight
         public override void OnAwake()
         {
             base.OnAwake();
-            var node = ConfigNode.Parse(configNodeData);
-            OnLoad(node);
+            if (!string.IsNullOrEmpty(configNodeData))
+            {
+                var node = ConfigNode.Parse(configNodeData);
+                OnLoad(node);
+            }
         }
         /// <summary>
         /// Triggers the failure controlled by the failure module

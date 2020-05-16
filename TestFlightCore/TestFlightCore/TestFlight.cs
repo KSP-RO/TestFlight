@@ -19,6 +19,7 @@ namespace TestFlightCore
         internal int partStatus;
         internal double baseFailureRate;
         internal double momentaryFailureRate;
+        internal string runningTime;
         internal ITestFlightCore flightCore;
         internal bool highlightPart;
         internal bool acknowledged;
@@ -308,6 +309,7 @@ namespace TestFlightCore
                     partStatus.momentaryFailureRate = failureRate;
                     partStatus.acknowledged = false;
                     partStatus.mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
+                    partStatus.runningTime = TestFlightUtil.FormatTime(core.GetBurnTime(), TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false);
                     masterStatus[vessel.id].allPartsStatus.Add(partStatus);
                 }
             }
@@ -334,6 +336,7 @@ namespace TestFlightCore
                     failureRate = momentaryFailureRate.failureRate;
                 status.momentaryFailureRate = failureRate;
                 status.mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
+                status.runningTime = TestFlightUtil.FormatTime(core.GetBurnTime(), TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false);
 
                 allPartsStatus[i] = status;
             }

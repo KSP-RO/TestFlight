@@ -11,19 +11,34 @@ namespace TestFlight
     /// </summary>
     public class TestFlightReliability : TestFlightReliabilityBase
     {
-        public override string GetModuleInfo()
+        public override string GetModuleInfo(string configuration, float reliabilityAtTime)
         {
-            if (reliabilityCurve != null)
+            foreach (var configNode in configs)
             {
-                // core is not yet available here
-                string mtbfMin = TestFlightUtil.FailureRateToMTBFString(GetBaseFailureRate(reliabilityCurve.minTime), TestFlightUtil.MTBFUnits.SECONDS, false, 999);
-                string mtbfMax = TestFlightUtil.FailureRateToMTBFString(GetBaseFailureRate(reliabilityCurve.maxTime), TestFlightUtil.MTBFUnits.SECONDS, false, 999);
-                return String.Format("MTBF at 0 data: <color=#859900ff>{0}</color>\nMTBF at max data: <color=#859900ff>{1}</color>", mtbfMin, mtbfMax);
+                if (!configNode.HasValue("configuration"))
+                    continue;
+
+                var nodeConfiguration = configNode.GetValue("configuration");
+
+                if (string.Equals(nodeConfiguration, configuration, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    if (configNode.HasNode("reliabilityCurve"))
+                    {
+                        var nodeReliability = new FloatCurve();
+                        nodeReliability.Load(configNode.GetNode("reliabilityCurve"));
+
+                        // core is not yet available here
+                        float reliabilityMin = TestFlightUtil.FailureRateToReliability(nodeReliability.Evaluate(nodeReliability.minTime), reliabilityAtTime);
+                        float reliabilityMax = TestFlightUtil.FailureRateToReliability(nodeReliability.Evaluate(nodeReliability.maxTime), reliabilityAtTime);
+                        return $"  Reliability at 0 data: <color=#b1cc00ff>{reliabilityMin:P1}</color>\n  Reliability at max data: <color=#b1cc00ff>{reliabilityMax:p1}</color>";
+                    }
+                }
             }
-            return base.GetModuleInfo();
+
+            return base.GetModuleInfo(configuration, reliabilityAtTime);
         }
 
-        public override List<string> GetTestFlightInfo()
+        public override List<string> GetTestFlightInfo(float reliabilityAtTime)
         {
             List<string> infoStrings = new List<string>();
 
@@ -42,9 +57,18 @@ namespace TestFlight
             if (flightData < 0f)
                 flightData = 0f;
 
+            double currentFailRate = GetBaseFailureRate(flightData);
+            double maxFailRate = GetBaseFailureRate(reliabilityCurve.maxTime);
+
+            double currentReliability = TestFlightUtil.FailureRateToReliability(currentFailRate, reliabilityAtTime);
+            double maxReliability = TestFlightUtil.FailureRateToReliability(maxFailRate, reliabilityAtTime);
+
+            string currentMTBF = core.FailureRateToMTBFString(currentFailRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
+            string maxMTBF = core.FailureRateToMTBFString(maxFailRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
+
             infoStrings.Add("<b>Base Reliability</b>");
-            infoStrings.Add(String.Format("<b>Current Reliability</b>: {0} <b>MTBF</b>", core.FailureRateToMTBFString(GetBaseFailureRate(flightData), TestFlightUtil.MTBFUnits.SECONDS, 999)));
-            infoStrings.Add(String.Format("<b>Maximum Reliability</b>: {0} <b>MTBF</b>", core.FailureRateToMTBFString(GetBaseFailureRate(reliabilityCurve.maxTime), TestFlightUtil.MTBFUnits.SECONDS, 999)));
+            infoStrings.Add($"<b>Current Reliability</b>: {currentReliability:P1} at full burn, {currentMTBF} <b>MTBF</b>");
+            infoStrings.Add($"<b>Maximum Reliability</b>: {maxReliability:P1} at full burn, {maxMTBF} <b>MTBF</b>");
 
             return infoStrings;
         }

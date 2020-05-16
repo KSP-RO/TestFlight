@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using TestFlightAPI;
+using TestFlightCore;
 
 namespace TestFlight
 {
@@ -134,21 +135,75 @@ namespace TestFlight
             currentConfig.TryGetValue("engineConfig", ref engineConfig);
         }
 
-        public override string GetModuleInfo()
+        public override string GetModuleInfo(string configuration, float reliabilityAtTime)
         {
-            if (cycle != null)
+            foreach (var configNode in configs)
             {
-                float burnThrough = cycle.Evaluate(cycle.maxTime);
-                return String.Format("Rated Burn Time: <color=#859900ff>{0:F2}</color> seconds\nBurn through penalty is <color=#dc322fff>{1:F2}</color> at {2:F2} seconds", ratedBurnTime, burnThrough, cycle.maxTime);
+                if (!configNode.HasValue("configuration"))
+                    continue;
+
+                var nodeConfiguration = configNode.GetValue("configuration");
+
+                if (string.Equals(nodeConfiguration, configuration, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    if (configNode.HasNode("cycle"))
+                    {
+                        var nodeCycle = new FloatCurve();
+                        nodeCycle.Load(configNode.GetNode("cycle"));
+
+                        float nodeBurnTime = 0f;
+                        configNode.TryGetValue("ratedBurnTime", ref nodeBurnTime);
+
+                        float burnThrough = nodeCycle.Evaluate(nodeCycle.maxTime);
+                        return String.Format("  Rated Burn Time: <color=#b1cc00ff>{0:F0} s</color>\n  <color=#ec423fff>{1:F0}%</color> failure at <color=#b1cc00ff>{2:F0} s</color>", nodeBurnTime, burnThrough, nodeCycle.maxTime);
+                    }
+                }
             }
-            return base.GetModuleInfo();
+
+            return base.GetModuleInfo(configuration, reliabilityAtTime);
+        }
+
+        public override float GetRatedBurnTime(string configuration)
+        {
+            foreach (var configNode in configs)
+            {
+                if (!configNode.HasValue("configuration"))
+                    continue;
+
+                var nodeConfiguration = configNode.GetValue("configuration");
+
+                if (string.Equals(nodeConfiguration, configuration, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    if (configNode.HasValue("ratedBurnTime"))
+                    {
+                        float nodeBurnTime = 0f;
+                        configNode.TryGetValue("ratedBurnTime", ref nodeBurnTime);
+                        return nodeBurnTime;
+                    }
+                }
+            }
+
+            return base.GetRatedBurnTime(configuration);
+        }
+
+        public override float GetRatedBurnTime()
+        {
+            return ratedBurnTime;
+        }
+
+        public override float GetCurrentBurnTime()
+        {
+            return (float)engineOperatingTime;
         }
 
         public override void OnAwake()
         {
             base.OnAwake();
-            var node = ConfigNode.Parse(configNodeData);
-            OnLoad(node);
+            if (!string.IsNullOrEmpty(configNodeData))
+            {
+                var node = ConfigNode.Parse(configNodeData);
+                OnLoad(node);
+            }
             if (thrustModifier == null)
             {
                 thrustModifier = new FloatCurve();
@@ -161,7 +216,7 @@ namespace TestFlight
             }
         }
 
-        public override List<string> GetTestFlightInfo()
+        public override List<string> GetTestFlightInfo(float reliabilityAtTime)
         {
             List<string> infoStrings = new List<string>();
 

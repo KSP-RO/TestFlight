@@ -178,8 +178,11 @@ namespace TestFlightAPI
 
         public override void OnAwake()
         {
-            var node = ConfigNode.Parse(configNodeData);
-            OnLoad(node);
+            if (!string.IsNullOrEmpty(configNodeData))
+            {
+                var node = ConfigNode.Parse(configNodeData);
+                OnLoad(node);
+            }
 
             base.OnAwake();
         }

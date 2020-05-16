@@ -26,6 +26,7 @@ namespace TestFlightCore
         [Persistent] public bool showFlightDataInMSD = true;
         [Persistent] public bool showMTBFStringInMSD = true;
         [Persistent] public bool showFailureRateInMSD = false;
+        [Persistent] public bool showRunTimeInMSD = false;
         [Persistent] public bool showStatusTextInMSD = true;
         [Persistent] public bool shortenPartNameInMSD = false;
         [Persistent] public bool mainWindowLocked = true;

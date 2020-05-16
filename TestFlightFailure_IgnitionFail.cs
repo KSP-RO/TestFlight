@@ -220,8 +220,11 @@ namespace TestFlight
         public override void OnAwake()
         {
             base.OnAwake();
-            var node = ConfigNode.Parse(configNodeData);
-            OnLoad(node);
+            if (!string.IsNullOrEmpty(configNodeData))
+            {
+                var node = ConfigNode.Parse(configNodeData);
+                OnLoad(node);
+            }
             if (baseIgnitionChance == null)
             {
                 baseIgnitionChance = new FloatCurve();
@@ -278,20 +281,29 @@ namespace TestFlight
             }
         }
 
-        public override string GetModuleInfo()
+        public override string GetModuleInfo(string configuration)
         {
             string infoString = "";
-            
-            if (baseIgnitionChance != null)
-            {
-                float pMin = baseIgnitionChance.Evaluate(baseIgnitionChance.minTime);
-                float pMax = baseIgnitionChance.Evaluate(baseIgnitionChance.maxTime);
-                infoString = $"Ignition chance at 0 data: <color=#859900ff>{pMin:P1}</color>\nIgnition chance at max data: <color=#859900ff>{pMax:P1}</color>";
-            }
 
-            if (pressureCurve != null & pressureCurve.Curve.keys.Length > 1)
+            foreach (var configNode in configs)
             {
-                infoString = $"{infoString}.\n<b>NOTE</b>: This engine suffers a penalty to ignition when air lighting due to dynamic pressure";
+                if (!configNode.HasValue("configuration"))
+                    continue;
+
+                var nodeConfiguration = configNode.GetValue("configuration");
+
+                if (string.Equals(nodeConfiguration, configuration, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    if (configNode.HasNode("baseIgnitionChance"))
+                    {
+                        var nodeIgnitionChance = new FloatCurve();
+                        nodeIgnitionChance.Load(configNode.GetNode("baseIgnitionChance"));
+
+                        float pMin = nodeIgnitionChance.Evaluate(nodeIgnitionChance.minTime);
+                        float pMax = nodeIgnitionChance.Evaluate(nodeIgnitionChance.maxTime);
+                        infoString = $"  Ignition at 0 data: <color=#b1cc00ff>{pMin:P1}</color>\n  Ignition at max data: <color=#b1cc00ff>{pMax:P1}</color>";
+                    }
+                }
             }
 
             return infoString;
@@ -321,14 +333,14 @@ namespace TestFlight
             infoStrings.Add(String.Format("<b>Maximum Ignition Chance</b>: {0:P}", baseIgnitionChance.Evaluate(baseIgnitionChance.maxTime)));
 
             if (additionalFailureChance > 0f)
-                infoStrings.Add(String.Format("<b>Additional Failure Chance</b>: {0:P}", additionalFailureChance));
+                infoStrings.Add(String.Format("<b>Cascade Failure Chance</b>: {0:P}", additionalFailureChance));
 
             if (pressureCurve != null & pressureCurve.Curve.keys.Length > 1)
             {
                 float maxTime = pressureCurve.maxTime;
                 infoStrings.Add("<b>This engine suffers a penalty to ignition based on dynamic pressure</b>");
-                infoStrings.Add($"<B>0 Pa Pressure Modifier: {pressureCurve.Evaluate(0)}");
-                infoStrings.Add($"<b>{maxTime} Pa Pressure Modifier</b>: {pressureCurve.Evaluate(maxTime):N}");
+                infoStrings.Add($"<b>0 kPa Pressure Modifier:</b> {pressureCurve.Evaluate(0)}");
+                infoStrings.Add($"<b>{maxTime/1000} kPa Pressure Modifier</b>: {pressureCurve.Evaluate(maxTime):N}");
             }
 
             return infoStrings;

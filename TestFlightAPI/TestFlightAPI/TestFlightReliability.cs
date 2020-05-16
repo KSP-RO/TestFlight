@@ -94,8 +94,11 @@ namespace TestFlightAPI
         // PARTMODULE Implementation
         public override void OnAwake()
         {
-            var node = ConfigNode.Parse(configNodeData);
-            OnLoad(node);
+            if (!string.IsNullOrEmpty(configNodeData))
+            {
+                var node = ConfigNode.Parse(configNodeData);
+                OnLoad(node);
+            }
             
             if (reliabilityCurve == null)
             {
@@ -239,7 +242,7 @@ namespace TestFlightAPI
             }
         }
 
-        public virtual List<string> GetTestFlightInfo()
+        public virtual List<string> GetTestFlightInfo(float reliabilityAtTime)
         {
             List<string> infoStrings = new List<string>();
 
@@ -254,16 +257,34 @@ namespace TestFlightAPI
                 return infoStrings;
             }
 
+            double currentFailRate = core.GetBaseFailureRate();
+            double maxFailRate = GetBaseFailureRate(reliabilityCurve.maxTime);
+
             infoStrings.Add("<b>Base Reliability</b>");
-            infoStrings.Add(String.Format("<b>Current Reliability</b>: {0} <b>MTBF</b>", core.FailureRateToMTBFString(core.GetBaseFailureRate(), TestFlightUtil.MTBFUnits.SECONDS, 999)));
-            infoStrings.Add(String.Format("<b>Maximum Reliability</b>: {0} <b>MTBF</b>", core.FailureRateToMTBFString(GetBaseFailureRate(reliabilityCurve.maxTime), TestFlightUtil.MTBFUnits.SECONDS, 999)));
+            infoStrings.Add(String.Format("<b>Current Reliability</b>: {0:P1} at full burn, {1} <b>MTBF</b>", TestFlightUtil.FailureRateToReliability(currentFailRate, reliabilityAtTime), core.FailureRateToMTBFString(currentFailRate, TestFlightUtil.MTBFUnits.SECONDS, 999)));
+            infoStrings.Add(String.Format("<b>Maximum Reliability</b>: {0:P1} at full burn, {1} <b>MTBF</b>", TestFlightUtil.FailureRateToReliability(maxFailRate, reliabilityAtTime), core.FailureRateToMTBFString(maxFailRate, TestFlightUtil.MTBFUnits.SECONDS, 999)));
 
             return infoStrings;
         }
 
-        public virtual string GetModuleInfo()
+        public virtual string GetModuleInfo(string configuration, float reliabilityAtTime)
         {
             return string.Empty;
+        }
+
+        public virtual float GetRatedBurnTime(string configuration)
+        {
+            return 0f;
+        }
+
+        public virtual float GetRatedBurnTime()
+        {
+            return 0f;
+        }
+
+        public virtual float GetCurrentBurnTime()
+        {
+            return 0f;
         }
     }
 }

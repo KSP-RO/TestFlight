@@ -149,6 +149,8 @@ namespace TestFlightCore
                 windowWidth -= 130f;
             if (!tfScenario.userSettings.showStatusTextInMSD)
                 windowWidth -= 100f;
+            if (tfScenario.userSettings.showRunTimeInMSD)
+                windowWidth += 60f;
 
             float left = Screen.width - windowWidth;
             float windowHeight = 10f;
@@ -359,6 +361,12 @@ namespace TestFlightCore
                             GUILayout.Label(String.Format("{0:F6}", status.momentaryFailureRate), GUILayout.Width(60));
                             GUILayout.Space(10);
                         }
+                        // Run Time
+                        if (tfScenario.userSettings.showRunTimeInMSD)
+                        {
+                            GUILayout.Label(String.Format("{0:F6}", status.runningTime), GUILayout.Width(60));
+                            GUILayout.Space(10);
+                        }
                         // Part Status Text
                         if (tfScenario.userSettings.showStatusTextInMSD)
                         {
@@ -443,6 +451,14 @@ namespace TestFlightCore
 
                         GUILayout.BeginHorizontal();
                         if (DrawToggle(ref tfScenario.userSettings.showFailureRateInMSD, "Show Failure Rate", Styles.styleToggle))
+                        {
+                            tfScenario.userSettings.Save();
+                            CalculateWindowBounds();
+                        }
+                        GUILayout.EndHorizontal();
+
+                        GUILayout.BeginHorizontal();
+                        if (DrawToggle(ref tfScenario.userSettings.showRunTimeInMSD, "Show Run Time", Styles.styleToggle))
                         {
                             tfScenario.userSettings.Save();
                             CalculateWindowBounds();

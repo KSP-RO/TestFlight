@@ -224,6 +224,18 @@ namespace TestFlightAPI
                     return "-";
             }
         }
+        
+        // Simply converts the failure rate to the reliability rate at time t.
+        public static float FailureRateToReliability(float failureRate, float t)
+        {
+            float reliability = Mathf.Exp(-failureRate * t);
+            return reliability;
+        }
+        public static double FailureRateToReliability(double failureRate, float t)
+        {
+            double reliability = Math.Exp(-failureRate * t);
+            return reliability;
+        }
 
         public static string FormatTime(double time)
         {
@@ -873,16 +885,31 @@ namespace TestFlightAPI
         FloatCurve GetReliabilityCurve();
 
         /// <summary>
+        /// Gets the current burn time for the given scope.
+        /// </summary>
+        /// <returns>The current burn time for scope or 0 if this module does not track burn time.</returns>
+        float GetCurrentBurnTime();
+
+        /// <summary>
         /// Should return a string if the module wants to report any information to the user in the TestFlight Editor window.
         /// </summary>
         /// <returns>A string of information to display to the user, or "" if none</returns>
-        List<string> GetTestFlightInfo();
+        /// <param name="reliabilityAtTime">The time at which to give indicative reliability stats at.</param>
+        List<string> GetTestFlightInfo(float reliabilityAtTime);
 
         /// <summary>
         /// Should return a string if the module wants to report any information to the user in the stock part info panel.
         /// </summary>
         /// <returns>A string of information to display to the user, or "" if none</returns>
-        string GetModuleInfo();
+        /// <param name="reliabilityAtTime">The time at which to give indicative reliability stats at.</param>
+        string GetModuleInfo(string configuration, float reliabilityAtTime);
+
+        /// <summary>
+        /// Should return a float if the module has data about rated burn time for the engine.
+        /// </summary>
+        /// <returns>A float with burn time in seconds, or 0f if none</returns>
+        float GetRatedBurnTime(string configuration);
+        float GetRatedBurnTime();
 
         void SetActiveConfig(string configuration);
     }
@@ -938,7 +965,7 @@ namespace TestFlightAPI
         /// Should return a string if the module wants to report any information to the user in the stock part info panel.
         /// </summary>
         /// <returns>A string of information to display to the user, or "" if none</returns>
-        string GetModuleInfo();
+        string GetModuleInfo(string configuration);
         
         void SetActiveConfig(string configuration);
     }
@@ -1098,6 +1125,8 @@ namespace TestFlightAPI
         /// Determines whether the part is considered operating or not.
         /// </summary>
         bool IsPartOperating();
+
+        float GetBurnTime();
 
         /// <summary>
         /// Called whenever an Interop value is added, changed, or removed to allow the modules on the part to update to the proper config
