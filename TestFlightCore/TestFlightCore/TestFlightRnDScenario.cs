@@ -194,7 +194,6 @@ namespace TestFlightCore
             if (currentTime - lastUpdateTime >= updateFrequency)
             {
                 float normalizedTime = (float)((currentTime - lastUpdateTime) / updateFrequency);
-                Log("Doing research update, normalized time " + normalizedTime);
                 lastUpdateTime = currentTime;
                 if (activeTeams == null || activeTeams.Count <= 0)
                     return;
@@ -205,19 +204,17 @@ namespace TestFlightCore
                     entry = teamsEnumerator.Current;
                     if (entry.Value.PartInResearch != "" && entry.Value.ResearchActive)
                     {
-                        float partCurrentData = tfScenario.GetFlightDataForPartName(entry.Value.PartInResearch);
+                        float partCurrentData = tfScenario.GetResearchDataForPartName(entry.Value.PartInResearch);
                         if (partCurrentData >= entry.Value.MaxData)
                         {
-                            Log("Part " + entry.Value.PartInResearch + " has reached maximum RnD data.  Removing research automatically");
                             teamsToStop.Add(entry.Key);
                         }
                         else
                         {
                             float partData = entry.Value.UpdateResearch(normalizedTime, partCurrentData);
-                            Log("Research tick for part " + entry.Value.PartInResearch + " yielded " + partData + "du");
                             if (partData > 0)
                             {
-                                TestFlightManagerScenario.Instance.AddFlightDataForPartName(entry.Value.PartInResearch, partData);
+                                TestFlightManagerScenario.Instance.AddResearchDataForPartName(entry.Value.PartInResearch, partData);
                             }
                         }
                     }
@@ -294,13 +291,10 @@ namespace TestFlightCore
             
             if (team < availableTeams.Count)
             {
-                float techTransfer = core.GetTechTransfer();
-                if (techTransfer > 0f)
-                    TestFlightManagerScenario.Instance.AddFlightDataForPartName(alias, techTransfer);
                 TestFlightRnDTeam template = availableTeams[team];
                 activeTeams.Add(alias, new TestFlightRnDTeam(template.Points, template.CostFactor));
                 activeTeams[alias].PartInResearch = alias;
-                activeTeams[alias].MaxData = core.GetMaximumRnDData() + techTransfer;
+                activeTeams[alias].MaxData = core.GetMaximumRnDData();
                 activeTeams[alias].PartRnDCost = core.GetRnDCost();
                 activeTeams[alias].PartRnDRate = core.GetRnDRate();
                 activeTeams[alias].ResearchActive = true;
