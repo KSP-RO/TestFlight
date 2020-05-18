@@ -77,7 +77,7 @@ namespace TestFlight
                 EngineHandler engine = engines[i];
                 EngineModuleWrapper.EngineIgnitionState currentIgnitionState = engine.engine.IgnitionState;
                 // If we are transitioning from not ignited to ignited, we do our check
-                // The ignitionFailueRate defines the failure rate per flight data
+                // The ignitionFailureRate defines the failure rate per flight data
 
                 if (currentIgnitionState == EngineModuleWrapper.EngineIgnitionState.IGNITED)
                 {
