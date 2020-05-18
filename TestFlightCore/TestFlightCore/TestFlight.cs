@@ -796,6 +796,22 @@ namespace TestFlightCore
             else
                 return -1f;
         }
+        // This is a utility method that will return the "transferData" value directly or -1 if not found
+        public float GetTransferDataForPartName(string partName)
+        {
+            if (partData.ContainsKey(partName))
+                return partData[partName].GetFloat("transferData");
+            else
+                return -1f;
+        }
+        // This is a utility method that will return the "researchData" value directly or -1 if not found
+        public float GetResearchDataForPartName(string partName)
+        {
+            if (partData.ContainsKey(partName))
+                return partData[partName].GetFloat("researchData");
+            else
+                return -1f;
+        }
 
         // New noscope Format
         // This is a utility method that sets the "flightData" value directly
@@ -811,6 +827,32 @@ namespace TestFlightCore
                 partData.Add(partName, newData);
             }
         }
+        // This is a utility method that sets the "transferData" value directly
+        public void SetTransferDataForPartName(string partName, float data)
+        {
+            if (partData.ContainsKey(partName))
+                partData[partName].SetValue("transferData", data.ToString());
+            else
+            {
+                TestFlightPartData newData = new TestFlightPartData();
+                newData.PartName = partName;
+                newData.SetValue("transferData", data.ToString());
+                partData.Add(partName, newData);
+            }
+        }
+        // This is a utility method that sets the "researchData" value directly
+        public void SetResearchDataForPartName(string partName, float data)
+        {
+            if (partData.ContainsKey(partName))
+                partData[partName].SetValue("researchData", data.ToString());
+            else
+            {
+                TestFlightPartData newData = new TestFlightPartData();
+                newData.PartName = partName;
+                newData.SetValue("researchData", data.ToString());
+                partData.Add(partName, newData);
+            }
+        }
         // This is a utility method that adds the "flightData" value directly
         public void AddFlightDataForPartName(string partName, float data)
         {
@@ -821,6 +863,32 @@ namespace TestFlightCore
                 TestFlightPartData newData = new TestFlightPartData();
                 newData.PartName = partName;
                 newData.SetValue("flightData", data);
+                partData.Add(partName, newData);
+            }
+        }
+        // This is a utility method that adds the "transferData" value directly
+        public void AddTransferDataForPartName(string partName, float data)
+        {
+            if (partData.ContainsKey(partName))
+                partData[partName].AddValue("transferData", data);
+            else
+            {
+                TestFlightPartData newData = new TestFlightPartData();
+                newData.PartName = partName;
+                newData.SetValue("transferData", data);
+                partData.Add(partName, newData);
+            }
+        }
+        // This is a utility method that adds the "researchData" value directly
+        public void AddResearchDataForPartName(string partName, float data)
+        {
+            if (partData.ContainsKey(partName))
+                partData[partName].AddValue("researchData", data);
+            else
+            {
+                TestFlightPartData newData = new TestFlightPartData();
+                newData.PartName = partName;
+                newData.SetValue("researchData", data);
                 partData.Add(partName, newData);
             }
         }

@@ -50,8 +50,6 @@ namespace TestFlightCore
         [KSPField(isPersistant=true)]
         public double lastMET;
         [KSPField(isPersistant=true)]
-        public bool initialized = false;
-        [KSPField(isPersistant=true)]
         public float currentFlightData;
         [KSPField(isPersistant=true)]
         public float initialFlightData;
@@ -65,6 +63,10 @@ namespace TestFlightCore
         public List<ConfigNode> configs;
         public ConfigNode currentConfig;
         public string configNodeData;
+
+        bool initialized = false;
+        float transferData;
+        float researchData;
 
         private double baseFailureRate;
         // We store the base, or initial, flight data for calculation of Base Failure Rate
@@ -558,10 +560,9 @@ namespace TestFlightCore
         // New v1.3 noscope
         public float GetFlightData()
         {
-            if (currentFlightData > maxData)
-                currentFlightData = maxData;
-            
-            return currentFlightData;
+            var data = currentFlightData + researchData + transferData;
+            data = Mathf.Min(data, maxData);
+            return data;
         }
         public float GetInitialFlightData()
         {
@@ -629,7 +630,7 @@ namespace TestFlightCore
             // The flight data as it stands before modification
             float existingData = currentFlightData;
             // Amount of data stored in the scenario store
-            float existingStoredFlightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(Alias);
+            float existingStoredFlightData = Mathf.Max(0,TestFlightManagerScenario.Instance.GetFlightDataForPartName(Alias));
 
             // Calculate the new flight data
             if (additive)
@@ -986,6 +987,8 @@ namespace TestFlightCore
 
         public override void OnAwake()
         {
+            initialized = false;
+            
             if (!string.IsNullOrEmpty(configNodeData))
             {
                 var node = ConfigNode.Parse(configNodeData);
@@ -1039,19 +1042,19 @@ namespace TestFlightCore
         {
             if (initialized)
                 return;
-            
-            if (flightData == 0f)
-                flightData = AttemptTechTransfer();
-            
-            if (startFlightData > flightData)
-            {
-                TestFlightManagerScenario.Instance.AddFlightDataForPartName(Alias, startFlightData);
-                flightData = startFlightData;
-            }
 
+            researchData = Mathf.Min(TestFlightManagerScenario.Instance.GetResearchDataForPartName(Alias), rndMaxData);
+            if (researchData < 0f) researchData = 0f;
+            transferData = AttemptTechTransfer();
+            if (transferData < 0f) transferData = 0f;
+            TestFlightManagerScenario.Instance.SetTransferDataForPartName(Alias, transferData);
+
+            flightData = Mathf.Max(startFlightData, flightData);
+                
             currentFlightData = flightData;
-            initialFlightData = flightData;
+            initialFlightData = flightData + researchData + transferData;
 
+            TestFlightManagerScenario.Instance.SetFlightDataForPartName(Alias, flightData);
             missionStartTime = Planetarium.GetUniversalTime();
 
             initialized |= HighLogic.LoadedSceneIsFlight;
@@ -1069,13 +1072,16 @@ namespace TestFlightCore
             // multiple branches can be specified with the & character
             // multiple parts in a branch can be specified by separating them with a comma
             // for each branch the first part listed is considered the closest part, and each part after is considered to be one generation removed.  An optional generation penalty is added for each level
-            //  for each branch, the flight data from each part is added together including any generation penalties, to create a total for that branch, modifed by the transfer amount for that branch
+            //  for each branch, the flight data from each part is added together including any generation penalties, to create a total for that branch, modified by the transfer amount for that branch
             // if multiple branches are specified, each branch is then added together
             // an optional maximum data can be enforced for each scope (global setting but applied to each scope, not total)
             // Example
             // techTransfer = rs-27a,rs-27,h1-b,h1:10&lr-89-na-7,lr-89-na-6,lr-89-na-5:25
             // defines two branches, one from the RS-27 branch and one from the LR-89 branch.  
 
+            Debug.Log($"[TestFlight] Attempting TechTransfer for part {Configuration}");
+            Debug.Log($"[TestFlight] techTransfer: {techTransfer.Trim()}");
+            
             if (techTransfer.Trim() == "")
                 return 0f;
 
@@ -1088,6 +1094,7 @@ namespace TestFlightCore
             for (int i = 0, branchesLength = branches.Length; i < branchesLength; i++)
             {
                 string branch = branches[i];
+                Debug.Log($"[TestFlight] Processing Branch {branch}");
                 modifiers = branch.Split(new char[1] {
                     ':'
                 });
@@ -1103,6 +1110,7 @@ namespace TestFlightCore
                 {
                     string partName = partsInBranch[j];
                     float partFlightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(partName);
+                    Debug.Log($"[TestFlight] Existing data for {partName}: {partFlightData}");
                     if (partFlightData == 0f)
                         continue;
                     dataToTransfer = dataToTransfer + ((partFlightData - (partFlightData * generation * techTransferGenerationPenalty)) * branchModifier);
@@ -1110,7 +1118,8 @@ namespace TestFlightCore
                 }
             }
 
-            return dataToTransfer;
+            Debug.Log($"[TestFlight] Data to Transfer: {dataToTransfer}");
+            return Mathf.Min(dataToTransfer, techTransferMax);
         }
 
         public float ForceRepair(ITestFlightFailure failure)
