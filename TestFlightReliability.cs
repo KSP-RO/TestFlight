@@ -53,7 +53,7 @@ namespace TestFlight
                 return infoStrings;
             }
 
-            float flightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(Configuration);
+            float flightData = core.GetFlightData();
             if (flightData < 0f)
                 flightData = 0f;
 

@@ -1275,7 +1275,8 @@ namespace TestFlightCore
             string partName = Alias;
             infoStrings.Add("<b>Core</b>");
             infoStrings.Add(indent + "  <b>Active Part</b>: " + partName);
-            float flightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(partName);
+            // float flightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(partName);
+            var flightData = GetFlightData();
             if (flightData < 0f)
                 flightData = 0f;
             infoStrings.Add(indent + String.Format("  <b>Flight Data</b>: {0:f1}/{1:f1}", flightData, maxData));
@@ -1373,6 +1374,14 @@ namespace TestFlightCore
                 testFlightModules[i].enabled = enabled;
             }
 
+
+            if (TestFlightManagerScenario.Instance.SettingsAlwaysMaxData)
+                InitializeFlightData(maxData);
+            else
+            {
+                InitializeFlightData(Mathf.Max(0, TestFlightManagerScenario.Instance.GetFlightDataForPartName(Alias)));
+            }
+            
             if (Events == null)
                 return;
             
