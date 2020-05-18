@@ -1051,8 +1051,8 @@ namespace TestFlightCore
 
             flightData = Mathf.Max(startFlightData, flightData);
                 
-            currentFlightData = flightData;
-            initialFlightData = flightData + researchData + transferData;
+            currentFlightData = Mathf.Min(maxData, flightData);
+            initialFlightData = Mathf.Min(maxData, flightData + researchData + transferData);
 
             TestFlightManagerScenario.Instance.SetFlightDataForPartName(Alias, flightData);
             missionStartTime = Planetarium.GetUniversalTime();
