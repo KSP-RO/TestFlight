@@ -161,8 +161,10 @@ namespace TestFlightCore
             }
         }
 
-        void SetActiveConfigFromInterop()
+        bool SetActiveConfigFromInterop()
         {
+            ConfigNode prevConfig = currentConfig;
+            
             if (configs == null)
                 configs = new List<ConfigNode>();
             
@@ -205,7 +207,7 @@ namespace TestFlightCore
                 }
             }
 
-            if (currentConfig == null) return;
+            if (currentConfig == null) return prevConfig == null;
 
             // update current values with those from the current config node
             currentConfig.TryGetValue("startFlightData", ref startFlightData);
@@ -220,6 +222,8 @@ namespace TestFlightCore
             currentConfig.TryGetValue("rndMaxData", ref rndMaxData);
             currentConfig.TryGetValue("rndRate", ref rndRate);
             currentConfig.TryGetValue("rndCost", ref rndCost);
+
+            return prevConfig == currentConfig;
         }
 
         [KSPEvent(guiActiveEditor=false, guiName = "R&D Window")]            
@@ -950,6 +954,7 @@ namespace TestFlightCore
 
             if (HighLogic.LoadedSceneIsFlight)
             {
+                Debug.Log("[TestFlight] Start() Called in Flight");
                 GameEvents.onCrewTransferred.Add(OnCrewChange);
                 if (crew == null)
                     crew = new List<ProtoCrewMember>();
@@ -967,11 +972,38 @@ namespace TestFlightCore
                 {
                     GameEvents.onStageActivate.Add(OnStageActivate);
                     firstStaged = false;
+                    if (TestFlightManagerScenario.Instance != null && TestFlightManagerScenario.Instance.isReady)
+                    {
+                        if (TestFlightManagerScenario.Instance.SettingsAlwaysMaxData)
+                            InitializeFlightData(maxData);
+                        else
+                        {
+                            InitializeFlightData(Mathf.Max(0, TestFlightManagerScenario.Instance.GetFlightDataForPartName(Alias)));
+                        }
+                    }
                 }
                 else
                 {
                     firstStaged = true;
                     missionStartTime = Planetarium.GetUniversalTime();
+                    if (TestFlightManagerScenario.Instance != null && TestFlightManagerScenario.Instance.isReady)
+                    {
+                        if (TestFlightManagerScenario.Instance.SettingsAlwaysMaxData)
+                            InitializeFlightData(maxData);
+                        else
+                        {
+                            InitializeFlightData(currentFlightData);
+                        }
+                    }
+                }
+            }
+            else if (HighLogic.LoadedSceneIsEditor)
+            {
+                if (TestFlightManagerScenario.Instance.SettingsAlwaysMaxData)
+                    InitializeFlightData(maxData);
+                else
+                {
+                    InitializeFlightData(Mathf.Max(0, TestFlightManagerScenario.Instance.GetFlightDataForPartName(Alias)));
                 }
             }
         }
@@ -1375,12 +1407,16 @@ namespace TestFlightCore
             }
 
 
-            if (TestFlightManagerScenario.Instance.SettingsAlwaysMaxData)
-                InitializeFlightData(maxData);
-            else
+            if (TestFlightManagerScenario.Instance != null && TestFlightManagerScenario.Instance.isReady && HighLogic.LoadedSceneIsEditor)
             {
-                InitializeFlightData(Mathf.Max(0, TestFlightManagerScenario.Instance.GetFlightDataForPartName(Alias)));
+                if (TestFlightManagerScenario.Instance.SettingsAlwaysMaxData)
+                    InitializeFlightData(maxData);
+                else
+                {
+                    InitializeFlightData(Mathf.Max(0, TestFlightManagerScenario.Instance.GetFlightDataForPartName(Alias)));
+                }
             }
+            
             
             if (Events == null)
                 return;
