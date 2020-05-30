@@ -73,16 +73,6 @@ namespace TestFlightCore
             StartCoroutine("AddToToolbar");
             TestFlight.Resources.LoadTextures();
 
-            if (HighLogic.LoadedSceneIsFlight && tfScenario.userSettings.enableHUD && hud == null)
-            {
-                hud = gameObject.AddComponent(typeof(TestFlightHUD)) as TestFlightHUD;
-                if (hud != null)
-                {
-                    Log("Starting up TestFlightHUD");
-                    hud.Startup(this);
-                }
-                GameEvents.onGameSceneLoadRequested.Add(Event_OnGameSceneLoadRequested);
-            }
             // Default position and size -- will get proper bounds calculated when needed
             WindowRect = new Rect(0, 50, 500, 50);
             ClampToScreenOffset = new RectOffset(0, 0, 0, 0);
@@ -498,12 +488,6 @@ namespace TestFlightCore
                         tfScenario.userSettings.currentMSDSize = GUILayout.Toolbar(tfScenario.userSettings.currentMSDSize,guiSizes);
                         GUILayout.EndHorizontal();
 
-                        GUILayout.BeginHorizontal();
-                        if (DrawToggle(ref tfScenario.userSettings.enableHUD, "Enable Flight HUD", Styles.styleToggle))
-                        {
-                            tfScenario.userSettings.Save();
-                        }
-                        GUILayout.EndHorizontal();
                         break;
                     case 1:
                         GUILayout.BeginHorizontal();
