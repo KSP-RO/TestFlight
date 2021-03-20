@@ -3,13 +3,14 @@ python:
 - '2.7'
 before_install:
 - git log --no-merges -n 1 > changes.md
+- rvm install 1.9.3
 install:
 - pip install -r requirements.txt
 script:
 - make clean
 - make release
 before_deploy:
-- rvm 2.5.3p105 do gem install mime-types -v 2.6.2
+- rvm 1.9.3 do gem install mime-types -v 2.6.2
 deploy:
   provider: releases
   api_key:
