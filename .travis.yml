@@ -9,7 +9,7 @@ script:
 - make clean
 - make release
 before_deploy:
-- rvm 1.9.3 do gem install mime-types -v 2.6.2
+- rvm 2.5.3p105 do gem install mime-types -v 2.6.2
 deploy:
   provider: releases
   api_key:
