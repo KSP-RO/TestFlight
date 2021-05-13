@@ -19,6 +19,7 @@ namespace TestFlightCore
         internal int partStatus;
         internal double baseFailureRate;
         internal double momentaryFailureRate;
+        internal string runningTime;
         internal ITestFlightCore flightCore;
         internal bool highlightPart;
         internal bool acknowledged;
@@ -203,7 +204,7 @@ namespace TestFlightCore
         double lastFailurePoll = 0.0f;
         double lastMasterStatusUpdate = 0.0f;
 
-
+        // EventData<Vessel>.OnEvent OnVesselModifiedEvent;
 
 
         internal void Log(string message)
@@ -241,6 +242,104 @@ namespace TestFlightCore
             cores = new List<string>();
             vesselsToDelete = new List<Guid>();
             partsToDelete = new List<PartStatus>();
+
+            // register to be notified of changes to any vessel
+            GameEvents.onVesselWasModified.Add(VesselWasModified);
+            GameEvents.onVesselCreate.Add(VesselCreated);
+            GameEvents.onVesselDestroy.Add(VesselDestroyed);
+            // Build an initial list of vessels and part data
+            // This will then be updated from the above event
+            if (masterStatus == null)
+                masterStatus = new Dictionary<Guid, MasterStatusItem>();
+
+            currentUTC = Planetarium.GetUniversalTime();
+        }
+
+        void VesselDestroyed(Vessel vessel)
+        {
+            Debug.Log($"Vessel Destroyed {vessel.vesselName}");
+            masterStatus.Remove(vessel.id);
+        }
+
+        void VesselCreated(Vessel vessel)
+        {
+            Debug.Log($"Vessel Created {vessel.vesselName}");
+            if (masterStatus.ContainsKey(vessel.id)) return;
+            
+            InitializeParts(vessel);
+            AddVesselToMasterStatusDisplay(vessel);
+        }
+
+        void VesselWasModified(Vessel vessel)
+        {
+            Debug.Log($"Vessel Modified {vessel.vesselName}");
+            masterStatus.Remove(vessel.id);
+            AddVesselToMasterStatusDisplay(vessel);
+        }
+
+        void AddVesselToMasterStatusDisplay(Vessel vessel)
+        {
+            MasterStatusItem masterStatusItem = new MasterStatusItem();
+            masterStatusItem.vesselID = vessel.id;
+            masterStatusItem.vesselName = vessel.GetName();
+            masterStatusItem.allPartsStatus = new List<PartStatus>();
+            masterStatus.Add(vessel.id, masterStatusItem);
+                
+            var parts = vessel.Parts;
+            for (var j = 0; j < parts.Count; j++)
+            {
+                var partCores = parts[j].gameObject.GetComponents<TestFlightCore>();
+                foreach (var core in partCores)
+                {
+                    if (!core.TestFlightEnabled) continue;
+                        
+                    PartStatus partStatus = new PartStatus();
+                    partStatus.lastSeen = currentUTC;
+                    partStatus.flightCore = core;
+                    partStatus.partName = core.Title;
+                    partStatus.partID = vessel.parts[j].flightID;
+                    partStatus.partStatus = core.GetPartStatus();
+                    // get any failures
+                    partStatus.failures = core.GetActiveFailures();
+                    partStatus.flightData = core.GetFlightData();
+                    double failureRate = core.GetBaseFailureRate();
+                    MomentaryFailureRate momentaryFailureRate = core.GetWorstMomentaryFailureRate();
+                    if (momentaryFailureRate.valid && momentaryFailureRate.failureRate > failureRate)
+                        failureRate = momentaryFailureRate.failureRate;
+                    partStatus.momentaryFailureRate = failureRate;
+                    partStatus.acknowledged = false;
+                    partStatus.mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
+                    partStatus.runningTime = TestFlightUtil.FormatTime(core.GetBurnTime(), TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false);
+                    masterStatus[vessel.id].allPartsStatus.Add(partStatus);
+                }
+            }
+        }
+
+        void UpdateVesselInMasterStatusDisplay(Vessel vessel)
+        {
+            if (!masterStatus.ContainsKey(vessel.id)) return;
+
+            var allPartsStatus = masterStatus[vessel.id].allPartsStatus;
+
+            for (var i = 0; i < allPartsStatus.Count; i++)
+            {
+                var status = allPartsStatus[i];
+                ITestFlightCore core = status.flightCore;
+
+                // Update the part status
+                status.partStatus = core.GetPartStatus();
+                status.failures = core.GetActiveFailures();
+                status.flightData = core.GetFlightData();
+                double failureRate = core.GetBaseFailureRate();
+                MomentaryFailureRate momentaryFailureRate = core.GetWorstMomentaryFailureRate();
+                if (momentaryFailureRate.valid && momentaryFailureRate.failureRate > failureRate)
+                    failureRate = momentaryFailureRate.failureRate;
+                status.momentaryFailureRate = failureRate;
+                status.mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
+                status.runningTime = TestFlightUtil.FormatTime(core.GetBurnTime(), TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false);
+
+                allPartsStatus[i] = status;
+            }
         }
 
         internal Dictionary<Guid, MasterStatusItem> GetMasterStatus()
@@ -250,15 +349,6 @@ namespace TestFlightCore
 
         private void InitializeParts(Vessel vessel)
         {
-            if (!tfScenario.SettingsEnabled)
-                return;
-            
-            // Launch time is equal to current UT unless we have already cached this vessel's launch time
-            double launchTime = Planetarium.GetUniversalTime();
-            if (knownVessels.ContainsKey(vessel.id))
-            {
-                launchTime = knownVessels[vessel.id];
-            }
             foreach (Part part in vessel.parts)
             {
                 // Each KSP part can be composed of N virtual parts
@@ -270,7 +360,6 @@ namespace TestFlightCore
                     ITestFlightCore core = TestFlightUtil.GetCore(part, activeCore);
                     if (core != null)
                     {
-                        Log("TestFlightManager: Found core.  Getting part data");
                         if (TestFlightManagerScenario.Instance.SettingsAlwaysMaxData)
                         {
                             core.InitializeFlightData(core.GetMaximumData());
@@ -290,141 +379,6 @@ namespace TestFlightCore
             }
         }
 
-        // This method simply scans through the Master Status list every now and then and removes vessels and parts that no longer exist
-        private void VerifyMasterStatus()
-        {
-            if (!isReady)
-                return;
-
-            if (!tfScenario.SettingsEnabled)
-                return;
-
-            // iterate through our cached vessels and delete ones that are no longer valid
-            vesselsToDelete.Clear();
-            masterStatusEnumerator = masterStatus.GetEnumerator();
-            while (masterStatusEnumerator.MoveNext())
-            {
-                KeyValuePair<Guid, MasterStatusItem> entry = masterStatusEnumerator.Current;
-                Vessel vessel = null;
-                for (int i = 0; i < FlightGlobals.Vessels.Count; i++)
-                {
-                    if (FlightGlobals.Vessels[i].id == entry.Key)
-                        vessel = FlightGlobals.Vessels[i];
-                }
-                if (vessel == null)
-                {
-                    vesselsToDelete.Add(entry.Key);
-                }
-                else
-                {
-                    if (vessel.vesselType == VesselType.Debris)
-                    {
-                        vesselsToDelete.Add(entry.Key);
-                    }
-                }
-            }
-            for (int i = 0; i < vesselsToDelete.Count; i++)
-            {
-                masterStatus.Remove(vesselsToDelete[i]);
-            }
-            // iterate through the remaining vessels and check for parts that no longer exist
-            partsToDelete.Clear();
-            masterStatusEnumerator = masterStatus.GetEnumerator();
-            while (masterStatusEnumerator.MoveNext())
-            {
-                KeyValuePair<Guid, MasterStatusItem> entry = masterStatusEnumerator.Current;
-                Vessel vessel = null;
-                for (int i = 0; i < FlightGlobals.Vessels.Count; i++)
-                {
-                    if (FlightGlobals.Vessels[i].id == entry.Key)
-                        vessel = FlightGlobals.Vessels[i];
-                }
-                for (int i = 0; i < masterStatus[entry.Key].allPartsStatus.Count; i++)
-                {
-                    PartStatus partStatus = masterStatus[entry.Key].allPartsStatus[i];
-                    Part part = null;
-                    for (int j = 0; j < vessel.Parts.Count; j++)
-                    {
-                        if (vessel.Parts[j].flightID == partStatus.partID)
-                            part = vessel.Parts[j];
-                    }
-                    if (part == null)
-                    {
-                        partsToDelete.Add(partStatus);
-                    }
-                }
-                for (int i = 0; i < partsToDelete.Count; i++)
-                {
-                    PartStatus oldPartStatus = partsToDelete[i];
-                    if (oldPartStatus.lastSeen < Planetarium.GetUniversalTime() - partDecayTime)
-                        masterStatus[entry.Key].allPartsStatus.Remove(oldPartStatus);
-                }
-            }
-        }
-
-        private void CacheVessels()
-        {
-            if (!isReady)
-                return;
-
-            if (!tfScenario.SettingsEnabled)
-                return;
-            
-            // build a list of vessels to process based on setting
-            if (knownVessels == null)
-                knownVessels = new Dictionary<Guid, double>();
-
-            // iterate through our cached vessels and delete ones that are no longer valid
-            vesselsToDelete.Clear();
-            knownVesselsEnumerator = knownVessels.GetEnumerator();
-            while (knownVesselsEnumerator.MoveNext())
-            {
-                KeyValuePair<Guid, double> entry = knownVesselsEnumerator.Current;
-                Vessel vessel = null;
-                for (int i = 0; i < FlightGlobals.Vessels.Count; i++)
-                {
-                    if (FlightGlobals.Vessels[i].id == entry.Key)
-                        vessel = FlightGlobals.Vessels[i];
-                }
-                if (vessel == null)
-                    vesselsToDelete.Add(entry.Key);
-                else
-                {
-                    if (vessel.vesselType == VesselType.Debris)
-                        vesselsToDelete.Add(entry.Key);
-                }
-            }
-            for (int i = 0; i < vesselsToDelete.Count; i++)
-            {
-                knownVessels.Remove(vesselsToDelete[i]);
-            }
-
-            // Build our cached list of vessels.  The reason we do this is so that we can store an internal "missionStartTime" for each vessel because the game
-            // doesn't consider a vessel launched, and does not start the mission clock, until the player activates the first stage.  This is fine except it
-            // makes things like engine test stands impossible, so we instead cache the vessel the first time we see it and use that time as the missionStartTime
-
-            if (!tfScenario.userSettings.processAllVessels)
-            {
-                if (FlightGlobals.ActiveVessel == null || knownVessels.ContainsKey(FlightGlobals.ActiveVessel.id))
-                    return;
-                knownVessels.Add(FlightGlobals.ActiveVessel.id, Planetarium.GetUniversalTime());
-                InitializeParts(FlightGlobals.ActiveVessel);
-            }
-            else
-            {
-                for (int i = 0; i < FlightGlobals.Vessels.Count; i++)
-                {
-                    Vessel vessel = FlightGlobals.Vessels[i];
-                    if (vessel.vesselType != VesselType.Lander && vessel.vesselType != VesselType.Probe &&
-                        vessel.vesselType != VesselType.Rover && vessel.vesselType != VesselType.Ship &&
-                        vessel.vesselType != VesselType.Station) continue;
-                    if (knownVessels.ContainsKey(vessel.id)) continue;
-                    knownVessels.Add(vessel.id, Planetarium.GetUniversalTime());
-                    InitializeParts(vessel);
-                }
-            }
-        }
-
         internal override void Update()
         {
             if (!isReady)
@@ -433,187 +387,13 @@ namespace TestFlightCore
             if (!tfScenario.SettingsEnabled)
                 return;
 
-            if (masterStatus == null)
-                masterStatus = new Dictionary<Guid, MasterStatusItem>();
-
-            currentUTC = Planetarium.GetUniversalTime();
-            // ensure out vessel list is up to date
-            Profiler.BeginSample("CacheVessels");
-            CacheVessels();
-            Profiler.EndSample();
-            if (currentUTC >= lastMasterStatusUpdate + tfScenario.userSettings.masterStatusUpdateFrequency)
+            if (!masterStatus.ContainsKey(FlightGlobals.ActiveVessel.id))
             {
-                lastMasterStatusUpdate = currentUTC;
-                Profiler.BeginSample("VerifyMasterStatus");
-                VerifyMasterStatus();
-                Profiler.EndSample();
+                InitializeParts(FlightGlobals.ActiveVessel);
+                AddVesselToMasterStatusDisplay(FlightGlobals.ActiveVessel);
             }
-            // process vessels
-            Profiler.BeginSample("ProcessVessels");
-            knownVesselsEnumerator = knownVessels.GetEnumerator();
-            while (knownVesselsEnumerator.MoveNext())
-            {
-                KeyValuePair<Guid, double> entry = knownVesselsEnumerator.Current;
-                Vessel vessel = null;
-                Profiler.BeginSample("FindVessel");
-                for (int i = 0; i < FlightGlobals.Vessels.Count; i++)
-                {
-                    if (FlightGlobals.Vessels[i].id == entry.Key)
-                        vessel = FlightGlobals.Vessels[i];
-                }
-                Profiler.EndSample();
-                if (vessel == null)
-                    continue;
-
-                if (vessel.loaded)
-                {
-                    Profiler.BeginSample("ProcessParts");
-                    List<Part> parts = vessel.Parts;
-                    for (int j = 0; j < parts.Count; j++)
-                    {
-                        // Each KSP part can be composed of N virtual parts
-                        Profiler.BeginSample("Reset Core List");
-                        cores.Clear();
-                        Profiler.EndSample();
-                        Profiler.BeginSample("Get Cores");
-                        for (int k = 0; k < parts[j].Modules.Count; k++)
-                        {
-                            ITestFlightCore core = parts[j].Modules[k] as ITestFlightCore;
-                            if (core != null && core.TestFlightEnabled)
-                                cores.Add(core.Alias);
-                        }
-                        Profiler.EndSample();
-                        //cores = TestFlightInterface.GetActiveCores(vessel.parts[j]);
-                        if (cores == null || cores.Count <= 0)
-                            continue;
-                        Profiler.BeginSample("ProcessCores");
-                        for (int k = 0; k < cores.Count; k++)
-                        {
-                            ITestFlightCore core = TestFlightUtil.GetCore(vessel.parts[j], cores[k]);
-                            if (core == null) continue;
-                            // Poll for flight data and part status
-                            if (!(currentUTC >= lastDataPoll + tfScenario.userSettings.masterStatusUpdateFrequency))
-                                continue;
-                            // Update or Add part status in Master Status
-                            if (masterStatus.ContainsKey(vessel.id))
-                            {
-                                Profiler.BeginSample("MasterStatus Existing Vessel");
-                                // Vessel is already in the Master Status, so check if part is in there as well
-                                int existingPartIndex = -1;
-                                Profiler.BeginSample("Find Part");
-                                for (int msIndex = 0; msIndex < masterStatus[vessel.id].allPartsStatus.Count; msIndex++)
-                                {
-                                    if (masterStatus[vessel.id].allPartsStatus[msIndex].partID !=
-                                        vessel.parts[j].flightID) continue;
-                                    existingPartIndex = msIndex;
-                                    break;
-                                }
-                                Profiler.EndSample();
-                                if (existingPartIndex > -1)
-                                {
-                                    Profiler.BeginSample("Existing Part");
-                                    //PartStatus partStatus = masterStatus[vessel.id].allPartsStatus[existingPartIndex];
-                                    PartStatus partStatus = new PartStatus();
-                                    partStatus.lastSeen = currentUTC;
-                                    partStatus.flightCore = core;
-                                    partStatus.partName = core.Title;
-                                    partStatus.partID = vessel.parts[j].flightID;
-                                    Profiler.BeginSample("Part - GetPartStatus");
-                                    partStatus.partStatus = core.GetPartStatus();
-                                    Profiler.EndSample();
-                                    // get any failures
-                                    Profiler.BeginSample("Part - GetActiveFailures");
-                                    partStatus.failures = core.GetActiveFailures();
-                                    Profiler.EndSample();
-                                    Profiler.BeginSample("Part - GetFlightData");
-                                    partStatus.flightData = core.GetFlightData();
-                                    Profiler.EndSample();
-                                    Profiler.BeginSample("Part - GetBaseFailureRate");
-                                    double failureRate = core.GetBaseFailureRate();
-                                    Profiler.EndSample();
-                                    Profiler.BeginSample("Part - GetWorstMomentaryFailureRate");
-                                    MomentaryFailureRate momentaryFailureRate = core.GetWorstMomentaryFailureRate();
-                                    if (momentaryFailureRate.valid && momentaryFailureRate.failureRate > failureRate)
-                                        failureRate = momentaryFailureRate.failureRate;
-                                    Profiler.EndSample();
-                                    partStatus.momentaryFailureRate = failureRate;
-                                    partStatus.acknowledged = false;
-                                    Profiler.BeginSample("Part - FailureRateToMTBFString");
-                                    core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, false, 999,
-                                        out partStatus.mtbfString);
-                                    //partStatus.mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
-                                    Profiler.EndSample();
-                                    masterStatus[vessel.id].allPartsStatus[existingPartIndex] = partStatus;
-                                    Profiler.EndSample();
-                                }
-                                else
-                                {
-                                    Profiler.BeginSample("New Part");
-                                    PartStatus partStatus = new PartStatus();
-                                    partStatus.lastSeen = currentUTC;
-                                    partStatus.flightCore = core;
-                                    partStatus.partName = core.Title;
-                                    partStatus.partID = vessel.parts[j].flightID;
-                                    partStatus.partStatus = core.GetPartStatus();
-                                    // get any failures
-                                    partStatus.failures = core.GetActiveFailures();
-                                    partStatus.flightData = core.GetFlightData();
-                                    double failureRate = core.GetBaseFailureRate();
-                                    MomentaryFailureRate momentaryFailureRate = core.GetWorstMomentaryFailureRate();
-                                    if (momentaryFailureRate.valid && momentaryFailureRate.failureRate > failureRate)
-                                        failureRate = momentaryFailureRate.failureRate;
-                                    partStatus.momentaryFailureRate = failureRate;
-                                    partStatus.acknowledged = false;
-                                    core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, false, 999,
-                                        out partStatus.mtbfString);
-                                    masterStatus[vessel.id].allPartsStatus.Add(partStatus);
-                                    Profiler.EndSample();
-                                }
-                                Profiler.EndSample();
-                            }
-                            else
-                            {
-                                Profiler.BeginSample("MasterStatus New Vessel");
-                                // Vessel is not in the Master Status so create a new entry for it and add this part
-                                PartStatus partStatus = new PartStatus();
-                                partStatus.lastSeen = currentUTC;
-                                partStatus.flightCore = core;
-                                partStatus.partName = core.Title;
-                                partStatus.partID = vessel.parts[j].flightID;
-                                partStatus.partStatus = core.GetPartStatus();
-                                // get any failures
-                                partStatus.failures = core.GetActiveFailures();
-                                partStatus.flightData = core.GetFlightData();
-                                double failureRate = core.GetBaseFailureRate();
-                                MomentaryFailureRate momentaryFailureRate = core.GetWorstMomentaryFailureRate();
-                                if (momentaryFailureRate.valid && momentaryFailureRate.failureRate > failureRate)
-                                    failureRate = momentaryFailureRate.failureRate;
-                                partStatus.momentaryFailureRate = failureRate;
-                                partStatus.acknowledged = false;
-                                partStatus.mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
-                                MasterStatusItem masterStatusItem = new MasterStatusItem();
-                                masterStatusItem.vesselID = vessel.id;
-                                masterStatusItem.vesselName = vessel.GetName();
-                                masterStatusItem.allPartsStatus = new List<PartStatus>();
-                                masterStatusItem.allPartsStatus.Add(partStatus);
-                                masterStatus.Add(vessel.id, masterStatusItem);
-                                Profiler.EndSample();
-                            }
-                        }
-                        Profiler.EndSample();
-                    }
-                }
-                Profiler.EndSample();
-                if (currentUTC >= lastDataPoll + tfScenario.userSettings.minTimeBetweenDataPoll)
-                {
-                    lastDataPoll = currentUTC;
-                }
-                if (currentUTC >= lastFailurePoll + tfScenario.userSettings.minTimeBetweenFailurePoll)
-                {
-                    lastFailurePoll = currentUTC;
-                }
-            }
-            Profiler.EndSample();
+            
+            UpdateVesselInMasterStatusDisplay(FlightGlobals.ActiveVessel);
         }
 
     }
@@ -1016,6 +796,22 @@ namespace TestFlightCore
             else
                 return -1f;
         }
+        // This is a utility method that will return the "transferData" value directly or -1 if not found
+        public float GetTransferDataForPartName(string partName)
+        {
+            if (partData.ContainsKey(partName))
+                return partData[partName].GetFloat("transferData");
+            else
+                return -1f;
+        }
+        // This is a utility method that will return the "researchData" value directly or -1 if not found
+        public float GetResearchDataForPartName(string partName)
+        {
+            if (partData.ContainsKey(partName))
+                return partData[partName].GetFloat("researchData");
+            else
+                return -1f;
+        }
 
         // New noscope Format
         // This is a utility method that sets the "flightData" value directly
@@ -1031,6 +827,32 @@ namespace TestFlightCore
                 partData.Add(partName, newData);
             }
         }
+        // This is a utility method that sets the "transferData" value directly
+        public void SetTransferDataForPartName(string partName, float data)
+        {
+            if (partData.ContainsKey(partName))
+                partData[partName].SetValue("transferData", data.ToString());
+            else
+            {
+                TestFlightPartData newData = new TestFlightPartData();
+                newData.PartName = partName;
+                newData.SetValue("transferData", data.ToString());
+                partData.Add(partName, newData);
+            }
+        }
+        // This is a utility method that sets the "researchData" value directly
+        public void SetResearchDataForPartName(string partName, float data)
+        {
+            if (partData.ContainsKey(partName))
+                partData[partName].SetValue("researchData", data.ToString());
+            else
+            {
+                TestFlightPartData newData = new TestFlightPartData();
+                newData.PartName = partName;
+                newData.SetValue("researchData", data.ToString());
+                partData.Add(partName, newData);
+            }
+        }
         // This is a utility method that adds the "flightData" value directly
         public void AddFlightDataForPartName(string partName, float data)
         {
@@ -1041,6 +863,32 @@ namespace TestFlightCore
                 TestFlightPartData newData = new TestFlightPartData();
                 newData.PartName = partName;
                 newData.SetValue("flightData", data);
+                partData.Add(partName, newData);
+            }
+        }
+        // This is a utility method that adds the "transferData" value directly
+        public void AddTransferDataForPartName(string partName, float data)
+        {
+            if (partData.ContainsKey(partName))
+                partData[partName].AddValue("transferData", data);
+            else
+            {
+                TestFlightPartData newData = new TestFlightPartData();
+                newData.PartName = partName;
+                newData.SetValue("transferData", data);
+                partData.Add(partName, newData);
+            }
+        }
+        // This is a utility method that adds the "researchData" value directly
+        public void AddResearchDataForPartName(string partName, float data)
+        {
+            if (partData.ContainsKey(partName))
+                partData[partName].AddValue("researchData", data);
+            else
+            {
+                TestFlightPartData newData = new TestFlightPartData();
+                newData.PartName = partName;
+                newData.SetValue("researchData", data);
                 partData.Add(partName, newData);
             }
         }

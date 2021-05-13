@@ -110,9 +110,24 @@ namespace TestFlight
             }
         }
 
-        public override void OnUpdate()
+        public override void SetActiveConfig(string alias)
         {
-            base.OnUpdate();
+            base.SetActiveConfig(alias);
+            
+            if (currentConfig == null) return;
+
+            // update current values with those from the current config node
+            currentConfig.TryGetValue("engineID", ref engineID);
+        }
+
+        public override void OnAwake()
+        {
+            base.OnAwake();
+            if (!string.IsNullOrEmpty(configNodeData))
+            {
+                var node = ConfigNode.Parse(configNodeData);
+                OnLoad(node);
+            }
         }
 
         // Failure methods

@@ -42,24 +42,7 @@ namespace TestFlightCore
         {
             Log("Initializing KSC Window Hook");
             Instance = this;
-            // Load out AssetBundle
-            AssetLoader.LoadAssets(AssetLoaded, AssetLoader.GetAssetDefinitionWithName("TestFlight/testflight", "TFKSCCanvas"));
             StartCoroutine("ConnectToScenario");
-        }
-
-        void AssetLoaded(AssetLoader.Loader loader)
-        {
-            // You get a object that contains all the object that match your laoding request
-            for (int i = 0; i < loader.definitions.Length; i++ )
-            {
-                UnityEngine.Object o = loader.objects[i];
-                if (o == null)
-                    continue;
-
-                if (o.GetType() == typeof(Canvas))
-                    kscCanvas = o as Canvas;
-            }
-            assetBundleLoaded = true;
         }
 
         IEnumerator ConnectToScenario()

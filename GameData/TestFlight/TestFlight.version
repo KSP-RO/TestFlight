@@ -10,8 +10,8 @@
 	},
 "VERSION":
 	{
-	"MAJOR": 1,
-	"MINOR": 12,
+	"MAJOR": 2,
+	"MINOR": 0,
 	"PATCH": 0,
 	"BUILD": 0
 	},
@@ -25,9 +25,9 @@
 "KSP_VERSION_MAX":
 	{
 	"MAJOR": 1,
-	"MINOR": 9,
+	"MINOR": 10,
 	"PATCH": 99,
 	"BUILD": 0
 	},
-"DOWNLOAD": "https://github.com/KSP-RO/TestFlight/releases/download/1.12.0.0/TestFlight-1.12.0.0.zip"
+"DOWNLOAD": "https://github.com/KSP-RO/TestFlight/releases/download/2.0.0/TestFlight-2.0.0.zip"
 }

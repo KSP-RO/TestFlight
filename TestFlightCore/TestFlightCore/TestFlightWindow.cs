@@ -73,18 +73,9 @@ namespace TestFlightCore
             StartCoroutine("AddToToolbar");
             TestFlight.Resources.LoadTextures();
 
-            if (HighLogic.LoadedSceneIsFlight && tfScenario.userSettings.enableHUD && hud == null)
-            {
-                hud = gameObject.AddComponent(typeof(TestFlightHUD)) as TestFlightHUD;
-                if (hud != null)
-                {
-                    Log("Starting up TestFlightHUD");
-                    hud.Startup(this);
-                }
-                GameEvents.onGameSceneLoadRequested.Add(Event_OnGameSceneLoadRequested);
-            }
             // Default position and size -- will get proper bounds calculated when needed
             WindowRect = new Rect(0, 50, 500, 50);
+            ClampToScreenOffset = new RectOffset(0, 0, 0, 0);
             DragEnabled = !tfScenario.userSettings.mainWindowLocked;
             ClampToScreen = true;
             TooltipsEnabled = true;
@@ -148,6 +139,8 @@ namespace TestFlightCore
                 windowWidth -= 130f;
             if (!tfScenario.userSettings.showStatusTextInMSD)
                 windowWidth -= 100f;
+            if (tfScenario.userSettings.showRunTimeInMSD)
+                windowWidth += 60f;
 
             float left = Screen.width - windowWidth;
             float windowHeight = 10f;
@@ -255,7 +248,6 @@ namespace TestFlightCore
                 return;
             // We update the window bounds here, around twice a second, instead of in the GUI draw
             // This way for one it will cause less overhead, and also shouldn't cause as much flashing
-            Log("Recalculating Window Bounds");
             CalculateWindowBounds();
 
             base.RepeatingWorker();
@@ -359,6 +351,12 @@ namespace TestFlightCore
                             GUILayout.Label(String.Format("{0:F6}", status.momentaryFailureRate), GUILayout.Width(60));
                             GUILayout.Space(10);
                         }
+                        // Run Time
+                        if (tfScenario.userSettings.showRunTimeInMSD)
+                        {
+                            GUILayout.Label(String.Format("{0:F6}", status.runningTime), GUILayout.Width(60));
+                            GUILayout.Space(10);
+                        }
                         // Part Status Text
                         if (tfScenario.userSettings.showStatusTextInMSD)
                         {
@@ -450,6 +448,14 @@ namespace TestFlightCore
                         GUILayout.EndHorizontal();
 
                         GUILayout.BeginHorizontal();
+                        if (DrawToggle(ref tfScenario.userSettings.showRunTimeInMSD, "Show Run Time", Styles.styleToggle))
+                        {
+                            tfScenario.userSettings.Save();
+                            CalculateWindowBounds();
+                        }
+                        GUILayout.EndHorizontal();
+
+                        GUILayout.BeginHorizontal();
                         if (DrawToggle(ref tfScenario.userSettings.showStatusTextInMSD, "Show Part Status Text", Styles.styleToggle))
                         {
                             tfScenario.userSettings.Save();
@@ -482,30 +488,6 @@ namespace TestFlightCore
                         tfScenario.userSettings.currentMSDSize = GUILayout.Toolbar(tfScenario.userSettings.currentMSDSize,guiSizes);
                         GUILayout.EndHorizontal();
 
-                        GUILayout.BeginHorizontal();
-                        if (DrawToggle(ref tfScenario.userSettings.enableHUD, "Enable Flight HUD", Styles.styleToggle))
-                        {
-                            tfScenario.userSettings.Save();
-                            if (tfScenario.userSettings.enableHUD)
-                            {
-                                hud = gameObject.AddComponent(typeof(TestFlightHUD)) as TestFlightHUD;
-                                if (hud != null)
-                                {
-                                    Log("Starting up Flight HUD");
-                                    hud.Startup(this);
-                                }
-                                GameEvents.onGameSceneLoadRequested.Add(Event_OnGameSceneLoadRequested);
-                            }
-                            else
-                            {
-                                Log("Destroying Flight HUD");
-                                hud.Shutdown();
-                                Destroy(hud);
-                                hud = null;
-                                GameEvents.onGameSceneLoadRequested.Remove(Event_OnGameSceneLoadRequested);
-                            }
-                        }
-                        GUILayout.EndHorizontal();
                         break;
                     case 1:
                         GUILayout.BeginHorizontal();
@@ -586,6 +568,31 @@ namespace TestFlightCore
                 else
                     OpenWindow();
             }
+
+            // if (hud == null)
+            // {
+            //     if (tfScenario.userSettings.enableHUD)
+            //     {
+            //         hud = gameObject.AddComponent(typeof(TestFlightHUD)) as TestFlightHUD;
+            //         if (hud != null)
+            //         {
+            //             Log("Starting up Flight HUD");
+            //             hud.Startup(this);
+            //         }
+            //         GameEvents.onGameSceneLoadRequested.Add(Event_OnGameSceneLoadRequested);
+            //     }
+            // }
+            // else
+            // {
+            //     if (!tfScenario.userSettings.enableHUD)
+            //     {
+            //         Log("Destroying Flight HUD");
+            //         hud.Shutdown();
+            //         Destroy(hud);
+            //         hud = null;
+            //         GameEvents.onGameSceneLoadRequested.Remove(Event_OnGameSceneLoadRequested);
+            //     }            
+            // }
         }
             
         // GUI EVent Handlers

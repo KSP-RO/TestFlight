@@ -15,8 +15,10 @@ namespace TestFlightCore
     public class TestFlightCore : PartModuleExtended, ITestFlightCore
     {
         [KSPField]
+        public int configVersion = 1;
+        
+        [KSPField]
         public float startFlightData;
-
         [KSPField]
         public string configuration = "";
         [KSPField]
@@ -48,15 +50,23 @@ namespace TestFlightCore
         [KSPField(isPersistant=true)]
         public double lastMET;
         [KSPField(isPersistant=true)]
-        public bool initialized = false;
-        [KSPField(isPersistant=true)]
         public float currentFlightData;
         [KSPField(isPersistant=true)]
         public float initialFlightData;
         [KSPField(isPersistant=true)]
-        private double missionStartTime;
+        public double missionStartTime;
+        [KSPField(isPersistant=true)]
+        public string activeConfig;
 
         #endregion
+
+        public List<ConfigNode> configs;
+        public ConfigNode currentConfig;
+        public string configNodeData;
+
+        bool initialized = false;
+        float transferData;
+        float researchData;
 
         private double baseFailureRate;
         // We store the base, or initial, flight data for calculation of Base Failure Rate
@@ -81,6 +91,8 @@ namespace TestFlightCore
 
         private string[] ops = { "=", "!=", "<", "<=", ">", ">=", "<>", "<=>" };
 
+        IFlightDataRecorder m_Recorder;
+
         public bool ActiveConfiguration
         {
             get
@@ -91,27 +103,8 @@ namespace TestFlightCore
                         return false;
                 }
 
-                if (string.IsNullOrEmpty(Configuration))
-                    return true;
-                bool opFound = false;
-                for (int i = 0; i < 8; i++)
-                {
-                    opFound |= Configuration.Contains(ops[i]);
-                }
-                if (!opFound)
-                {
-                    // If this configuration defines an alias, just trim it off
-                    string test = Configuration;
-                    if (Configuration.Contains(":"))
-                    {
-                        test = test.Split(new char[1] { ':' })[0];
-                    }
-                    return TestFlightUtil.GetPartName(part).ToLower() == test.ToLower();
-                }
-                Profiler.BeginSample("EvaluateQuery");
-                bool pass = TestFlightUtil.EvaluateQuery(Configuration, this.part);
-                Profiler.EndSample();
-                return pass;
+                SetActiveConfigFromInterop();
+                return true;
             }
         }
 
@@ -168,6 +161,71 @@ namespace TestFlightCore
             }
         }
 
+        bool SetActiveConfigFromInterop()
+        {
+            ConfigNode prevConfig = currentConfig;
+            
+            if (configs == null)
+                configs = new List<ConfigNode>();
+            
+            foreach (var configNode in configs)
+            {
+                if (!configNode.HasValue("configuration")) continue;
+
+                var nodeConfiguration = configNode.GetValue("configuration");
+                if (string.IsNullOrEmpty(nodeConfiguration))
+                {
+                    currentConfig = configNode;
+                    break;
+                }
+
+                bool opFound = false;
+                for (int i = 0; i < 8; i++)
+                {
+                    opFound |= nodeConfiguration.Contains(ops[i]);
+                }
+                if (!opFound)
+                {
+                    // If this configuration defines an alias, just trim it off
+                    string test = nodeConfiguration;
+                    if (nodeConfiguration.Contains(":"))
+                    {
+                        test = test.Split(new char[1] { ':' })[0];
+                    }
+
+                    if (string.Equals(TestFlightUtil.GetPartName(part).ToLower(), test.ToLower(), StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        currentConfig = configNode;
+                        break;
+                    }
+                }
+
+                if (TestFlightUtil.EvaluateQuery(nodeConfiguration, this.part))
+                {
+                    currentConfig = configNode;
+                    break;
+                }
+            }
+
+            if (currentConfig == null) return prevConfig == null;
+
+            // update current values with those from the current config node
+            currentConfig.TryGetValue("startFlightData", ref startFlightData);
+            currentConfig.TryGetValue("configuration", ref configuration);
+            currentConfig.TryGetValue("title", ref title);
+            currentConfig.TryGetValue("techTransfer", ref techTransfer);
+            currentConfig.TryGetValue("techTransferMax", ref techTransferMax);
+            currentConfig.TryGetValue("techTransferGenerationPenalty", ref techTransferGenerationPenalty);
+            currentConfig.TryGetValue("maxData", ref maxData);
+            currentConfig.TryGetValue("failureRateModifier", ref failureRateModifier);
+            currentConfig.TryGetValue("scienceDataValue", ref scienceDataValue);
+            currentConfig.TryGetValue("rndMaxData", ref rndMaxData);
+            currentConfig.TryGetValue("rndRate", ref rndRate);
+            currentConfig.TryGetValue("rndCost", ref rndCost);
+
+            return prevConfig == currentConfig;
+        }
+
         [KSPEvent(guiActiveEditor=false, guiName = "R&D Window")]            
         public void ToggleRNDGUI()
         {
@@ -181,6 +239,31 @@ namespace TestFlightCore
             {
                 return TestFlightManagerScenario.RandomGenerator;
             }
+        }
+
+        public override void OnLoad(ConfigNode node)
+        {
+            base.OnLoad(node);
+
+            if (node.HasNode("MODULE"))
+                node = node.GetNode("MODULE");
+
+            if (configs == null)
+                configs = new List<ConfigNode>();
+
+            ConfigNode[] cNodes = node.GetNodes("CONFIG");
+            if (cNodes != null && cNodes.Length > 0)
+            {
+                configs.Clear();
+
+                foreach (ConfigNode subNode in cNodes) {
+                    var newNode = new ConfigNode("CONFIG");
+                    subNode.CopyTo(newNode);
+                    configs.Add(newNode);
+                }
+            }
+
+            configNodeData = node.ToString();
         }
 
         internal void Log(string message)
@@ -275,6 +358,22 @@ namespace TestFlightCore
             }
 
             return null;
+        }
+        public float GetBurnTime()
+        {
+            List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part, Alias);
+            if (reliabilityModules == null)
+                return 0f;
+
+            float burnTime = 0f;
+
+            for (int i = 0, reliabilityModulesCount = reliabilityModules.Count; i < reliabilityModulesCount; i++)
+            {
+                ITestFlightReliability rm = reliabilityModules[i];
+                burnTime = Mathf.Max(rm.GetCurrentBurnTime(), burnTime);
+            }
+
+            return burnTime;
         }
         // Get the momentary (IE current dynamic) failure rates (Can vary per reliability/failure modules)
         // These  methods will let you get a list of all momentary rates or you can get the best (lowest chance of failure)/worst (highest chance of failure) rates
@@ -465,10 +564,9 @@ namespace TestFlightCore
         // New v1.3 noscope
         public float GetFlightData()
         {
-            if (currentFlightData > maxData)
-                currentFlightData = maxData;
-            
-            return currentFlightData;
+            var data = currentFlightData + researchData + transferData;
+            data = Mathf.Min(data, maxData);
+            return data;
         }
         public float GetInitialFlightData()
         {
@@ -536,7 +634,7 @@ namespace TestFlightCore
             // The flight data as it stands before modification
             float existingData = currentFlightData;
             // Amount of data stored in the scenario store
-            float existingStoredFlightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(Alias);
+            float existingStoredFlightData = Mathf.Max(0,TestFlightManagerScenario.Instance.GetFlightDataForPartName(Alias));
 
             // Calculate the new flight data
             if (additive)
@@ -772,28 +870,29 @@ namespace TestFlightCore
             missionStartTime = Planetarium.GetUniversalTime();
             Log("First stage activated");
         }
+
         /// <summary>
         /// Determines whether the part is considered operating or not.
         /// </summary>
         public bool IsPartOperating()
         {
             Profiler.BeginSample("IsPartOperating");
-            IFlightDataRecorder dr = TestFlightUtil.GetDataRecorder(this.part, Alias);
+            if (m_Recorder == null)
+            {
+                m_Recorder = GetComponent(typeof(IFlightDataRecorder)) as IFlightDataRecorder;
+            }
+
             Profiler.EndSample();
-            return dr != null && dr.IsPartOperating();
+            return m_Recorder.IsPartOperating();
         }
 
         // PARTMODULE functions
         public override void Update()
         {
-            Profiler.BeginSample("Base update");
             base.Update();
-            Profiler.EndSample();
 
-            Profiler.BeginSample("Stage check");
             if (!firstStaged)
                 return;
-            Profiler.EndSample();
 
             Profiler.BeginSample("Enabled check");
             if (!TestFlightEnabled)
@@ -855,6 +954,7 @@ namespace TestFlightCore
 
             if (HighLogic.LoadedSceneIsFlight)
             {
+                Debug.Log("[TestFlight] Start() Called in Flight");
                 GameEvents.onCrewTransferred.Add(OnCrewChange);
                 if (crew == null)
                     crew = new List<ProtoCrewMember>();
@@ -872,11 +972,38 @@ namespace TestFlightCore
                 {
                     GameEvents.onStageActivate.Add(OnStageActivate);
                     firstStaged = false;
+                    if (TestFlightManagerScenario.Instance != null && TestFlightManagerScenario.Instance.isReady)
+                    {
+                        if (TestFlightManagerScenario.Instance.SettingsAlwaysMaxData)
+                            InitializeFlightData(maxData);
+                        else
+                        {
+                            InitializeFlightData(Mathf.Max(0, TestFlightManagerScenario.Instance.GetFlightDataForPartName(Alias)));
+                        }
+                    }
                 }
                 else
                 {
                     firstStaged = true;
                     missionStartTime = Planetarium.GetUniversalTime();
+                    if (TestFlightManagerScenario.Instance != null && TestFlightManagerScenario.Instance.isReady)
+                    {
+                        if (TestFlightManagerScenario.Instance.SettingsAlwaysMaxData)
+                            InitializeFlightData(maxData);
+                        else
+                        {
+                            InitializeFlightData(currentFlightData);
+                        }
+                    }
+                }
+            }
+            else if (HighLogic.LoadedSceneIsEditor)
+            {
+                if (TestFlightManagerScenario.Instance.SettingsAlwaysMaxData)
+                    InitializeFlightData(maxData);
+                else
+                {
+                    InitializeFlightData(Mathf.Max(0, TestFlightManagerScenario.Instance.GetFlightDataForPartName(Alias)));
                 }
             }
         }
@@ -892,6 +1019,14 @@ namespace TestFlightCore
 
         public override void OnAwake()
         {
+            initialized = false;
+            
+            if (!string.IsNullOrEmpty(configNodeData))
+            {
+                var node = ConfigNode.Parse(configNodeData);
+                OnLoad(node);
+            }
+            
             String partName;
             if (this.part != null)
                 partName = this.part.name;
@@ -939,19 +1074,19 @@ namespace TestFlightCore
         {
             if (initialized)
                 return;
-            
-            if (flightData == 0f)
-                flightData = AttemptTechTransfer();
-            
-            if (startFlightData > flightData)
-            {
-                TestFlightManagerScenario.Instance.AddFlightDataForPartName(Alias, startFlightData);
-                flightData = startFlightData;
-            }
 
-            currentFlightData = flightData;
-            initialFlightData = flightData;
+            researchData = Mathf.Min(TestFlightManagerScenario.Instance.GetResearchDataForPartName(Alias), rndMaxData);
+            if (researchData < 0f) researchData = 0f;
+            transferData = AttemptTechTransfer();
+            if (transferData < 0f) transferData = 0f;
+            TestFlightManagerScenario.Instance.SetTransferDataForPartName(Alias, transferData);
 
+            flightData = Mathf.Max(startFlightData, flightData);
+                
+            currentFlightData = Mathf.Min(maxData, flightData);
+            initialFlightData = Mathf.Min(maxData, flightData + researchData + transferData);
+
+            TestFlightManagerScenario.Instance.SetFlightDataForPartName(Alias, flightData);
             missionStartTime = Planetarium.GetUniversalTime();
 
             initialized |= HighLogic.LoadedSceneIsFlight;
@@ -969,13 +1104,16 @@ namespace TestFlightCore
             // multiple branches can be specified with the & character
             // multiple parts in a branch can be specified by separating them with a comma
             // for each branch the first part listed is considered the closest part, and each part after is considered to be one generation removed.  An optional generation penalty is added for each level
-            //  for each branch, the flight data from each part is added together including any generation penalties, to create a total for that branch, modifed by the transfer amount for that branch
+            //  for each branch, the flight data from each part is added together including any generation penalties, to create a total for that branch, modified by the transfer amount for that branch
             // if multiple branches are specified, each branch is then added together
             // an optional maximum data can be enforced for each scope (global setting but applied to each scope, not total)
             // Example
             // techTransfer = rs-27a,rs-27,h1-b,h1:10&lr-89-na-7,lr-89-na-6,lr-89-na-5:25
             // defines two branches, one from the RS-27 branch and one from the LR-89 branch.  
 
+            Debug.Log($"[TestFlight] Attempting TechTransfer for part {Configuration}");
+            Debug.Log($"[TestFlight] techTransfer: {techTransfer.Trim()}");
+            
             if (techTransfer.Trim() == "")
                 return 0f;
 
@@ -988,6 +1126,7 @@ namespace TestFlightCore
             for (int i = 0, branchesLength = branches.Length; i < branchesLength; i++)
             {
                 string branch = branches[i];
+                Debug.Log($"[TestFlight] Processing Branch {branch}");
                 modifiers = branch.Split(new char[1] {
                     ':'
                 });
@@ -1003,6 +1142,7 @@ namespace TestFlightCore
                 {
                     string partName = partsInBranch[j];
                     float partFlightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(partName);
+                    Debug.Log($"[TestFlight] Existing data for {partName}: {partFlightData}");
                     if (partFlightData == 0f)
                         continue;
                     dataToTransfer = dataToTransfer + ((partFlightData - (partFlightData * generation * techTransferGenerationPenalty)) * branchModifier);
@@ -1010,7 +1150,8 @@ namespace TestFlightCore
                 }
             }
 
-            return dataToTransfer;
+            Debug.Log($"[TestFlight] Data to Transfer: {dataToTransfer}");
+            return Mathf.Min(dataToTransfer, techTransferMax);
         }
 
         public float ForceRepair(ITestFlightFailure failure)
@@ -1085,41 +1226,74 @@ namespace TestFlightCore
 
         public override string GetModuleDisplayName()
         {
-            return string.Format("Test Flight reliability for {0}", Alias);
+            return string.Format("Test Flight reliability for {0}", Title);
         }
 
         public override string GetInfo()
         {
-            // This methods collects data from all the TestFlight modules and combines it into one string
-            List<string> infoStrings = new List<string>();
+            // This methods collects data from all the TestFlight configs and combines it into one string
+            List<string> configStrings = new List<string>();
 
-            List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part, Alias, false);
-            if (reliabilityModules != null)
+            foreach (var infoConfig in configs)
             {
-                for (int i = 0, reliabilityModulesCount = reliabilityModules.Count; i < reliabilityModulesCount; i++)
+                if (!infoConfig.HasValue("configuration"))
+                    continue;
+
+                var nodeConfiguration = infoConfig.GetValue("configuration");
+                if (string.IsNullOrEmpty(nodeConfiguration))
+                    continue;
+
+                string nodeAlias = nodeConfiguration.Contains(":") ? nodeConfiguration.Split(new char[1] { ':' })[1] : nodeConfiguration;
+                
+                string nodeTitle = null;
+                infoConfig.TryGetValue("title", ref nodeTitle);
+                if (string.IsNullOrEmpty(nodeTitle))
+                    nodeTitle = nodeAlias;
+
+                // This methods collects data from all the TestFlight modules and combines it into one string
+                List<string> infoStrings = new List<string>();
+
+                List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part, nodeAlias, false);
+                if (reliabilityModules != null)
                 {
-                    ITestFlightReliability reliabilityModule = reliabilityModules[i];
-                    var s = reliabilityModule.GetModuleInfo();
-                    if (!string.IsNullOrEmpty(s))
-                        infoStrings.Add(s);
+                    float ratedBurnTime = 0f;
+                    for (int i = 0, reliabilityModulesCount = reliabilityModules.Count; i < reliabilityModulesCount; i++)
+                    {
+                        ITestFlightReliability reliabilityModule = reliabilityModules[i];
+                        ratedBurnTime = Mathf.Max(reliabilityModule.GetRatedBurnTime(nodeAlias), ratedBurnTime);
+                    }
+
+                    for (int i = 0, reliabilityModulesCount = reliabilityModules.Count; i < reliabilityModulesCount; i++)
+                    {
+                        ITestFlightReliability reliabilityModule = reliabilityModules[i];
+                        var s = reliabilityModule.GetModuleInfo(nodeAlias, ratedBurnTime);
+                        if (!string.IsNullOrEmpty(s))
+                            infoStrings.Add(s);
+                    }
+                }
+
+                List<ITestFlightFailure> failureModules = TestFlightUtil.GetFailureModules(this.part, nodeAlias, false);
+                if (failureModules != null)
+                {
+                    for (int i = 0, failureModulesCount = failureModules.Count; i < failureModulesCount; i++)
+                    {
+                        ITestFlightFailure failureModule = failureModules[i];
+                        var s = failureModule.GetModuleInfo(nodeAlias);
+                        if (!string.IsNullOrEmpty(s))
+                            infoStrings.Add(s);
+                    }
+                }
+
+                if (infoStrings.Count > 0)
+                {
+                    infoStrings.Insert(0, $"<b><color=#ffb400ff>{nodeTitle}</color></b>");
+                    configStrings.Add(string.Join("\n", infoStrings.ToArray()));
                 }
             }
 
-            List<ITestFlightFailure> failureModules = TestFlightUtil.GetFailureModules(this.part, Alias, false);
-            if (failureModules != null)
+            if (configStrings.Count > 0)
             {
-                for (int i = 0, failureModulesCount = failureModules.Count; i < failureModulesCount; i++)
-                {
-                    ITestFlightFailure failureModule = failureModules[i];
-                    var s = failureModule.GetModuleInfo();
-                    if (!string.IsNullOrEmpty(s))
-                        infoStrings.Add(s);
-                }
-            }
-
-            if (infoStrings.Count > 0)
-            {
-                return string.Join("\n", infoStrings.ToArray());
+                return string.Join("\n\n", configStrings.ToArray());
             }
 
             return base.GetInfo();
@@ -1127,22 +1301,42 @@ namespace TestFlightCore
 
         public List<string> GetTestFlightInfo()
         {
+            string indent = "    ";
+
             List<string> infoStrings = new List<string>();
             string partName = Alias;
             infoStrings.Add("<b>Core</b>");
-            infoStrings.Add("<b>Active Part</b>: " + partName);
-            float flightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(partName);
+            infoStrings.Add(indent + "  <b>Active Part</b>: " + partName);
+            // float flightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(partName);
+            var flightData = GetFlightData();
             if (flightData < 0f)
                 flightData = 0f;
-            infoStrings.Add(String.Format("<b>Flight Data</b>: {0:f2}/{1:f2}", flightData, maxData));
+            infoStrings.Add(indent + String.Format("  <b>Flight Data</b>: {0:f1}/{1:f1}", flightData, maxData));
+            infoStrings.Add("");
 
             List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part, Alias);
             if (reliabilityModules != null)
             {
+                float ratedBurnTime = 0f;
                 for (int i = 0, reliabilityModulesCount = reliabilityModules.Count; i < reliabilityModulesCount; i++)
                 {
                     ITestFlightReliability reliabilityModule = reliabilityModules[i];
-                    infoStrings.AddRange(reliabilityModule.GetTestFlightInfo());
+                    ratedBurnTime = Mathf.Max(reliabilityModule.GetRatedBurnTime(), ratedBurnTime);
+                }
+
+                for (int i = 0, reliabilityModulesCount = reliabilityModules.Count; i < reliabilityModulesCount; i++)
+                {
+                    ITestFlightReliability reliabilityModule = reliabilityModules[i];
+                    List<string> infoColl = reliabilityModule.GetTestFlightInfo(ratedBurnTime);
+                    if (infoColl != null)
+                    {
+                        // Don't indent header string
+                        infoStrings.Add(infoColl[0]);
+                        infoColl.RemoveAt(0);
+                        foreach (string s in infoColl)
+                            infoStrings.Add(indent + s);
+                        infoStrings.Add("");
+                    }
                 }
             }
 
@@ -1154,9 +1348,18 @@ namespace TestFlightCore
                     ITestFlightFailure failureModule = failureModules[i];
                     List<string> infoColl = failureModule.GetTestFlightInfo();
                     if (infoColl != null)
-                        infoStrings.AddRange(infoColl);
+                    {
+                        // Don't indent header string
+                        infoStrings.Add(infoColl[0]);
+                        infoColl.RemoveAt(0);
+                        foreach (string s in infoColl)
+                            infoStrings.Add(indent + s);
+                        infoStrings.Add("");
+                    }
                 }
             }
+
+            infoStrings.RemoveAt(infoStrings.Count - 1);
 
             return infoStrings;
         }
@@ -1165,8 +1368,37 @@ namespace TestFlightCore
         {
             Log("Updating part config");
 
-            enabled = ActiveConfiguration;
-            active = enabled;
+            SetActiveConfigFromInterop();
+            
+            // enabled = ActiveConfiguration;
+            // active = enabled;
+
+            enabled = true;
+            active = true;
+
+            List<PartModule> tfPartModules = TestFlightAPI.TestFlightUtil.GetAllTestFlightModulesForPart(part);
+            foreach (var partModule in tfPartModules)
+            {
+                // FlightDataRecorder
+                IFlightDataRecorder recorder = partModule as IFlightDataRecorder;
+                if (recorder != null)
+                {
+                    recorder.SetActiveConfig(Alias);
+                }
+
+                // TestFlightReliability
+                ITestFlightReliability reliability = partModule as ITestFlightReliability;
+                if (reliability != null)
+                    reliability.SetActiveConfig(Alias);
+                
+                // TestFlightFailure
+                ITestFlightFailure failure = partModule as ITestFlightFailure;
+                if (failure != null)
+                {
+                    failure.SetActiveConfig(Alias);
+                }
+            }
+            
 
             List<PartModule> testFlightModules = TestFlightUtil.GetAllTestFlightModulesForAlias(this.part, Alias);
             for (int i = 0; i < testFlightModules.Count; i++)
@@ -1174,15 +1406,27 @@ namespace TestFlightCore
                 testFlightModules[i].enabled = enabled;
             }
 
+
+            if (TestFlightManagerScenario.Instance != null && TestFlightManagerScenario.Instance.isReady && HighLogic.LoadedSceneIsEditor)
+            {
+                if (TestFlightManagerScenario.Instance.SettingsAlwaysMaxData)
+                    InitializeFlightData(maxData);
+                else
+                {
+                    InitializeFlightData(Mathf.Max(0, TestFlightManagerScenario.Instance.GetFlightDataForPartName(Alias)));
+                }
+            }
+            
+            
             if (Events == null)
                 return;
             
-            BaseEvent toggleRNDGUIEvent = Events["ToggleRNDGUI"];
-            if (toggleRNDGUIEvent != null)
-            {
-                toggleRNDGUIEvent.guiActiveEditor = enabled;
-                toggleRNDGUIEvent.guiName = string.Format("R&D {0}", Alias);
-            }
+            // BaseEvent toggleRNDGUIEvent = Events["ToggleRNDGUI"];
+            // if (toggleRNDGUIEvent != null)
+            // {
+            //     toggleRNDGUIEvent.guiActiveEditor = enabled;
+            //     toggleRNDGUIEvent.guiName = string.Format("R&D {0}", Alias);
+            // }
         }
 
         public float GetMaximumRnDData()

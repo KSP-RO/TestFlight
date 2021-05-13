@@ -19,6 +19,25 @@ namespace TestFlight
             if (Failed)
                 DoFailure();
         }
+        public override void SetActiveConfig(string alias)
+        {
+            base.SetActiveConfig(alias);
+            
+            if (currentConfig == null) return;
+
+            // update current values with those from the current config node
+            currentConfig.TryGetValue("thrustReduction", ref thrustReduction);
+        }
+
+        public override void OnAwake()
+        {
+            base.OnAwake();
+            if (!string.IsNullOrEmpty(configNodeData))
+            {
+                var node = ConfigNode.Parse(configNodeData);
+                OnLoad(node);
+            }
+        }
         /// <summary>
         /// Triggers the failure controlled by the failure module
         /// </summary>

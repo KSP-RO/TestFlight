@@ -46,6 +46,26 @@ namespace TestFlight
             }
             return 0;
         }
+        public override void SetActiveConfig(string alias)
+        {
+            base.SetActiveConfig(alias);
+            
+            if (currentConfig == null) return;
+
+            // update current values with those from the current config node
+            currentConfig.TryGetValue("ispMultiplier", ref ispMultiplier);
+            currentConfig.TryGetValue("ispMultiplierJitter", ref ispMultiplierJitter);
+        }
+
+        public override void OnAwake()
+        {
+            base.OnAwake();
+            if (!string.IsNullOrEmpty(configNodeData))
+            {
+                var node = ConfigNode.Parse(configNodeData);
+                OnLoad(node);
+            }
+        }
     }
 }
 

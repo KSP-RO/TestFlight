@@ -312,12 +312,12 @@ namespace TestFlightCore
             GUILayout.BeginVertical();
             GUILayout.Label(String.Format("Selected Part: {0}", selectedAlias), Styles.styleEditorTitle);
 
-            float flightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(selectedAlias);
-            if (flightData < 0f)
-                flightData = 0f;
             core = TestFlightUtil.GetCore(SelectedPart, selectedAlias);
             if (core != null)
             {
+                float flightData = core.GetFlightData();
+                if (flightData < 0f)
+                    flightData = 0f;
                 core.InitializeFlightData(flightData);
                 GUILayout.BeginHorizontal();
                 double failureRate = core.GetBaseFailureRate();
