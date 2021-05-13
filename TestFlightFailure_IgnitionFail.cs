@@ -343,6 +343,14 @@ namespace TestFlight
                 infoStrings.Add($"<b>{maxTime/1000} kPa Pressure Modifier</b>: {pressureCurve.Evaluate(maxTime):N}");
             }
 
+            if (pressureCurve != null & pressureCurve.Curve.keys.Length > 1)
+            {
+                float maxTime = pressureCurve.maxTime;
+                infoStrings.Add("<b>This engine suffers a penalty to ignition based on dynamic pressure</b>");
+                infoStrings.Add($"<B>0 Pa Pressure Modifier: {pressureCurve.Evaluate(0)}");
+                infoStrings.Add($"<b>{maxTime} Pa Pressure Modifier</b>: {pressureCurve.Evaluate(maxTime):N}");
+            }
+
             return infoStrings;
         }
     }
