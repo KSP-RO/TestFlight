@@ -14,7 +14,7 @@ before_deploy:
 deploy:
   provider: releases
   api_key:
-    secure: Wm7wncirAYROoMUb5wQ+F+FJcqJ94ROgNTCZkTAO8EniR/WmN66fOBYOoAQkxjPaVlH0yZGmVKrBkuI58B6o8X2hCVaCfUz7611JxwQvcpX5YZaMO1yH1ukr5kGXnE+iVE/ebA06WSincnnNKC+Sx/AWZaCoFjEHnHSeSGADMsw=
+    secure: Jgqs7gplBhnZS15NIuCObgg/CjY1mqr5OHTbIIeIkeHz+2wGdBT92fOhk/4YTG8jj3CTrLEKvkIjMsW4xboXL9CVDXoJte5D+kqrsQz6gltP74G52D6Iq+Wcadt1DwWjYCRuxcVDSaEpJI5EWxn/auvbjIKMemP7dQORQZP49r0=
   file_glob: true
   file:
   - TestFlightCore*.zip
