@@ -49,5 +49,5 @@ clean:
 	-rm *.ckan
 
 getBins:
-	curl https://ksp-ro.s3-us-west-2.amazonaws.com/TestFlight_bin_KSP-1.8.zip --output bins.zip
+	curl $(BINS) --output bins.zip
 	unzip -P $(ZIP_PW) bins.zip
