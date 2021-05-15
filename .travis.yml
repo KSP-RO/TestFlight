@@ -25,9 +25,8 @@ deploy:
       secure: "gpwK4CNpdLnnNRwu64TYVpzE/HKin8+bwGF1acBjQLnWv4wX/d4dr/WsO1sl442z57VtcPRyMyV/wnTdCk4kCa5xuBwJGGQeBsZDQ/0w0UXfoHn+HBLbyAfVqhJb3bziJCIn5W1rICV3KIKWEI91G9TPFuWU5FMB1VkTDufzdM4="
     bucket: "ksp-ro"
     skip_cleanup: true
-    file_glob: true
-    file:
-    - TestFlightCore*.zip
+    glob: "TestFlightCore*.zip"
+    acl: public_read
     on:
       all_branches: true
 env:
