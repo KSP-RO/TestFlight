@@ -28,7 +28,11 @@ ZIP_CORE := $(ZIP_CORE).zip
 $(info $(ZIP_CORE))
 all: clean meta
 
+ifdef TRAVIS_TAG
 release: zip
+else
+release:
+endif
 
 ifdef TRAVIS_TAG
 meta:
