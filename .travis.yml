@@ -7,8 +7,6 @@ script:
   - make meta
   - make getBins
   - make zip
-before_deploy:
-- rvm 1.9.3 do gem install mime-types -v 2.6.2
 deploy:
   - provider: releases
     api_key:
