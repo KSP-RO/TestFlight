@@ -53,5 +53,7 @@ clean:
 	-rm *.ckan
 
 getBins:
+	pwd
 	curl $(BINS) --output bins.zip
 	unzip -P $(ZIP_PW) bins.zip
+	msbuild /p:Configuration=Release TestFlight.sln
