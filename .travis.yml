@@ -1,7 +1,7 @@
 language: csharp
 install:
-  - apt-get update
-  - apt-get install python2.7
+  - sudo apt-get update
+  - sudo apt-get install python2.7
 script:
   - make clean
   - make meta
