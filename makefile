@@ -3,7 +3,7 @@ PROJ_NAME = $(shell basename `pwd`)
 CONFIG_DIR = configs
 VERSION = $(shell git describe --tags)
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD 2>&1)
-BINS = https://ksp-ro.s3-us-west-2.amazonaws.com/TestFlight_bin_KSP-1.8.zip
+BINS = https://ksp-ro.s3-us-west-2.amazonaws.com/TestFlight_bin_KSP-1.10.zip
 
 ZIP_CORE := TestFlightCore
 
