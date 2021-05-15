@@ -44,6 +44,9 @@ endif
 
 zip: meta
 	zip $(ZIP_CORE) GameData GameData/TestFlight/* GameData/TestFlight/Plugins/* GameData/TestFlight/Resources/* GameData/TestFlight/Resources/Textures/* -x ignore.txt
+	mkdir builds/
+	cp $(ZIP_CORE) builds/$(ZIP_CORE)
+
 
 clean:
 	-rm *.zip
