@@ -13,7 +13,7 @@ Prerelease: [![Build Status dev](https://travis-ci.org/KSP-RO/TestFlight.svg?bra
 ---
 
 ## Release Details
-TestFlight is currently in development and not yet released.  Alpha test versions will be released soon.
+Please see Github releases or CKAN for installation.  Note, do **NOT** simply download the repository.  That will not work!
 
 ## License
 TestFlight is released on the Creative Commons 4.0 by-nc-sa License. 
