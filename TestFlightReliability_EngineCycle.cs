@@ -13,25 +13,51 @@ namespace TestFlight
     {
         private EngineModuleWrapper engine;
 
+        /// <summary>
+        /// failure rate modifier applied to cumulative lifecycle
+        /// </summary>
         [KSPField]
         public FloatCurve cycle;
+
+        /// <summary>
+        /// failure rate modified applied to current continuous burn
+        /// </summary>
         [KSPField]
-        public FloatCurve thrustModifier = null;
-        [KSPField]
-        public float idleDecayRate = 0f;
+        public FloatCurve continuousCycle;
+        
+        /// <summary>
+        /// maximum rated cumulative run time of the engine over the entire lifecycle
+        /// </summary>
         [KSPField]
         public float ratedBurnTime = 0f;
+
+        /// <summary>
+        /// maximum rated continuous burn time between restarts
+        /// </summary>
+        [KSPField]
+        public float ratedContinuousBurnTime;
+        
         [KSPField]
         public string engineID = "";
         [KSPField]
         public string engineConfig = "";
 
 
+        // Used for tracking burn states over time
+        /// <summary>
+        /// amount of seconds engine has been running over the entire lifecycle (cumulative)
+        /// </summary>
         [KSPField(isPersistant = true)]
         public double engineOperatingTime = 0d;
+
+        /// <summary>
+        /// amount of second engine has been running since last start/restart
+        /// </summary>
+        [KSPField(isPersistant = true)]
+        public double currentRunTime;
+
         [KSPField(isPersistant = true)]
         public double previousOperatingTime = 0d;
-
 
         public override void OnStart(StartState state)
         {
@@ -50,36 +76,31 @@ namespace TestFlight
         {
             double currentTime = Planetarium.GetUniversalTime();
             double deltaTime = (currentTime - previousOperatingTime) / 1d;
-//            Log(String.Format("TestFlightReliability_EngineCycle: previous time: {0:F4}, current time: {1:F4}, delta time: {2:F4}", previousOperatingTime, currentTime, deltaTime));
             if (deltaTime >= 1d)
             {
                 previousOperatingTime = currentTime;
                 // Is our engine running?
                 if (!core.IsPartOperating())
                 {
-                    // If not then we optionally cool down the engine, which decresses the burn time used
-                    engineOperatingTime = Math.Max(engineOperatingTime - (idleDecayRate * deltaTime), 0d);
+                    // engine is not running
+                    
+                    // reset continuous run time
+                    currentTime = 0;
                 }
                 else
                 {
-                    // If so then we add burn time based on time passed, optionally modified by the thrust
-                    float actualThrustModifier = thrustModifier.Evaluate(engine.finalThrust);
-                    if (verboseDebugging)
-                    {
-                        Log(String.Format("TestFlightReliability_EngineCycle: Engine Thrust {0:F4}", engine.finalThrust));
-                        Log(String.Format("TestFlightReliability_EngineCycle: delta time: {0:F4}, operating time :{1:F4}, thrustModifier: {2:F4}", deltaTime, engineOperatingTime, actualThrustModifier));
-                    }                    engineOperatingTime = engineOperatingTime + (deltaTime * actualThrustModifier);
+                    // engine is running
+                    
+                    // increase both continuous and cumulative run times
+                    currentTime += deltaTime; // continuous
+                    engineOperatingTime += deltaTime; // cumulative
+                    
 
-                    // Check for failure
-                    float minValue, maxValue = -1f;
-                    cycle.FindMinMaxValue(out minValue, out maxValue);
-                    float penalty = cycle.Evaluate((float)engineOperatingTime);
-                    if (verboseDebugging)
-                    {
-                        Log(String.Format("TestFlightReliability_EngineCycle: Cycle Curve, Min Value {0:F2}:{1:F6}, Max Value {2:F2}:{3:F6}", cycle.minTime, minValue, cycle.maxTime, maxValue));
-                        Log(String.Format("TestFlightReliability_EngineCycle: Applying modifier {0:F4} at cycle time {1:F4}", penalty, engineOperatingTime));
-                    }   
-                    core.SetTriggerMomentaryFailureModifier("EngineCycle", penalty, this);
+                    // calculate totaly failure rate modifier
+                    float cumulativeModifier = cycle.Evaluate((float)engineOperatingTime);
+                    float continuousModifier = continuousCycle.Evaluate((float)currentTime);
+                    
+                    core.SetTriggerMomentaryFailureModifier("EngineCycle", cumulativeModifier * continuousModifier, this);
                 }
             }
         }
@@ -120,19 +141,27 @@ namespace TestFlight
             {
                 cycle.Add(0f,1f);
             }
-            thrustModifier = new FloatCurve();
-            if (currentConfig.HasNode("thrustModifier"))
+
+            continuousCycle = new FloatCurve();
+            if (currentConfig.HasNode("continuousCycle"))
             {
-                thrustModifier.Load(currentConfig.GetNode("thrustModifier"));
+                continuousCycle.Load(currentConfig.GetNode("continuousCycle"));
             }
             else
             {
-                thrustModifier.Add(0f,1f);
+                continuousCycle.Add(0f, 1f);
             }
-            currentConfig.TryGetValue("idleDecayRate", ref idleDecayRate);
             currentConfig.TryGetValue("ratedBurnTime", ref ratedBurnTime);
             currentConfig.TryGetValue("engineID", ref engineID);
             currentConfig.TryGetValue("engineConfig", ref engineConfig);
+            if (currentConfig.HasValue("ratedContinuousBurnTime"))
+            {
+                currentConfig.TryGetValue("ratedContinuousBurnTime", ref ratedContinuousBurnTime);
+            }
+            else
+            {
+                ratedContinuousBurnTime = ratedBurnTime;
+            }
         }
 
         public override string GetModuleInfo(string configuration, float reliabilityAtTime)
@@ -204,16 +233,17 @@ namespace TestFlight
                 var node = ConfigNode.Parse(configNodeData);
                 OnLoad(node);
             }
-            if (thrustModifier == null)
-            {
-                thrustModifier = new FloatCurve();
-                thrustModifier.Add(0f, 1f);
-            }
             if (cycle == null)
             {
                 cycle = new FloatCurve();
                 cycle.Add(0f, 1f);
             }
+            if (continuousCycle == null)
+            {
+                continuousCycle = new FloatCurve();
+                continuousCycle.Add(0f, 1f);
+            }
+
         }
 
         public override List<string> GetTestFlightInfo(float reliabilityAtTime)
@@ -221,17 +251,8 @@ namespace TestFlight
             List<string> infoStrings = new List<string>();
 
             infoStrings.Add("<b>Engine Cycle</b>");
-            infoStrings.Add(String.Format("<b>Rated Burn Time</b>: {0}", TestFlightUtil.FormatTime(ratedBurnTime, TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, true)));
-            if (idleDecayRate > 0)
-                infoStrings.Add(String.Format("Cooling. Burn time decays {0:F2} per sec second engine is off", idleDecayRate));
-            float minThrust, maxThrust;
-            thrustModifier.FindMinMaxValue(out minThrust, out maxThrust);
-            if (minThrust != maxThrust)
-            {
-                infoStrings.Add(String.Format("Engine thrust affects burn time"));
-                infoStrings.Add(String.Format("<b>Min Thrust/b> {0:F2}kn, {1:F2}x", thrustModifier.minTime, minThrust));
-                infoStrings.Add(String.Format("<b>Max Thrust/b> {0:F2}kn, {1:F2}x", thrustModifier.maxTime, maxThrust));
-            }
+            infoStrings.Add($"<b>Maximum Continuous Run Time</b>: {TestFlightUtil.FormatTime(ratedContinuousBurnTime, TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, true)}");
+            infoStrings.Add($"<b>Maximum Cumulative Run Time</b>: {TestFlightUtil.FormatTime(ratedBurnTime, TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, true)}");
             return infoStrings;
         }
     }
