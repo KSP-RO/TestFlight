@@ -171,9 +171,9 @@ namespace TestFlight
                         {
                             Log(String.Format("TestFlightFailure_IgnitionFail: IgnitionChance Curve, Min Value {0:F2}:{1:F6}, Max Value {2:F2}:{3:F6}", baseIgnitionChance.minTime, minValue, baseIgnitionChance.maxTime, maxValue));
                         }
-                          
+
                         if (this.vessel.situation != Vessel.Situations.PRELAUNCH)
-                            ignitionChance = ignitionChance * pressureModifier * ignitionUseMultiplier.Evaluate(numIgnitions);
+                            ignitionChance = ignitionChance * pressureModifier * ignitionUseMultiplier.Evaluate(numIgnitions) * restartWindowModifier;
 
                         failureRoll = core.RandomGenerator.NextDouble();
                         if (verboseDebugging)
