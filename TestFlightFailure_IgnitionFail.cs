@@ -162,11 +162,11 @@ namespace TestFlight
 
                 if (multiplier > float.Epsilon)
                 {
-                    FlightLogger.eventLog.Add($"[{met}] {core.Title} failed: Ignition Failure.  {multiplier} penalty for {(float)(part.dynamicPressurekPa * 1000d)}Pa dynamic pressure.");
+                    FlightLogger.eventLog.Add($"[{met}] {core.Title} failed: Ignition Failure.  {(float)(part.dynamicPressurekPa * 1000d)}Pa dynamic pressure cased a {(1f-multiplier) * 100f}% reduction in normal ignition reliability.");
                 }
                 else
                 {
-                    FlightLogger.eventLog.Add($"[{met}] {core.Title} failed: Ignition Failure");
+                    FlightLogger.eventLog.Add($"[{met}] {core.Title} failed: Ignition Failure.");
                 }
             }
             Log(String.Format("IgnitionFail: Failing {0} engine(s)", engines.Count));
