@@ -68,6 +68,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EngineRunData.cs" />
     <Compile Include="Failure Bases\TestFlightFailureBase_Avionics.cs" />
     <Compile Include="Failure Bases\TestFlightFailureBase_Docking.cs" />
     <Compile Include="Failure Bases\TestFlightFailureBase_FARCtrlSrf.cs" />

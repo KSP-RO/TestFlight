@@ -32,10 +32,7 @@ namespace TestFlight
         [KSPField(isPersistant=true)]
         public int numIgnitions = 0;
 
-        [KSPField(isPersistant = true)]
-        public List<double> engineIdleTime;
-        [KSPField(isPersistant = true)]
-        public List<bool> engineHasRun;
+        private List<EngineRunData> engineRunData;
 
         private ITestFlightCore core = null;
         private bool preLaunchFailures;
@@ -62,6 +59,26 @@ namespace TestFlight
             dynPressurePenalties = HighLogic.CurrentGame.Parameters.CustomParams<TestFlightGameSettings>().dynPressurePenalties;
         }
 
+        public override void OnLoad(ConfigNode node)
+        {
+            base.OnLoad(node);
+            engineRunData = new List<EngineRunData>();
+            foreach (var configNode in node.GetNodes("ENGINE_RUN_DATA"))
+            {
+                engineRunData.Add(new EngineRunData(configNode));
+            }
+        }
+
+        public override void OnSave(ConfigNode node)
+        {
+            base.OnSave(node);
+            foreach (var engineRunData in engineRunData)
+            {
+                var dataNode = node.AddNode("ENGINE_RUN_DATA");
+                engineRunData.Save(dataNode);
+            }
+        }
+
         public override void Startup()
         {
             base.Startup();
@@ -79,44 +96,38 @@ namespace TestFlight
                 Startup();
         }
 
+        public EngineRunData GetEngineRunDataForID(uint id)
+        {
+            return engineRunData.FirstOrDefault(data => data.id == id);
+        }
+
         public override void OnUpdate()
         {
             if (!TestFlightEnabled)
                 return;
 
-            if (engineIdleTime == null)
-            {
-                engineIdleTime = new List<double>(engines.Count);
-                for (var i = 0; i < engines.Count; i++)
-                {
-                    engineIdleTime.Add(0d);
-                }
-            }
-            if (engineHasRun == null)
-            {
-                engineHasRun = new List<bool>(engines.Count);
-                for (var i = 0; i < engines.Count; i++)
-                {
-                    engineHasRun.Add(false);
-                }
-            }
-
             double currentTime = Planetarium.GetUniversalTime();
-            double deltaTime = (currentTime - previousTime) / 1d;
+            double deltaTime = (float)(currentTime - previousTime) / 1d;
 
             // For each engine we are tracking, compare its current ignition state to our last known ignition state
             for (int i = 0; i < engines.Count; i++)
             {
                 EngineHandler engine = engines[i];
                 EngineModuleWrapper.EngineIgnitionState currentIgnitionState = engine.engine.IgnitionState;
+                var engineData = GetEngineRunDataForID(engine.engine.Module.PersistentId);
+                if (engineData == null)
+                {
+                    engineData = new EngineRunData(engine.engine.Module.PersistentId);
+                    engineRunData.Add(engineData);
+                }
 
                 if (currentIgnitionState == EngineModuleWrapper.EngineIgnitionState.IGNITED)
                 {
-                    engineIdleTime[i] = 0;
+                    engineData.timeSinceLastShutdown = 0;
                 }
                 else
                 {
-                    engineIdleTime[i] += deltaTime;
+                    engineData.timeSinceLastShutdown += (float)deltaTime;
                 }
                 
                 // If we are transitioning from not ignited to ignited, we do our check
@@ -156,9 +167,9 @@ namespace TestFlight
                         }
 
                         // if this engine has run before, and our config defines a restart window, we need to check against that and modify our ignition chance accordingly
-                        if (hasRestartWindow && engineHasRun[i])
+                        if (hasRestartWindow && engineData.hasBeenRun)
                         {
-                            var idleTime = engineIdleTime[i];
+                            var idleTime = engineData.timeSinceLastShutdown;
                             if (idleTime < restartTimeMin || idleTime > restartTimeMax)
                             {
                                 restartWindowModifier = restartWindowPenalty.Evaluate((float)idleTime);
@@ -192,7 +203,7 @@ namespace TestFlight
                         }
                         else
                         {
-                            engineHasRun[i] = true;
+                            engineData.hasBeenRun = true;
                         }
                     }
                 }
