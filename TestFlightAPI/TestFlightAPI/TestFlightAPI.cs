@@ -1131,7 +1131,7 @@ namespace TestFlightAPI
         /// </summary>
         bool IsPartOperating();
 
-        float GetBurnTime();
+        float GetRunTime(RatingScope ratingScope);
 
         /// <summary>
         /// Called whenever an Interop value is added, changed, or removed to allow the modules on the part to update to the proper config
