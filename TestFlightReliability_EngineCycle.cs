@@ -192,7 +192,7 @@ namespace TestFlight
             return base.GetModuleInfo(configuration, reliabilityAtTime);
         }
 
-        public override float GetRatedBurnTime(string configuration, RatingScope ratingScope)
+        public override float GetRatedTime(string configuration, RatingScope ratingScope)
         {
             foreach (var configNode in configs)
             {
@@ -226,12 +226,12 @@ namespace TestFlight
                 }
             }
 
-            return base.GetRatedBurnTime(configuration, ratingScope);
+            return base.GetRatedTime(configuration, ratingScope);
         }
         
         
 
-        public override float GetRatedBurnTime(RatingScope ratingScope)
+        public override float GetRatedTime(RatingScope ratingScope)
         {
             switch (ratingScope)
             {
@@ -244,9 +244,17 @@ namespace TestFlight
             }
         }
 
-        public override float GetCurrentBurnTime()
+        public override float GetScopedRunTime(RatingScope ratingScope)
         {
-            return (float)engineOperatingTime;
+            switch (ratingScope)
+            {
+                case RatingScope.Cumulative:
+                    return (float)engineOperatingTime;
+                case RatingScope.Continuous:
+                    return (float)currentRunTime;
+                default:
+                    return 0f;
+            }
         }
 
         public override void OnAwake()

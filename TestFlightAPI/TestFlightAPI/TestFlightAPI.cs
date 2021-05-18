@@ -893,8 +893,8 @@ namespace TestFlightAPI
         /// Gets the current burn time for the given scope.
         /// </summary>
         /// <returns>The current burn time for scope or 0 if this module does not track burn time.</returns>
-        float GetCurrentBurnTime();
-
+        float GetScopedRunTime(RatingScope ratingScope);
+ 
         /// <summary>
         /// Should return a string if the module wants to report any information to the user in the TestFlight Editor window.
         /// </summary>
