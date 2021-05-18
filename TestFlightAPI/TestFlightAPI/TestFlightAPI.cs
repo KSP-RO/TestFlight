@@ -17,9 +17,14 @@ namespace TestFlightAPI
         STRING_LIST,
         FLOAT_LIST,
         INT_LIST,
-        BOOL_LIST}
+        BOOL_LIST
+    }
 
-    ;
+    public enum RatingScope
+    {
+        Cumulative,
+        Continuous
+    }
 
     public struct InteropValue
     {
@@ -905,11 +910,11 @@ namespace TestFlightAPI
         string GetModuleInfo(string configuration, float reliabilityAtTime);
 
         /// <summary>
-        /// Should return a float if the module has data about rated burn time for the engine.
+        /// Should return a float if the module has data about a rated use or cycle time (such as engine burn times)
         /// </summary>
-        /// <returns>A float with burn time in seconds, or 0f if none</returns>
-        float GetRatedBurnTime(string configuration);
-        float GetRatedBurnTime();
+        /// <returns>A float with time in seconds, or 0f if none</returns>
+        float GetRatedTime(string configuration, RatingScope ratingScope);
+        float GetRatedTime(RatingScope ratingScope);
 
         void SetActiveConfig(string configuration);
     }

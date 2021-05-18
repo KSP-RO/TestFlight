@@ -272,12 +272,12 @@ namespace TestFlightAPI
             return string.Empty;
         }
 
-        public virtual float GetRatedBurnTime(string configuration)
+        public virtual float GetRatedBurnTime(string configuration, RatingScope ratingScope)
         {
             return 0f;
         }
 
-        public virtual float GetRatedBurnTime()
+        public virtual float GetRatedBurnTime(RatingScope ratingScope)
         {
             return 0f;
         }

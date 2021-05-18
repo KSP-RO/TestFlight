@@ -192,7 +192,7 @@ namespace TestFlight
             return base.GetModuleInfo(configuration, reliabilityAtTime);
         }
 
-        public override float GetRatedBurnTime(string configuration)
+        public override float GetRatedBurnTime(string configuration, RatingScope ratingScope)
         {
             foreach (var configNode in configs)
             {
@@ -203,21 +203,45 @@ namespace TestFlight
 
                 if (string.Equals(nodeConfiguration, configuration, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    if (configNode.HasValue("ratedBurnTime"))
+                    switch (ratingScope)
                     {
-                        float nodeBurnTime = 0f;
-                        configNode.TryGetValue("ratedBurnTime", ref nodeBurnTime);
-                        return nodeBurnTime;
+                        case RatingScope.Cumulative:
+                            if (configNode.HasValue("ratedBurnTime"))
+                            {
+                                float nodeBurnTime = 0f;
+                                configNode.TryGetValue("ratedBurnTime", ref nodeBurnTime);
+                                return nodeBurnTime;
+                            }
+                            break;
+                        
+                        case RatingScope.Continuous:
+                            if (configNode.HasValue("ratedContinuousBurnTime"))
+                            {
+                                float nodeBurnTime = 0f;
+                                configNode.TryGetValue("ratedContinuousBurnTime", ref nodeBurnTime);
+                                return nodeBurnTime;
+                            }
+                            break;
                     }
                 }
             }
 
-            return base.GetRatedBurnTime(configuration);
+            return base.GetRatedBurnTime(configuration, ratingScope);
         }
+        
+        
 
-        public override float GetRatedBurnTime()
+        public override float GetRatedBurnTime(RatingScope ratingScope)
         {
-            return ratedBurnTime;
+            switch (ratingScope)
+            {
+                case RatingScope.Cumulative:
+                    return ratedBurnTime;
+                case RatingScope.Continuous:
+                    return ratedContinuousBurnTime;
+                default:
+                    return 0f;
+            }
         }
 
         public override float GetCurrentBurnTime()

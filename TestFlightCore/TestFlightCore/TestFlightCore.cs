@@ -1260,7 +1260,7 @@ namespace TestFlightCore
                     for (int i = 0, reliabilityModulesCount = reliabilityModules.Count; i < reliabilityModulesCount; i++)
                     {
                         ITestFlightReliability reliabilityModule = reliabilityModules[i];
-                        ratedBurnTime = Mathf.Max(reliabilityModule.GetRatedBurnTime(nodeAlias), ratedBurnTime);
+                        ratedBurnTime = Mathf.Max(reliabilityModule.GetRatedBurnTime(nodeAlias, RatingScope.Cumulative), ratedBurnTime);
                     }
 
                     for (int i = 0, reliabilityModulesCount = reliabilityModules.Count; i < reliabilityModulesCount; i++)
@@ -1321,7 +1321,7 @@ namespace TestFlightCore
                 for (int i = 0, reliabilityModulesCount = reliabilityModules.Count; i < reliabilityModulesCount; i++)
                 {
                     ITestFlightReliability reliabilityModule = reliabilityModules[i];
-                    ratedBurnTime = Mathf.Max(reliabilityModule.GetRatedBurnTime(), ratedBurnTime);
+                    ratedBurnTime = Mathf.Max(reliabilityModule.GetRatedBurnTime(RatingScope.Cumulative), ratedBurnTime);
                 }
 
                 for (int i = 0, reliabilityModulesCount = reliabilityModules.Count; i < reliabilityModulesCount; i++)
