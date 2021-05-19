@@ -1,4 +1,6 @@
 language: csharp
+mono: none
+dotnet: 4.7.2
 install:
   - sudo apt-get update
   - sudo apt-get install python2.7
