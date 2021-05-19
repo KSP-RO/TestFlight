@@ -1,5 +1,6 @@
 language: csharp
-dotnetcore: 3.0
+mono: 
+  - 5.12.0
 install:
   - sudo apt-get update
   - sudo apt-get install python2.7
