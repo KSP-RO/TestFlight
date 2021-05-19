@@ -85,20 +85,20 @@ namespace TestFlight
                     // engine is not running
                     
                     // reset continuous run time
-                    currentTime = 0;
+                    currentRunTime = 0;
                 }
                 else
                 {
                     // engine is running
                     
                     // increase both continuous and cumulative run times
-                    currentTime += deltaTime; // continuous
+                    currentRunTime += deltaTime; // continuous
                     engineOperatingTime += deltaTime; // cumulative
                     
 
                     // calculate totaly failure rate modifier
                     float cumulativeModifier = cycle.Evaluate((float)engineOperatingTime);
-                    float continuousModifier = continuousCycle.Evaluate((float)currentTime);
+                    float continuousModifier = continuousCycle.Evaluate((float)currentRunTime);
                     
                     core.SetTriggerMomentaryFailureModifier("EngineCycle", cumulativeModifier * continuousModifier, this);
                 }
