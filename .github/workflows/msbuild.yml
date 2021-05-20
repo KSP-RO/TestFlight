@@ -11,7 +11,7 @@ on:
     branches: [ master, dev ]
 
   # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch: build
+  workflow_dispatch:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -46,4 +46,4 @@ jobs:
           unzip -p "$env:KSP_ZIP_PASSWORD" TestFlight_bin_KSP-1.10.zip
           
       - name: Build mod solution
-      - run: msbuild /p:Configuration=Release /p:ReferencePath=/home/travis/build/KSP-RO/TestFlight/bin/Release TestFlight.sln
+      - run: msbuild /p:Configuration=Release /p:ReferencePath=./bin/Release TestFlight.sln
