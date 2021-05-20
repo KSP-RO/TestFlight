@@ -27,14 +27,17 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Download required assemblies
-        run: curl https://ksp-ro.s3-us-west-2.amazonaws.com/TestFlight_bin_KSP-1.10.zip --output ./TestFlight_bin_KSP-1.10.zip
-          
-      - name: Extract assemblies
-        shell: pwsh
-        env:
+        id: download-assemblies
+        shell: bash
+        env: 
           KSP_ZIP_PASSWORD: ${{ secrets.KSP_ZIP_PASSWORD }}
         run: |
-          unzip -p "$env:KSP_ZIP_PASSWORD" TestFlight_bin_KSP-1.10.zip
-          
+          curl https://ksp-ro.s3-us-west-2.amazonaws.com/TestFlight_bin_KSP-1.10.zip --output /tmp/bins.zip
+          KSP_DLL_PATH="/opt/ksp/assembly"
+          echo "::set-output name=ksp-dll-path::${KSP_DLL_PATH}"
+          mkdir -p "${KSP_DLL_PATH}"
+          unzip -p "$KSP_ZIP_PASSWORD" '/tmp/bins.zip' -d "${KSP_DLL_PATH}"
+          rm '/tmp/bins.zip'          
+                    
       - name: Build mod solution
-        run: msbuild /p:Configuration=Release /p:ReferencePath=./bin/Release TestFlight.sln
+        run: msbuild /p:Configuration=Release /p:ReferencePath="${{ steps.download-assemblies.outputs.ksp-dll-path }}" TestFlight.sln
