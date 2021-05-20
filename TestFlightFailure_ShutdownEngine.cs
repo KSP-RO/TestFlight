@@ -38,13 +38,19 @@ namespace TestFlight
                 engineState.allowShutdown = engine.engine.allowShutdown;
                 engineState.numIgnitions = engine.engine.GetIgnitionCount();
                 engine.engine.Shutdown();
-                // For some reason, need to disable GUI as well
-                engine.engine.Events["Activate"].active = false;
-                engine.engine.Events["Shutdown"].active = false;
-                engine.engine.Events["Activate"].guiActive = false;
-                engine.engine.Events["Shutdown"].guiActive = false;
+                var numIgnitionsToRemove = 1;
+                if (severity.ToLowerInvariant() == "major")
+                {
+                    numIgnitionsToRemove = -1;
+
+                    // For some reason, need to disable GUI as well
+                    engine.engine.Events["Activate"].active = false;
+                    engine.engine.Events["Shutdown"].active = false;
+                    engine.engine.Events["Activate"].guiActive = false;
+                    engine.engine.Events["Shutdown"].guiActive = false;
+                }
                 engineStates.Add(id, engineState);
-                engine.engine.RemoveIgnitions(-1);
+                engine.engine.RemoveIgnitions(numIgnitionsToRemove);
             }
         }
 

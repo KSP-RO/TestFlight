@@ -162,11 +162,11 @@ namespace TestFlight
 
                 if (multiplier > float.Epsilon)
                 {
-                    FlightLogger.eventLog.Add($"[{met}] {core.Title} failed: Ignition Failure.  {multiplier} penalty for {(float)(part.dynamicPressurekPa * 1000d)}Pa dynamic pressure.");
+                    FlightLogger.eventLog.Add($"[{met}] {core.Title} failed: Ignition Failure.  {(float)(part.dynamicPressurekPa * 1000d)}Pa dynamic pressure cased a {(1f-multiplier) * 100f}% reduction in normal ignition reliability.");
                 }
                 else
                 {
-                    FlightLogger.eventLog.Add($"[{met}] {core.Title} failed: Ignition Failure");
+                    FlightLogger.eventLog.Add($"[{met}] {core.Title} failed: Ignition Failure.");
                 }
             }
             Log(String.Format("IgnitionFail: Failing {0} engine(s)", engines.Count));
@@ -176,11 +176,15 @@ namespace TestFlight
                 if (engine.failEngine)
                 {
                     engine.engine.Shutdown();
-                    // For some reason, need to disable GUI as well
-                    engine.engine.Events["Activate"].active = false;
-                    engine.engine.Events["Shutdown"].active = false;
-                    engine.engine.Events["Activate"].guiActive = false;
-                    engine.engine.Events["Shutdown"].guiActive = false;
+
+                    if (severity.ToLowerInvariant() == "major")
+                    {
+                        // For some reason, need to disable GUI as well
+                        engine.engine.Events["Activate"].active = false;
+                        engine.engine.Events["Shutdown"].active = false;
+                        engine.engine.Events["Activate"].guiActive = false;
+                        engine.engine.Events["Shutdown"].guiActive = false;
+                    }
                     if ((restoreIgnitionCharge) || (this.vessel.situation == Vessel.Situations.PRELAUNCH) )
                         RestoreIgnitor();
                     engines[i].failEngine = false;
