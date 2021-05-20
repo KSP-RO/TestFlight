@@ -52,10 +52,7 @@ jobs:
       - name: Build metadata
         shell: bash
         run: |
-          git fetch --depth=1 --tags origin
-          VERSION=$(git describe --tags --abbrev=0)
-          BRANCH=$(git rev-parse --abbrev-ref HEAD 2>&1)
-          python $(GITHUB_WORKSPACE)/makeMeta.py $(VERSION)
+          python $(GITHUB_WORKSPACE)/makeMeta.py 2.0.0.0
           
       - name: Assemble release
         id: assemble-release
