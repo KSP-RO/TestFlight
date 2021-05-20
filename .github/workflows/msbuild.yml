@@ -50,8 +50,8 @@ jobs:
       - name: Build metadata
         shell: bash
         run: |
-          VERSION = $(shell git describe --tags)
-          BRANCH = $(shell git rev-parse --abbrev-ref HEAD 2>&1)
+          VERSION=$(git describe --tags)
+          BRANCH=$(git rev-parse --abbrev-ref HEAD 2>&1)
           python $(GITHUB_WORKSPACE)/makeMeta.py $(VERSION)
           
       - name: Assemble release
