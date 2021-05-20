@@ -36,7 +36,7 @@ jobs:
           KSP_DLL_PATH="/opt/ksp/assembly"
           echo "::set-output name=ksp-dll-path::${KSP_DLL_PATH}"
           mkdir -p "${KSP_DLL_PATH}"
-          unzip -P "$KSP_ZIP_PASSWORD" '/tmp/bins.zip' -d "${KSP_DLL_PATH}"
+          unzip -P "${KSP_ZIP_PASSWORD}" '/tmp/bins.zip' -d "${KSP_DLL_PATH}"
           rm '/tmp/bins.zip'          
                     
       - name: Build mod solution
