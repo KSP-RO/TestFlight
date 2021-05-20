@@ -35,7 +35,7 @@ jobs:
           command: cp
           source: s3://ksp-ro/TestFlight_bin_KSP-1.10.zip
           destination: ./TestFlight_bin_KSP-1.10.zip
-          aws_access_key: ${{ secrets.S3_ACCESS_KEY_ID }}
+          aws_access_key_id: ${{ secrets.S3_ACCESS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
           
       - name: Extract assemblies
