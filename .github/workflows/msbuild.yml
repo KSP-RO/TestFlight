@@ -52,7 +52,7 @@ jobs:
       - name: Build metadata
         shell: bash
         run: |
-          python $(GITHUB_WORKSPACE)/makeMeta.py 2.0.0.0
+          python ${GITHUB_WORKSPACE}/makeMeta.py 2.0.0.0
           
       - name: Assemble release
         id: assemble-release
