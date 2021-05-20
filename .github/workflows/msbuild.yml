@@ -46,4 +46,4 @@ jobs:
           unzip -p "$env:KSP_ZIP_PASSWORD" TestFlight_bin_KSP-1.10.zip
           
       - name: Build mod solution
-      - run: msbuild /p:Configuration=Release /p:ReferencePath=./bin/Release TestFlight.sln
+        run: msbuild /p:Configuration=Release /p:ReferencePath=./bin/Release TestFlight.sln
