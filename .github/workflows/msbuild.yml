@@ -1,0 +1,49 @@
+# This is a basic workflow to help you get started with Actions
+
+name: build
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master, dev ]
+  pull_request:
+    branches: [ master, dev ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch: build
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: windows_latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup msbuild
+        uses: microsoft/setup-msbuild@v1
+        
+      - name: Download required assemblies
+        uses: keithweaver/aws-s3-github-action@master
+        with:
+          command: cp
+          source: s3://ksp-ro/TestFlight_bin_KSP-1.10.zip
+          destination: ./TestFlight_bin_KSP-1.10.zip
+          aws_access_key: ${{ secrets.S3_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+          
+      - name: Extract assemblies
+        shell: pwsh
+        env:
+          KSP_ZIP_PASSWORD: ${{ secrets.KSP_ZIP_PASSWORD }}
+        run: |
+          unzip -p "$env:KSP_ZIP_PASSWORD" TestFlight_bin_KSP-1.10.zip
+          
+      - name: Build mod solution
+      - run: msbuild /p:Configuration=Release /p:ReferencePath=/home/travis/build/KSP-RO/TestFlight/bin/Release TestFlight.sln
