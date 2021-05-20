@@ -25,7 +25,9 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout
         uses: actions/checkout@v2
-
+        with:
+          fetch-depth: 100
+          
       - name: Download required assemblies
         id: download-assemblies
         shell: bash
@@ -41,3 +43,30 @@ jobs:
                     
       - name: Build mod solution
         run: msbuild /p:Configuration=Release /p:ReferencePath="${{ steps.download-assemblies.outputs.ksp-dll-path }}" TestFlight.sln
+        
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 2.7
+        
+      - name: Build metadata
+        shell: bash
+        run: |
+          python ${GITHUB_WORKSPACE}/makeMeta.py 2.0.0.0
+          
+      - name: Assemble release
+        id: assemble-release
+        run: |
+          RELEASE_DIR="${RUNNER_TEMP}/release"
+          echo "Release dir: ${RELEASE_DIR}"
+          mkdir -v "${RELEASE_DIR}"
+          echo "::set-output name=release-dir::${RELEASE_DIR}"
+          cp -v -R "${GITHUB_WORKSPACE}/GameData" "${RELEASE_DIR}"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: TestFlight
+          path: ${{ steps.assemble-release.outputs.release-dir }}
+
+      
