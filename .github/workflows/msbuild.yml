@@ -25,7 +25,9 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout
         uses: actions/checkout@v2
-
+        with:
+          fetch-depth: 100
+          
       - name: Download required assemblies
         id: download-assemblies
         shell: bash
@@ -51,7 +53,7 @@ jobs:
         shell: bash
         run: |
           git fetch --depth=1 --tags origin
-          VERSION=$(git describe --tags)
+          VERSION=$(git describe --tags --abbrev=0)
           BRANCH=$(git rev-parse --abbrev-ref HEAD 2>&1)
           python $(GITHUB_WORKSPACE)/makeMeta.py $(VERSION)
           
