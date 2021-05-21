@@ -45,11 +45,11 @@ namespace TestFlight
         [KSPField(isPersistant=true)]
         private double previousTime;
         
-        [KSPField(guiName = "Ignition Chance", groupName = "Test Flight", guiActive = true)]
+        [KSPField(guiName = "Ignition Chance", groupName = "Test Flight", groupDisplayName = "Test Flight", guiActive = true)]
         private string ignitionChanceString;
-        [KSPField(guiName = "Ignition Penalty for Q", groupName = "Test Flight", guiActive = true)]
+        [KSPField(guiName = "Ignition Penalty for Q", groupName = "Test Flight", groupDisplayName = "Test Flight", guiActive = true)]
         private string dynamicPressurePenaltyString;
-        [KSPField(guiName = "Restart Ignition Penalty", groupName = "Test Flight", guiActive = true)]
+        [KSPField(guiName = "Restart Ignition Penalty", groupName = "Test Flight", groupDisplayName = "Test Flight", guiActive = true)]
         private string restartPenaltyString;
 
         public override void OnStart(StartState state)
