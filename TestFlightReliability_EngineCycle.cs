@@ -215,7 +215,7 @@ namespace TestFlight
                             break;
                         
                         case RatingScope.Continuous:
-                            if (configNode.HasValue("ratedContinuousBurnTime"))
+                            if (configNod.HasValue("ratedContinuousBurnTime"))
                             {
                                 float nodeBurnTime = 0f;
                                 configNode.TryGetValue("ratedContinuousBurnTime", ref nodeBurnTime);
