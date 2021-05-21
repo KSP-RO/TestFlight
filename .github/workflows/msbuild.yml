@@ -42,7 +42,9 @@ jobs:
           rm '/tmp/bins.zip'          
                     
       - name: Build mod solution
-        run: msbuild /p:Configuration=Release /p:ReferencePath="${{ steps.download-assemblies.outputs.ksp-dll-path }}" TestFlight.sln
+        run: |
+          rm -f -r ${GITHUB_WORKSPACE}/GameData
+          msbuild /p:Configuration=Release /p:ReferencePath="${{ steps.download-assemblies.outputs.ksp-dll-path }}" TestFlight.sln
         
       - name: Setup python
         uses: actions/setup-python@v2
