@@ -44,6 +44,13 @@ namespace TestFlight
 
         [KSPField(isPersistant=true)]
         private double previousTime;
+        
+        [KSPField(guiName = "Ignition Chance", groupName = "Test Flight", guiActive = true)]
+        private string ignitionChanceString;
+        [KSPField(guiName = "Ignition Penalty for Q", groupName = "Test Flight", guiActive = true)]
+        private string dynamicPressurePenaltyString;
+        [KSPField(guiName = "Restart Ignition Penalty", groupName = "Test Flight", guiActive = true)]
+        private string restartPenaltyString;
 
         public override void OnStart(StartState state)
         {
@@ -130,9 +137,54 @@ namespace TestFlight
                     engineData.timeSinceLastShutdown += (float)deltaTime;
                 }
                 
+
+                double initialFlightData = core.GetInitialFlightData();
+                float ignitionChance = 1f;
+                float pressureModifier = 1f;
+                float restartWindowModifier = 1f;
+                
+                // Check to see if the vessel has not launched and if the player disabled pad failures
+                if (this.vessel.situation == Vessel.Situations.PRELAUNCH && !preLaunchFailures) {
+                  ignitionChance = 1.0f;
+                } else {
+                  ignitionChance = baseIgnitionChance.Evaluate((float)initialFlightData);
+                  if (ignitionChance <= 0)    
+                      ignitionChance = 1f;
+                }
+
+                if (dynPressurePenalties)
+                {
+                    pressureModifier = pressureCurve.Evaluate((float)(part.dynamicPressurekPa * 1000d));
+                    if (pressureModifier <= 0f)
+                        pressureModifier = 1f;
+                }
+
+                // if this engine has run before, and our config defines a restart window, we need to check against that and modify our ignition chance accordingly
+                if (hasRestartWindow && engineData.hasBeenRun)
+                {
+                    var idleTime = engineData.timeSinceLastShutdown;
+                    if (idleTime < restartTimeMin || idleTime > restartTimeMax)
+                    {
+                        restartWindowModifier = restartWindowPenalty.Evaluate((float)idleTime);
+                    }
+                }
+
+                float minValue, maxValue = -1f;
+                baseIgnitionChance.FindMinMaxValue(out minValue, out maxValue);
+                if (verboseDebugging)
+                {
+                    Log(String.Format("TestFlightFailure_IgnitionFail: IgnitionChance Curve, Min Value {0:F2}:{1:F6}, Max Value {2:F2}:{3:F6}", baseIgnitionChance.minTime, minValue, baseIgnitionChance.maxTime, maxValue));
+                }
+
+                if (this.vessel.situation != Vessel.Situations.PRELAUNCH)
+                    ignitionChance = ignitionChance * pressureModifier * ignitionUseMultiplier.Evaluate(numIgnitions) * restartWindowModifier;
+
+                ignitionChanceString = $"{ignitionChance:P}";
+                dynamicPressurePenaltyString = $"{1-pressureModifier:P}";
+                restartPenaltyString = $"{1-restartWindowModifier:P}";
+
                 // If we are transitioning from not ignited to ignited, we do our check
                 // The ignitionFailureRate defines the failure rate per flight data
-
                 if (currentIgnitionState == EngineModuleWrapper.EngineIgnitionState.IGNITED)
                 {
                     if (engine.ignitionState == EngineModuleWrapper.EngineIgnitionState.NOT_IGNITED || engine.ignitionState == EngineModuleWrapper.EngineIgnitionState.UNKNOWN)
@@ -144,47 +196,6 @@ namespace TestFlight
                             Log(String.Format("IgnitionFail: Checking curves..."));
                         }                        
                         numIgnitions++;
-
-                        double initialFlightData = core.GetInitialFlightData();
-                        float ignitionChance = 1f;
-                        float pressureModifier = 1f;
-                        float restartWindowModifier = 1f;
-                        
-                        // Check to see if the vessel has not launched and if the player disabled pad failures
-                        if (this.vessel.situation == Vessel.Situations.PRELAUNCH && !preLaunchFailures) {
-                          ignitionChance = 1.0f;
-                        } else {
-                          ignitionChance = baseIgnitionChance.Evaluate((float)initialFlightData);
-                          if (ignitionChance <= 0)    
-                              ignitionChance = 1f;
-                        }
-
-                        if (dynPressurePenalties)
-                        {
-                            pressureModifier = pressureCurve.Evaluate((float)(part.dynamicPressurekPa * 1000d));
-                            if (pressureModifier <= 0f)
-                                pressureModifier = 1f;
-                        }
-
-                        // if this engine has run before, and our config defines a restart window, we need to check against that and modify our ignition chance accordingly
-                        if (hasRestartWindow && engineData.hasBeenRun)
-                        {
-                            var idleTime = engineData.timeSinceLastShutdown;
-                            if (idleTime < restartTimeMin || idleTime > restartTimeMax)
-                            {
-                                restartWindowModifier = restartWindowPenalty.Evaluate((float)idleTime);
-                            }
-                        }
-
-                        float minValue, maxValue = -1f;
-                        baseIgnitionChance.FindMinMaxValue(out minValue, out maxValue);
-                        if (verboseDebugging)
-                        {
-                            Log(String.Format("TestFlightFailure_IgnitionFail: IgnitionChance Curve, Min Value {0:F2}:{1:F6}, Max Value {2:F2}:{3:F6}", baseIgnitionChance.minTime, minValue, baseIgnitionChance.maxTime, maxValue));
-                        }
-
-                        if (this.vessel.situation != Vessel.Situations.PRELAUNCH)
-                            ignitionChance = ignitionChance * pressureModifier * ignitionUseMultiplier.Evaluate(numIgnitions) * restartWindowModifier;
 
                         failureRoll = core.RandomGenerator.NextDouble();
                         if (verboseDebugging)

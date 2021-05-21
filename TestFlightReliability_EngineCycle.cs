@@ -59,6 +59,11 @@ namespace TestFlight
         [KSPField(isPersistant = true)]
         public double previousOperatingTime = 0d;
 
+        [KSPField(guiName = "Total run time", groupName = "Test Flight", guiActive = true)]
+        public string totalRunTimeString;
+        [KSPField(guiName = "Current run time", groupName = "Test Flight", guiActive = true)]
+        public string currentRunTimeString;
+        
         public override void OnStart(StartState state)
         {
             base.OnStart(state);
@@ -114,6 +119,9 @@ namespace TestFlight
                 return;
 
             UpdateCycle();
+
+            currentRunTimeString = $"{currentRunTime:N0}s/{ratedContinuousBurnTime}s";
+            totalRunTimeString = $"{engineOperatingTime:N0}s/{ratedBurnTime}s";
 
             // We intentionally do NOT call our base class OnUpdate() because that would kick off a second round of 
             // failure checks which is already handled by the main Reliabilty module that should 
