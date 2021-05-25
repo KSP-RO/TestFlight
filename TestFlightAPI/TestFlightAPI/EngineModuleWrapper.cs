@@ -248,6 +248,24 @@ public class EngineModuleWrapper
             return EngineIgnitionState.NOT_IGNITED;
         }
     }
+    
+    public bool failed { get; set; }
+    public string failMessage { get; set; }
+
+    public void SetEngineFailedStatus()
+    {
+        if (!failed)
+        {
+            engine.status = "Nominal";
+            engine.Fields["statusL2"].guiActive = false;
+        }
+        else
+        {
+            engine.status = "Failed";
+            engine.statusL2 = failMessage;
+            engine.Fields["statusL2"].guiActive = true;
+        }
+    }
 
     // "Shutdown Engine"
     public void Shutdown()
