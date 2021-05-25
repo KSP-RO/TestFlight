@@ -59,9 +59,9 @@ namespace TestFlight
         [KSPField(isPersistant = true)]
         public double previousOperatingTime = 0d;
 
-        [KSPField(guiName = "Total run time", groupName = "Test Flight", groupDisplayName = "Test Flight", guiActive = true)]
+        [KSPField(guiName = "Total run time", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true)]
         public string totalRunTimeString;
-        [KSPField(guiName = "Current run time", groupName = "Test Flight", groupDisplayName = "Test Flight", guiActive = true)]
+        [KSPField(guiName = "Current run time", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true)]
         public string currentRunTimeString;
         
         public override void OnStart(StartState state)
