@@ -91,11 +91,11 @@ namespace TestFlight
                 {
                     if (currentState == CurveState.High)
                     {
-                        info.Add($"Restart modifier is >={curveHigh:P} at ~{t:N} seconds");
+                        info.Add($"Restart modifier is >={curveHigh:P} until ~{t:N} seconds");
                     }
                     else if (currentState == CurveState.Low)
                     {
-                        info.Add($"Restart modifier is <={curveLow:P} at ~{t:N} seconds");
+                        info.Add($"Restart modifier is <={curveLow:P} until ~{t:N} seconds");
                     }
 
                     if (currentState == CurveState.Unknown && state == CurveState.High)
