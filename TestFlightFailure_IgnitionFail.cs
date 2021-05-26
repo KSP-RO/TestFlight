@@ -52,6 +52,111 @@ namespace TestFlight
         [KSPField(guiName = "Restart Ignition Penalty", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true)]
         private string restartPenaltyString;
 
+        private const float curveHigh = 0.8f;
+        private const float curveLow = 0.3f;
+        
+        private enum RestartCurveShape
+        {
+            AlwaysHigh,
+            StartsHighEndsHigh,
+            StartsLowEndsLow,
+            StartsLowEndsHigh,
+            StartsHighEndsLow
+        }
+        
+        // Curves
+        // High is no penalty, low is penalty
+        //
+        // Starts and Ends high
+        // Engine suffers penalty from restarting during specified period
+        // -----\             /--------
+        //       \           /
+        //        ----------/
+        //
+        // Starts High, Ends low
+        // Engine suffers penalty from restarting after a specified time
+        // -----\             
+        //       \           
+        //        ---------------
+        //
+        // Starts Low, ends High
+        // Engine suffers penalty if restarted before specified time
+        //                    /--------
+        //                   /
+        // -----------------/
+        //
+        // Starts and Ends low
+        // Engine suffers penalty when NOT restart during specified period
+        //        --------------
+        //       /              \
+        // -----/                \-------------
+        //
+        // Always high
+        // Engine suffers no restart time penalty
+        // ------------------------------------
+
+        enum CurveState
+        {
+            Low,
+            High,
+            Unknown
+        }
+
+        private static float ClampModifier(float input)
+        {
+            var high = 0.8f;
+            var low = 0.3f;
+
+            if (input >= curveHigh) return 1;
+            if (input <= curveLow) return 0;
+
+            return 0.5f;
+        }
+
+        private CurveState GetState(float clampedModifier)
+        {
+            if (clampedModifier >= 1) return CurveState.High;
+            if (clampedModifier <= 0) return CurveState.Low;
+            return CurveState.Unknown;
+        }
+
+        public List<string> RestartCurveDescription()
+        {
+            var currentValue = ClampModifier(restartWindowPenalty.Evaluate(0f));
+            var currentState = GetState(currentValue);
+            List<string> info = new List<string>();
+
+            for (float t = 0; t < restartWindowPenalty.maxTime; t += 0.01f)
+            {
+                var modifier = restartWindowPenalty.Evaluate(t);
+                var state = GetState(ClampModifier(modifier));
+                if (state != currentState)
+                {
+                    if (currentState == CurveState.High)
+                    {
+                        info.Add($"Restart modifier is >={curveHigh:P} at ~{t:N} seconds");
+                    }
+                    else if (currentState == CurveState.Low)
+                    {
+                        info.Add($"Restart modifier is <={curveLow:P} at ~{t:N} seconds");
+                    }
+
+                    if (currentState == CurveState.Unknown && state == CurveState.High)
+                    {
+                        info.Add($"Restart modifier climbs to >={curveHigh:P} at ~{t:N} seconds");
+                    }
+                    if (currentState == CurveState.Unknown && state == CurveState.Low)
+                    {
+                        info.Add($"Restart modifier drops to <={curveLow:P} at ~{t:N} seconds");
+                    }
+
+                    currentState = state;
+                }
+            }
+
+            return info;
+        }
+
         public override void OnStart(StartState state)
         {
             base.OnStart(state);
@@ -446,17 +551,15 @@ namespace TestFlight
             if (pressureCurve != null & pressureCurve.Curve.keys.Length > 1)
             {
                 float maxTime = pressureCurve.maxTime;
-                infoStrings.Add("<b>This engine suffers a penalty to ignition based on dynamic pressure</b>");
+                infoStrings.Add("<b>Dynamic pressure modifiers</b>");
                 infoStrings.Add($"<b>0 kPa Pressure Modifier:</b> {pressureCurve.Evaluate(0)}");
                 infoStrings.Add($"<b>{maxTime/1000} kPa Pressure Modifier</b>: {pressureCurve.Evaluate(maxTime):N}");
             }
 
             if (hasRestartWindow)
             {
-                infoStrings.Add("<B>This engine can only be safely restarted within a given window of time</b>");
-                infoStrings.Add($"Minimum restart time {TestFlightUtil.FormatTime(restartTimeMin, TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, true)}");
-                infoStrings.Add($"Maximum restart time {TestFlightUtil.FormatTime(restartTimeMax, TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, true)}");
-                
+                infoStrings.Add("<B>Restart timing modifiers</b>");
+                infoStrings.AddRange(RestartCurveDescription());
             }
 
             return infoStrings;
