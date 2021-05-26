@@ -62,6 +62,8 @@ namespace TestFlight
             Unknown
         }
 
+        private List<string> restartWindowDescription;
+
         private static float ClampModifier(float input)
         {
             if (input >= curveHigh) return 1;
@@ -216,7 +218,7 @@ namespace TestFlight
 
                 if (dynPressurePenalties)
                 {
-                    pressureModifier = pressureCurve.Evaluate((float)(part.dynamicPressurekPa * 1000d));
+                    pressureModifier = Mathf.Clamp(pressureCurve.Evaluate((float)(part.dynamicPressurekPa * 1000d)), 0, 1);
                     if (pressureModifier <= 0f)
                         pressureModifier = 1f;
                 }
@@ -227,7 +229,7 @@ namespace TestFlight
                     var idleTime = engineData.timeSinceLastShutdown;
                     if (idleTime < restartTimeMin || idleTime > restartTimeMax)
                     {
-                        restartWindowModifier = restartWindowPenalty.Evaluate((float)idleTime);
+                        restartWindowModifier = Mathf.Clamp(restartWindowPenalty.Evaluate((float)idleTime), 0, 1);
                     }
                 }
 
@@ -437,9 +439,8 @@ namespace TestFlight
             if (currentConfig.HasNode("restartWindowPenalty"))
             {
                 restartWindowPenalty.Load(currentConfig.GetNode("restartWindowPenalty"));
-                restartTimeMin = restartWindowPenalty.Curve.keys.FirstOrDefault(key => key.value >= 1.0f).time;
-                restartTimeMax = restartWindowPenalty.Curve.keys.LastOrDefault(key => key.value >= 1.0f).time;
                 hasRestartWindow = true;
+                restartWindowDescription = RestartCurveDescription();
             }
             else
             {
@@ -516,7 +517,7 @@ namespace TestFlight
             if (hasRestartWindow)
             {
                 infoStrings.Add("<B>Restart timing modifiers</b>");
-                infoStrings.AddRange(RestartCurveDescription());
+                infoStrings.AddRange(restartWindowDescription);
             }
 
             return infoStrings;
