@@ -254,16 +254,17 @@ public class EngineModuleWrapper
 
     public void SetEngineFailedStatus()
     {
-        if (!failed)
-        {
-            engine.status = "Nominal";
-            engine.Fields["statusL2"].guiActive = false;
-        }
-        else
+        if (failed && string.Equals(engine.status, "nominal", StringComparison.InvariantCultureIgnoreCase))
         {
             engine.status = "Failed";
             engine.statusL2 = failMessage;
             engine.Fields["statusL2"].guiActive = true;
+        }
+
+        if (string.Equals(engine.status, "nominal", StringComparison.InvariantCultureIgnoreCase))
+        {
+            engine.statusL2 = "";
+            engine.Fields["statusL2"].guiActive = false;
         }
     }
 
