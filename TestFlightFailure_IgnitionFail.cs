@@ -54,46 +54,6 @@ namespace TestFlight
 
         private const float curveHigh = 0.8f;
         private const float curveLow = 0.3f;
-        
-        private enum RestartCurveShape
-        {
-            AlwaysHigh,
-            StartsHighEndsHigh,
-            StartsLowEndsLow,
-            StartsLowEndsHigh,
-            StartsHighEndsLow
-        }
-        
-        // Curves
-        // High is no penalty, low is penalty
-        //
-        // Starts and Ends high
-        // Engine suffers penalty from restarting during specified period
-        // -----\             /--------
-        //       \           /
-        //        ----------/
-        //
-        // Starts High, Ends low
-        // Engine suffers penalty from restarting after a specified time
-        // -----\             
-        //       \           
-        //        ---------------
-        //
-        // Starts Low, ends High
-        // Engine suffers penalty if restarted before specified time
-        //                    /--------
-        //                   /
-        // -----------------/
-        //
-        // Starts and Ends low
-        // Engine suffers penalty when NOT restart during specified period
-        //        --------------
-        //       /              \
-        // -----/                \-------------
-        //
-        // Always high
-        // Engine suffers no restart time penalty
-        // ------------------------------------
 
         enum CurveState
         {
@@ -104,9 +64,6 @@ namespace TestFlight
 
         private static float ClampModifier(float input)
         {
-            var high = 0.8f;
-            var low = 0.3f;
-
             if (input >= curveHigh) return 1;
             if (input <= curveLow) return 0;
 
