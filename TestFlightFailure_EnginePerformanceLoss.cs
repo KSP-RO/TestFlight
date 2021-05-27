@@ -70,14 +70,6 @@ namespace TestFlight
                 OnLoad(node);
             }
         }
-        
-        private void LateUpdate()
-        {
-            foreach (EngineHandler engine in engines)
-            {
-                engine.engine.SetEngineFailedStatus();
-            }
-        }
     }
 }
 

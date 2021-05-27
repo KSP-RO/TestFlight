@@ -79,14 +79,6 @@ namespace TestFlight
             engineStates.Clear();
             return 0;
         }
-
-        private void LateUpdate()
-        {
-            foreach (EngineHandler engine in engines)
-            {
-                engine.engine.SetEngineFailedStatus();
-            }
-        }
     }
 }
 
