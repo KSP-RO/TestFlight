@@ -23,7 +23,7 @@ public class EngineModuleWrapper
         IGNITED,
     }
 
-    ModuleEngines engine;
+    public ModuleEngines moduleEngine;
     public EngineModuleType engineType;
 
     // Used to store the original fuel flow values
@@ -39,7 +39,49 @@ public class EngineModuleWrapper
             if (engineType == EngineModuleType.UNKNOWN)
                 return null;
 
-            return engine as PartModule;
+            return moduleEngine as PartModule;
+        }
+    }
+
+    public string Status
+    {
+        get
+        {
+            if (engineType == EngineModuleType.UNKNOWN)
+                return string.Empty;
+
+            return moduleEngine.status;
+        }
+        set
+        {
+            if (engineType != EngineModuleType.UNKNOWN)
+                moduleEngine.status = value;
+        }
+    }
+
+    public string StatusL2
+    {
+        get
+        {
+            if (engineType == EngineModuleType.UNKNOWN)
+                return string.Empty;
+
+            return moduleEngine.statusL2;
+        }
+        set
+        {
+            if (engineType != EngineModuleType.UNKNOWN)
+            {
+                moduleEngine.statusL2 = value;
+                if (!string.IsNullOrEmpty(value))
+                {
+                    moduleEngine.Fields["statusL2"].guiActive = true;
+                }
+                else
+                {
+                    moduleEngine.Fields["statusL2"].guiActive = false;
+                }
+            }
         }
     }
 
@@ -55,13 +97,13 @@ public class EngineModuleWrapper
             if (engineType == EngineModuleType.UNKNOWN)
                 return false;
 
-            return engine.allowShutdown;
+            return moduleEngine.allowShutdown;
         }
         set
         {
             if (engineType == EngineModuleType.UNKNOWN)
                 return;
-            engine.allowShutdown = value;
+            moduleEngine.allowShutdown = value;
         }
     }
 
@@ -71,11 +113,11 @@ public class EngineModuleWrapper
         {
             if (engineType == EngineModuleType.UNKNOWN)
                 return false;
-            return engine.throttleLocked;
+            return moduleEngine.throttleLocked;
         }
         set
         {
-            engine.throttleLocked = value;
+            moduleEngine.throttleLocked = value;
         }
     }
 
@@ -85,11 +127,11 @@ public class EngineModuleWrapper
         {
             if (engineType == EngineModuleType.UNKNOWN)
                 return 0f;
-            return engine.minFuelFlow;
+            return moduleEngine.minFuelFlow;
         }
         set
         {
-            engine.minFuelFlow = value;
+            moduleEngine.minFuelFlow = value;
         }
     }
 
@@ -99,11 +141,11 @@ public class EngineModuleWrapper
         {
             if (engineType == EngineModuleType.UNKNOWN)
                 return 0f;
-            return engine.maxFuelFlow;
+            return moduleEngine.maxFuelFlow;
         }
         set
         {
-            engine.maxFuelFlow = value;
+            moduleEngine.maxFuelFlow = value;
         }
     }
 
@@ -113,11 +155,11 @@ public class EngineModuleWrapper
         {
             if (engineType == EngineModuleType.UNKNOWN)
                 return 0f;
-            return engine.g;
+            return moduleEngine.g;
         }
         set
         {
-            engine.g = value;
+            moduleEngine.g = value;
         }
     }
 
@@ -127,13 +169,13 @@ public class EngineModuleWrapper
         {
             if (engineType == EngineModuleType.UNKNOWN)
                 return 0f;
-            return engine.maxThrust;
+            return moduleEngine.maxThrust;
         }
         set
         {
             if (engineType == EngineModuleType.UNKNOWN)
                 return;
-            engine.maxThrust = value;
+            moduleEngine.maxThrust = value;
         }
     }
 
@@ -144,14 +186,14 @@ public class EngineModuleWrapper
             if (engineType == EngineModuleType.UNKNOWN)
                 return 0f;
 
-            return engine.minThrust;
+            return moduleEngine.minThrust;
         }
         set
         {
             if (engineType == EngineModuleType.UNKNOWN)
                 return;
 
-            engine.minThrust = value;
+            moduleEngine.minThrust = value;
         }
     }
 
@@ -162,13 +204,13 @@ public class EngineModuleWrapper
             if (engineType == EngineModuleType.UNKNOWN)
                 return false;
 
-            return engine.flameout;
+            return moduleEngine.flameout;
         }
         set
         {
             if (engineType == EngineModuleType.UNKNOWN)
                 return;
-            engine.flameout = value;
+            moduleEngine.flameout = value;
         }
     }
 
@@ -179,14 +221,14 @@ public class EngineModuleWrapper
             if (engineType == EngineModuleType.UNKNOWN)
                 return false;
 
-            return engine.enabled;
+            return moduleEngine.enabled;
         }
         set
         {
             if (engineType == EngineModuleType.UNKNOWN)
                 return;
 
-            engine.enabled = value;
+            moduleEngine.enabled = value;
         }
     }
 
@@ -209,7 +251,7 @@ public class EngineModuleWrapper
             if (engineType == EngineModuleType.UNKNOWN)
                 return 0f;
 
-            return engine.finalThrust;
+            return moduleEngine.finalThrust;
         }
     }
 
@@ -220,7 +262,7 @@ public class EngineModuleWrapper
             if (engineType == EngineModuleType.UNKNOWN)
                 return false;
             
-            return engine.EngineIgnited;
+            return moduleEngine.EngineIgnited;
         }
     }
 
@@ -231,7 +273,7 @@ public class EngineModuleWrapper
             if (engineType == EngineModuleType.UNKNOWN)
                 return null;
 
-            return engine.Events;
+            return moduleEngine.Events;
         }
     }
 
@@ -242,12 +284,15 @@ public class EngineModuleWrapper
             if (engineType == EngineModuleType.UNKNOWN)
                 return EngineIgnitionState.UNKNOWN;
 
-            if (engine.finalThrust > 0f)
+            if (moduleEngine.finalThrust > 0f)
                 return EngineIgnitionState.IGNITED;
 
             return EngineIgnitionState.NOT_IGNITED;
         }
     }
+    
+    public bool failed { get; set; }
+    public string failMessage { get; set; }
 
     // "Shutdown Engine"
     public void Shutdown()
@@ -255,9 +300,9 @@ public class EngineModuleWrapper
         if (engineType == EngineModuleType.UNKNOWN)
             return;
 
-        engine.Shutdown();
-        engine.DeactivateRunningFX();
-        engine.DeactivatePowerFX();
+        moduleEngine.Shutdown();
+        moduleEngine.DeactivateRunningFX();
+        moduleEngine.DeactivatePowerFX();
     }
 
     // Reduce fuel flow
@@ -267,12 +312,12 @@ public class EngineModuleWrapper
             return;
         if (engineType == EngineModuleType.SOLVERENGINE)
         {
-            engine.GetType().GetField("flowMult").SetValue(engine, multiplier);
+            moduleEngine.GetType().GetField("flowMult").SetValue(moduleEngine, multiplier);
         }
         else
         {
-            engine.minFuelFlow = _minFuelFlow * multiplier;
-            engine.maxFuelFlow = _maxFuelFlow * multiplier;
+            moduleEngine.minFuelFlow = _minFuelFlow * multiplier;
+            moduleEngine.maxFuelFlow = _maxFuelFlow * multiplier;
         }
     }
 
@@ -282,11 +327,11 @@ public class EngineModuleWrapper
             return;
         if (engineType == EngineModuleType.SOLVERENGINE)
         {
-            engine.GetType().GetField("ispMult").SetValue(engine, multiplier);
+            moduleEngine.GetType().GetField("ispMult").SetValue(moduleEngine, multiplier);
         }
         else
         {
-            engine.g = _g * multiplier;
+            moduleEngine.g = _g * multiplier;
         }
     }
 
@@ -294,9 +339,9 @@ public class EngineModuleWrapper
     {
         if (engineType == EngineModuleType.SOLVERENGINE)
         {
-            if (engine.GetType().Name == "ModuleEnginesRF")
+            if (moduleEngine.GetType().Name == "ModuleEnginesRF")
             {
-                engine.GetType().GetField("ignitions").SetValue(engine, numIgnitions);
+                moduleEngine.GetType().GetField("ignitions").SetValue(moduleEngine, numIgnitions);
             }
         }
     }
@@ -305,7 +350,7 @@ public class EngineModuleWrapper
     {
         if (engineType == EngineModuleType.SOLVERENGINE)
         {
-            if (engine.GetType().Name == "ModuleEnginesRF")
+            if (moduleEngine.GetType().Name == "ModuleEnginesRF")
             {
                 int currentIgnitions = GetIgnitionCount();
                 if (currentIgnitions < 0)
@@ -320,11 +365,11 @@ public class EngineModuleWrapper
         // < 0 removes all ignitions
         if (engineType == EngineModuleType.SOLVERENGINE)
         {
-            if (engine.GetType().Name == "ModuleEnginesRF")
+            if (moduleEngine.GetType().Name == "ModuleEnginesRF")
             {
                 if (numIgnitions < 0)
                 {
-                    engine.GetType().GetField("ignitions").SetValue(engine, 0);
+                    moduleEngine.GetType().GetField("ignitions").SetValue(moduleEngine, 0);
                 }
                 else
                 {
@@ -341,9 +386,9 @@ public class EngineModuleWrapper
         int currentIgnitions = -1;
         if (engineType == EngineModuleType.SOLVERENGINE)
         {
-            if (engine.GetType().Name == "ModuleEnginesRF")
+            if (moduleEngine.GetType().Name == "ModuleEnginesRF")
             {
-                currentIgnitions = (int)engine.GetType().GetField("ignitions").GetValue(engine);
+                currentIgnitions = (int)moduleEngine.GetType().GetField("ignitions").GetValue(moduleEngine);
             }
         }
         return currentIgnitions;
@@ -369,16 +414,16 @@ public class EngineModuleWrapper
         }
         if (_engine != null)
         {
-            engine = _engine;
-            string tName = engine.GetType().Name;
+            moduleEngine = _engine;
+            string tName = moduleEngine.GetType().Name;
             if (tName == "ModuleEnginesRF" || tName.Contains("ModuleEnginesAJE"))
                 engineType = EngineModuleType.SOLVERENGINE;
             else
                 engineType = EngineModuleType.ENGINE;
 
-            _minFuelFlow = engine.minFuelFlow;
-            _maxFuelFlow = engine.maxFuelFlow;
-            _g = engine.g;
+            _minFuelFlow = moduleEngine.minFuelFlow;
+            _maxFuelFlow = moduleEngine.maxFuelFlow;
+            _g = moduleEngine.g;
         }
         else
         {

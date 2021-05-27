@@ -33,6 +33,8 @@ namespace TestFlight
                 float jitter = ispMultiplierJitter - ((float)TestFlightUtil.GetCore(this.part, Configuration).RandomGenerator.NextDouble() * (ispMultiplierJitter * 2));
                 float actualMultiplier = ispMultiplier + jitter;
                 engine.engine.SetFuelIspMult(actualMultiplier);
+                engine.engine.failMessage = failureTitle;
+                engine.engine.failed = true;
             }
         }
 
@@ -43,6 +45,8 @@ namespace TestFlight
             foreach (EngineHandler engine in engines)
             {
                 engine.engine.SetFuelIspMult(1.0f);
+                engine.engine.failMessage = "";
+                engine.engine.failed = false;
             }
             return 0;
         }

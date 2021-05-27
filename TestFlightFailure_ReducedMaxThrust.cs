@@ -48,6 +48,8 @@ namespace TestFlight
             foreach (EngineHandler engine in engines)
             {
                 engine.engine.SetFuelFlowMult(thrustReduction);
+                engine.engine.failed = true;
+                engine.engine.failMessage = failureTitle;
             }
         }
 
@@ -58,6 +60,8 @@ namespace TestFlight
             foreach (EngineHandler engine in engines)
             {
                 engine.engine.SetFuelFlowMult(1.0f);
+                engine.engine.failed = false;
+                engine.engine.failMessage = "";
             }
             return 0;
         }
