@@ -93,20 +93,20 @@ namespace TestFlight
                 {
                     if (currentState == CurveState.High)
                     {
-                        info.Add($"Restart modifier is >={curveHigh:P} until ~{t:N} seconds");
+                        info.Add($"Restart modifier is >={curveHigh:P} until ~{TestFlightUtil.FormatTime(t, TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false)}");
                     }
                     else if (currentState == CurveState.Low)
                     {
-                        info.Add($"Restart modifier is <={curveLow:P} until ~{t:N} seconds");
+                        info.Add($"Restart modifier is <={curveLow:P} until ~{TestFlightUtil.FormatTime(t, TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false)}");
                     }
 
                     if (currentState == CurveState.Unknown && state == CurveState.High)
                     {
-                        info.Add($"Restart modifier climbs to >={curveHigh:P} at ~{t:N} seconds");
+                        info.Add($"Restart modifier climbs to >={curveHigh:P} at ~{TestFlightUtil.FormatTime(t, TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false)}");
                     }
                     if (currentState == CurveState.Unknown && state == CurveState.Low)
                     {
-                        info.Add($"Restart modifier drops to <={curveLow:P} at ~{t:N} seconds");
+                        info.Add($"Restart modifier drops to <={curveLow:P} at ~{TestFlightUtil.FormatTime(t, TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false)}");
                     }
 
                     currentState = state;
