@@ -55,6 +55,10 @@ namespace TestFlight
         public bool hasRestartWindow;
         [KSPField(guiName = "Engine Has Run", groupName = "TestFlightDebug", groupDisplayName = "TestFlightDebug", guiActive = true)]
         private bool engineHasRun;
+        [KSPField(guiName = "Idle Time", groupName = "TestFlightDebug", groupDisplayName = "TestFlightDebug", guiActive = true, guiFormat = "N2", guiUnits = "s")]
+        public float engineIdleTime;
+        [KSPField(guiName = "Delta Time", groupName = "TestFlightDebug", groupDisplayName = "TestFlightDebug", guiActive = true, guiFormat = "N2", guiUnits = "s")]
+        public float engineDeltaTime;
 
         private const float curveHigh = 0.8f;
         private const float curveLow = 0.3f;
@@ -183,7 +187,7 @@ namespace TestFlight
 
             double currentTime = Planetarium.GetUniversalTime();
             double deltaTime = (float)(currentTime - previousTime) / 1d;
-
+            previousTime = currentTime;
             // For each engine we are tracking, compare its current ignition state to our last known ignition state
             for (int i = 0; i < engines.Count; i++)
             {
@@ -204,7 +208,8 @@ namespace TestFlight
                 {
                     engineData.timeSinceLastShutdown += (float)deltaTime;
                 }
-                
+
+                engineDeltaTime = (float)deltaTime;
 
                 double initialFlightData = core.GetInitialFlightData();
                 float ignitionChance = 1f;
@@ -231,10 +236,8 @@ namespace TestFlight
                 if (hasRestartWindow && engineData.hasBeenRun)
                 {
                     var idleTime = engineData.timeSinceLastShutdown;
-                    if (idleTime < restartTimeMin || idleTime > restartTimeMax)
-                    {
-                        restartWindowModifier = Mathf.Clamp(restartWindowPenalty.Evaluate((float)idleTime), 0, 1);
-                    }
+                    engineIdleTime = idleTime;
+                    restartWindowModifier = Mathf.Clamp(restartWindowPenalty.Evaluate((float)idleTime), 0, 1);
                 }
 
 
