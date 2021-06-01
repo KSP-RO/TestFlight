@@ -237,12 +237,6 @@ namespace TestFlight
                     }
                 }
 
-                float minValue, maxValue = -1f;
-                baseIgnitionChance.FindMinMaxValue(out minValue, out maxValue);
-                if (verboseDebugging)
-                {
-                    Log(String.Format("TestFlightFailure_IgnitionFail: IgnitionChance Curve, Min Value {0:F2}:{1:F6}, Max Value {2:F2}:{3:F6}", baseIgnitionChance.minTime, minValue, baseIgnitionChance.maxTime, maxValue));
-                }
 
                 if (this.vessel.situation != Vessel.Situations.PRELAUNCH)
                     ignitionChance = ignitionChance * pressureModifier * ignitionUseMultiplier.Evaluate(numIgnitions) * restartWindowModifier;
@@ -407,7 +401,7 @@ namespace TestFlight
             base.SetActiveConfig(alias);
             
             if (currentConfig == null) return;
-
+            
             // update current values with those from the current config node
             currentConfig.TryGetValue("restoreIgnitionCharge", ref restoreIgnitionCharge);
             currentConfig.TryGetValue("ignorePressureOnPad", ref ignorePressureOnPad);
@@ -445,7 +439,6 @@ namespace TestFlight
             {
                 restartWindowPenalty.Load(currentConfig.GetNode("restartWindowPenalty"));
                 hasRestartWindow = true;
-                restartWindowDescription = RestartCurveDescription();
             }
             else
             {
@@ -522,7 +515,7 @@ namespace TestFlight
             if (hasRestartWindow)
             {
                 infoStrings.Add("<B>Restart timing modifiers</b>");
-                infoStrings.AddRange(restartWindowDescription);
+                infoStrings.AddRange(RestartCurveDescription());
             }
 
             return infoStrings;

@@ -101,7 +101,7 @@ namespace TestFlight
                     engineOperatingTime += deltaTime; // cumulative
                     
 
-                    // calculate totaly failure rate modifier
+                    // calculate total failure rate modifier
                     float cumulativeModifier = cycle.Evaluate((float)engineOperatingTime);
                     float continuousModifier = continuousCycle.Evaluate((float)currentRunTime);
                     
