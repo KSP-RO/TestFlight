@@ -40,7 +40,6 @@ namespace TestFlight
         private bool verboseDebugging;
         private float restartTimeMin;
         private float restartTimeMax = float.MaxValue;
-        private bool hasRestartWindow;
 
         [KSPField(isPersistant=true)]
         private double previousTime;
@@ -51,6 +50,11 @@ namespace TestFlight
         private string dynamicPressurePenaltyString;
         [KSPField(guiName = "Restart Ignition Penalty", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true)]
         private string restartPenaltyString;
+
+        [KSPField(guiName = "Has Restart Window", groupName = "TestFlightDebug", groupDisplayName = "TestFlightDebug", guiActive = true)]
+        public bool hasRestartWindow;
+        [KSPField(guiName = "Engine Has Run", groupName = "TestFlightDebug", groupDisplayName = "TestFlightDebug", guiActive = true)]
+        private bool engineHasRun;
 
         private const float curveHigh = 0.8f;
         private const float curveLow = 0.3f;
@@ -246,6 +250,7 @@ namespace TestFlight
                 ignitionChanceString = $"{ignitionChance:P}";
                 dynamicPressurePenaltyString = $"{1-pressureModifier:P}";
                 restartPenaltyString = $"{1-restartWindowModifier:P}";
+                engineHasRun = engineData.hasBeenRun;
 
                 // If we are transitioning from not ignited to ignited, we do our check
                 // The ignitionFailureRate defines the failure rate per flight data
