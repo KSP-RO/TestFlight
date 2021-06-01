@@ -50,15 +50,13 @@ namespace TestFlight
         private string dynamicPressurePenaltyString;
         [KSPField(guiName = "Restart Ignition Penalty", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true)]
         private string restartPenaltyString;
+        [KSPField(guiName = "Time Since Shutdown", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true,
+            guiFormat = "N2", guiUnits = "s")]
+        private float engineIdleTime;
 
-        [KSPField(guiName = "Has Restart Window", groupName = "TestFlightDebug", groupDisplayName = "TestFlightDebug", guiActive = true)]
-        public bool hasRestartWindow;
-        [KSPField(guiName = "Engine Has Run", groupName = "TestFlightDebug", groupDisplayName = "TestFlightDebug", guiActive = true)]
+
+        private bool hasRestartWindow;
         private bool engineHasRun;
-        [KSPField(guiName = "Idle Time", groupName = "TestFlightDebug", groupDisplayName = "TestFlightDebug", guiActive = true, guiFormat = "N2", guiUnits = "s")]
-        public float engineIdleTime;
-        [KSPField(guiName = "Delta Time", groupName = "TestFlightDebug", groupDisplayName = "TestFlightDebug", guiActive = true, guiFormat = "N2", guiUnits = "s")]
-        public float engineDeltaTime;
 
         private const float curveHigh = 0.8f;
         private const float curveLow = 0.3f;
@@ -208,8 +206,6 @@ namespace TestFlight
                 {
                     engineData.timeSinceLastShutdown += (float)deltaTime;
                 }
-
-                engineDeltaTime = (float)deltaTime;
 
                 double initialFlightData = core.GetInitialFlightData();
                 float ignitionChance = 1f;
