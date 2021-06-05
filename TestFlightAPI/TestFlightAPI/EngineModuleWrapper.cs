@@ -265,15 +265,29 @@ public class EngineModuleWrapper
     {
         if (engineType == EngineModuleType.UNKNOWN)
             return;
-        
-        engine.multIsp = multiplier;
+        if (engineType == EngineModuleType.SOLVERENGINE)
+        {
+            engine.GetType().GetField("flowMult").SetValue(engine, multiplier);
+        }
+        else
+        {
+            engine.minFuelFlow = _minFuelFlow * multiplier;
+            engine.maxFuelFlow = _maxFuelFlow * multiplier;
+        }
     }
 
     public void SetFuelIspMult(float multiplier)
     {
         if (engineType == EngineModuleType.UNKNOWN)
             return;
-        engine.multFlow = multiplier;
+        if (engineType == EngineModuleType.SOLVERENGINE)
+        {
+            engine.GetType().GetField("ispMult").SetValue(engine, multiplier);
+        }
+        else
+        {
+            engine.g = _g * multiplier;
+        }
     }
 
     public void SetIgnitionCount(int numIgnitions)
