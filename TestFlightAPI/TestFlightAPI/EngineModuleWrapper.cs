@@ -310,29 +310,16 @@ public class EngineModuleWrapper
     {
         if (engineType == EngineModuleType.UNKNOWN)
             return;
-        if (engineType == EngineModuleType.SOLVERENGINE)
-        {
-            moduleEngine.GetType().GetField("flowMult").SetValue(moduleEngine, multiplier);
-        }
-        else
-        {
-            moduleEngine.minFuelFlow = _minFuelFlow * multiplier;
-            moduleEngine.maxFuelFlow = _maxFuelFlow * multiplier;
-        }
+        
+        moduleEngine.multIsp = multiplier;
     }
 
     public void SetFuelIspMult(float multiplier)
     {
         if (engineType == EngineModuleType.UNKNOWN)
             return;
-        if (engineType == EngineModuleType.SOLVERENGINE)
-        {
-            moduleEngine.GetType().GetField("ispMult").SetValue(moduleEngine, multiplier);
-        }
-        else
-        {
-            moduleEngine.g = _g * multiplier;
-        }
+        
+        moduleEngine.multFlow = multiplier;
     }
 
     public void SetIgnitionCount(int numIgnitions)
