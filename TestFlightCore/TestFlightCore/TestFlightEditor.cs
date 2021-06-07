@@ -110,7 +110,10 @@ namespace TestFlightCore
         private void OnSelectedPartChanged()
         {
             ITestFlightCore core = TestFlightUtil.GetCore(selectedPart);
-            infoParts = core.GetTestFlightInfo();
+            if (core != null)
+            {
+                infoParts = core.GetTestFlightInfo();
+            }
         }
     }
 
