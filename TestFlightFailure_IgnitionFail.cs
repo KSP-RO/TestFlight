@@ -53,6 +53,8 @@ namespace TestFlight
         [KSPField(guiName = "Time Since Shutdown", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true,
             guiFormat = "N2", guiUnits = "s")]
         private float engineIdleTime;
+        [KSPField(guiName = "Last Restart Roll", groupName = "TestFlightDebug", groupDisplayName = "TestFlightDebug", guiActive = true)]
+        private string restartRollString;
 
 
         private bool hasRestartWindow;
@@ -260,6 +262,8 @@ namespace TestFlight
                         numIgnitions++;
 
                         failureRoll = core.RandomGenerator.NextDouble();
+                        restartRollString = $"Roll: {failureRoll}, Chance: {ignitionChance}";
+                        
                         if (verboseDebugging)
                         {
                             Log(String.Format("IgnitionFail: Engine {0} ignition chance {1:F4}, roll {2:F4}", engine.engine.Module.GetInstanceID(), ignitionChance, failureRoll));
