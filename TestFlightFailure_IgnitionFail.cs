@@ -200,15 +200,6 @@ namespace TestFlight
                     engineRunData.Add(engineData);
                 }
 
-                if (currentIgnitionState == EngineModuleWrapper.EngineIgnitionState.IGNITED)
-                {
-                    engineData.timeSinceLastShutdown = 0;
-                }
-                else
-                {
-                    engineData.timeSinceLastShutdown += (float)deltaTime;
-                }
-
                 double initialFlightData = core.GetInitialFlightData();
                 float ignitionChance = 1f;
                 float pressureModifier = 1f;
@@ -247,6 +238,15 @@ namespace TestFlight
                 restartPenaltyString = $"{1-restartWindowModifier:P}";
                 engineHasRun = engineData.hasBeenRun;
 
+                if (currentIgnitionState == EngineModuleWrapper.EngineIgnitionState.IGNITED)
+                {
+                    engineData.timeSinceLastShutdown = 0;
+                }
+                else
+                {
+                    engineData.timeSinceLastShutdown += (float)deltaTime;
+                }
+
                 // If we are transitioning from not ignited to ignited, we do our check
                 // The ignitionFailureRate defines the failure rate per flight data
                 if (currentIgnitionState == EngineModuleWrapper.EngineIgnitionState.IGNITED)
@@ -262,7 +262,7 @@ namespace TestFlight
                         numIgnitions++;
 
                         failureRoll = core.RandomGenerator.NextDouble();
-                        restartRollString = $"Roll: {failureRoll}, Chance: {ignitionChance}";
+                        restartRollString = $"Roll: {failureRoll:P}, Chance: {ignitionChance:P}";
                         
                         if (verboseDebugging)
                         {
