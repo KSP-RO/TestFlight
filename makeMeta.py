@@ -14,7 +14,7 @@ parser.add_argument('tag', metavar='tag', type=str, nargs=1,
 args = parser.parse_args()
 
 if not args.tag or len(args.tag) < 1:
-    print "ERROR: git tag must be specified and must be in the format major.minor.patch.build-configuration.e.g. 0.4.6.0"
+    print("ERROR: git tag must be specified and must be in the format major.minor.patch.build-configuration.e.g. 0.4.6.0")
     sys.exit(2)
 
 version = args.tag[0]
