@@ -53,7 +53,7 @@ jobs:
           cp -v -R "${GITHUB_WORKSPACE}/GameData" "${RELEASE_DIR}"
           cp -v -R "${GITHUB_WORKSPACE}/TestFlight.version" "${RELEASE_DIR}/GameData/TestFlight/TestFlight.version"
           cd ${RELEASE_DIR}
-          zip TestFlight-${{ github.event.release.tag_name }}.zip GameData GameData/TestFlight/* GameData/TestFlight/Plugins/TestFlight*.dll
+          zip TestFlight-${{ github.event.release.tag_name }}.zip GameData GameData/TestFlight/* GameData/TestFlight/Plugins/TestFlight*.dll GameData/TestFlight/Resources/* GameData/TestFlight/Resources/Textures/*
           ls -lrt -d -1 "${RELEASE_DIR}"/{*,.*}
         
       - name: Upload package to release
