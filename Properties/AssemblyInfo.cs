@@ -32,9 +32,9 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.4.0.0")]
-[assembly: AssemblyFileVersion("0.4.0.0")]
+[assembly: AssemblyVersion("2.1.0.0")]
+[assembly: AssemblyFileVersion("2.1.0.0")]
 
-[assembly: KSPAssembly("TestFlight", 1, 5)]
+[assembly: KSPAssembly("TestFlight", 2, 1)]
 [assembly: KSPAssemblyDependency("TestFlightAPI", 1, 5)]
 
