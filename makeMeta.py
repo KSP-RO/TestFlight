@@ -18,6 +18,10 @@ if not args.tag or len(args.tag) < 1:
     sys.exit(2)
 
 version = args.tag[0]
+
+if version.startswith('v'):
+    version = version.split('v')[1]
+
 major = int(version.split(".")[0])
 minor = int(version.split(".")[1])
 patch = int(version.split(".")[2])
