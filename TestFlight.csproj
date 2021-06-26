@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TestFlight</RootNamespace>
     <AssemblyName>TestFlight</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ReleaseVersion>0.4.0</ReleaseVersion>
     <TargetFrameworkProfile />
@@ -68,6 +68,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EngineRunData.cs" />
     <Compile Include="Failure Bases\TestFlightFailureBase_Avionics.cs" />
     <Compile Include="Failure Bases\TestFlightFailureBase_Docking.cs" />
     <Compile Include="Failure Bases\TestFlightFailureBase_FARCtrlSrf.cs" />

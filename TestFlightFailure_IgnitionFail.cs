@@ -26,14 +26,103 @@ namespace TestFlight
         public FloatCurve ignitionUseMultiplier = null;
         [KSPField]
         public float additionalFailureChance = 0f;
+        [KSPField]
+        public FloatCurve restartWindowPenalty = null;
 
         [KSPField(isPersistant=true)]
         public int numIgnitions = 0;
+
+        private List<EngineRunData> engineRunData;
 
         private ITestFlightCore core = null;
         private bool preLaunchFailures;
         private bool dynPressurePenalties;
         private bool verboseDebugging;
+        private float restartTimeMin;
+        private float restartTimeMax = float.MaxValue;
+
+        [KSPField(isPersistant=true)]
+        private double previousTime;
+        
+        [KSPField(guiName = "Ignition Chance", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true)]
+        private string ignitionChanceString;
+        [KSPField(guiName = "Ignition Penalty for Q", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true)]
+        private string dynamicPressurePenaltyString;
+        [KSPField(guiName = "Restart Ignition Penalty", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true)]
+        private string restartPenaltyString;
+        [KSPField(guiName = "Time Since Shutdown", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true,
+            guiFormat = "N2", guiUnits = "s")]
+        private float engineIdleTime;
+        [KSPField(guiName = "Last Restart Roll", groupName = "TestFlightDebug", groupDisplayName = "TestFlightDebug", guiActive = true)]
+        private string restartRollString;
+
+
+        private bool hasRestartWindow;
+        private bool engineHasRun;
+
+        private const float curveHigh = 0.8f;
+        private const float curveLow = 0.3f;
+
+        enum CurveState
+        {
+            Low,
+            High,
+            Unknown
+        }
+
+        private List<string> restartWindowDescription;
+
+        private static float ClampModifier(float input)
+        {
+            if (input >= curveHigh) return 1;
+            if (input <= curveLow) return 0;
+
+            return 0.5f;
+        }
+
+        private CurveState GetState(float clampedModifier)
+        {
+            if (clampedModifier >= 1) return CurveState.High;
+            if (clampedModifier <= 0) return CurveState.Low;
+            return CurveState.Unknown;
+        }
+
+        public List<string> RestartCurveDescription()
+        {
+            var currentValue = ClampModifier(restartWindowPenalty.Evaluate(0f));
+            var currentState = GetState(currentValue);
+            List<string> info = new List<string>();
+
+            for (float t = 0; t < restartWindowPenalty.maxTime; t += 0.01f)
+            {
+                var modifier = restartWindowPenalty.Evaluate(t);
+                var state = GetState(ClampModifier(modifier));
+                if (state != currentState)
+                {
+                    if (currentState == CurveState.High)
+                    {
+                        info.Add($"Restart modifier is >={curveHigh:P} until ~{TestFlightUtil.FormatTime(t, TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false)}");
+                    }
+                    else if (currentState == CurveState.Low)
+                    {
+                        info.Add($"Restart modifier is <={curveLow:P} until ~{TestFlightUtil.FormatTime(t, TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false)}");
+                    }
+
+                    if (currentState == CurveState.Unknown && state == CurveState.High)
+                    {
+                        info.Add($"Restart modifier climbs to >={curveHigh:P} at ~{TestFlightUtil.FormatTime(t, TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false)}");
+                    }
+                    if (currentState == CurveState.Unknown && state == CurveState.Low)
+                    {
+                        info.Add($"Restart modifier drops to <={curveLow:P} at ~{TestFlightUtil.FormatTime(t, TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false)}");
+                    }
+
+                    currentState = state;
+                }
+            }
+
+            return info;
+        }
 
         public override void OnStart(StartState state)
         {
@@ -47,6 +136,26 @@ namespace TestFlight
             // Get the in-game settings
             preLaunchFailures = HighLogic.CurrentGame.Parameters.CustomParams<TestFlightGameSettings>().preLaunchFailures;
             dynPressurePenalties = HighLogic.CurrentGame.Parameters.CustomParams<TestFlightGameSettings>().dynPressurePenalties;
+        }
+
+        public override void OnLoad(ConfigNode node)
+        {
+            base.OnLoad(node);
+            engineRunData = new List<EngineRunData>();
+            foreach (var configNode in node.GetNodes("ENGINE_RUN_DATA"))
+            {
+                engineRunData.Add(new EngineRunData(configNode));
+            }
+        }
+
+        public override void OnSave(ConfigNode node)
+        {
+            base.OnSave(node);
+            foreach (var engineRunData in engineRunData)
+            {
+                var dataNode = node.AddNode("ENGINE_RUN_DATA");
+                engineRunData.Save(dataNode);
+            }
         }
 
         public override void Startup()
@@ -66,19 +175,80 @@ namespace TestFlight
                 Startup();
         }
 
+        public EngineRunData GetEngineRunDataForID(uint id)
+        {
+            return engineRunData.FirstOrDefault(data => data.id == id);
+        }
+
         public override void OnUpdate()
         {
             if (!TestFlightEnabled)
                 return;
 
+            double currentTime = Planetarium.GetUniversalTime();
+            double deltaTime = (float)(currentTime - previousTime) / 1d;
+            previousTime = currentTime;
             // For each engine we are tracking, compare its current ignition state to our last known ignition state
             for (int i = 0; i < engines.Count; i++)
             {
                 EngineHandler engine = engines[i];
                 EngineModuleWrapper.EngineIgnitionState currentIgnitionState = engine.engine.IgnitionState;
+                var engineData = GetEngineRunDataForID(engine.engine.Module.PersistentId);
+                if (engineData == null)
+                {
+                    engineData = new EngineRunData(engine.engine.Module.PersistentId);
+                    engineRunData.Add(engineData);
+                }
+
+                double initialFlightData = core.GetInitialFlightData();
+                float ignitionChance = 1f;
+                float pressureModifier = 1f;
+                float restartWindowModifier = 1f;
+                
+                // Check to see if the vessel has not launched and if the player disabled pad failures
+                if (this.vessel.situation == Vessel.Situations.PRELAUNCH && !preLaunchFailures) {
+                  ignitionChance = 1.0f;
+                } else {
+                  ignitionChance = baseIgnitionChance.Evaluate((float)initialFlightData);
+                  if (ignitionChance <= 0)    
+                      ignitionChance = 1f;
+                }
+
+                if (dynPressurePenalties)
+                {
+                    pressureModifier = Mathf.Clamp(pressureCurve.Evaluate((float)(part.dynamicPressurekPa * 1000d)), 0, 1);
+                    if (pressureModifier <= 0f)
+                        pressureModifier = 1f;
+                }
+
+                // if this engine has run before, and our config defines a restart window, we need to check against that and modify our ignition chance accordingly
+                if (hasRestartWindow && engineData.hasBeenRun)
+                {
+                    var idleTime = engineData.timeSinceLastShutdown;
+                    engineIdleTime = idleTime;
+                    restartWindowModifier = Mathf.Clamp(restartWindowPenalty.Evaluate((float)idleTime), 0, 1);
+                }
+
+
+                if (this.vessel.situation != Vessel.Situations.PRELAUNCH)
+                    ignitionChance = ignitionChance * pressureModifier * ignitionUseMultiplier.Evaluate(numIgnitions) * restartWindowModifier;
+
+                ignitionChanceString = $"{ignitionChance:P}";
+                dynamicPressurePenaltyString = $"{1-pressureModifier:P}";
+                restartPenaltyString = $"{1-restartWindowModifier:P}";
+                engineHasRun = engineData.hasBeenRun;
+
+                if (currentIgnitionState == EngineModuleWrapper.EngineIgnitionState.IGNITED)
+                {
+                    engineData.timeSinceLastShutdown = 0;
+                }
+                else
+                {
+                    engineData.timeSinceLastShutdown += (float)deltaTime;
+                }
+
                 // If we are transitioning from not ignited to ignited, we do our check
                 // The ignitionFailureRate defines the failure rate per flight data
-
                 if (currentIgnitionState == EngineModuleWrapper.EngineIgnitionState.IGNITED)
                 {
                     if (engine.ignitionState == EngineModuleWrapper.EngineIgnitionState.NOT_IGNITED || engine.ignitionState == EngineModuleWrapper.EngineIgnitionState.UNKNOWN)
@@ -88,39 +258,12 @@ namespace TestFlight
                         {
                             Log(String.Format("IgnitionFail: Engine {0} transitioning to INGITED state", engine.engine.Module.GetInstanceID()));
                             Log(String.Format("IgnitionFail: Checking curves..."));
-                        }                        numIgnitions++;
-
-                        double initialFlightData = core.GetInitialFlightData();
-                        float ignitionChance = 1f;
-                        float multiplier = 1f;
-                        
-                        // Check to see if the vessel has not launched and if the player disabled pad failures
-                        if (this.vessel.situation == Vessel.Situations.PRELAUNCH && !preLaunchFailures) {
-                          ignitionChance = 1.0f;
-                        } else {
-                          ignitionChance = baseIgnitionChance.Evaluate((float)initialFlightData);
-                          if (ignitionChance <= 0)    
-                              ignitionChance = 1f;
-                        }
-
-                        if (dynPressurePenalties)
-                        {
-                            multiplier = pressureCurve.Evaluate((float)(part.dynamicPressurekPa * 1000d));
-                            if (multiplier <= 0f)
-                                multiplier = 1f;
-                        }
-
-                        float minValue, maxValue = -1f;
-                        baseIgnitionChance.FindMinMaxValue(out minValue, out maxValue);
-                        if (verboseDebugging)
-                        {
-                            Log(String.Format("TestFlightFailure_IgnitionFail: IgnitionChance Curve, Min Value {0:F2}:{1:F6}, Max Value {2:F2}:{3:F6}", baseIgnitionChance.minTime, minValue, baseIgnitionChance.maxTime, maxValue));
-                        }
-                          
-                        if (this.vessel.situation != Vessel.Situations.PRELAUNCH)
-                            ignitionChance = ignitionChance * multiplier * ignitionUseMultiplier.Evaluate(numIgnitions);
+                        }                        
+                        numIgnitions++;
 
                         failureRoll = core.RandomGenerator.NextDouble();
+                        restartRollString = $"Roll: {failureRoll:P}, Chance: {ignitionChance:P}";
+                        
                         if (verboseDebugging)
                         {
                             Log(String.Format("IgnitionFail: Engine {0} ignition chance {1:F4}, roll {2:F4}", engine.engine.Module.GetInstanceID(), ignitionChance, failureRoll));
@@ -134,6 +277,10 @@ namespace TestFlight
                             {
                                 core.TriggerFailure();
                             }
+                        }
+                        else
+                        {
+                            engineData.hasBeenRun = true;
                         }
                     }
                 }
@@ -244,6 +391,12 @@ namespace TestFlight
                 ignitionUseMultiplier = new FloatCurve();
                 ignitionUseMultiplier.Add(0f, 1f);
             }
+
+            if (restartWindowPenalty == null)
+            {
+                restartWindowPenalty = new FloatCurve();
+                restartWindowPenalty.Add(0f, 1f);
+            }
         }
 
         public override void SetActiveConfig(string alias)
@@ -251,7 +404,7 @@ namespace TestFlight
             base.SetActiveConfig(alias);
             
             if (currentConfig == null) return;
-
+            
             // update current values with those from the current config node
             currentConfig.TryGetValue("restoreIgnitionCharge", ref restoreIgnitionCharge);
             currentConfig.TryGetValue("ignorePressureOnPad", ref ignorePressureOnPad);
@@ -283,6 +436,21 @@ namespace TestFlight
             {
                 ignitionUseMultiplier.Add(0f,1f);
             }
+
+            restartWindowPenalty = new FloatCurve();
+            if (currentConfig.HasNode("restartWindowPenalty"))
+            {
+                restartWindowPenalty.Load(currentConfig.GetNode("restartWindowPenalty"));
+                hasRestartWindow = true;
+            }
+            else
+            {
+                restartWindowPenalty.Add(0f, 1f);
+                restartTimeMin = 0;
+                restartTimeMax = float.MaxValue;
+                hasRestartWindow = false;
+            }
+            
         }
 
         public override string GetModuleInfo(string configuration)
@@ -342,17 +510,15 @@ namespace TestFlight
             if (pressureCurve != null & pressureCurve.Curve.keys.Length > 1)
             {
                 float maxTime = pressureCurve.maxTime;
-                infoStrings.Add("<b>This engine suffers a penalty to ignition based on dynamic pressure</b>");
+                infoStrings.Add("<b>Dynamic pressure modifiers</b>");
                 infoStrings.Add($"<b>0 kPa Pressure Modifier:</b> {pressureCurve.Evaluate(0)}");
                 infoStrings.Add($"<b>{maxTime/1000} kPa Pressure Modifier</b>: {pressureCurve.Evaluate(maxTime):N}");
             }
 
-            if (pressureCurve != null & pressureCurve.Curve.keys.Length > 1)
+            if (hasRestartWindow)
             {
-                float maxTime = pressureCurve.maxTime;
-                infoStrings.Add("<b>This engine suffers a penalty to ignition based on dynamic pressure</b>");
-                infoStrings.Add($"<B>0 Pa Pressure Modifier: {pressureCurve.Evaluate(0)}");
-                infoStrings.Add($"<b>{maxTime} Pa Pressure Modifier</b>: {pressureCurve.Evaluate(maxTime):N}");
+                infoStrings.Add("<B>Restart timing modifiers</b>");
+                infoStrings.AddRange(RestartCurveDescription());
             }
 
             return infoStrings;

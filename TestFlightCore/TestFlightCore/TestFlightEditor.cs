@@ -17,7 +17,9 @@ namespace TestFlightCore
         private bool show = false;
         private Rect position;
         private Part selectedPart;
-
+        private Part lastSelectedPart;
+        private List<string> infoParts;
+        
         public void OnGUI()
         {
             if (TestFlightManagerScenario.Instance == null)
@@ -48,12 +50,19 @@ namespace TestFlightCore
 
             position.x = Mathf.Clamp(Input.mousePosition.x - 20f - position.width, 0.0f, Screen.width - position.width);
             position.y = Mathf.Clamp(Screen.height - Input.mousePosition.y, 0.0f, Screen.height - position.height);
+            
             selectedPart = EditorLogic.fetch.ship.parts.Find(p => p.stackIcon.Highlighted) ?? EditorLogic.SelectedPart;
             if (selectedPart != null)
             {
+                if (selectedPart != lastSelectedPart)
+                {
+                    OnSelectedPartChanged();
+                }
+                lastSelectedPart = selectedPart;
                 if (!show && Input.GetMouseButtonDown(2))
                 {
                     show = true;
+                    OnSelectedPartChanged();
                 }
                 else if (show && Input.GetMouseButtonDown(2))
                 {
@@ -63,7 +72,9 @@ namespace TestFlightCore
                 }
             } // End selectedPart
             else
+            {
                 show = false;
+            }
         }
 
         public void DrawWindow(int windowID)
@@ -80,7 +91,6 @@ namespace TestFlightCore
                     GUILayout.Label(selectedPart.partInfo.title, Styles.styleEditorTitle);
                     if (show)
                     {
-                        List<string> infoParts = core.GetTestFlightInfo();
                         GUILayout.BeginVertical();
                         foreach (string info in infoParts)
                         {
@@ -94,6 +104,15 @@ namespace TestFlightCore
                         GUILayout.Label("Middle click to show TestFlight info...", Styles.styleEditorText);
                     }
                 }
+            }
+        }
+
+        private void OnSelectedPartChanged()
+        {
+            ITestFlightCore core = TestFlightUtil.GetCore(selectedPart);
+            if (core != null)
+            {
+                infoParts = core.GetTestFlightInfo();
             }
         }
     }
