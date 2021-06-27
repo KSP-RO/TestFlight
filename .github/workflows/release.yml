@@ -33,7 +33,13 @@ jobs:
           rm '/tmp/bins.zip'          
 
       - name: Build mod solution
-        run: msbuild /p:Configuration=Release /p:ReferencePath="${{ steps.download-assemblies.outputs.ksp-dll-path }}" TestFlight.sln
+        run: |
+          rm -f ${GITHUB_WORKSPACE}/GameData/TestFlight/Plugins/*.dll
+          msbuild /p:Configuration=Release /p:ReferencePath="${{ steps.download-assemblies.outputs.ksp-dll-path }}" TestFlight.sln
+          cp -v ${GITHUB_WORKSPACE}/bin/Release/TestFlight.dll ${GITHUB_WORKSPACE}/GameData/TestFlight/Plugins/TestFlight.dll
+          cp -v ${GITHUB_WORKSPACE}/TestFlightAPI/TestFlightAPI/bin/Release/TestFlightAPI.dll ${GITHUB_WORKSPACE}/GameData/TestFlight/Plugins/TestFlightAPI.dll
+          cp -v ${GITHUB_WORKSPACE}/TestFlightCore/TestFlightCore/bin/Release/TestFlightCore.dll ${GITHUB_WORKSPACE}/GameData/TestFlight/Plugins/TestFlightCore.dll
+          cp -v ${GITHUB_WORKSPACE}/TestFlightContracts/bin/Release/TestFlightContracts.dll ${GITHUB_WORKSPACE}/GameData/TestFlight/Plugins/TestFlightContracts.dll
         
       - name: Setup python
         uses: actions/setup-python@v2
