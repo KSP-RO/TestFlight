@@ -124,7 +124,7 @@ namespace TestFlight
             totalRunTimeString = $"{engineOperatingTime:N0}s/{ratedBurnTime}s";
 
             // We intentionally do NOT call our base class OnUpdate() because that would kick off a second round of 
-            // failure checks which is already handled by the main Reliabilty module that should 
+            // failure checks which is already handled by the main Reliability module that should 
             // already be on the part (This PartModule should be added in addition to the normal reliability module)
             // base.OnUpdate();
         }
