@@ -351,10 +351,16 @@ namespace TestFlightCore
                             GUILayout.Label(String.Format("{0:F6}", status.momentaryFailureRate), GUILayout.Width(60));
                             GUILayout.Space(10);
                         }
-                        // Run Time
+                        // Current Run Time
+                        if (tfScenario.userSettings.showContinuousRunTimeInMSD)
+                        {
+                            GUILayout.Label(String.Format("{0:F6}", status.continuousRunningTime), GUILayout.Width(60));
+                            GUILayout.Space(10);
+                        }
+                        // Cumulative Run Time
                         if (tfScenario.userSettings.showRunTimeInMSD)
                         {
-                            GUILayout.Label(String.Format("{0:F6}", status.runningTime), GUILayout.Width(60));
+                            GUILayout.Label(String.Format("{0:F6} T", status.runningTime), GUILayout.Width(60));
                             GUILayout.Space(10);
                         }
                         // Part Status Text
@@ -448,7 +454,15 @@ namespace TestFlightCore
                         GUILayout.EndHorizontal();
 
                         GUILayout.BeginHorizontal();
-                        if (DrawToggle(ref tfScenario.userSettings.showRunTimeInMSD, "Show Run Time", Styles.styleToggle))
+                        if (DrawToggle(ref tfScenario.userSettings.showContinuousRunTimeInMSD, "Show Current Run Time", Styles.styleToggle))
+                        {
+                            tfScenario.userSettings.Save();
+                            CalculateWindowBounds();
+                        }
+                        GUILayout.EndHorizontal();
+
+                        GUILayout.BeginHorizontal();
+                        if (DrawToggle(ref tfScenario.userSettings.showRunTimeInMSD, "Show Cumulative Run Time", Styles.styleToggle))
                         {
                             tfScenario.userSettings.Save();
                             CalculateWindowBounds();

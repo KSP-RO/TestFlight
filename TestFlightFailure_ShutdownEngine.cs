@@ -48,6 +48,9 @@ namespace TestFlight
                     engine.engine.Events["Shutdown"].active = false;
                     engine.engine.Events["Activate"].guiActive = false;
                     engine.engine.Events["Shutdown"].guiActive = false;
+
+                    engine.engine.failed = true;
+                    engine.engine.failMessage = failureTitle;
                 }
                 engineStates.Add(id, engineState);
                 engine.engine.RemoveIgnitions(numIgnitionsToRemove);
@@ -69,6 +72,8 @@ namespace TestFlight
                     engine.engine.Events["Shutdown"].guiActive = true;
                     engine.engine.allowShutdown = engineStates[id].allowShutdown;
                     engine.engine.SetIgnitionCount(engineStates[id].numIgnitions);
+                    engine.engine.failed = false;
+                    engine.engine.failMessage = "";
                 }
             }
             engineStates.Clear();

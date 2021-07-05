@@ -14,10 +14,14 @@ parser.add_argument('tag', metavar='tag', type=str, nargs=1,
 args = parser.parse_args()
 
 if not args.tag or len(args.tag) < 1:
-    print "ERROR: git tag must be specified and must be in the format major.minor.patch.build-configuration.e.g. 0.4.6.0"
+    print("ERROR: git tag must be specified and must be in the format major.minor.patch.build-configuration.e.g. 0.4.6.0")
     sys.exit(2)
 
 version = args.tag[0]
+
+if version.startswith('v'):
+    version = version.split('v')[1]
+
 major = int(version.split(".")[0])
 minor = int(version.split(".")[1])
 patch = int(version.split(".")[2])
@@ -38,8 +42,8 @@ avc = {
 	"KSP_VERSION" :
 	{
 		"MAJOR" : 1,
-		"MINOR" : 2,
-		"PATCH" : 2
+		"MINOR" : 10,
+		"PATCH" : 1
 	}
 }
 with open("TestFlight.version", "w") as f:

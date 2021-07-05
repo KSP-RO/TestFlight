@@ -110,6 +110,16 @@ namespace TestFlight
             }
         }
 
+        private void OnEnable()
+        {
+            StartCoroutine(UpdateEngineStatus());
+        }
+
+        private void OnDisable()
+        {
+            StopCoroutine(UpdateEngineStatus());
+        }
+
         public override void SetActiveConfig(string alias)
         {
             base.SetActiveConfig(alias);
@@ -127,6 +137,23 @@ namespace TestFlight
             {
                 var node = ConfigNode.Parse(configNodeData);
                 OnLoad(node);
+            }
+        }
+
+        public IEnumerator UpdateEngineStatus()
+        {
+            while (true)
+            {
+                yield return new WaitForFixedUpdate();
+
+                if (Failed && engines != null)
+                {
+                    foreach (var handler in engines)
+                    {
+                        handler.engine.Status = "Failed";
+                        handler.engine.StatusL2 = failureTitle;
+                    }
+                }
             }
         }
 

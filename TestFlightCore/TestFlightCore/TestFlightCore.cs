@@ -359,7 +359,7 @@ namespace TestFlightCore
 
             return null;
         }
-        public float GetBurnTime()
+        public float GetRunTime(RatingScope ratingScope)
         {
             List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part, Alias);
             if (reliabilityModules == null)
@@ -370,7 +370,7 @@ namespace TestFlightCore
             for (int i = 0, reliabilityModulesCount = reliabilityModules.Count; i < reliabilityModulesCount; i++)
             {
                 ITestFlightReliability rm = reliabilityModules[i];
-                burnTime = Mathf.Max(rm.GetCurrentBurnTime(), burnTime);
+                burnTime = Mathf.Max(rm.GetScopedRunTime(ratingScope), burnTime);
             }
 
             return burnTime;
@@ -1260,7 +1260,7 @@ namespace TestFlightCore
                     for (int i = 0, reliabilityModulesCount = reliabilityModules.Count; i < reliabilityModulesCount; i++)
                     {
                         ITestFlightReliability reliabilityModule = reliabilityModules[i];
-                        ratedBurnTime = Mathf.Max(reliabilityModule.GetRatedBurnTime(nodeAlias), ratedBurnTime);
+                        ratedBurnTime = Mathf.Max(reliabilityModule.GetRatedTime(nodeAlias, RatingScope.Cumulative), ratedBurnTime);
                     }
 
                     for (int i = 0, reliabilityModulesCount = reliabilityModules.Count; i < reliabilityModulesCount; i++)
@@ -1321,7 +1321,7 @@ namespace TestFlightCore
                 for (int i = 0, reliabilityModulesCount = reliabilityModules.Count; i < reliabilityModulesCount; i++)
                 {
                     ITestFlightReliability reliabilityModule = reliabilityModules[i];
-                    ratedBurnTime = Mathf.Max(reliabilityModule.GetRatedBurnTime(), ratedBurnTime);
+                    ratedBurnTime = Mathf.Max(reliabilityModule.GetRatedTime(RatingScope.Cumulative), ratedBurnTime);
                 }
 
                 for (int i = 0, reliabilityModulesCount = reliabilityModules.Count; i < reliabilityModulesCount; i++)
