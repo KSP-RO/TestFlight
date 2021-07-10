@@ -215,9 +215,16 @@ namespace TestFlightCore
             TestFlightUtil.Log(message, debug);
         }
 
-        internal override void Start()
+        internal override void Awake()
         {
-            base.Start();
+            isReady = false;
+            if (Instance != null && Instance != this)
+            {
+                DestroyImmediate(Instance.gameObject);
+            }
+            
+            Instance = this;
+            base.Awake();
             StartCoroutine("ConnectToScenario");
         }
 
@@ -239,7 +246,6 @@ namespace TestFlightCore
         public void Startup()
         {
             isReady = true;
-            Instance = this;
             cores = new List<string>();
             vesselsToDelete = new List<Guid>();
             partsToDelete = new List<PartStatus>();
@@ -256,15 +262,23 @@ namespace TestFlightCore
             currentUTC = Planetarium.GetUniversalTime();
         }
 
+        internal override void OnDestroy()
+        {
+            if (Instance == this)
+            {
+                Instance = null;
+            }
+        }
+
         void VesselDestroyed(Vessel vessel)
         {
-            Debug.Log($"Vessel Destroyed {vessel.vesselName}");
+            Log($"Vessel Destroyed {vessel.vesselName}");
             masterStatus.Remove(vessel.id);
         }
 
         void VesselCreated(Vessel vessel)
         {
-            Debug.Log($"Vessel Created {vessel.vesselName}");
+            Log($"Vessel Created {vessel.vesselName}");
             if (masterStatus.ContainsKey(vessel.id)) return;
             
             InitializeParts(vessel);
@@ -273,7 +287,7 @@ namespace TestFlightCore
 
         void VesselWasModified(Vessel vessel)
         {
-            Debug.Log($"Vessel Modified {vessel.vesselName}");
+            Log($"Vessel Modified {vessel.vesselName}");
             masterStatus.Remove(vessel.id);
             AddVesselToMasterStatusDisplay(vessel);
         }
@@ -368,13 +382,8 @@ namespace TestFlightCore
                         }
                         else
                         {
-                            TestFlightPartData partData = tfScenario.GetPartDataForPart(activeCore);
-                            if (partData != null)
-                            {
-                                core.InitializeFlightData(partData.GetFloat("flightData"));
-                            }
-                            else
-                                core.InitializeFlightData(0f);
+                            var flightData = Mathf.Max(0f,TestFlightManagerScenario.Instance.GetFlightDataForPartName(activeCore));
+                            core.InitializeFlightData(flightData);
                         }
                     }
                 }
@@ -442,7 +451,7 @@ namespace TestFlightCore
         internal void Log(string message)
         {
             bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
-            message = "TestFlightManagerScenario: " + message;
+            message = "[TestFlightManagerScenario] " + message;
             TestFlightUtil.Log(message, debug);
         }
 
@@ -675,6 +684,11 @@ namespace TestFlightCore
 
         public override void OnAwake()
         {
+            isReady = false;
+            if (Instance != null && Instance != this)
+            {
+                DestroyImmediate(Instance.gameObject);
+            }
             Instance = this;
 
             // v1.5.4 moved settings to PluginData but to avoid screwing over existing installs we want to migrate existing settings
@@ -717,6 +731,13 @@ namespace TestFlightCore
             isReady = true; 
         }
 
+        private void OnDestroy()
+        {
+            if (Instance == this)
+            {
+                Instance = null;
+            }
+        }
 
         public string PartWithMostData()
         {
@@ -793,8 +814,13 @@ namespace TestFlightCore
         // This is a utility method that will return the "flightData" value directly or -1 if not found
         public float GetFlightDataForPartName(string partName)
         {
+            var stack = UnityEngine.StackTraceUtility.ExtractStackTrace();
+            Log(stack);
             if (partData.ContainsKey(partName))
+            {
+                Log($"Get flight data for {partName}: {partData[partName].GetFloat("flightData")}");
                 return partData[partName].GetFloat("flightData");
+            }
             else
                 return -1f;
         }
@@ -819,6 +845,9 @@ namespace TestFlightCore
         // This is a utility method that sets the "flightData" value directly
         public void SetFlightDataForPartName(string partName, float data)
         {
+            var stack = UnityEngine.StackTraceUtility.ExtractStackTrace();
+            Log(stack);
+            Log($"Set flight data for {partName} to {data}");
             if (partData.ContainsKey(partName))
                 partData[partName].SetValue("flightData", data.ToString());
             else
@@ -949,6 +978,7 @@ namespace TestFlightCore
                     TestFlightPartData storedPartData = new TestFlightPartData();
                     storedPartData.Load(partDataNode);
                     partData.Add(storedPartData.PartName, storedPartData);
+                    Log($"Loaded Part Data for {storedPartData.PartName}: {storedPartData.GetFloat("flightData")}");
                 }
             }
         }
