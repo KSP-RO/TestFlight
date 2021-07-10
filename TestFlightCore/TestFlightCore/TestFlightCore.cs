@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -945,6 +946,19 @@ namespace TestFlightCore
             Profiler.EndSample();
         }
 
+        public IEnumerator InitializeData(float du)
+        {
+            yield return new WaitUntil(() => TestFlightManagerScenario.Instance != null);
+            yield return new WaitUntil(() => TestFlightManagerScenario.Instance.isReady);
+            
+            if (TestFlightManagerScenario.Instance.SettingsAlwaysMaxData)
+                InitializeFlightData(maxData);
+            else
+            {
+                var data = Mathf.Max(0, TestFlightManagerScenario.Instance.GetFlightDataForPartName(Alias));
+                InitializeFlightData(data);
+            }
+        }
         public override void Start()
         {
             if (!TestFlightEnabled)
@@ -954,7 +968,6 @@ namespace TestFlightCore
 
             if (HighLogic.LoadedSceneIsFlight)
             {
-                Debug.Log("[TestFlight] Start() Called in Flight");
                 GameEvents.onCrewTransferred.Add(OnCrewChange);
                 if (crew == null)
                     crew = new List<ProtoCrewMember>();
@@ -978,8 +991,14 @@ namespace TestFlightCore
                             InitializeFlightData(maxData);
                         else
                         {
-                            InitializeFlightData(Mathf.Max(0, TestFlightManagerScenario.Instance.GetFlightDataForPartName(Alias)));
+                            var data = Mathf.Max(0, TestFlightManagerScenario.Instance.GetFlightDataForPartName(Alias));
+                            InitializeFlightData(data);
                         }
+                    }
+                    else
+                    {
+                        var data = Mathf.Max(0, TestFlightManagerScenario.Instance.GetFlightDataForPartName(Alias));
+                        StartCoroutine(InitializeData(data));
                     }
                 }
                 else
@@ -1111,9 +1130,6 @@ namespace TestFlightCore
             // techTransfer = rs-27a,rs-27,h1-b,h1:10&lr-89-na-7,lr-89-na-6,lr-89-na-5:25
             // defines two branches, one from the RS-27 branch and one from the LR-89 branch.  
 
-            Debug.Log($"[TestFlight] Attempting TechTransfer for part {Configuration}");
-            Debug.Log($"[TestFlight] techTransfer: {techTransfer.Trim()}");
-            
             if (techTransfer.Trim() == "")
                 return 0f;
 
@@ -1126,7 +1142,6 @@ namespace TestFlightCore
             for (int i = 0, branchesLength = branches.Length; i < branchesLength; i++)
             {
                 string branch = branches[i];
-                Debug.Log($"[TestFlight] Processing Branch {branch}");
                 modifiers = branch.Split(new char[1] {
                     ':'
                 });
@@ -1142,7 +1157,6 @@ namespace TestFlightCore
                 {
                     string partName = partsInBranch[j];
                     float partFlightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(partName);
-                    Debug.Log($"[TestFlight] Existing data for {partName}: {partFlightData}");
                     if (partFlightData == 0f)
                         continue;
                     dataToTransfer = dataToTransfer + ((partFlightData - (partFlightData * generation * techTransferGenerationPenalty)) * branchModifier);
@@ -1150,7 +1164,6 @@ namespace TestFlightCore
                 }
             }
 
-            Debug.Log($"[TestFlight] Data to Transfer: {dataToTransfer}");
             return Mathf.Min(dataToTransfer, techTransferMax);
         }
 
@@ -1366,8 +1379,6 @@ namespace TestFlightCore
 
         public void UpdatePartConfig()
         {
-            Log("Updating part config");
-
             SetActiveConfigFromInterop();
             
             // enabled = ActiveConfiguration;

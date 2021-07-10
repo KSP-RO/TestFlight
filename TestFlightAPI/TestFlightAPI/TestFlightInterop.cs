@@ -48,6 +48,8 @@ namespace TestFlightAPI
 
             knownInterops.Add(name, opValue);
 
+            Log(String.Format("Added new interop, {0} = {1}, for {2}", name, value, owner));
+
             TestFlightUtil.UpdatePartConfigs(this.part);
             return true;
         }
@@ -63,6 +65,8 @@ namespace TestFlightAPI
             opValue.valueType = InteropValueType.FLOAT;
 
             knownInterops.Add(name, opValue);
+
+            Log(String.Format("Added new interop, {0} = {1}, for {2}", name, value, owner));
 
             TestFlightUtil.UpdatePartConfigs(this.part);
             return true;
@@ -80,6 +84,8 @@ namespace TestFlightAPI
 
             knownInterops.Add(name, opValue);
 
+            Log(String.Format("Added new interop, {0} = {1}, for {2}", name, value, owner));
+            
             TestFlightUtil.UpdatePartConfigs(this.part);
             return true;
         }
@@ -97,6 +103,9 @@ namespace TestFlightAPI
                 return false;
 
             knownInterops.Remove(name);
+            
+            Log(String.Format("Removed interop, {0}, for {1}", name, owner));
+            
             TestFlightUtil.UpdatePartConfigs(this.part);
             return true;
         }
@@ -117,6 +126,7 @@ namespace TestFlightAPI
                     knownInterops.Remove(key);
                 }
             }
+            Log(String.Format("Clear all interops for {1}", owner));
             TestFlightUtil.UpdatePartConfigs(this.part);
         }
         public InteropValue GetInterop(string name)
