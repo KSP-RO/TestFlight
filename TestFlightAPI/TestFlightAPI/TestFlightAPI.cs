@@ -226,7 +226,7 @@ namespace TestFlightAPI
                     return "-";
             }
         }
-        
+
         // Simply converts the failure rate to the reliability rate at time t.
         public static float FailureRateToReliability(float failureRate, float t)
         {
@@ -260,7 +260,7 @@ namespace TestFlightAPI
             partName = partName.Replace(".", "-");
             return partName.Replace("_", "-");
         }
-            
+
         public static ITestFlightCore ResolveAlias(Part part, string alias)
         {
             // Look at each Core on the part and find the one that defines the given alias
@@ -324,7 +324,7 @@ namespace TestFlightAPI
             }
             return modules;
         }
-        
+
 
         public static List<PartModule> GetAllTestFlightModulesForAlias(Part part, string alias)
         {
@@ -610,6 +610,21 @@ namespace TestFlightAPI
         public static string PartWithLeastData() => InvokeTool<string>("PartWithLeastData", null);
         public static string PartWithNoData(string partList) => InvokeTool<string>("PartWithNoData", new object[] { partList });
         public static TestFlightPartData GetPartDataForPart(string partName) => InvokeTool<TestFlightPartData>("GetPartDataForPart", new object[] { partName });
+
+        public static float Integrate(Func<float, float> f, float begin, float end, float stepSize = 0.5f)
+        {
+            float left = begin;
+            float prevValue = f(left);
+            float acc = 0f;
+            while (left < end)
+            {
+                left += stepSize;
+                float value = f(left);
+                acc += (prevValue + value) * stepSize * 0.5f;
+                prevValue = value;
+            }
+            return acc;
+        }
     }
 
     public struct TestFlightFailureDetails
@@ -722,7 +737,7 @@ namespace TestFlightAPI
         /// </summary>
         /// <returns>The current burn time for scope or 0 if this module does not track burn time.</returns>
         float GetScopedRunTime(RatingScope ratingScope);
- 
+
         /// <summary>
         /// Should return a string if the module wants to report any information to the user in the TestFlight Editor window.
         /// </summary>
@@ -799,7 +814,7 @@ namespace TestFlightAPI
         /// </summary>
         /// <returns>A string of information to display to the user, or "" if none</returns>
         string GetModuleInfo(string configuration);
-        
+
         void SetActiveConfig(string configuration);
     }
 
@@ -985,4 +1000,3 @@ namespace TestFlightAPI
         float GetTechTransfer();
     }
 }
-
