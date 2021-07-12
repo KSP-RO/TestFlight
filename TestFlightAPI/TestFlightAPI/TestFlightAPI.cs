@@ -782,6 +782,21 @@ namespace TestFlightAPI
             else
                 return (TestFlightPartData)tfInterface.InvokeMember("GetPartDataForPart", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, new object[] { partName });
         }
+
+        public static float Integrate(Func<float, float> f, float begin, float end, float stepSize = 0.5f)
+        {
+            float left = begin;
+            float prevValue = f(left);
+            float acc = 0f;
+            while (left < end)
+            {
+                left += stepSize;
+                float value = f(left);
+                acc += (prevValue + value) * stepSize * 0.5f;
+                prevValue = value;
+            }
+            return acc;
+        }
     }
 
     public struct TestFlightFailureDetails
