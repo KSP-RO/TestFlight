@@ -28,13 +28,13 @@ namespace TestFlight
         /// <summary>
         /// maximum rated cumulative run time of the engine over the entire lifecycle
         /// </summary>
-        [KSPField]
+        [KSPField(guiName = "Rated burn time", groupName = "TestFlight_Plan", groupDisplayName = "TestFlight Planning", guiActiveEditor = true, guiUnits = "s")]
         public float ratedBurnTime = 0f;
 
         /// <summary>
         /// maximum rated continuous burn time between restarts
         /// </summary>
-        [KSPField]
+        [KSPField(guiName = "Rated continuous burn time", groupName = "TestFlight_Plan", groupDisplayName = "TestFlight Planning", guiUnits = "s")]
         public float ratedContinuousBurnTime;
         
         [KSPField]
@@ -64,11 +64,26 @@ namespace TestFlight
         [KSPField(guiName = "Current run time", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true)]
         public string currentRunTimeString;
         
+        [KSPField(guiName = "Burn time", groupName = "TestFlight_Plan", groupDisplayName = "TestFlight Planning", guiActiveEditor = true, guiUnits = "s"),
+            UI_FloatRange(minValue = 0f, stepIncrement = 1f, scene = UI_Scene.Editor)]
+        public float plannerBurnTime;
+        [KSPField(guiName = "Continuous burn time", groupName = "TestFlight_Plan", groupDisplayName = "TestFlight Planning", guiActiveEditor = true, guiUnits = "s"),
+            UI_FloatRange(minValue = 1f, stepIncrement = 1f, scene = UI_Scene.Editor)]
+        public float plannerContinuousBurnTime;
+        [KSPField(guiName = "Survival chance", groupName = "TestFlight_Plan", groupDisplayName = "TestFlight Planning", guiActiveEditor = true, guiFormat = "P2")]
+        public float plannerSurvivalChance;
+
         public override void OnStart(StartState state)
         {
             base.OnStart(state);
             engine = new EngineModuleWrapper();
             engine.InitWithEngine(this.part, engineID);
+
+            Fields[nameof(plannerBurnTime)].uiControlEditor.onFieldChanged += onPlannerChanged;
+            Fields[nameof(plannerContinuousBurnTime)].uiControlEditor.onFieldChanged += onPlannerChanged;
+            if (ratedBurnTime == ratedContinuousBurnTime) plannerBurnTime = ratedBurnTime; // Set the total burn time slider to the rated burn time only if there isn't a continuous burn time.
+            plannerContinuousBurnTime = ratedContinuousBurnTime;
+            UpdatePlanner();
         }
 
         public override double GetBaseFailureRate(float flightData)
@@ -170,6 +185,12 @@ namespace TestFlight
             {
                 ratedContinuousBurnTime = ratedBurnTime;
             }
+
+            ((UI_FloatRange)(Fields[nameof(plannerBurnTime)].uiControlEditor)).maxValue = cycle.maxTime;
+            plannerBurnTime = Mathf.Clamp(plannerBurnTime, 0f, cycle.maxTime);
+            ((UI_FloatRange)(Fields[nameof(plannerContinuousBurnTime)].uiControlEditor)).maxValue = continuousCycle.maxTime;
+            plannerContinuousBurnTime = Mathf.Clamp(plannerContinuousBurnTime, 1f, continuousCycle.maxTime);
+            UpdatePlanner();
         }
 
         public override string GetModuleInfo(string configuration, float reliabilityAtTime)
@@ -306,6 +327,31 @@ namespace TestFlight
                 infoStrings.Add($"<b>Rated Run Time</b>: {TestFlightUtil.FormatTime(ratedBurnTime, TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, true)}");
             }
             return infoStrings;
+        }
+
+        protected void onPlannerChanged(BaseField f, object obj) => UpdatePlanner();
+
+        protected void UpdatePlanner()
+        {
+            bool hasContinuousBurnTime = ratedBurnTime != ratedContinuousBurnTime;
+
+            Fields[nameof(ratedContinuousBurnTime)].guiActiveEditor = hasContinuousBurnTime;
+            Fields[nameof(plannerBurnTime)].guiName = hasContinuousBurnTime ? "Cumulative burn time" : "Burn time";
+            Fields[nameof(plannerContinuousBurnTime)].guiActiveEditor = hasContinuousBurnTime;
+
+            float burnTime = hasContinuousBurnTime ? plannerContinuousBurnTime : plannerBurnTime;
+
+            var instantaneousFailureRateMult = (Func<float, float>)((t) =>
+            {
+                float mult = cycle.Evaluate(hasContinuousBurnTime ? t + plannerBurnTime : t);
+                if (hasContinuousBurnTime) mult *= continuousCycle.Evaluate(t);
+                return Mathf.Max(mult, 1f);
+            });
+
+            // Cumulative survival chance at time T = 1 - F(T) = $exp(-\int_0^T h(t)dt)$.
+            // Since the base failure rate is constant, we can pull it out of the integral.
+            plannerSurvivalChance = Mathf.Exp(-(float)core.GetBaseFailureRate()
+                * TestFlightUtil.Integrate(instantaneousFailureRateMult, 0f, burnTime));
         }
     }
 }
