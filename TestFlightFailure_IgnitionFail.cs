@@ -309,7 +309,7 @@ namespace TestFlight
 
                 if (multiplier > float.Epsilon)
                 {
-                    FlightLogger.eventLog.Add($"[{met}] {core.Title} failed: Ignition Failure.  {(float)(part.dynamicPressurekPa * 1000d)}Pa dynamic pressure cased a {(1f-multiplier) * 100f}% reduction in normal ignition reliability.");
+                    FlightLogger.eventLog.Add($"[{met}] {core.Title} failed: Ignition Failure.  {(float)(part.dynamicPressurekPa * 1000d)}Pa dynamic pressure caused a {(1f-multiplier) * 100f}% reduction in normal ignition reliability.");
                 }
                 else
                 {
