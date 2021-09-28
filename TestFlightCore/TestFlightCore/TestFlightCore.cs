@@ -189,6 +189,12 @@ namespace TestFlightCore
             currentConfig.TryGetValue("rndRate", ref rndRate);
             currentConfig.TryGetValue("rndCost", ref rndCost);
 
+            // Invalidate cached value.
+            if (prevConfig != currentConfig)
+            {
+                baseFailureRate = 0f;
+            }
+
             return prevConfig == currentConfig;
         }
 
