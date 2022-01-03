@@ -119,7 +119,7 @@ namespace TestFlightCore
         public static PartFlightData FromString(string str)
         {
             // String format is
-            // partName:scope,data,0 scope,data scope,data,0 scope,data,0 
+            // partName:scope,data,0 scope,data scope,data,0 scope,data,0
             PartFlightData newData = null;
             if (str.IndexOf(':') > -1)
             {
@@ -222,7 +222,7 @@ namespace TestFlightCore
             {
                 DestroyImmediate(Instance.gameObject);
             }
-            
+
             Instance = this;
             base.Awake();
             StartCoroutine("ConnectToScenario");
@@ -268,6 +268,10 @@ namespace TestFlightCore
             {
                 Instance = null;
             }
+
+            GameEvents.onVesselWasModified.Remove(VesselWasModified);
+            GameEvents.onVesselCreate.Remove(VesselCreated);
+            GameEvents.onVesselDestroy.Remove(VesselDestroyed);
         }
 
         void VesselDestroyed(Vessel vessel)
@@ -280,7 +284,7 @@ namespace TestFlightCore
         {
             Log($"Vessel Created {vessel.vesselName}");
             if (masterStatus.ContainsKey(vessel.id)) return;
-            
+
             InitializeParts(vessel);
             AddVesselToMasterStatusDisplay(vessel);
         }
@@ -299,7 +303,7 @@ namespace TestFlightCore
             masterStatusItem.vesselName = vessel.GetName();
             masterStatusItem.allPartsStatus = new List<PartStatus>();
             masterStatus.Add(vessel.id, masterStatusItem);
-                
+
             var parts = vessel.Parts;
             for (var j = 0; j < parts.Count; j++)
             {
@@ -307,7 +311,7 @@ namespace TestFlightCore
                 foreach (var core in partCores)
                 {
                     if (!core.TestFlightEnabled) continue;
-                        
+
                     PartStatus partStatus = new PartStatus();
                     partStatus.lastSeen = currentUTC;
                     partStatus.flightCore = core;
@@ -403,16 +407,16 @@ namespace TestFlightCore
                 InitializeParts(FlightGlobals.ActiveVessel);
                 AddVesselToMasterStatusDisplay(FlightGlobals.ActiveVessel);
             }
-            
+
             UpdateVesselInMasterStatusDisplay(FlightGlobals.ActiveVessel);
         }
 
     }
 
 
-    [KSPScenario(ScenarioCreationOptions.AddToAllGames, 
+    [KSPScenario(ScenarioCreationOptions.AddToAllGames,
         new GameScenes[]
-        { 
+        {
             GameScenes.FLIGHT,
             GameScenes.EDITOR,
             GameScenes.SPACECENTER,
@@ -642,7 +646,7 @@ namespace TestFlightCore
         {
             if (String.IsNullOrEmpty(rawSaveData))
                 return;
-            
+
             string[] propertyGroups = rawSaveData.Split(new char[1]{ ',' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string propertyGroup in propertyGroups)
             {
@@ -679,7 +683,7 @@ namespace TestFlightCore
         internal static String _AssemblyFolder
         { get { return System.IO.Path.GetDirectoryName(_AssemblyLocation); } }
 
-        #endregion  
+        #endregion
 
 
         public override void OnAwake()
@@ -728,7 +732,7 @@ namespace TestFlightCore
                 RandomGenerator = new System.Random();
             }
 
-            isReady = true; 
+            isReady = true;
         }
 
         private void OnDestroy()
@@ -933,7 +937,7 @@ namespace TestFlightCore
             }
             if (bodySettings != null)
                 bodySettings.Load();
-            
+
             InitDataStore();
             if (node.HasValue("saveData"))
                 rawSaveData = node.GetValue("saveData");
