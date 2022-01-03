@@ -77,7 +77,9 @@ namespace TestFlight
             Fields[nameof(engineOperatingTime)].guiUnits = $"s/{ratedBurnTime}s";
 
             Fields[nameof(plannerBurnTime)].uiControlEditor.onFieldChanged += onPlannerChanged;
+            Fields[nameof(plannerBurnTime)].uiControlEditor.onSymmetryFieldChanged += onPlannerChanged;
             Fields[nameof(plannerContinuousBurnTime)].uiControlEditor.onFieldChanged += onPlannerChanged;
+            Fields[nameof(plannerContinuousBurnTime)].uiControlEditor.onSymmetryFieldChanged += onPlannerChanged;
             if (ratedBurnTime == ratedContinuousBurnTime) plannerBurnTime = ratedBurnTime; // Set the total burn time slider to the rated burn time only if there isn't a continuous burn time.
             plannerContinuousBurnTime = ratedContinuousBurnTime;
             UpdatePlanner();
@@ -156,7 +158,7 @@ namespace TestFlight
             }
             else
             {
-                cycle.Add(0f,1f);
+                cycle.Add(0f, 1f);
             }
 
             continuousCycle = new FloatCurve();
@@ -180,10 +182,6 @@ namespace TestFlight
                 ratedContinuousBurnTime = ratedBurnTime;
             }
 
-            ((UI_FloatRange)(Fields[nameof(plannerBurnTime)].uiControlEditor)).maxValue = cycle.maxTime;
-            plannerBurnTime = Mathf.Clamp(plannerBurnTime, 0f, cycle.maxTime);
-            ((UI_FloatRange)(Fields[nameof(plannerContinuousBurnTime)].uiControlEditor)).maxValue = continuousCycle.maxTime;
-            plannerContinuousBurnTime = Mathf.Clamp(plannerContinuousBurnTime, 1f, continuousCycle.maxTime);
             UpdatePlanner();
         }
 
@@ -327,6 +325,13 @@ namespace TestFlight
 
         protected void UpdatePlanner()
         {
+            if (core == null) return;
+
+            ((UI_FloatRange)(Fields[nameof(plannerBurnTime)].uiControlEditor)).maxValue = cycle.maxTime;
+            plannerBurnTime = Mathf.Clamp(plannerBurnTime, 0f, cycle.maxTime);
+            ((UI_FloatRange)(Fields[nameof(plannerContinuousBurnTime)].uiControlEditor)).maxValue = continuousCycle.maxTime;
+            plannerContinuousBurnTime = Mathf.Clamp(plannerContinuousBurnTime, 1f, continuousCycle.maxTime);
+
             bool hasContinuousBurnTime = ratedBurnTime != ratedContinuousBurnTime;
 
             Fields[nameof(ratedContinuousBurnTime)].guiActiveEditor = hasContinuousBurnTime;
@@ -335,12 +340,12 @@ namespace TestFlight
 
             float burnTime = hasContinuousBurnTime ? plannerContinuousBurnTime : plannerBurnTime;
 
-            var instantaneousFailureRateMult = (Func<float, float>)((t) =>
+            Func<float, float> instantaneousFailureRateMult = (t) =>
             {
                 float mult = cycle.Evaluate(hasContinuousBurnTime ? t + plannerBurnTime : t);
                 if (hasContinuousBurnTime) mult *= continuousCycle.Evaluate(t);
                 return Mathf.Max(mult, 1f);
-            });
+            };
 
             // Cumulative survival chance at time T = 1 - F(T) = $exp(-\int_0^T h(t)dt)$.
             // Since the base failure rate is constant, we can pull it out of the integral.
