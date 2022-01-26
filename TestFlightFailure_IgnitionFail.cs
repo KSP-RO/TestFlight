@@ -368,12 +368,6 @@ namespace TestFlight
 
         public override void OnAwake()
         {
-            base.OnAwake();
-            if (!string.IsNullOrEmpty(configNodeData))
-            {
-                var node = ConfigNode.Parse(configNodeData);
-                OnLoad(node);
-            }
             if (baseIgnitionChance == null)
             {
                 baseIgnitionChance = new FloatCurve();
@@ -389,12 +383,12 @@ namespace TestFlight
                 ignitionUseMultiplier = new FloatCurve();
                 ignitionUseMultiplier.Add(0f, 1f);
             }
-
             if (restartWindowPenalty == null)
             {
                 restartWindowPenalty = new FloatCurve();
                 restartWindowPenalty.Add(0f, 1f);
             }
+            base.OnAwake();
         }
 
         public override void SetActiveConfig(string alias)

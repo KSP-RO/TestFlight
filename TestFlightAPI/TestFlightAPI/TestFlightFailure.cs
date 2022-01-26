@@ -96,7 +96,7 @@ namespace TestFlightAPI
             ITestFlightCore core = TestFlightUtil.GetCore(this.part, Configuration);
             if (core != null)
             {
-                var failMessage = "";
+                string failMessage;
                 var failTime = KSPUtil.PrintTimeCompact((int)Math.Floor(this.vessel.missionTime), false);
                 if (!previouslyFailed)
                 {
@@ -178,10 +178,6 @@ namespace TestFlightAPI
             base.OnAwake();
         }
         
-        public override void OnStart(StartState state)
-        {
-        }
-        
         public override void OnLoad(ConfigNode node)
         {
             base.OnLoad(node);
@@ -207,12 +203,6 @@ namespace TestFlightAPI
             configNodeData = node.ToString();
         }
         
-        public override void OnSave(ConfigNode node)
-        {
-            base.OnSave(node);
-        }
-
-
         public virtual float GetRepairTime()
         {
             return 0f;
