@@ -46,21 +46,19 @@ namespace TestFlightAPI
             HOURS,
             DAYS,
             YEARS,
-            INVALID}
-
-        ;
+            INVALID
+        }
 
         public enum TIMEFORMAT : int
         {
             COLON_SEPERATED = 0,
             SHORT_IDENTIFIER,
-            LONG_IDENTIFIER}
+            LONG_IDENTIFIER
+        }
 
-        ;
+        public static int HoursPerDay => GameSettings.KERBIN_TIME ? 6 : 24;
 
-        public static int HoursPerDay { get { return GameSettings.KERBIN_TIME ? 6 : 24; } }
-
-        public static int DaysPerYear { get { return GameSettings.KERBIN_TIME ? 426 : 365; } }
+        public static int DaysPerYear => GameSettings.KERBIN_TIME ? 426 : 365;
 
         public static Type[] TestFlightModulesTypes
         {
@@ -111,7 +109,7 @@ namespace TestFlightAPI
                     int amount = Mathf.FloorToInt(time / intervals[i]);
                     if (amount > 0)
                     {
-                        ret += string.Format("{0}{1}", amount, units[i]);
+                        ret += $"{amount}{units[i]}";
                         time -= amount * intervals[i];
                     }
                 }
@@ -137,11 +135,11 @@ namespace TestFlightAPI
 
             if (shortForm)
             {
-                return string.Format("{0:F2}{1}", mtbf, UnitStringForMTBFUnit((MTBFUnits)currentUnit)[0]);
+                return $"{mtbf:F2}{UnitStringForMTBFUnit((MTBFUnits)currentUnit)[0]}";
             }
             else
             {
-                return string.Format("{0:F2} {1}", mtbf, UnitStringForMTBFUnit((MTBFUnits)currentUnit));
+                return $"{mtbf:F2} {UnitStringForMTBFUnit((MTBFUnits)currentUnit)}";
             }
         }
 
@@ -160,13 +158,12 @@ namespace TestFlightAPI
 
             if (shortForm)
             {
-                output = string.Format("{0:F2}{1}", mtbf,
-                    UnitStringForMTBFUnitShort((MTBFUnits)currentUnit)).ToString();
+                output = $"{mtbf:F2}{UnitStringForMTBFUnitShort((MTBFUnits)currentUnit)}";
+
             }
             else
             {
-                output = string.Format("{0:F2}{1}", mtbf,
-                    UnitStringForMTBFUnit((MTBFUnits)currentUnit)).ToString();
+                output = $"{mtbf:F2}{UnitStringForMTBFUnit((MTBFUnits)currentUnit)}";
             }
         }
 
@@ -242,10 +239,7 @@ namespace TestFlightAPI
             return reliability;
         }
 
-        public static string FormatTime(double time)
-        {
-            return FormatTime((float)time, TIMEFORMAT.COLON_SEPERATED, false);
-        }
+        public static string FormatTime(double time) => FormatTime((float)time, TIMEFORMAT.COLON_SEPERATED, false);
 
         // Methods for accessing the TestFlight modules on a given part
         // Get the part name, minus any numbers or clone or whatever. Borrowed from RF (by NK, so by permission obviously).
@@ -296,99 +290,56 @@ namespace TestFlightAPI
         // Get the active Core Module - can only ever be one.
         public static ITestFlightCore GetCore(Part part)
         {
-            Profiler.BeginSample("GetCore1");
-            if (part == null || part.Modules == null)
-                return null;
-
-            for (int i = 0; i < part.Modules.Count; i++)
-            {
-                ITestFlightCore core = part.Modules[i] as ITestFlightCore;
-                if (core != null && core.TestFlightEnabled)
-                    return core;
-            }
+            Profiler.BeginSample("TestFlight.GetCore1");
+            ITestFlightCore core = null;
+            if (part != null)
+                core = part.FindModuleImplementing<ITestFlightCore>();
+            if (core != null && !core.TestFlightEnabled)
+                core = null;
             Profiler.EndSample();
-            return null;
+            return core;
         }
 
         public static ITestFlightCore GetCore(Part part, string alias)
         {
-            if (part == null || part.Modules == null)
+            if (part == null || part.Modules == null || string.IsNullOrEmpty(alias))
                 return null;
-            if (alias == "")
-                return null;
-            for (int i = 0, partModulesCount = part.Modules.Count; i < partModulesCount; i++)
-            {
-                PartModule pm = part.Modules[i];
-                ITestFlightCore core = pm as ITestFlightCore;
-                if (core != null)
-                {
-                    core.UpdatePartConfig();
-                    return core;
-                }
-            }
-            return null;
+            ITestFlightCore core = part.FindModuleImplementing<ITestFlightCore>();
+            if (core != null)
+                core.UpdatePartConfig();
+            return core;
         }
 
         public static void UpdatePartConfigs(Part part)
         {
-            for (int i = 0, partModulesCount = part.Modules.Count; i < partModulesCount; i++)
-            {
-                PartModule pm = part.Modules[i];
-                ITestFlightCore core = pm as ITestFlightCore;
-                if (core != null)
-                {
-                    core.UpdatePartConfig();
-                }
-            }
+            ITestFlightCore core = part.FindModuleImplementing<ITestFlightCore>();
+            if (core != null)
+                core.UpdatePartConfig();
         }
-        
+
         public static List<PartModule> GetAllTestFlightModulesForPart(Part part)
         {
-            if (part == null || part.Modules == null)
-                return null;
-
             List<PartModule> modules = new List<PartModule>();
-            for (int i = 0, partModulesCount = part.Modules.Count; i < partModulesCount; i++)
-            {
-                PartModule pm = part.Modules[i];
-                
-                // FlightDataRecorder
-                IFlightDataRecorder dataRecorder = pm as IFlightDataRecorder;
-                if (dataRecorder != null)
-                {
-                    modules.Add(pm);
-                    continue;
-                }
-                // TestFlightReliability
-                ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
-                if (reliabilityModule != null)
-                {
-                    modules.Add(pm);
-                    continue;
-                }
-                // TestFlightFailure
-                ITestFlightFailure failureModule = pm as ITestFlightFailure;
-                if (failureModule != null)
-                {
-                    modules.Add(pm);
-                    continue;
-                }
-            }
+            if (part == null || part.Modules == null)
+                return modules;
 
+            foreach (PartModule pm in part.Modules)
+            {
+                if (pm is IFlightDataRecorder || pm is ITestFlightReliability || pm is ITestFlightFailure)
+                    modules.Add(pm);
+            }
             return modules;
         }
         
 
         public static List<PartModule> GetAllTestFlightModulesForAlias(Part part, string alias)
         {
-            if (part == null || part.Modules == null)
-                return null;
-
             List<PartModule> modules = new List<PartModule>();
-            for (int i = 0, partModulesCount = part.Modules.Count; i < partModulesCount; i++)
+            if (part == null || part.Modules == null)
+                return modules;
+
+            foreach (PartModule pm in part.Modules)
             {
-                PartModule pm = part.Modules[i];
-                
                 // FlightDataRecorder
                 IFlightDataRecorder dataRecorder = pm as IFlightDataRecorder;
                 if (dataRecorder != null && dataRecorder.Configuration.Equals(alias, StringComparison.InvariantCultureIgnoreCase))
@@ -432,15 +383,10 @@ namespace TestFlightAPI
                 return null;
 
             var reliabilityModules = new List<ITestFlightReliability>();
-            for (int i = 0, partModulesCount = part.Modules.Count; i < partModulesCount; i++)
+            foreach (var pm in part.Modules)
             {
-                PartModule pm = part.Modules[i];
-                ITestFlightReliability reliabilityModule = pm as ITestFlightReliability;
-                if (reliabilityModule != null)
-                {
-                    // reliabilityModule.SetActiveConfig(alias);
-                    reliabilityModules.Add(reliabilityModule);
-                }
+                if (pm is ITestFlightReliability)
+                    reliabilityModules.Add(pm as ITestFlightReliability);
             }
 
             return reliabilityModules;
@@ -452,17 +398,11 @@ namespace TestFlightAPI
                 return null;
 
             var failureModules = new List<ITestFlightFailure>();
-            for (int i = 0, partModulesCount = part.Modules.Count; i < partModulesCount; i++)
+            foreach (var pm in part.Modules)
             {
-                PartModule pm = part.Modules[i];
-                ITestFlightFailure failureModule = pm as ITestFlightFailure;
-                if (failureModule != null)
-                {
-                    // failureModule.SetActiveConfig(alias);
-                    failureModules.Add(failureModule);
-                }
+                if (pm is ITestFlightFailure)
+                    failureModules.Add(pm as ITestFlightFailure);
             }
-
             return failureModules;
         }
 
@@ -482,9 +422,9 @@ namespace TestFlightAPI
         // best to split it out into a common method for all handling of configuration matches
         public static bool EvaluateQuery(string query, Part part)
         {
-            Profiler.BeginSample("EvaluateQuery");
             if (string.IsNullOrEmpty(query))
                 return true;
+            Profiler.BeginSample("EvaluateQuery");
 
             // If this query defines an alias, just trim it off
             if (query.Contains(":"))
@@ -497,7 +437,10 @@ namespace TestFlightAPI
             for (int i = 0, elementsCount = elements.Length; i < elementsCount; i++)
             {
                 if (EvaluateElement(elements[i], part))
+                {
+                    Profiler.EndSample();
                     return true;
+                }
             }
 
             Profiler.EndSample();

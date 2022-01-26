@@ -877,7 +877,7 @@ namespace TestFlightCore
         /// </summary>
         public bool IsPartOperating()
         {
-            Profiler.BeginSample("IsPartOperating");
+            Profiler.BeginSample("TestFlight.IsPartOperating");
             if (m_Recorder == null)
             {
                 m_Recorder = GetComponent(typeof(IFlightDataRecorder)) as IFlightDataRecorder;
@@ -895,29 +895,28 @@ namespace TestFlightCore
             if (!firstStaged)
                 return;
 
-            Profiler.BeginSample("Enabled check");
-            if (!TestFlightEnabled)
-                return;
+            Profiler.BeginSample("TestFlight.Enabled check");
+            bool en = TestFlightEnabled;
             Profiler.EndSample();
+            if (!en) return;
 
-            Profiler.BeginSample("Flight check");
+            Profiler.BeginSample("TestFlight.Flight check");
             if (HighLogic.LoadedSceneIsFlight)
             {
 
-                Profiler.BeginSample("Scenario check");
-                if (TestFlightManagerScenario.Instance == null)
-                    return;
-                if (!TestFlightManagerScenario.Instance.SettingsEnabled)
-                    return;
+                Profiler.BeginSample("TestFlight.Scenario check");
+                bool scenCheck = TestFlightManagerScenario.Instance && TestFlightManagerScenario.Instance.SettingsEnabled;
                 Profiler.EndSample();
+                if (!scenCheck)
+                    return;
 
-                Profiler.BeginSample("Icon check");
+                Profiler.BeginSample("TestFlight.Icon check");
                 if (this.part.stackIcon != null)
                 {
-                    Profiler.BeginSample("Failure check");
+                    Profiler.BeginSample("TestFlight.Failure check");
                     if (failures != null && failures.Count > 0)
                     {
-                        Profiler.BeginSample("Icon fail coloring");
+                        Profiler.BeginSample("TestFlight.Icon fail coloring");
                         part.stackIcon.SetBackgroundColor(hasMajorFailure
                             ? XKCDColors.Red
                             : XKCDColors.KSPNotSoGoodOrange);
@@ -932,10 +931,10 @@ namespace TestFlightCore
                 Profiler.EndSample();
 
 
-                Profiler.BeginSample("Time logging");
+                Profiler.BeginSample("TestFlight.Time logging");
                 double currentMET = Planetarium.GetUniversalTime() - missionStartTime;
                 Profiler.EndSample();
-                Profiler.BeginSample("Operating check");
+                Profiler.BeginSample("TestFlight.Operating check");
                 if (IsPartOperating())
                 {
                     operatingTime += (float)(currentMET - lastMET);
