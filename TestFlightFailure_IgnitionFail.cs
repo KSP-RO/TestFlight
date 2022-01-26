@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Linq;
-using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
 
 using UnityEngine;
 
 using TestFlightAPI;
-using TestFlightCore;
+using UnityEngine.Profiling;
 
 namespace TestFlight
 {
@@ -32,7 +29,7 @@ namespace TestFlight
         [KSPField(isPersistant=true)]
         public int numIgnitions = 0;
 
-        private List<EngineRunData> engineRunData;
+        private readonly Dictionary<uint, EngineRunData> engineRunData = new Dictionary<uint, EngineRunData>(8);
 
         private ITestFlightCore core = null;
         private bool preLaunchFailures;
@@ -43,17 +40,16 @@ namespace TestFlight
 
         [KSPField(isPersistant=true)]
         private double previousTime;
-        
-        [KSPField(guiName = "Ignition Chance", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true)]
-        private string ignitionChanceString;
-        [KSPField(guiName = "Ignition Penalty for Q", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true)]
-        private string dynamicPressurePenaltyString;
-        [KSPField(guiName = "Restart Ignition Penalty", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true)]
-        private string restartPenaltyString;
-        [KSPField(guiName = "Time Since Shutdown", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true,
-            guiFormat = "N2", guiUnits = "s")]
+
+        [KSPField(guiName = "Ignition Chance", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true, guiFormat = "P2")]
+        private float ignitionChanceDisplay;
+        [KSPField(guiName = "Ignition Penalty for Q", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true, guiFormat = "P2")]
+        private float dynamicPressurePenalty;
+        [KSPField(guiName = "Restart Ignition Penalty", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true, guiFormat = "P2")]
+        private float restartPenalty;
+        [KSPField(guiName = "Time Since Shutdown", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true, guiFormat = "N2", guiUnits = "s")]
         private float engineIdleTime;
-        [KSPField(guiName = "Last Restart Roll", groupName = "TestFlightDebug", groupDisplayName = "TestFlightDebug", guiActive = true)]
+        [KSPField(guiName = "Last Restart", groupName = "TestFlightDebug", groupDisplayName = "TestFlightDebug", guiActive = true)]
         private string restartRollString;
 
 
@@ -141,17 +137,18 @@ namespace TestFlight
         public override void OnLoad(ConfigNode node)
         {
             base.OnLoad(node);
-            engineRunData = new List<EngineRunData>();
+            engineRunData.Clear();
             foreach (var configNode in node.GetNodes("ENGINE_RUN_DATA"))
             {
-                engineRunData.Add(new EngineRunData(configNode));
+                var data = new EngineRunData(configNode);
+                engineRunData.Add(data.id, data);
             }
         }
 
         public override void OnSave(ConfigNode node)
         {
             base.OnSave(node);
-            foreach (var engineRunData in engineRunData)
+            foreach (var engineRunData in engineRunData.Values)
             {
                 var dataNode = node.AddNode("ENGINE_RUN_DATA");
                 engineRunData.Save(dataNode);
@@ -177,7 +174,13 @@ namespace TestFlight
 
         public EngineRunData GetEngineRunDataForID(uint id)
         {
-            return engineRunData.FirstOrDefault(data => data.id == id);
+            EngineRunData data;
+            if (!engineRunData.TryGetValue(id, out data))
+            {
+                data = new EngineRunData(id);
+                engineRunData.Add(id, data);
+            }
+            return data;
         }
 
         public override void OnUpdate()
@@ -185,6 +188,7 @@ namespace TestFlight
             if (!TestFlightEnabled)
                 return;
 
+            Profiler.BeginSample("TestFlight.IgnitionFail");
             double currentTime = Planetarium.GetUniversalTime();
             double deltaTime = (float)(currentTime - previousTime) / 1d;
             previousTime = currentTime;
@@ -194,11 +198,6 @@ namespace TestFlight
                 EngineHandler engine = engines[i];
                 EngineModuleWrapper.EngineIgnitionState currentIgnitionState = engine.engine.IgnitionState;
                 var engineData = GetEngineRunDataForID(engine.engine.Module.PersistentId);
-                if (engineData == null)
-                {
-                    engineData = new EngineRunData(engine.engine.Module.PersistentId);
-                    engineRunData.Add(engineData);
-                }
 
                 double initialFlightData = core.GetInitialFlightData();
                 float ignitionChance = 1f;
@@ -224,18 +223,17 @@ namespace TestFlight
                 // if this engine has run before, and our config defines a restart window, we need to check against that and modify our ignition chance accordingly
                 if (hasRestartWindow && engineData.hasBeenRun)
                 {
-                    var idleTime = engineData.timeSinceLastShutdown;
-                    engineIdleTime = idleTime;
-                    restartWindowModifier = Mathf.Clamp(restartWindowPenalty.Evaluate((float)idleTime), 0, 1);
+                    engineIdleTime = engineData.timeSinceLastShutdown;
+                    restartWindowModifier = Mathf.Clamp(restartWindowPenalty.Evaluate(engineIdleTime), 0, 1);
                 }
 
 
                 if (this.vessel.situation != Vessel.Situations.PRELAUNCH)
                     ignitionChance = ignitionChance * pressureModifier * ignitionUseMultiplier.Evaluate(numIgnitions) * restartWindowModifier;
 
-                ignitionChanceString = $"{ignitionChance:P}";
-                dynamicPressurePenaltyString = $"{1-pressureModifier:P}";
-                restartPenaltyString = $"{1-restartWindowModifier:P}";
+                ignitionChanceDisplay = ignitionChance;
+                dynamicPressurePenalty = 1f - pressureModifier;
+                restartPenalty = 1f - restartWindowModifier;
                 engineHasRun = engineData.hasBeenRun;
 
                 if (currentIgnitionState == EngineModuleWrapper.EngineIgnitionState.IGNITED)
@@ -253,20 +251,19 @@ namespace TestFlight
                 {
                     if (engine.ignitionState == EngineModuleWrapper.EngineIgnitionState.NOT_IGNITED || engine.ignitionState == EngineModuleWrapper.EngineIgnitionState.UNKNOWN)
                     {
-                        double failureRoll = 0d;
                         if (verboseDebugging)
                         {
-                            Log(String.Format("IgnitionFail: Engine {0} transitioning to INGITED state", engine.engine.Module.GetInstanceID()));
-                            Log(String.Format("IgnitionFail: Checking curves..."));
+                            Log($"IgnitionFail: Engine {engine.engine.Module.GetInstanceID()} transitioning to INGITED state");
+                            Log("IgnitionFail: Checking curves...");
                         }                        
                         numIgnitions++;
 
-                        failureRoll = core.RandomGenerator.NextDouble();
+                        double failureRoll = core.RandomGenerator.NextDouble();
                         restartRollString = $"Roll: {failureRoll:P}, Chance: {ignitionChance:P}";
                         
                         if (verboseDebugging)
                         {
-                            Log(String.Format("IgnitionFail: Engine {0} ignition chance {1:F4}, roll {2:F4}", engine.engine.Module.GetInstanceID(), ignitionChance, failureRoll));
+                            Log($"IgnitionFail: Engine {engine.engine.Module.GetInstanceID()} ignition chance {ignitionChance:F4}, roll {failureRoll:F4}");
                         }
                         if (failureRoll > ignitionChance)
                         {
@@ -286,6 +283,7 @@ namespace TestFlight
                 }
                 engine.ignitionState = currentIgnitionState;
             }
+            Profiler.EndSample();
         }
 
         // Failure methods
@@ -316,7 +314,7 @@ namespace TestFlight
                     FlightLogger.eventLog.Add($"[{met}] {core.Title} failed: Ignition Failure.");
                 }
             }
-            Log(String.Format("IgnitionFail: Failing {0} engine(s)", engines.Count));
+            Log($"IgnitionFail: Failing {engines.Count} engine(s)");
             for (int i = 0; i < engines.Count; i++)
             {
                 EngineHandler engine = engines[i];
