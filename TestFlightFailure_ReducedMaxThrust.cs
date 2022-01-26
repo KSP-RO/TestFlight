@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using UnityEngine;
-using TestFlightAPI;
-
-namespace TestFlight
+﻿namespace TestFlight
 {
     public class TestFlightFailure_ReducedMaxThrust : TestFlightFailure_Engine
     {
@@ -15,7 +8,6 @@ namespace TestFlight
         public override void OnStart(StartState state)
         {
             base.OnStart(state);
-            base.Startup();
             if (Failed)
                 DoFailure();
         }
@@ -29,15 +21,6 @@ namespace TestFlight
             currentConfig.TryGetValue("thrustReduction", ref thrustReduction);
         }
 
-        public override void OnAwake()
-        {
-            base.OnAwake();
-            if (!string.IsNullOrEmpty(configNodeData))
-            {
-                var node = ConfigNode.Parse(configNodeData);
-                OnLoad(node);
-            }
-        }
         /// <summary>
         /// Triggers the failure controlled by the failure module
         /// </summary>

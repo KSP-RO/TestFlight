@@ -1359,7 +1359,7 @@ namespace TestFlightCore
                 {
                     ITestFlightFailure failureModule = failureModules[i];
                     List<string> infoColl = failureModule.GetTestFlightInfo();
-                    if (infoColl != null)
+                    if (infoColl != null && infoColl.Count > 0)
                     {
                         // Don't indent header string
                         infoStrings.Add(infoColl[0]);

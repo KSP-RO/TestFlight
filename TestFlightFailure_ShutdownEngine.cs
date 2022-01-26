@@ -1,9 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-
-using UnityEngine;
-using TestFlightAPI;
 
 namespace TestFlight
 {
@@ -17,11 +12,6 @@ namespace TestFlight
 
         Dictionary<int, CachedEngineState> engineStates;
 
-        public override void OnStart(StartState state)
-        {
-            base.OnStart(state);
-            base.Startup();
-        }
         /// <summary>
         /// Triggers the failure controlled by the failure module
         /// </summary>

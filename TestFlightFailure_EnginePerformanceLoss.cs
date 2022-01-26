@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using UnityEngine;
-using TestFlightAPI;
-
-namespace TestFlight
+﻿namespace TestFlight
 {
     public class TestFlightFailure_EnginePerformanceLoss : TestFlightFailure_Engine
     {
@@ -17,7 +10,6 @@ namespace TestFlight
         public override void OnStart(StartState state)
         {
             base.OnStart(state);
-            base.Startup();
             if (Failed)
                 DoFailure();
         }
@@ -30,7 +22,7 @@ namespace TestFlight
             // for each engine change its specific impulse
             foreach (EngineHandler engine in engines)
             {
-                float jitter = ispMultiplierJitter - ((float)TestFlightUtil.GetCore(this.part, Configuration).RandomGenerator.NextDouble() * (ispMultiplierJitter * 2));
+                float jitter = ispMultiplierJitter - ((float)core.RandomGenerator.NextDouble() * (ispMultiplierJitter * 2));
                 float actualMultiplier = ispMultiplier + jitter;
                 engine.engine.SetFuelIspMult(actualMultiplier);
                 engine.engine.failMessage = failureTitle;
@@ -59,16 +51,6 @@ namespace TestFlight
             // update current values with those from the current config node
             currentConfig.TryGetValue("ispMultiplier", ref ispMultiplier);
             currentConfig.TryGetValue("ispMultiplierJitter", ref ispMultiplierJitter);
-        }
-
-        public override void OnAwake()
-        {
-            base.OnAwake();
-            if (!string.IsNullOrEmpty(configNodeData))
-            {
-                var node = ConfigNode.Parse(configNodeData);
-                OnLoad(node);
-            }
         }
     }
 }

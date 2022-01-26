@@ -31,12 +31,9 @@ namespace TestFlight
 
         private readonly Dictionary<uint, EngineRunData> engineRunData = new Dictionary<uint, EngineRunData>(8);
 
-        private ITestFlightCore core = null;
         private bool preLaunchFailures;
         private bool dynPressurePenalties;
         private bool verboseDebugging;
-        private float restartTimeMin;
-        private float restartTimeMax = float.MaxValue;
 
         [KSPField(isPersistant=true)]
         private double previousTime;
@@ -123,13 +120,7 @@ namespace TestFlight
         public override void OnStart(StartState state)
         {
             base.OnStart(state);
-            core = TestFlightUtil.GetCore(this.part, Configuration);
-            if (core != null)
-                Startup();
-
             verboseDebugging = core.DebugEnabled;
-            
-            // Get the in-game settings
             preLaunchFailures = HighLogic.CurrentGame.Parameters.CustomParams<TestFlightGameSettings>().preLaunchFailures;
             dynPressurePenalties = HighLogic.CurrentGame.Parameters.CustomParams<TestFlightGameSettings>().dynPressurePenalties;
         }
@@ -158,18 +149,8 @@ namespace TestFlight
         public override void Startup()
         {
             base.Startup();
-            if (core == null)
-                return;
             // We don't want this getting triggered as a random failure
             core.DisableFailure("TestFlightFailure_IgnitionFail");
-        }
-
-        public void OnEnable()
-        {
-            if (core == null)
-                core = TestFlightUtil.GetCore(this.part, Configuration);
-            if (core != null)
-                Startup();
         }
 
         public EngineRunData GetEngineRunDataForID(uint id)
@@ -438,8 +419,6 @@ namespace TestFlight
             else
             {
                 restartWindowPenalty.Add(0f, 1f);
-                restartTimeMin = 0;
-                restartTimeMax = float.MaxValue;
                 hasRestartWindow = false;
             }
             

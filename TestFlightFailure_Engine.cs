@@ -21,45 +21,36 @@ namespace TestFlight
             public bool failEngine;
         }
 
-        protected List<EngineHandler> engines = null;
+        protected List<EngineHandler> engines = new List<EngineHandler>();
+        protected ITestFlightCore core = null;
 
         public new bool TestFlightEnabled
         {
             get
             {
-                ITestFlightCore core = TestFlightUtil.GetCore (this.part, Configuration);
+                if (core != null && engines.Count > 0) 
+                    return core.TestFlightEnabled;
+
+                core = TestFlightUtil.GetCore(part, Configuration);
                 if (core == null)
-                {
                     Log ("EngineBase: No TestFlight core found");
-                    return false;
-                }
-                // Make sure we have valid engines
-                if (engines == null)
-                {
+                else if (engines.Count == 0)
                     Log("EngineBase: No valid engines found");
-                    return false;
-                }
-                return core.TestFlightEnabled;
+
+                return false;
             }
         }
 
         public override void OnStart(StartState state)
         {
             base.OnStart(state);
-            StartCoroutine("Attach");
-        }
-
-        IEnumerator Attach()
-        {
-            while (this.part == null || this.part.partInfo == null || this.part.partInfo.partPrefab == null || this.part.Modules == null)
-                yield return null;
-
+            core = TestFlightUtil.GetCore(part, Configuration);
             Startup();
         }
 
         public virtual void Startup()
         {
-            engines = new List<EngineHandler>();
+            engines.Clear();
             if (!String.IsNullOrEmpty(engineID))
             {
                 if (engineID.ToLower() == "all")
@@ -130,16 +121,6 @@ namespace TestFlight
             currentConfig.TryGetValue("engineID", ref engineID);
         }
 
-        public override void OnAwake()
-        {
-            base.OnAwake();
-            if (!string.IsNullOrEmpty(configNodeData))
-            {
-                var node = ConfigNode.Parse(configNodeData);
-                OnLoad(node);
-            }
-        }
-
         public IEnumerator UpdateEngineStatus()
         {
             while (true)
@@ -155,16 +136,6 @@ namespace TestFlight
                     }
                 }
             }
-        }
-
-        // Failure methods
-        public override void DoFailure()
-        {
-            base.DoFailure();
-        }
-        public override float DoRepair()
-        {
-            return base.DoRepair();
         }
     }
 }
