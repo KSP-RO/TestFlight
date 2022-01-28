@@ -47,28 +47,25 @@ namespace TestFlight
         /// <summary>
         /// amount of seconds engine has been running over the entire lifecycle (cumulative)
         /// </summary>
-        [KSPField(isPersistant = true)]
+        [KSPField(isPersistant = true, guiName = "Total run time", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true, guiFormat = "N0")]
         public double engineOperatingTime = 0d;
 
         /// <summary>
         /// amount of second engine has been running since last start/restart
         /// </summary>
-        [KSPField(isPersistant = true)]
+        [KSPField(isPersistant = true, guiName = "Current run time", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true, guiFormat = "N0")]
         public double currentRunTime;
 
         [KSPField(isPersistant = true)]
         public double previousOperatingTime = 0d;
 
-        [KSPField(guiName = "Total run time", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true)]
-        public string totalRunTimeString;
-        [KSPField(guiName = "Current run time", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true)]
-        public string currentRunTimeString;
-        
         public override void OnStart(StartState state)
         {
             base.OnStart(state);
             engine = new EngineModuleWrapper();
             engine.InitWithEngine(this.part, engineID);
+            Fields[nameof(currentRunTime)].guiUnits = $"s/{ratedContinuousBurnTime}s";
+            Fields[nameof(engineOperatingTime)].guiUnits = $"s/{ratedBurnTime}s";
         }
 
         public override double GetBaseFailureRate(float flightData)
@@ -119,9 +116,6 @@ namespace TestFlight
                 return;
 
             UpdateCycle();
-
-            currentRunTimeString = $"{currentRunTime:N0}s/{ratedContinuousBurnTime}s";
-            totalRunTimeString = $"{engineOperatingTime:N0}s/{ratedBurnTime}s";
 
             // We intentionally do NOT call our base class OnUpdate() because that would kick off a second round of 
             // failure checks which is already handled by the main Reliability module that should 
