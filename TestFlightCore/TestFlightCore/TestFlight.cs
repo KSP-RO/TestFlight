@@ -108,11 +108,7 @@ namespace TestFlightCore
         {
             string baseString = partName + ":";
             foreach (TestFlightData data in flightData)
-            {
-                string dataString = String.Format("{0},{1},0", data.scope, data.flightData);
-                baseString = baseString + dataString + " ";
-            }
-
+                baseString += $"{data.scope},{data.flightData},0 ";
             return baseString;
         }
 
@@ -123,10 +119,13 @@ namespace TestFlightCore
             PartFlightData newData = null;
             if (str.IndexOf(':') > -1)
             {
+                var colonSep = new char[1] { ':' };
+                var spaceSep = new char[1] { ' ' };
+                var commaSep = new char[1] { ',' };
                 newData = new PartFlightData();
-                string[] baseString = str.Split(new char[1]{ ':' });
+                string[] baseString = str.Split(colonSep);
                 newData.partName = baseString[0];
-                string[] dataStrings = baseString[1].Split(new char[1]{ ' ' });
+                string[] dataStrings = baseString[1].Split(spaceSep);
                 foreach (string dataString in dataStrings)
                 {
                     if (newData.flightData == null)
@@ -134,7 +133,7 @@ namespace TestFlightCore
 
                     if (dataString.Trim().Length > 0)
                     {
-                        string[] dataMembers = dataString.Split(new char[1]{ ',' });
+                        string[] dataMembers = dataString.Split(commaSep);
                         if (dataMembers.Length == 3)
                         {
                             TestFlightData tfData = new TestFlightData();
@@ -188,36 +187,22 @@ namespace TestFlightCore
         internal bool isReady = false;
 
         public Dictionary<Guid, double> knownVessels;
-        Dictionary<Guid, double>.Enumerator knownVesselsEnumerator;
-        List<string> cores = null;
-        List<Guid> vesselsToDelete = null;
 
         public float pollingInterval = 5.0f;
         public float partDecayTime = 15f;
         public bool processInactiveVessels = true;
 
         Dictionary<Guid, MasterStatusItem> masterStatus = null;
-        Dictionary<Guid, MasterStatusItem>.Enumerator masterStatusEnumerator;
-        List<PartStatus> partsToDelete = null;
 
         double currentUTC = 0.0f;
-        double lastDataPoll = 0.0f;
-        double lastFailurePoll = 0.0f;
-        double lastMasterStatusUpdate = 0.0f;
-
-        // EventData<Vessel>.OnEvent OnVesselModifiedEvent;
-
 
         internal void Log(string message)
         {
-            bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
-            message = "TestFlightManager: " + message;
-            TestFlightUtil.Log(message, debug);
+            TestFlightUtil.Log($"TestFlightManager: {message}", TestFlightManagerScenario.Instance.userSettings.debugLog);
         }
 
         internal override void Awake()
         {
-            isReady = false;
             if (Instance != null && Instance != this)
             {
                 DestroyImmediate(Instance.gameObject);
@@ -225,7 +210,7 @@ namespace TestFlightCore
 
             Instance = this;
             base.Awake();
-            StartCoroutine("ConnectToScenario");
+            StartCoroutine(ConnectToScenario());
         }
 
         IEnumerator ConnectToScenario()
@@ -246,9 +231,6 @@ namespace TestFlightCore
         public void Startup()
         {
             isReady = true;
-            cores = new List<string>();
-            vesselsToDelete = new List<Guid>();
-            partsToDelete = new List<PartStatus>();
 
             // register to be notified of changes to any vessel
             GameEvents.onVesselWasModified.Add(VesselWasModified);
@@ -304,32 +286,33 @@ namespace TestFlightCore
             masterStatusItem.allPartsStatus = new List<PartStatus>();
             masterStatus.Add(vessel.id, masterStatusItem);
 
-            var parts = vessel.Parts;
-            for (var j = 0; j < parts.Count; j++)
+            foreach (Part p in vessel.Parts)
             {
-                var partCores = parts[j].gameObject.GetComponents<TestFlightCore>();
+                var partCores = p.gameObject.GetComponents<TestFlightCore>();
                 foreach (var core in partCores)
                 {
                     if (!core.TestFlightEnabled) continue;
 
-                    PartStatus partStatus = new PartStatus();
-                    partStatus.lastSeen = currentUTC;
-                    partStatus.flightCore = core;
-                    partStatus.partName = core.Title;
-                    partStatus.partID = vessel.parts[j].flightID;
-                    partStatus.partStatus = core.GetPartStatus();
-                    // get any failures
-                    partStatus.failures = core.GetActiveFailures();
-                    partStatus.flightData = core.GetFlightData();
                     double failureRate = core.GetBaseFailureRate();
                     MomentaryFailureRate momentaryFailureRate = core.GetWorstMomentaryFailureRate();
                     if (momentaryFailureRate.valid && momentaryFailureRate.failureRate > failureRate)
                         failureRate = momentaryFailureRate.failureRate;
-                    partStatus.momentaryFailureRate = failureRate;
-                    partStatus.acknowledged = false;
-                    partStatus.mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
-                    partStatus.runningTime = TestFlightUtil.FormatTime(core.GetRunTime(RatingScope.Cumulative), TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false);
-                    partStatus.continuousRunningTime = TestFlightUtil.FormatTime(core.GetRunTime(RatingScope.Continuous), TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false);
+
+                    PartStatus partStatus = new PartStatus
+                    {
+                        lastSeen = currentUTC,
+                        flightCore = core,
+                        partName = core.Title,
+                        partID = p.flightID,
+                        partStatus = core.GetPartStatus(),
+                        failures = core.GetActiveFailures(),
+                        flightData = core.GetFlightData(),
+                        momentaryFailureRate = failureRate,
+                        acknowledged = false,
+                        mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999),
+                        runningTime = TestFlightUtil.FormatTime(core.GetRunTime(RatingScope.Cumulative), TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false),
+                        continuousRunningTime = TestFlightUtil.FormatTime(core.GetRunTime(RatingScope.Continuous), TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false)
+                    };
                     masterStatus[vessel.id].allPartsStatus.Add(partStatus);
                 }
             }
@@ -435,40 +418,22 @@ namespace TestFlightCore
         public bool isReady = false;
         // For storing save specific arbitrary data
         private string rawSaveData = "";
-        private Dictionary<string, string> saveData;
+        private readonly Dictionary<string, string> saveData = new Dictionary<string, string>();
 
         // New noscope
         public Dictionary<string, TestFlightPartData> partData = null;
 
-        public bool SettingsEnabled
-        {
-            get { return GetBool("settingsenabled", true); }
-            set { SetValue("settingsenabled", value); }
-        }
-
-        public bool SettingsAlwaysMaxData
-        {
-            get { return GetBool("settingsalwaysmaxdata", false); }
-            set { SetValue("settingsalwaysmaxdata", value); }
-        }
+        [KSPField(isPersistant = true)] public bool SettingsEnabled = true;
+        [KSPField(isPersistant = true)] public bool SettingsAlwaysMaxData = false;
 
         internal void Log(string message)
         {
-            bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
-            message = "[TestFlightManagerScenario] " + message;
-            TestFlightUtil.Log(message, debug);
+            TestFlightUtil.Log($"[TestFlightManagerScenario] {message}", Instance.userSettings.debugLog);
         }
 
         private void InitDataStore()
         {
-            Log("Init data store");
-            if (saveData == null)
-            {
-                Log("Creating new dictionary instance for data store");
-                saveData = new Dictionary<string, string>();
-            }
-            else
-                saveData.Clear();
+            saveData.Clear();
         }
 
         public string GetValue(string key)
@@ -688,29 +653,15 @@ namespace TestFlightCore
 
         public override void OnAwake()
         {
-            isReady = false;
             if (Instance != null && Instance != this)
             {
                 DestroyImmediate(Instance.gameObject);
             }
             Instance = this;
 
-            // v1.5.4 moved settings to PluginData but to avoid screwing over existing installs we want to migrate existing settings
-            string pdSettingsFile = System.IO.Path.Combine(_AssemblyFolder, "PluginData/settings.cfg");
-            string settingsFile = System.IO.Path.Combine(_AssemblyFolder, "../settings.cfg");
             string pdDir = System.IO.Path.Combine(_AssemblyFolder, "PluginData");
-            if (!System.IO.File.Exists(pdSettingsFile) && System.IO.File.Exists(settingsFile))
-            {
-                userSettings = new UserSettings("../settings.cfg");
-                userSettings.Load();
-                System.IO.Directory.CreateDirectory(pdDir);
-                userSettings.Save(pdSettingsFile);
-                System.IO.File.Delete(settingsFile);
-            }
             if (!System.IO.Directory.Exists(pdDir))
-            {
                 System.IO.Directory.CreateDirectory(pdDir);
-            }
 
             if (userSettings == null)
                 userSettings = new UserSettings("PluginData/settings.cfg");
@@ -728,10 +679,7 @@ namespace TestFlightCore
         {
             Log("Scenario Start");
             if (RandomGenerator == null)
-            {
                 RandomGenerator = new System.Random();
-            }
-
             isReady = true;
         }
 
@@ -849,9 +797,6 @@ namespace TestFlightCore
         // This is a utility method that sets the "flightData" value directly
         public void SetFlightDataForPartName(string partName, float data)
         {
-            var stack = UnityEngine.StackTraceUtility.ExtractStackTrace();
-            Log(stack);
-            Log($"Set flight data for {partName} to {data}");
             if (partData.ContainsKey(partName))
                 partData[partName].SetValue("flightData", data.ToString());
             else
@@ -932,9 +877,7 @@ namespace TestFlightCore
         {
             base.OnLoad(node);
             if (userSettings != null)
-            {
                 userSettings.Load();
-            }
             if (bodySettings != null)
                 bodySettings.Load();
 
@@ -949,31 +892,6 @@ namespace TestFlightCore
                 partData = new Dictionary<String, TestFlightPartData>();
             else
                 partData.Clear();
-            // TODO: This old method of storing scope specific data is deprecated and needs to be removed in the next major release (Probably 1.4)
-            if (node.HasNode("FLIGHTDATA_PART"))
-            {
-                foreach (ConfigNode partNode in node.GetNodes("FLIGHTDATA_PART"))
-                {
-                    PartFlightData partFlightData = new PartFlightData();
-                    partFlightData.Load(partNode);
-
-                    // migrates old data into new noscope layout
-                    TestFlightPartData storedPartData = new TestFlightPartData();
-                    storedPartData.PartName = partFlightData.GetPartName();
-                    // Add up all the data and time from the old system for each scope, and then save that as the new migrated vales
-                    double totalData = 0;
-                    double totalTime = 0;
-                    List<TestFlightData> allData = partFlightData.GetFlightData();
-                    foreach (TestFlightData data in allData)
-                    {
-                        totalData += data.flightData;
-                        totalTime += data.flightTime;
-                    }
-                    storedPartData.SetValue("flightData", totalData.ToString());
-                    storedPartData.SetValue("flightTime", totalTime.ToString());
-                    partData.Add(storedPartData.PartName, storedPartData);
-                }
-            }
             // new noscope
             if (node.HasNode("partData"))
             {

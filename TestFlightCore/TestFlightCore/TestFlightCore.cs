@@ -127,8 +127,8 @@ namespace TestFlightCore
             { 
                 if (configuration.Equals(string.Empty))
                 {
-                    configuration = "kspPartName = " + TestFlightUtil.GetPartName(this.part);
-                    configuration = configuration + ":" + TestFlightUtil.GetPartName(this.part);
+                    string s = TestFlightUtil.GetPartName(this.part);
+                    configuration = $"kspPartName = {s}:{s}";
                 }
 
                 return configuration; 
