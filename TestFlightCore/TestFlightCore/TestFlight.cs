@@ -198,7 +198,7 @@ namespace TestFlightCore
 
         internal void Log(string message)
         {
-            TestFlightUtil.Log($"TestFlightManager: {message}", TestFlightManagerScenario.Instance.userSettings.debugLog);
+            TestFlightUtil.Log($"TestFlightManager: {message}", TestFlightManagerScenario.Instance?.userSettings.debugLog ?? false);
         }
 
         internal override void Awake()
@@ -250,7 +250,6 @@ namespace TestFlightCore
             {
                 Instance = null;
             }
-
             GameEvents.onVesselWasModified.Remove(VesselWasModified);
             GameEvents.onVesselCreate.Remove(VesselCreated);
             GameEvents.onVesselDestroy.Remove(VesselDestroyed);
@@ -438,112 +437,10 @@ namespace TestFlightCore
 
         public string GetValue(string key)
         {
-            key = key.ToLowerInvariant();
-            if (saveData.ContainsKey(key))
-                return saveData[key];
-            else
-                return "";
-        }
-
-        public string GetString(string key)
-        {
-            return GetString(key, "");
-        }
-
-        public string GetString(string key, string defaultValue)
-        {
-            if (!String.IsNullOrEmpty(GetValue(key)))
-                return GetValue(key);
-            else
-                return defaultValue;
-        }
-
-        public double GetDouble(string key)
-        {
-            return GetDouble(key, 0);
-        }
-
-        public double GetDouble(string key, double defaultValue)
-        {
-            double returnValue = defaultValue;
-
-            string value = GetValue(key);
-            if (!double.TryParse(value, out returnValue))
-                return defaultValue;
-
-            return returnValue;
-        }
-
-        public float GetFloat(string key)
-        {
-            return GetFloat(key, 0f);
-        }
-
-        public float GetFloat(string key, float defaultValue)
-        {
-            float returnValue = defaultValue;
-
-            string value = GetValue(key);
-            if (!float.TryParse(value, out returnValue))
-                return defaultValue;
-
-            return returnValue;
-        }
-
-        public bool GetBool(string key)
-        {
-            return GetBool(key, false);
-        }
-
-        public bool GetBool(string key, bool defaultValue)
-        {
-            bool returnValue = defaultValue;
-            key = key.ToLowerInvariant();
-            if (saveData.ContainsKey(key))
-            {
-                if (!bool.TryParse(saveData[key], out returnValue))
-                    return defaultValue;
-            }
-            else
-                return defaultValue;
-
-            return returnValue;
-        }
-
-        public int GetInt(string key)
-        {
-            return GetInt(key, 0);
-        }
-
-        public int GetInt(string key, int defaultValue)
-        {
-            int returnValue = defaultValue;
-
-            string value = GetValue(key);
-            if (!int.TryParse(value, out returnValue))
-                return defaultValue;
-
-            return returnValue;
-        }
-
-        public void SetValue(string key, float value)
-        {
-            SetValue(key, value.ToString());
-        }
-
-        public void SetValue(string key, int value)
-        {
-            SetValue(key, value.ToString());
-        }
-
-        public void SetValue(string key, bool value)
-        {
-            SetValue(key, value.ToString());
-        }
-
-        public void SetValue(string key, double value)
-        {
-            SetValue(key, value.ToString());
+            string data;
+            if (saveData.TryGetValue(key.ToLowerInvariant(), out data))
+                return data;
+            return "";
         }
 
         public void SetValue(string key, string value)
@@ -555,67 +452,16 @@ namespace TestFlightCore
                 saveData.Add(key, value);
         }
 
-        public void AddValue(string key, float value)
-        {
-            key = key.ToLowerInvariant();
-            float newValue = value;
-            if (saveData.ContainsKey(key))
-            {
-                float existingValue;
-                if (float.TryParse(saveData[key], out existingValue))
-                    newValue = existingValue + value;
-            }
-            SetValue(key, newValue.ToString());
-        }
-
-        public void AddValue(string key, int value)
-        {
-            key = key.ToLowerInvariant();
-            int newValue = value;
-            if (saveData.ContainsKey(key))
-            {
-                int existingValue;
-                if (int.TryParse(saveData[key], out existingValue))
-                    newValue = existingValue + value;
-            }
-            SetValue(key, newValue.ToString());
-        }
-
-        public void ToggleValue(string key, bool defaultValue)
-        {
-            key = key.ToLowerInvariant();
-            bool newValue = defaultValue;
-            if (saveData.ContainsKey(key))
-            {
-                bool existingValue;
-                if (bool.TryParse(saveData[key], out existingValue))
-                    newValue = !existingValue;
-            }
-            SetValue(key, newValue.ToString());
-        }
-
-        public void AddValue(string key, double value)
-        {
-            key = key.ToLowerInvariant();
-            double newValue = value;
-            if (saveData.ContainsKey(key))
-            {
-                double existingValue;
-                if (double.TryParse(saveData[key], out existingValue))
-                    newValue = existingValue + value;
-            }
-            SetValue(key, newValue.ToString());
-        }
-
         private void decodeRawSaveData()
         {
-            if (String.IsNullOrEmpty(rawSaveData))
+            if (string.IsNullOrEmpty(rawSaveData))
                 return;
 
             string[] propertyGroups = rawSaveData.Split(new char[1]{ ',' }, StringSplitOptions.RemoveEmptyEntries);
+            var colonSep = new char[1] { ':' };
             foreach (string propertyGroup in propertyGroups)
             {
-                string[] keyValuePair = propertyGroup.Split(new char[1]{ ':' });
+                string[] keyValuePair = propertyGroup.Split(colonSep);
                 SetValue(keyValuePair[0], keyValuePair[1]);
             }
         }
@@ -624,9 +470,7 @@ namespace TestFlightCore
         {
             rawSaveData = "";
             foreach (var entry in saveData)
-            {
-                rawSaveData += String.Format("{0}:{1},", entry.Key, entry.Value);
-            }
+                rawSaveData += $"{entry.Key}:{entry.Value},";
         }
 
         #region Assembly/Class Information
@@ -686,9 +530,7 @@ namespace TestFlightCore
         private void OnDestroy()
         {
             if (Instance == this)
-            {
                 Instance = null;
-            }
         }
 
         public string PartWithMostData()
@@ -766,11 +608,8 @@ namespace TestFlightCore
         // This is a utility method that will return the "flightData" value directly or -1 if not found
         public float GetFlightDataForPartName(string partName)
         {
-            var stack = UnityEngine.StackTraceUtility.ExtractStackTrace();
-            Log(stack);
             if (partData.ContainsKey(partName))
             {
-                Log($"Get flight data for {partName}: {partData[partName].GetFloat("flightData")}");
                 return partData[partName].GetFloat("flightData");
             }
             else
