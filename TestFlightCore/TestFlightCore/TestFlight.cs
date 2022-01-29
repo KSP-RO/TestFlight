@@ -542,10 +542,9 @@ namespace TestFlightCore
             string returnPart = "";
             foreach (TestFlightPartData part in partData.Values)
             {
-                float partFlightData = float.Parse(part.GetValue("flightData"));
-                if (partFlightData > flightData)
+                if (part.flightData > flightData)
                 {
-                    flightData = partFlightData;
+                    flightData = part.flightData;
                     returnPart = part.PartName;
                 }
             }
@@ -561,10 +560,9 @@ namespace TestFlightCore
             string returnPart = "";
             foreach (TestFlightPartData part in partData.Values)
             {
-                float partFlightData = float.Parse(part.GetValue("flightData"));
-                if (partFlightData < flightData)
+                if (part.flightData < flightData)
                 {
-                    flightData = partFlightData;
+                    flightData = part.flightData;
                     returnPart = part.PartName;
                 }
             }
@@ -610,7 +608,7 @@ namespace TestFlightCore
         {
             if (partData.ContainsKey(partName))
             {
-                return partData[partName].GetFloat("flightData");
+                return partData[partName].flightData;
             }
             else
                 return -1f;
@@ -619,7 +617,7 @@ namespace TestFlightCore
         public float GetTransferDataForPartName(string partName)
         {
             if (partData.ContainsKey(partName))
-                return partData[partName].GetFloat("transferData");
+                return partData[partName].transferData;
             else
                 return -1f;
         }
@@ -627,7 +625,7 @@ namespace TestFlightCore
         public float GetResearchDataForPartName(string partName)
         {
             if (partData.ContainsKey(partName))
-                return partData[partName].GetFloat("researchData");
+                return partData[partName].researchData;
             else
                 return -1f;
         }
@@ -637,12 +635,12 @@ namespace TestFlightCore
         public void SetFlightDataForPartName(string partName, float data)
         {
             if (partData.ContainsKey(partName))
-                partData[partName].SetValue("flightData", data.ToString());
+                partData[partName].flightData = data;
             else
             {
                 TestFlightPartData newData = new TestFlightPartData();
                 newData.PartName = partName;
-                newData.SetValue("flightData", data.ToString());
+                newData.flightData = data;
                 partData.Add(partName, newData);
             }
         }
@@ -650,12 +648,12 @@ namespace TestFlightCore
         public void SetTransferDataForPartName(string partName, float data)
         {
             if (partData.ContainsKey(partName))
-                partData[partName].SetValue("transferData", data.ToString());
+                partData[partName].transferData = data;
             else
             {
                 TestFlightPartData newData = new TestFlightPartData();
                 newData.PartName = partName;
-                newData.SetValue("transferData", data.ToString());
+                newData.transferData = data;
                 partData.Add(partName, newData);
             }
         }
@@ -663,12 +661,12 @@ namespace TestFlightCore
         public void SetResearchDataForPartName(string partName, float data)
         {
             if (partData.ContainsKey(partName))
-                partData[partName].SetValue("researchData", data.ToString());
+                partData[partName].researchData = data;
             else
             {
                 TestFlightPartData newData = new TestFlightPartData();
                 newData.PartName = partName;
-                newData.SetValue("researchData", data.ToString());
+                newData.researchData = data;
                 partData.Add(partName, newData);
             }
         }
@@ -676,12 +674,12 @@ namespace TestFlightCore
         public void AddFlightDataForPartName(string partName, float data)
         {
             if (partData.ContainsKey(partName))
-                partData[partName].AddValue("flightData", data);
+                partData[partName].flightData += data;
             else
             {
                 TestFlightPartData newData = new TestFlightPartData();
                 newData.PartName = partName;
-                newData.SetValue("flightData", data);
+                newData.flightData = data;
                 partData.Add(partName, newData);
             }
         }
@@ -689,12 +687,12 @@ namespace TestFlightCore
         public void AddTransferDataForPartName(string partName, float data)
         {
             if (partData.ContainsKey(partName))
-                partData[partName].AddValue("transferData", data);
+                partData[partName].transferData += data;
             else
             {
                 TestFlightPartData newData = new TestFlightPartData();
                 newData.PartName = partName;
-                newData.SetValue("transferData", data);
+                newData.transferData = data;
                 partData.Add(partName, newData);
             }
         }
@@ -702,12 +700,12 @@ namespace TestFlightCore
         public void AddResearchDataForPartName(string partName, float data)
         {
             if (partData.ContainsKey(partName))
-                partData[partName].AddValue("researchData", data);
+                partData[partName].researchData += data;
             else
             {
                 TestFlightPartData newData = new TestFlightPartData();
                 newData.PartName = partName;
-                newData.SetValue("researchData", data);
+                newData.researchData = data;
                 partData.Add(partName, newData);
             }
         }
@@ -739,7 +737,7 @@ namespace TestFlightCore
                     TestFlightPartData storedPartData = new TestFlightPartData();
                     storedPartData.Load(partDataNode);
                     partData.Add(storedPartData.PartName, storedPartData);
-                    Log($"Loaded Part Data for {storedPartData.PartName}: {storedPartData.GetFloat("flightData")}");
+                    Log($"Loaded Part Data for {storedPartData.PartName}: {storedPartData.flightData}");
                 }
             }
         }

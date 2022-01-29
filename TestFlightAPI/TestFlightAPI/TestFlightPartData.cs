@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using UnityEngine;
-
 namespace TestFlightAPI
 {
     public class TestFlightPartData : IConfigNode
     {
-        private string partName;
+        [Persistent] public string partName;
+        [Persistent] public float flightData;
+        [Persistent] public float transferData;
+        [Persistent] public float researchData;
+        [Persistent] public float flightTime;
         private string rawPartdata;
-        private Dictionary<string, string> partData;
+        private readonly Dictionary<string, string> partData = new Dictionary<string, string>();
 
         public string PartName
         {
@@ -19,203 +21,129 @@ namespace TestFlightAPI
 
         public TestFlightPartData()
         {
-            InitDataStore();            
-        }
-
-        private void InitDataStore()
-        {
-            if (partData == null)
-                partData = new Dictionary<string, string>();
-            else
-                partData.Clear();
         }
 
         public string GetValue(string key)
         {
-            key = key.ToLowerInvariant();
-            if (partData.ContainsKey(key))
-                return partData[key];
-            else
-                return "";
+            string res;
+            return partData.TryGetValue(key.ToLowerInvariant(), out res) ? res : string.Empty;
         }
 
         public double GetDouble(string key)
         {
+            string res = GetValue(key);
             double returnValue = 0;
-            key = key.ToLowerInvariant();
-            if (partData.ContainsKey(key))
-            {
-                double.TryParse(partData[key], out returnValue);
-            }
-            else
-                return 0;
-
+            if (!string.IsNullOrEmpty(res))
+                double.TryParse(res, out returnValue);
             return returnValue;
         }
 
         public float GetFloat(string key)
         {
-            float returnValue = 0f;
-            key = key.ToLowerInvariant();
-            if (partData.ContainsKey(key))
-            {
-                float.TryParse(partData[key], out returnValue);
-            }
-            else
-                return 0f;
-
+            string res = GetValue(key);
+            float returnValue = 0;
+            if (!string.IsNullOrEmpty(res))
+                float.TryParse(res, out returnValue);
             return returnValue;
         }
 
         public bool GetBool(string key)
         {
+            string res = GetValue(key);
             bool returnValue = false;
-            key = key.ToLowerInvariant();
-            if (partData.ContainsKey(key))
-            {
-                bool.TryParse(partData[key], out returnValue);
-            }
-            else
-                return false;
-
+            if (!string.IsNullOrEmpty(res))
+                bool.TryParse(res, out returnValue);
             return returnValue;
         }
 
         public int GetInt(string key)
         {
+            string res = GetValue(key);
             int returnValue = 0;
-            key = key.ToLowerInvariant();
-            if (partData.ContainsKey(key))
-            {
-                int.TryParse(partData[key], out returnValue);
-            }
-            else
-                return 0;
-
+            if (!string.IsNullOrEmpty(res))
+                int.TryParse(res, out returnValue);
             return returnValue;
         }
 
-        public void SetValue(string key, float value)
-        {
-            SetValue(key, value.ToString());
-        }
-
-        public void SetValue(string key, int value)
-        {
-            SetValue(key, value.ToString());
-        }
-
-        public void SetValue(string key, bool value)
-        {
-            SetValue(key, value.ToString());
-        }
-
-        public void SetValue(string key, double value)
-        {
-            SetValue(key, value.ToString());
-        }
-
-        public void SetValue(string key, string value)
+        public void SetValue(string key, object value)
         {
             key = key.ToLowerInvariant();
             if (partData.ContainsKey(key))
-                partData[key] = value;
+                partData[key] = value.ToString();
             else
-                partData.Add(key, value);
+                partData.Add(key, value.ToString());
         }
 
         public void AddValue(string key, float value)
         {
-            key = key.ToLowerInvariant();
-            if (partData.ContainsKey(key))
-            {
-                float existingValue;
-                if (float.TryParse(partData[key], out existingValue))
-                {
-                    SetValue(key, existingValue + value);
-                }
-            }
-            else
-                SetValue(key, value);
+            float existingValue = GetFloat(key);
+            SetValue(key, existingValue + value);
         }
 
         public void AddValue(string key, int value)
         {
-            key = key.ToLowerInvariant();
-            if (partData.ContainsKey(key))
-            {
-                int existingValue;
-                if (int.TryParse(partData[key], out existingValue))
-                {
-                    SetValue(key, existingValue + value);
-                }
-            }
-            else
-                SetValue(key, value);
+            int existingValue = GetInt(key);
+            SetValue(key, existingValue + value);
         }
 
-        public void ToggleValue(string key, bool value)
+        public void ToggleValue(string key, bool _=false)
         {
-            key = key.ToLowerInvariant();
-            if (partData.ContainsKey(key))
-            {
-                bool existingValue;
-                if (bool.TryParse(partData[key], out existingValue))
-                {
-                    SetValue(key, !existingValue);
-                }
-            }
-            else
-                SetValue(key, value);
+            bool existingValue = GetBool(key);
+            SetValue(key, !existingValue);
         }
 
         public void AddValue(string key, double value)
         {
-            key = key.ToLowerInvariant();
-            if (partData.ContainsKey(key))
-            {
-                double existingValue;
-                if (double.TryParse(partData[key], out existingValue))
-                {
-                    SetValue(key, existingValue + value);
-                }
-            }
-            else
-                SetValue(key, value);
+            double existingValue = GetDouble(key);
+            SetValue(key, existingValue + value);
         }
-            
-        private void decodeRawPartData()
+
+        private void DecodeRawPartData()
         {
+            var colonSep = new char[1] { ':' };
             string[] propertyGroups = rawPartdata.Split(new char[1]{ ',' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string propertyGroup in propertyGroups)
             {
-                string[] keyValuePair = propertyGroup.Split(new char[1]{ ':' });
-                SetValue(keyValuePair[0], keyValuePair[1]);
+                ExtractRawDataToKnownFields(propertyGroup.Split(colonSep));
             }
         }
 
-        private void encodeRawPartData()
+        private void EncodeRawPartData()
         {
-            rawPartdata = "";
+            var sb = StringBuilderCache.Acquire();
             foreach (var entry in partData)
-            {
-                rawPartdata += String.Format("{0}:{1},", entry.Key, entry.Value);
-            }
+                sb.Append($"{entry.Key}:{entry.Value},");
+            rawPartdata = sb.ToStringAndRelease();
         }
 
         public void Load(ConfigNode node)
         {
-            InitDataStore();            
-            partName = node.GetValue("partName");
+            partData.Clear();
             rawPartdata = node.GetValue("partData");
-            decodeRawPartData();
+            ConfigNode.LoadObjectFromConfig(this, node);
+            DecodeRawPartData();
         }
 
         public void Save(ConfigNode node)
         {
-            encodeRawPartData();
-            node.AddValue("partName", partName);
+            EncodeRawPartData();
             node.AddValue("partData", rawPartdata);
+            var n = ConfigNode.CreateConfigFromObject(this);
+            node.AddData(n);
+        }
+
+        private void ExtractRawDataToKnownFields(string[] kvp)
+        {
+            if (kvp[0].Equals(nameof(flightData), StringComparison.OrdinalIgnoreCase))
+                flightData = float.Parse(kvp[1]);
+            else if (kvp[0].Equals(nameof(researchData), StringComparison.OrdinalIgnoreCase))
+                researchData = float.Parse(kvp[1]);
+            else if (kvp[0].Equals(nameof(transferData), StringComparison.OrdinalIgnoreCase))
+                transferData = float.Parse(kvp[1]);
+            else if (kvp[0].Equals(nameof(flightTime), StringComparison.OrdinalIgnoreCase))
+                flightTime = float.Parse(kvp[1]);
+            else
+                SetValue(kvp[0], kvp[1]);
         }
     }
 }

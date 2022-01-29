@@ -53,7 +53,7 @@ namespace TestFlightCore
                             if (partData != null && prefab != null)
                             {
                                 TestFlightCore core = (TestFlightCore)prefab.Modules.OfType<TestFlightCore>().FirstOrDefault();
-                                float flightData = partData.GetFloat("flightData");
+                                float flightData = partData.flightData;
                                 if (core != null && flightData > core.startFlightData)
                                 {
                                     discount += (int)(((flightData - core.startFlightData) / (core.maxData - core.startFlightData)) * core.scienceDataValue);

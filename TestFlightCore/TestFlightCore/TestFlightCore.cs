@@ -73,10 +73,10 @@ namespace TestFlightCore
         // We store the base, or initial, flight data for calculation of Base Failure Rate
         // Momentary Failure Rates are calculated based on modifiers.  Those modifiers
         // are stored per SCOPE and per TRIGGER
-        private List<MomentaryFailureRate> momentaryFailureRates = new List<MomentaryFailureRate>();
-        private List<MomentaryFailureModifier> momentaryFailureModifiers = new List<MomentaryFailureModifier>();
-        private List<ITestFlightFailure> failures = new List<ITestFlightFailure>();
-        private List<string> disabledFailures = new List<string>();
+        private readonly List<MomentaryFailureRate> momentaryFailureRates = new List<MomentaryFailureRate>();
+        private readonly List<MomentaryFailureModifier> momentaryFailureModifiers = new List<MomentaryFailureModifier>();
+        private readonly List<ITestFlightFailure> failures = new List<ITestFlightFailure>();
+        private readonly List<string> disabledFailures = new List<string>();
         private bool hasMajorFailure = false;
         private bool firstStaged;
 
@@ -84,13 +84,13 @@ namespace TestFlightCore
         private float dataRateLimiter = 1.0f;
         private float dataCap = 1.0f;
 
-        private List<ProtoCrewMember> crew = new List<ProtoCrewMember>();
+        private readonly List<ProtoCrewMember> crew = new List<ProtoCrewMember>();
 
         private bool active;
         private bool TestFlightScenarioReady => TestFlightManagerScenario.Instance != null && TestFlightManagerScenario.Instance.isReady;
 
-        private string[] ops = { "=", "!=", "<", "<=", ">", ">=", "<>", "<=>" };
-        private char[] colonSeparator = new char[1] { ':' };
+        private readonly string[] ops = { "=", "!=", "<", "<=", ">", ">=", "<>", "<=>" };
+        private readonly char[] colonSeparator = new char[1] { ':' };
 
         IFlightDataRecorder m_Recorder;
 
@@ -508,7 +508,7 @@ namespace TestFlightCore
             if (TestFlightManagerScenario.Instance != null)
             {
                 TestFlightPartData partData = TestFlightManagerScenario.Instance.GetPartDataForPart(Alias);
-                return partData.GetFloat("flightTime");
+                return partData.flightTime;
             }
             else
                 return 0f;
@@ -545,7 +545,7 @@ namespace TestFlightCore
         {
             if (TestFlightManagerScenario.Instance != null)
             {
-                TestFlightManagerScenario.Instance.GetPartDataForPart(Alias).SetValue("flightTime", flightTime);
+                TestFlightManagerScenario.Instance.GetPartDataForPart(Alias).flightTime = flightTime;
             }
         }
 
@@ -597,12 +597,12 @@ namespace TestFlightCore
             float newFlightTime = -1f;
             if (TestFlightManagerScenario.Instance != null)
             {
-                newFlightTime = TestFlightManagerScenario.Instance.GetPartDataForPart(Alias).GetFloat("flightTime");
+                newFlightTime = TestFlightManagerScenario.Instance.GetPartDataForPart(Alias).flightTime;
                 if (additive)
                     newFlightTime += flightTime;
                 else
                     newFlightTime *= flightTime;
-                TestFlightManagerScenario.Instance.GetPartDataForPart(Alias).SetValue("flightTime", newFlightTime);
+                TestFlightManagerScenario.Instance.GetPartDataForPart(Alias).flightTime = newFlightTime;
             }
 
             return newFlightTime;
@@ -620,7 +620,7 @@ namespace TestFlightCore
             {
                 ProtoCrewMember crewMember = crew[i];
                 int engineerLevel = crewMember.experienceLevel;
-                totalEngineerBonus = totalEngineerBonus + (partEngineerBonus * engineerLevel * globalFlightDataEngineerMultiplier);
+                totalEngineerBonus += partEngineerBonus * engineerLevel * globalFlightDataEngineerMultiplier;
             }
             float engineerModifier = 1.0f + totalEngineerBonus;
 
@@ -728,8 +728,6 @@ namespace TestFlightCore
                     else
                     {
                         Log("Triggering Failure: " + pm.moduleName);
-                        if (failures == null)
-                            failures = new List<ITestFlightFailure>();
                         failures.Add(fm);
                         fm.DoFailure();
                         hasMajorFailure |= fm.GetFailureDetails().severity.ToLowerInvariant() == "major";
@@ -986,7 +984,7 @@ namespace TestFlightCore
                     float partFlightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(partName);
                     if (partFlightData == 0f)
                         continue;
-                    dataToTransfer = dataToTransfer + ((partFlightData - (partFlightData * generation * techTransferGenerationPenalty)) * branchModifier);
+                    dataToTransfer += ((partFlightData - (partFlightData * generation * techTransferGenerationPenalty)) * branchModifier);
                     generation++;
                 }
             }
