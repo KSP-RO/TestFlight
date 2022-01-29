@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-
 using UnityEngine;
-
 using TestFlightAPI;
 
 namespace TestFlight
@@ -33,7 +30,7 @@ namespace TestFlight
 
                 core = TestFlightUtil.GetCore(part, Configuration);
                 if (core == null)
-                    Log ("EngineBase: No TestFlight core found");
+                    Log("EngineBase: No TestFlight core found");
                 else if (engines.Count == 0)
                     Log("EngineBase: No valid engines found");
 
@@ -48,12 +45,20 @@ namespace TestFlight
             Startup();
         }
 
+        private void AddEngine(EngineModuleWrapper engine)
+        {
+            var engineHandler = new EngineHandler();
+            engineHandler.engine = engine;
+            engineHandler.ignitionState = engine.IgnitionState;
+            engines.Add(engineHandler);
+        }
+
         public virtual void Startup()
         {
             engines.Clear();
-            if (!String.IsNullOrEmpty(engineID))
+            if (!string.IsNullOrEmpty(engineID))
             {
-                if (engineID.ToLower() == "all")
+                if (engineID.Equals("all", StringComparison.OrdinalIgnoreCase))
                 {
                     List<ModuleEngines> engineMods = this.part.Modules.GetModules<ModuleEngines>();
                     foreach (ModuleEngines eng in engineMods)
@@ -61,10 +66,7 @@ namespace TestFlight
                         string id = eng.engineID;
                         EngineModuleWrapper engine = new EngineModuleWrapper();
                         engine.InitWithEngine(this.part, id);
-                        EngineHandler engineHandler = new EngineHandler();
-                        engineHandler.engine = engine;
-                        engineHandler.ignitionState = engine.IgnitionState;
-                        engines.Add(engineHandler);
+                        AddEngine(engine);
                     }
                 }
                 else if (engineID.Contains(","))
@@ -74,30 +76,21 @@ namespace TestFlight
                     {
                         EngineModuleWrapper engine = new EngineModuleWrapper();
                         engine.InitWithEngine(this.part, sEngineIndex);
-                        EngineHandler engineHandler = new EngineHandler();
-                        engineHandler.engine = engine;
-                        engineHandler.ignitionState = engine.IgnitionState;
-                        engines.Add(engineHandler);
+                        AddEngine(engine);
                     }
                 }
                 else
                 {
                     EngineModuleWrapper engine = new EngineModuleWrapper();
                     engine.InitWithEngine(this.part, engineID);
-                    EngineHandler engineHandler = new EngineHandler();
-                    engineHandler.engine = engine;
-                    engineHandler.ignitionState = engine.IgnitionState;
-                    engines.Add(engineHandler);
+                    AddEngine(engine);
                 }
             }
             else
             {
                 EngineModuleWrapper engine = new EngineModuleWrapper();
                 engine.Init(this.part);
-                EngineHandler engineHandler = new EngineHandler();
-                engineHandler.engine = engine;
-                engineHandler.ignitionState = engine.IgnitionState;
-                engines.Add(engineHandler);
+                AddEngine(engine);
             }
         }
 
@@ -121,13 +114,14 @@ namespace TestFlight
             currentConfig.TryGetValue("engineID", ref engineID);
         }
 
+        private readonly WaitForFixedUpdate _wait = new WaitForFixedUpdate();
         public IEnumerator UpdateEngineStatus()
         {
             while (true)
             {
-                yield return new WaitForFixedUpdate();
+                yield return _wait;
 
-                if (Failed && engines != null)
+                if (Failed)
                 {
                     foreach (var handler in engines)
                     {
