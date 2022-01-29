@@ -10,7 +10,6 @@ namespace TestFlightAPI
         [Persistent] public float transferData;
         [Persistent] public float researchData;
         [Persistent] public float flightTime;
-        private string rawPartdata;
         private readonly Dictionary<string, string> partData = new Dictionary<string, string>();
 
         public string PartName
@@ -98,36 +97,40 @@ namespace TestFlightAPI
             SetValue(key, existingValue + value);
         }
 
-        private void DecodeRawPartData()
+        private void DecodeRawPartData(string data)
         {
             var colonSep = new char[1] { ':' };
-            string[] propertyGroups = rawPartdata.Split(new char[1]{ ',' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] propertyGroups = data.Split(new char[1]{ ',' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string propertyGroup in propertyGroups)
             {
                 ExtractRawDataToKnownFields(propertyGroup.Split(colonSep));
             }
         }
 
-        private void EncodeRawPartData()
+        private string EncodeRawPartData(Dictionary<string,string> data)
         {
             var sb = StringBuilderCache.Acquire();
-            foreach (var entry in partData)
+            foreach (var entry in data)
                 sb.Append($"{entry.Key}:{entry.Value},");
-            rawPartdata = sb.ToStringAndRelease();
+            return sb.ToStringAndRelease();
         }
 
         public void Load(ConfigNode node)
         {
             partData.Clear();
-            rawPartdata = node.GetValue("partData");
+            string rawPartdata = node.GetValue("partData");
             ConfigNode.LoadObjectFromConfig(this, node);
-            DecodeRawPartData();
+            DecodeRawPartData(rawPartdata);
         }
 
         public void Save(ConfigNode node)
         {
-            EncodeRawPartData();
-            node.AddValue("partData", rawPartdata);
+            var tempData = new Dictionary<string, string>(partData);
+            tempData.Add(nameof(flightData).ToLowerInvariant(), $"{flightData}");
+            tempData.Add(nameof(transferData).ToLowerInvariant(), $"{transferData}");
+            tempData.Add(nameof(researchData).ToLowerInvariant(), $"{researchData}");
+            tempData.Add(nameof(flightTime).ToLowerInvariant(), $"{flightTime}");
+            node.AddValue("partData", EncodeRawPartData(tempData));
             var n = ConfigNode.CreateConfigFromObject(this);
             node.AddData(n);
         }
