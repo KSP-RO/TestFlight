@@ -20,7 +20,7 @@ namespace TestFlightCore
         private ApplicationLauncherButton appLauncherButton;
         private TestFlightHUD hud;
         private bool stickyWindow;
-        private string[] guiSizes = { "Small", "Normal", "Large" };
+        private readonly string[] guiSizes = { "Small", "Normal", "Large" };
 
         private DropDownList ddlSettingsPage = null;
 
@@ -28,49 +28,33 @@ namespace TestFlightCore
         {
             if (TestFlightManagerScenario.Instance == null || TestFlightManagerScenario.Instance.userSettings == null)
                 return;
-
-            bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
-            message = "TestFlightWindow: " + message;
-            TestFlightUtil.Log(message, debug);
+            TestFlightUtil.Log($"TestFlightWindow: {message}", TestFlightManagerScenario.Instance.userSettings.debugLog);
         }
 
         internal override void Start()
         {
             Visible = false;
             tfScenario = null;
-            StartCoroutine("ConnectToScenario");
+            StartCoroutine(ConnectToScenario());
             base.Start();
         }
 
         IEnumerator ConnectToScenario()
         {
-            while (TestFlightManagerScenario.Instance == null)
-            {
+            while (TestFlightManagerScenario.Instance == null || TestFlightManager.Instance == null || !TestFlightManagerScenario.Instance.isReady)
                 yield return null;
-            }
-
-            while (TestFlightManager.Instance == null)
-            {
-                yield return null;
-            }
-            tfScenario = TestFlightManagerScenario.Instance;
-            while (!tfScenario.isReady)
-            {
-                yield return null;
-            }
             Startup();
         }
 
         internal void Startup()
         {
             tfScenario = TestFlightManagerScenario.Instance;
+            tfManager = TestFlightManager.Instance;
             if (!tfScenario.SettingsEnabled)
                 return;
             
             tfScenario.userSettings.Load();
-            tfManager = TestFlightManager.Instance;
-            Log("Starting coroutine to add toolbar icon");
-            StartCoroutine("AddToToolbar");
+            StartCoroutine(AddToToolbar());
             TestFlight.Resources.LoadTextures();
 
             // Default position and size -- will get proper bounds calculated when needed
@@ -104,13 +88,7 @@ namespace TestFlightCore
             hud.Shutdown();
             Destroy(hud);
             hud = null;
-            Log("Unhooking event");
             GameEvents.onGameSceneLoadRequested.Remove(Event_OnGameSceneLoadRequested);
-        }
-
-        internal override void Awake()
-        {
-            base.Awake();
         }
 
         internal override void OnGUIOnceOnly()
@@ -123,7 +101,6 @@ namespace TestFlightCore
 
         internal void CalculateWindowBounds()
         {
-            Log("Calculating Window Bounds");
             if (appLauncherButton == null)
                 return;
             if (tfScenario == null)
@@ -229,7 +206,6 @@ namespace TestFlightCore
         void RepostionWindow()
         {
             CalculateWindowBounds();
-            Log("TestFlight MasterStatusDisplay: RepositionWindow");
         }
         void HoverInButton()
         {
@@ -265,10 +241,11 @@ namespace TestFlightCore
                 settingsButton.tooltip = "Close Settings Panel";
             }
 
+            GUILayout.BeginVertical();
+            GUILayout.Space(10);
+
             if (masterStatus == null)
             {
-                GUILayout.BeginVertical();
-                GUILayout.Space(10);
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("TestFlight is starting up...");
                 if (GUILayout.Button(settingsButton, GUILayout.Width(38)))
@@ -281,8 +258,6 @@ namespace TestFlightCore
             }
             else if (masterStatus.Count() <= 0)
             {
-                GUILayout.BeginVertical();
-                GUILayout.Space(10);
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("TestFlight is not currently tracking any vessels");
                 if (GUILayout.Button(settingsButton, GUILayout.Width(38)))
@@ -295,8 +270,6 @@ namespace TestFlightCore
             }
             else
             {
-                GUILayout.BeginVertical();
-                GUILayout.Space(10);
                 // Display information on active vessel
                 Guid currentVessel = FlightGlobals.ActiveVessel.id;
 
@@ -310,8 +283,6 @@ namespace TestFlightCore
                         //                    GUILayout.Label(String.Format("{0,7:F2}du", status.flightData));
                         //                    GUILayout.Label(String.Format("{0,7:F2}%", status.reliability));
 
-                        if (tfScenario.userSettings.showFailedPartsOnlyInMSD && status.failures == null)
-                            continue;
                         if (tfScenario.userSettings.showFailedPartsOnlyInMSD && status.failures.Count <= 0)
                             continue;
 
@@ -319,13 +290,15 @@ namespace TestFlightCore
                         string partDisplay;
                         // Part Name
                         string tooltip = "";
-                        if (status.failures == null || status.failures.Count <= 0)
+                        if (status.failures.Count <= 0)
                             tooltip = "Status OK";
                         else
                         {
-                            for (int i = 0; i < status.failures.Count; i++)
+                            foreach (var fail in status.failures)
                             {
-                                tooltip += string.Format("<color=#{0}>{1}</color>\n", status.failures[i].GetFailureDetails().severity.ToLowerInvariant() == "major" ? "dc322fff" : "b58900ff", status.failures[i].GetFailureDetails().failureTitle);
+                                var detail = fail.GetFailureDetails();
+                                var color = detail.severity.Equals("major", StringComparison.OrdinalIgnoreCase) ? "dc322fff" : "b58900ff";
+                                tooltip += $"<color=#{color}>{detail.failureTitle}</color>\n";
                             }
                         }
                         if (tfScenario.userSettings.shortenPartNameInMSD)
@@ -336,37 +309,37 @@ namespace TestFlightCore
                         // Flight Data
                         if (tfScenario.userSettings.showFlightDataInMSD)
                         {
-                            GUILayout.Label(String.Format("{0,-7:F2}<b>du</b>", status.flightData), GUILayout.Width(75));
+                            GUILayout.Label($"{status.flightData,-7:F2}<b>du</b>", GUILayout.Width(75));
                             GUILayout.Space(10);
                         }
                         // Resting Reliability
                         if (tfScenario.userSettings.showMTBFStringInMSD)
                         {
-                            GUILayout.Label(String.Format("{0} <b>MTBF</b>", status.mtbfString), GUILayout.Width(130));
+                            GUILayout.Label($"{status.MTBFString} <b>MTBF</b>", GUILayout.Width(130));
                             GUILayout.Space(10);
                         }
                         // Momentary Reliability
                         if (tfScenario.userSettings.showFailureRateInMSD)
                         {
-                            GUILayout.Label(String.Format("{0:F6}", status.momentaryFailureRate), GUILayout.Width(60));
+                            GUILayout.Label($"{status.momentaryFailureRate:F6}", GUILayout.Width(60));
                             GUILayout.Space(10);
                         }
                         // Current Run Time
                         if (tfScenario.userSettings.showContinuousRunTimeInMSD)
                         {
-                            GUILayout.Label(String.Format("{0:F6}", status.continuousRunningTime), GUILayout.Width(60));
+                            GUILayout.Label($"{status.ContinuousRunningTime}", GUILayout.Width(60));
                             GUILayout.Space(10);
                         }
                         // Cumulative Run Time
                         if (tfScenario.userSettings.showRunTimeInMSD)
                         {
-                            GUILayout.Label(String.Format("{0:F6} T", status.runningTime), GUILayout.Width(60));
+                            GUILayout.Label($"{status.RunningTime} T", GUILayout.Width(60));
                             GUILayout.Space(10);
                         }
                         // Part Status Text
                         if (tfScenario.userSettings.showStatusTextInMSD)
                         {
-                            if (status.failures == null || status.failures.Count <= 0)
+                            if (status.failures.Count <= 0)
                                 partDisplay = String.Format("<color=#859900ff>{0,-30}</color>", "OK");
                             else
                             {

@@ -1,10 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-
-
 using UnityEngine;
 using UnityEngine.Profiling;
 using TestFlightCore.KSPPluginFramework;
@@ -12,22 +8,23 @@ using TestFlightAPI;
 
 namespace TestFlightCore
 {
-    internal struct PartStatus
+    internal class PartStatus
     {
         internal string partName;
         internal uint partID;
         internal int partStatus;
         internal double baseFailureRate;
         internal double momentaryFailureRate;
-        internal string runningTime;
-        internal string continuousRunningTime;
         internal ITestFlightCore flightCore;
         internal bool highlightPart;
         internal bool acknowledged;
-        internal String mtbfString;
         internal double lastSeen;
         internal float flightData;
-        internal List<ITestFlightFailure> failures;
+        internal List<ITestFlightFailure> failures = new List<ITestFlightFailure>();
+
+        internal string MTBFString => flightCore != null ? flightCore.FailureRateToMTBFString(momentaryFailureRate, TestFlightUtil.MTBFUnits.SECONDS, 999) : string.Empty;
+        internal string RunningTime => flightCore != null ? TestFlightUtil.FormatTime(flightCore.GetRunTime(RatingScope.Cumulative), TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false) : string.Empty;
+        internal string ContinuousRunningTime => flightCore != null ? TestFlightUtil.FormatTime(flightCore.GetRunTime(RatingScope.Continuous), TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false) : string.Empty;
     }
 
     internal struct MasterStatusItem
@@ -191,8 +188,7 @@ namespace TestFlightCore
         public float pollingInterval = 5.0f;
         public float partDecayTime = 15f;
         public bool processInactiveVessels = true;
-
-        Dictionary<Guid, MasterStatusItem> masterStatus = null;
+        private readonly Dictionary<Guid, MasterStatusItem> masterStatus = new Dictionary<Guid, MasterStatusItem>(32);
 
         double currentUTC = 0.0f;
 
@@ -204,27 +200,26 @@ namespace TestFlightCore
         internal override void Awake()
         {
             if (Instance != null && Instance != this)
-            {
                 DestroyImmediate(Instance.gameObject);
-            }
 
             Instance = this;
             base.Awake();
+        }
+
+        internal override void Start()
+        {
+            base.Start();
             StartCoroutine(ConnectToScenario());
         }
 
         IEnumerator ConnectToScenario()
         {
             while (TestFlightManagerScenario.Instance == null)
-            {
                 yield return null;
-            }
 
             tfScenario = TestFlightManagerScenario.Instance;
             while (!tfScenario.isReady)
-            {
                 yield return null;
-            }
             Startup();
         }
 
@@ -236,20 +231,14 @@ namespace TestFlightCore
             GameEvents.onVesselWasModified.Add(VesselWasModified);
             GameEvents.onVesselCreate.Add(VesselCreated);
             GameEvents.onVesselDestroy.Add(VesselDestroyed);
-            // Build an initial list of vessels and part data
-            // This will then be updated from the above event
-            if (masterStatus == null)
-                masterStatus = new Dictionary<Guid, MasterStatusItem>();
-
+            masterStatus.Clear();
             currentUTC = Planetarium.GetUniversalTime();
         }
 
         internal override void OnDestroy()
         {
             if (Instance == this)
-            {
                 Instance = null;
-            }
             GameEvents.onVesselWasModified.Remove(VesselWasModified);
             GameEvents.onVesselCreate.Remove(VesselCreated);
             GameEvents.onVesselDestroy.Remove(VesselDestroyed);
@@ -308,9 +297,6 @@ namespace TestFlightCore
                         flightData = core.GetFlightData(),
                         momentaryFailureRate = failureRate,
                         acknowledged = false,
-                        mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999),
-                        runningTime = TestFlightUtil.FormatTime(core.GetRunTime(RatingScope.Cumulative), TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false),
-                        continuousRunningTime = TestFlightUtil.FormatTime(core.GetRunTime(RatingScope.Continuous), TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false)
                     };
                     masterStatus[vessel.id].allPartsStatus.Add(partStatus);
                 }
@@ -319,13 +305,11 @@ namespace TestFlightCore
 
         void UpdateVesselInMasterStatusDisplay(Vessel vessel)
         {
-            if (!masterStatus.ContainsKey(vessel.id)) return;
+            MasterStatusItem item;
+            if (!masterStatus.TryGetValue(vessel.id, out item)) return;
 
-            var allPartsStatus = masterStatus[vessel.id].allPartsStatus;
-
-            for (var i = 0; i < allPartsStatus.Count; i++)
+            foreach (var status in item.allPartsStatus)
             {
-                var status = allPartsStatus[i];
                 ITestFlightCore core = status.flightCore;
 
                 // Update the part status
@@ -337,10 +321,6 @@ namespace TestFlightCore
                 if (momentaryFailureRate.valid && momentaryFailureRate.failureRate > failureRate)
                     failureRate = momentaryFailureRate.failureRate;
                 status.momentaryFailureRate = failureRate;
-                status.mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
-                status.runningTime = TestFlightUtil.FormatTime(core.GetRunTime(RatingScope.Cumulative), TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false);
-                status.continuousRunningTime = TestFlightUtil.FormatTime(core.GetRunTime(RatingScope.Continuous), TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false);
-                allPartsStatus[i] = status;
             }
         }
 
@@ -394,7 +374,6 @@ namespace TestFlightCore
         }
 
     }
-
 
     [KSPScenario(ScenarioCreationOptions.AddToAllGames,
         new GameScenes[]
@@ -452,7 +431,7 @@ namespace TestFlightCore
                 saveData.Add(key, value);
         }
 
-        private void decodeRawSaveData()
+        private void DecodeRawSaveData()
         {
             if (string.IsNullOrEmpty(rawSaveData))
                 return;
@@ -466,7 +445,7 @@ namespace TestFlightCore
             }
         }
 
-        private void encodeRawSaveData()
+        private void EncodeRawSaveData()
         {
             rawSaveData = "";
             foreach (var entry in saveData)
@@ -517,11 +496,7 @@ namespace TestFlightCore
 
             InitDataStore();
             base.OnAwake();
-        }
 
-        public void Start()
-        {
-            Log("Scenario Start");
             if (RandomGenerator == null)
                 RandomGenerator = new System.Random();
             isReady = true;
@@ -723,7 +698,7 @@ namespace TestFlightCore
                 rawSaveData = node.GetValue("saveData");
             else
                 rawSaveData = "";
-            decodeRawSaveData();
+            DecodeRawSaveData();
 
             if (partData == null)
                 partData = new Dictionary<String, TestFlightPartData>();
@@ -746,13 +721,11 @@ namespace TestFlightCore
         {
             base.OnSave(node);
             if (userSettings != null)
-            {
                 userSettings.Save();
-            }
             if (bodySettings != null)
                 bodySettings.Save();
 
-            encodeRawSaveData();
+            EncodeRawSaveData();
             node.AddValue("saveData", rawSaveData);
 
             // new noscope format

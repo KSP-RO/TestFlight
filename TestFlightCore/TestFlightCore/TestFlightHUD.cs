@@ -51,11 +51,6 @@ namespace TestFlightCore
             WindowMoveEventsEnabled = false;
         }
 
-        internal override void Awake()
-        {
-            base.Awake();
-        }
-
         internal override void OnGUIOnceOnly()
         {
             // Default position and size -- will get proper bounds calculated when needed
@@ -102,7 +97,7 @@ namespace TestFlightCore
             foreach (PartStatus status in masterStatus[currentVessl].allPartsStatus)
             {
                 // We only show failed parts in Flight HUD
-                if (status.failures == null || status.failures.Count <= 0)
+                if (status.failures.Count <= 0)
                     continue;
 
                 GUILayout.BeginHorizontal();
