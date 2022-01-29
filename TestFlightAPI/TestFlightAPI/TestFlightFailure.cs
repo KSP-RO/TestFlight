@@ -71,7 +71,7 @@ namespace TestFlightAPI
         }
 
         /// <summary>
-        /// Gets the details of the failure encapsulated by this module.  In most cases you can let the base class take care of this unless oyu need to do somethign special
+        /// Gets the details of the failure encapsulated by this module.  In most cases you can let the base class take care of this unless you need to do something special
         /// </summary>
         /// <returns>The failure details.</returns>
         public virtual TestFlightFailureDetails GetFailureDetails()

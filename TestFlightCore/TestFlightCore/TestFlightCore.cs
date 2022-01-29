@@ -119,10 +119,12 @@ namespace TestFlightCore
             }
             set 
             { 
-                configuration = value; 
+                configuration = value;
+                _alias = configuration.Contains(":") ? configuration.Split(colonSeparator)[1] : string.Empty;
             }
         }
-        public string Alias => Configuration.Contains(":") ? Configuration.Split(colonSeparator)[1] : string.Empty;
+        private string _alias = string.Empty;
+        public string Alias => _alias;
         public string Title => string.IsNullOrEmpty(title) ? part.partInfo.title : title;
         public bool DebugEnabled => TestFlightManagerScenario.Instance != null && TestFlightManagerScenario.Instance.userSettings.debugLog;
 
@@ -174,6 +176,8 @@ namespace TestFlightCore
             // update current values with those from the current config node
             currentConfig.TryGetValue("startFlightData", ref startFlightData);
             currentConfig.TryGetValue("configuration", ref configuration);
+            // Apply side-effect of updating alias
+            Configuration = configuration;
             currentConfig.TryGetValue("title", ref title);
             currentConfig.TryGetValue("techTransfer", ref techTransfer);
             currentConfig.TryGetValue("techTransferMax", ref techTransferMax);
@@ -221,14 +225,7 @@ namespace TestFlightCore
 
         internal void Log(string message)
         {
-            return;
-//
-//            if (TestFlightManagerScenario.Instance == null)
-//                return;
-//
-//            bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
-//            message = String.Format("TestFlightCore({0}[{1}]): {2}", Alias, Configuration, message);
-//            TestFlightUtil.Log(message, debug);
+            TestFlightUtil.Log($"TestFlightCore({Alias}[{Configuration}]): {message}", true);
         }
         private void CalculateMaximumData()
         {
@@ -642,67 +639,41 @@ namespace TestFlightCore
         // Returns the triggered failure module, or null if none
         public ITestFlightFailure TriggerFailure(string severity)
         {
-            severity = severity.ToLowerInvariant();
-            Log(string.Format("Triggering random {0} failure", severity));
-
             // Failure occurs.  Determine which failure module to trigger
             int totalWeight = 0;
             int currentWeight = 0;
-            int chosenWeight = 0;
-            List<ITestFlightFailure> failureModules = null;
+            var failureModules = new List<ITestFlightFailure>();
 
             // Get all failure modules on the part
             // Then filter only the ones that are not disabled and are of the desired severity
-            List<ITestFlightFailure> allFailureModules = TestFlightUtil.GetFailureModules(this.part, Alias);
-            for (int i = 0, allFailureModulesCount = allFailureModules.Count; i < allFailureModulesCount; i++)
+            foreach (ITestFlightFailure fm in TestFlightUtil.GetFailureModules(this.part, Alias))
             {
-                ITestFlightFailure fm = allFailureModules[i];
                 PartModule pm = fm as PartModule;
-                if (fm.GetFailureDetails().severity.ToLowerInvariant() == severity || severity == "any")
-                {
-                    if (fm.Failed)
+                var details = fm.GetFailureDetails();
+                if (severity.Equals(details.severity, StringComparison.OrdinalIgnoreCase) || severity == "any")
+                    if (!fm.Failed && pm != null && !disabledFailures.Contains(pm.moduleName.Trim().ToLowerInvariant()))
                     {
-                        Log(string.Format("Skipping {0} because it is already active", pm.moduleName));
-                        continue;
-                    }
-                    if (!disabledFailures.Contains(pm.moduleName.Trim().ToLowerInvariant()))
-                    {
-                        if (failureModules == null)
-                            failureModules = new List<ITestFlightFailure>();
                         failureModules.Add(fm);
+                        totalWeight += details.weight;
                     }
-                }
-                else
-                {
-                    Log(string.Format("Skipping {0} because it doesn't have a matching severity ({1} != {2}", pm.moduleName, fm.GetFailureDetails().severity, severity));
-                }
             }
 
-            if (failureModules == null || failureModules.Count == 0)
+            if (failureModules.Count == 0)
             {
-                Log("No failure modules to trigger");
+                Log($"No failure modules to trigger for severity {severity}");
                 return null;
             }
-            
-            for (int i = 0, failureModulesCount = failureModules.Count; i < failureModulesCount; i++)
+            int chosenWeight = RandomGenerator.Next(1, Math.Max(totalWeight, 1));
+            foreach (ITestFlightFailure fm in failureModules)
             {
-                ITestFlightFailure fm = failureModules[i];
-                totalWeight += fm.GetFailureDetails().weight;
-            }
-            chosenWeight = RandomGenerator.Next(1,totalWeight);
-            for (int i = 0, failureModulesCount = failureModules.Count; i < failureModulesCount; i++)
-            {
-                ITestFlightFailure fm = failureModules[i];
                 currentWeight += fm.GetFailureDetails().weight;
                 if (currentWeight >= chosenWeight)
                 {
                     // Trigger this module's failure
-                    PartModule pm = fm as PartModule;
-                    if (pm != null)
-                        return TriggerNamedFailure(pm.moduleName, false);
+                    return TriggerNamedFailure((fm as PartModule).moduleName, false);
                 }
             }
-
+            Debug.LogError($"Failed to fail! {failureModules.Count} options for severity: {severity}, chose {chosenWeight} from {totalWeight}?");
             return null;
         }
         public ITestFlightFailure TriggerNamedFailure(String failureModuleName)
@@ -727,7 +698,7 @@ namespace TestFlightCore
                         return null;
                     else
                     {
-                        Log("Triggering Failure: " + pm.moduleName);
+                        Log($"Triggering Failure: {pm.moduleName}");
                         failures.Add(fm);
                         fm.DoFailure();
                         hasMajorFailure |= fm.GetFailureDetails().severity.ToLowerInvariant() == "major";
@@ -789,7 +760,6 @@ namespace TestFlightCore
             GameEvents.onStageActivate.Remove(OnStageActivate);
             firstStaged = true;
             missionStartTime = Planetarium.GetUniversalTime();
-            Log("First stage activated");
         }
 
         /// <summary>
