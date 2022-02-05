@@ -401,8 +401,11 @@ namespace TestFlightCore
         // New noscope
         public Dictionary<string, TestFlightPartData> partData = null;
 
-        [KSPField(isPersistant = true)] public bool SettingsEnabled = true;
-        [KSPField(isPersistant = true)] public bool SettingsAlwaysMaxData = false;
+        [KSPField(isPersistant = true)] public bool settingsEnabled = true;
+        [KSPField(isPersistant = true)] public bool settingsAlwaysMaxData = false;
+        public bool SettingsEnabled { get { return settingsEnabled; } set { settingsEnabled = value; } }
+        public bool SettingsAlwaysMaxData { get { return settingsAlwaysMaxData; } set { settingsAlwaysMaxData = value; } }
+
 
         internal void Log(string message)
         {
