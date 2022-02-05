@@ -1112,17 +1112,13 @@ namespace TestFlightCore
             if (reliabilityModules != null)
             {
                 float ratedBurnTime = 0f;
-                for (int i = 0, reliabilityModulesCount = reliabilityModules.Count; i < reliabilityModulesCount; i++)
-                {
-                    ITestFlightReliability reliabilityModule = reliabilityModules[i];
+                foreach (var reliabilityModule in reliabilityModules)
                     ratedBurnTime = Mathf.Max(reliabilityModule.GetRatedTime(RatingScope.Cumulative), ratedBurnTime);
-                }
 
-                for (int i = 0, reliabilityModulesCount = reliabilityModules.Count; i < reliabilityModulesCount; i++)
+                foreach (var reliabilityModule in reliabilityModules)
                 {
-                    ITestFlightReliability reliabilityModule = reliabilityModules[i];
                     List<string> infoColl = reliabilityModule.GetTestFlightInfo(ratedBurnTime);
-                    if (infoColl != null)
+                    if (infoColl.Count > 0)
                     {
                         // Don't indent header string
                         infoStrings.Add(infoColl[0]);
@@ -1137,11 +1133,10 @@ namespace TestFlightCore
             List<ITestFlightFailure> failureModules = TestFlightUtil.GetFailureModules(this.part, Alias);
             if (failureModules != null)
             {
-                for (int i = 0, failureModulesCount = failureModules.Count; i < failureModulesCount; i++)
+                foreach (var failureModule in failureModules)
                 {
-                    ITestFlightFailure failureModule = failureModules[i];
                     List<string> infoColl = failureModule.GetTestFlightInfo();
-                    if (infoColl != null && infoColl.Count > 0)
+                    if (infoColl.Count > 0)
                     {
                         // Don't indent header string
                         infoStrings.Add(infoColl[0]);
