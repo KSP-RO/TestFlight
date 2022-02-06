@@ -161,10 +161,7 @@ namespace TestFlightAPI
             currentConfig.TryGetValue("oneShot", ref oneShot);
         }
 
-        public virtual List<string> GetTestFlightInfo()
-        {
-            return null;
-        }
+        public virtual List<string> GetTestFlightInfo() => new List<string>();
 
         public override void OnAwake()
         {
