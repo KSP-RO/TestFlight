@@ -1,10 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-
-
 using UnityEngine;
 using UnityEngine.Profiling;
 using TestFlightCore.KSPPluginFramework;
@@ -12,22 +8,23 @@ using TestFlightAPI;
 
 namespace TestFlightCore
 {
-    internal struct PartStatus
+    internal class PartStatus
     {
         internal string partName;
         internal uint partID;
         internal int partStatus;
         internal double baseFailureRate;
         internal double momentaryFailureRate;
-        internal string runningTime;
-        internal string continuousRunningTime;
         internal ITestFlightCore flightCore;
         internal bool highlightPart;
         internal bool acknowledged;
-        internal String mtbfString;
         internal double lastSeen;
         internal float flightData;
-        internal List<ITestFlightFailure> failures;
+        internal List<ITestFlightFailure> failures = new List<ITestFlightFailure>();
+
+        internal string MTBFString => flightCore != null ? flightCore.FailureRateToMTBFString(momentaryFailureRate, TestFlightUtil.MTBFUnits.SECONDS, 999) : string.Empty;
+        internal string RunningTime => flightCore != null ? TestFlightUtil.FormatTime(flightCore.GetRunTime(RatingScope.Cumulative), TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false) : string.Empty;
+        internal string ContinuousRunningTime => flightCore != null ? TestFlightUtil.FormatTime(flightCore.GetRunTime(RatingScope.Continuous), TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false) : string.Empty;
     }
 
     internal struct MasterStatusItem
@@ -108,11 +105,7 @@ namespace TestFlightCore
         {
             string baseString = partName + ":";
             foreach (TestFlightData data in flightData)
-            {
-                string dataString = String.Format("{0},{1},0", data.scope, data.flightData);
-                baseString = baseString + dataString + " ";
-            }
-
+                baseString += $"{data.scope},{data.flightData},0 ";
             return baseString;
         }
 
@@ -123,10 +116,13 @@ namespace TestFlightCore
             PartFlightData newData = null;
             if (str.IndexOf(':') > -1)
             {
+                var colonSep = new char[1] { ':' };
+                var spaceSep = new char[1] { ' ' };
+                var commaSep = new char[1] { ',' };
                 newData = new PartFlightData();
-                string[] baseString = str.Split(new char[1]{ ':' });
+                string[] baseString = str.Split(colonSep);
                 newData.partName = baseString[0];
-                string[] dataStrings = baseString[1].Split(new char[1]{ ' ' });
+                string[] dataStrings = baseString[1].Split(spaceSep);
                 foreach (string dataString in dataStrings)
                 {
                     if (newData.flightData == null)
@@ -134,7 +130,7 @@ namespace TestFlightCore
 
                     if (dataString.Trim().Length > 0)
                     {
-                        string[] dataMembers = dataString.Split(new char[1]{ ',' });
+                        string[] dataMembers = dataString.Split(commaSep);
                         if (dataMembers.Length == 3)
                         {
                             TestFlightData tfData = new TestFlightData();
@@ -188,87 +184,61 @@ namespace TestFlightCore
         internal bool isReady = false;
 
         public Dictionary<Guid, double> knownVessels;
-        Dictionary<Guid, double>.Enumerator knownVesselsEnumerator;
-        List<string> cores = null;
-        List<Guid> vesselsToDelete = null;
 
         public float pollingInterval = 5.0f;
         public float partDecayTime = 15f;
         public bool processInactiveVessels = true;
-
-        Dictionary<Guid, MasterStatusItem> masterStatus = null;
-        Dictionary<Guid, MasterStatusItem>.Enumerator masterStatusEnumerator;
-        List<PartStatus> partsToDelete = null;
+        private readonly Dictionary<Guid, MasterStatusItem> masterStatus = new Dictionary<Guid, MasterStatusItem>(32);
 
         double currentUTC = 0.0f;
-        double lastDataPoll = 0.0f;
-        double lastFailurePoll = 0.0f;
-        double lastMasterStatusUpdate = 0.0f;
-
-        // EventData<Vessel>.OnEvent OnVesselModifiedEvent;
-
 
         internal void Log(string message)
         {
-            bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
-            message = "TestFlightManager: " + message;
-            TestFlightUtil.Log(message, debug);
+            TestFlightUtil.Log($"TestFlightManager: {message}", TestFlightManagerScenario.Instance?.userSettings.debugLog ?? false);
         }
 
         internal override void Awake()
         {
-            isReady = false;
             if (Instance != null && Instance != this)
-            {
                 DestroyImmediate(Instance.gameObject);
-            }
 
             Instance = this;
             base.Awake();
-            StartCoroutine("ConnectToScenario");
+        }
+
+        internal override void Start()
+        {
+            base.Start();
+            StartCoroutine(ConnectToScenario());
         }
 
         IEnumerator ConnectToScenario()
         {
             while (TestFlightManagerScenario.Instance == null)
-            {
                 yield return null;
-            }
 
             tfScenario = TestFlightManagerScenario.Instance;
             while (!tfScenario.isReady)
-            {
                 yield return null;
-            }
             Startup();
         }
 
         public void Startup()
         {
             isReady = true;
-            cores = new List<string>();
-            vesselsToDelete = new List<Guid>();
-            partsToDelete = new List<PartStatus>();
 
             // register to be notified of changes to any vessel
             GameEvents.onVesselWasModified.Add(VesselWasModified);
             GameEvents.onVesselCreate.Add(VesselCreated);
             GameEvents.onVesselDestroy.Add(VesselDestroyed);
-            // Build an initial list of vessels and part data
-            // This will then be updated from the above event
-            if (masterStatus == null)
-                masterStatus = new Dictionary<Guid, MasterStatusItem>();
-
+            masterStatus.Clear();
             currentUTC = Planetarium.GetUniversalTime();
         }
 
         internal override void OnDestroy()
         {
             if (Instance == this)
-            {
                 Instance = null;
-            }
-
             GameEvents.onVesselWasModified.Remove(VesselWasModified);
             GameEvents.onVesselCreate.Remove(VesselCreated);
             GameEvents.onVesselDestroy.Remove(VesselDestroyed);
@@ -304,32 +274,30 @@ namespace TestFlightCore
             masterStatusItem.allPartsStatus = new List<PartStatus>();
             masterStatus.Add(vessel.id, masterStatusItem);
 
-            var parts = vessel.Parts;
-            for (var j = 0; j < parts.Count; j++)
+            foreach (Part p in vessel.Parts)
             {
-                var partCores = parts[j].gameObject.GetComponents<TestFlightCore>();
+                var partCores = p.gameObject.GetComponents<TestFlightCore>();
                 foreach (var core in partCores)
                 {
                     if (!core.TestFlightEnabled) continue;
 
-                    PartStatus partStatus = new PartStatus();
-                    partStatus.lastSeen = currentUTC;
-                    partStatus.flightCore = core;
-                    partStatus.partName = core.Title;
-                    partStatus.partID = vessel.parts[j].flightID;
-                    partStatus.partStatus = core.GetPartStatus();
-                    // get any failures
-                    partStatus.failures = core.GetActiveFailures();
-                    partStatus.flightData = core.GetFlightData();
                     double failureRate = core.GetBaseFailureRate();
                     MomentaryFailureRate momentaryFailureRate = core.GetWorstMomentaryFailureRate();
                     if (momentaryFailureRate.valid && momentaryFailureRate.failureRate > failureRate)
                         failureRate = momentaryFailureRate.failureRate;
-                    partStatus.momentaryFailureRate = failureRate;
-                    partStatus.acknowledged = false;
-                    partStatus.mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
-                    partStatus.runningTime = TestFlightUtil.FormatTime(core.GetRunTime(RatingScope.Cumulative), TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false);
-                    partStatus.continuousRunningTime = TestFlightUtil.FormatTime(core.GetRunTime(RatingScope.Continuous), TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false);
+
+                    PartStatus partStatus = new PartStatus
+                    {
+                        lastSeen = currentUTC,
+                        flightCore = core,
+                        partName = core.Title,
+                        partID = p.flightID,
+                        partStatus = core.GetPartStatus(),
+                        failures = core.GetActiveFailures(),
+                        flightData = core.GetFlightData(),
+                        momentaryFailureRate = failureRate,
+                        acknowledged = false,
+                    };
                     masterStatus[vessel.id].allPartsStatus.Add(partStatus);
                 }
             }
@@ -337,13 +305,11 @@ namespace TestFlightCore
 
         void UpdateVesselInMasterStatusDisplay(Vessel vessel)
         {
-            if (!masterStatus.ContainsKey(vessel.id)) return;
+            MasterStatusItem item;
+            if (!masterStatus.TryGetValue(vessel.id, out item)) return;
 
-            var allPartsStatus = masterStatus[vessel.id].allPartsStatus;
-
-            for (var i = 0; i < allPartsStatus.Count; i++)
+            foreach (var status in item.allPartsStatus)
             {
-                var status = allPartsStatus[i];
                 ITestFlightCore core = status.flightCore;
 
                 // Update the part status
@@ -355,10 +321,6 @@ namespace TestFlightCore
                 if (momentaryFailureRate.valid && momentaryFailureRate.failureRate > failureRate)
                     failureRate = momentaryFailureRate.failureRate;
                 status.momentaryFailureRate = failureRate;
-                status.mtbfString = core.FailureRateToMTBFString(failureRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
-                status.runningTime = TestFlightUtil.FormatTime(core.GetRunTime(RatingScope.Cumulative), TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false);
-                status.continuousRunningTime = TestFlightUtil.FormatTime(core.GetRunTime(RatingScope.Continuous), TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false);
-                allPartsStatus[i] = status;
             }
         }
 
@@ -413,7 +375,6 @@ namespace TestFlightCore
 
     }
 
-
     [KSPScenario(ScenarioCreationOptions.AddToAllGames,
         new GameScenes[]
         {
@@ -435,150 +396,33 @@ namespace TestFlightCore
         public bool isReady = false;
         // For storing save specific arbitrary data
         private string rawSaveData = "";
-        private Dictionary<string, string> saveData;
+        private readonly Dictionary<string, string> saveData = new Dictionary<string, string>();
 
         // New noscope
         public Dictionary<string, TestFlightPartData> partData = null;
 
-        public bool SettingsEnabled
-        {
-            get { return GetBool("settingsenabled", true); }
-            set { SetValue("settingsenabled", value); }
-        }
+        [KSPField(isPersistant = true)] public bool settingsEnabled = true;
+        [KSPField(isPersistant = true)] public bool settingsAlwaysMaxData = false;
+        public bool SettingsEnabled { get { return settingsEnabled; } set { settingsEnabled = value; } }
+        public bool SettingsAlwaysMaxData { get { return settingsAlwaysMaxData; } set { settingsAlwaysMaxData = value; } }
 
-        public bool SettingsAlwaysMaxData
-        {
-            get { return GetBool("settingsalwaysmaxdata", false); }
-            set { SetValue("settingsalwaysmaxdata", value); }
-        }
 
         internal void Log(string message)
         {
-            bool debug = TestFlightManagerScenario.Instance.userSettings.debugLog;
-            message = "[TestFlightManagerScenario] " + message;
-            TestFlightUtil.Log(message, debug);
+            TestFlightUtil.Log($"[TestFlightManagerScenario] {message}", Instance.userSettings.debugLog);
         }
 
         private void InitDataStore()
         {
-            Log("Init data store");
-            if (saveData == null)
-            {
-                Log("Creating new dictionary instance for data store");
-                saveData = new Dictionary<string, string>();
-            }
-            else
-                saveData.Clear();
+            saveData.Clear();
         }
 
         public string GetValue(string key)
         {
-            key = key.ToLowerInvariant();
-            if (saveData.ContainsKey(key))
-                return saveData[key];
-            else
-                return "";
-        }
-
-        public string GetString(string key)
-        {
-            return GetString(key, "");
-        }
-
-        public string GetString(string key, string defaultValue)
-        {
-            if (!String.IsNullOrEmpty(GetValue(key)))
-                return GetValue(key);
-            else
-                return defaultValue;
-        }
-
-        public double GetDouble(string key)
-        {
-            return GetDouble(key, 0);
-        }
-
-        public double GetDouble(string key, double defaultValue)
-        {
-            double returnValue = defaultValue;
-
-            string value = GetValue(key);
-            if (!double.TryParse(value, out returnValue))
-                return defaultValue;
-
-            return returnValue;
-        }
-
-        public float GetFloat(string key)
-        {
-            return GetFloat(key, 0f);
-        }
-
-        public float GetFloat(string key, float defaultValue)
-        {
-            float returnValue = defaultValue;
-
-            string value = GetValue(key);
-            if (!float.TryParse(value, out returnValue))
-                return defaultValue;
-
-            return returnValue;
-        }
-
-        public bool GetBool(string key)
-        {
-            return GetBool(key, false);
-        }
-
-        public bool GetBool(string key, bool defaultValue)
-        {
-            bool returnValue = defaultValue;
-            key = key.ToLowerInvariant();
-            if (saveData.ContainsKey(key))
-            {
-                if (!bool.TryParse(saveData[key], out returnValue))
-                    return defaultValue;
-            }
-            else
-                return defaultValue;
-
-            return returnValue;
-        }
-
-        public int GetInt(string key)
-        {
-            return GetInt(key, 0);
-        }
-
-        public int GetInt(string key, int defaultValue)
-        {
-            int returnValue = defaultValue;
-
-            string value = GetValue(key);
-            if (!int.TryParse(value, out returnValue))
-                return defaultValue;
-
-            return returnValue;
-        }
-
-        public void SetValue(string key, float value)
-        {
-            SetValue(key, value.ToString());
-        }
-
-        public void SetValue(string key, int value)
-        {
-            SetValue(key, value.ToString());
-        }
-
-        public void SetValue(string key, bool value)
-        {
-            SetValue(key, value.ToString());
-        }
-
-        public void SetValue(string key, double value)
-        {
-            SetValue(key, value.ToString());
+            string data;
+            if (saveData.TryGetValue(key.ToLowerInvariant(), out data))
+                return data;
+            return "";
         }
 
         public void SetValue(string key, string value)
@@ -590,78 +434,25 @@ namespace TestFlightCore
                 saveData.Add(key, value);
         }
 
-        public void AddValue(string key, float value)
+        private void DecodeRawSaveData()
         {
-            key = key.ToLowerInvariant();
-            float newValue = value;
-            if (saveData.ContainsKey(key))
-            {
-                float existingValue;
-                if (float.TryParse(saveData[key], out existingValue))
-                    newValue = existingValue + value;
-            }
-            SetValue(key, newValue.ToString());
-        }
-
-        public void AddValue(string key, int value)
-        {
-            key = key.ToLowerInvariant();
-            int newValue = value;
-            if (saveData.ContainsKey(key))
-            {
-                int existingValue;
-                if (int.TryParse(saveData[key], out existingValue))
-                    newValue = existingValue + value;
-            }
-            SetValue(key, newValue.ToString());
-        }
-
-        public void ToggleValue(string key, bool defaultValue)
-        {
-            key = key.ToLowerInvariant();
-            bool newValue = defaultValue;
-            if (saveData.ContainsKey(key))
-            {
-                bool existingValue;
-                if (bool.TryParse(saveData[key], out existingValue))
-                    newValue = !existingValue;
-            }
-            SetValue(key, newValue.ToString());
-        }
-
-        public void AddValue(string key, double value)
-        {
-            key = key.ToLowerInvariant();
-            double newValue = value;
-            if (saveData.ContainsKey(key))
-            {
-                double existingValue;
-                if (double.TryParse(saveData[key], out existingValue))
-                    newValue = existingValue + value;
-            }
-            SetValue(key, newValue.ToString());
-        }
-
-        private void decodeRawSaveData()
-        {
-            if (String.IsNullOrEmpty(rawSaveData))
+            if (string.IsNullOrEmpty(rawSaveData))
                 return;
 
             string[] propertyGroups = rawSaveData.Split(new char[1]{ ',' }, StringSplitOptions.RemoveEmptyEntries);
+            var colonSep = new char[1] { ':' };
             foreach (string propertyGroup in propertyGroups)
             {
-                string[] keyValuePair = propertyGroup.Split(new char[1]{ ':' });
+                string[] keyValuePair = propertyGroup.Split(colonSep);
                 SetValue(keyValuePair[0], keyValuePair[1]);
             }
         }
 
-        private void encodeRawSaveData()
+        private void EncodeRawSaveData()
         {
             rawSaveData = "";
             foreach (var entry in saveData)
-            {
-                rawSaveData += String.Format("{0}:{1},", entry.Key, entry.Value);
-            }
+                rawSaveData += $"{entry.Key}:{entry.Value},";
         }
 
         #region Assembly/Class Information
@@ -688,29 +479,15 @@ namespace TestFlightCore
 
         public override void OnAwake()
         {
-            isReady = false;
             if (Instance != null && Instance != this)
             {
                 DestroyImmediate(Instance.gameObject);
             }
             Instance = this;
 
-            // v1.5.4 moved settings to PluginData but to avoid screwing over existing installs we want to migrate existing settings
-            string pdSettingsFile = System.IO.Path.Combine(_AssemblyFolder, "PluginData/settings.cfg");
-            string settingsFile = System.IO.Path.Combine(_AssemblyFolder, "../settings.cfg");
             string pdDir = System.IO.Path.Combine(_AssemblyFolder, "PluginData");
-            if (!System.IO.File.Exists(pdSettingsFile) && System.IO.File.Exists(settingsFile))
-            {
-                userSettings = new UserSettings("../settings.cfg");
-                userSettings.Load();
-                System.IO.Directory.CreateDirectory(pdDir);
-                userSettings.Save(pdSettingsFile);
-                System.IO.File.Delete(settingsFile);
-            }
             if (!System.IO.Directory.Exists(pdDir))
-            {
                 System.IO.Directory.CreateDirectory(pdDir);
-            }
 
             if (userSettings == null)
                 userSettings = new UserSettings("PluginData/settings.cfg");
@@ -722,25 +499,16 @@ namespace TestFlightCore
 
             InitDataStore();
             base.OnAwake();
-        }
 
-        public void Start()
-        {
-            Log("Scenario Start");
             if (RandomGenerator == null)
-            {
                 RandomGenerator = new System.Random();
-            }
-
             isReady = true;
         }
 
         private void OnDestroy()
         {
             if (Instance == this)
-            {
                 Instance = null;
-            }
         }
 
         public string PartWithMostData()
@@ -752,10 +520,9 @@ namespace TestFlightCore
             string returnPart = "";
             foreach (TestFlightPartData part in partData.Values)
             {
-                float partFlightData = float.Parse(part.GetValue("flightData"));
-                if (partFlightData > flightData)
+                if (part.flightData > flightData)
                 {
-                    flightData = partFlightData;
+                    flightData = part.flightData;
                     returnPart = part.PartName;
                 }
             }
@@ -771,10 +538,9 @@ namespace TestFlightCore
             string returnPart = "";
             foreach (TestFlightPartData part in partData.Values)
             {
-                float partFlightData = float.Parse(part.GetValue("flightData"));
-                if (partFlightData < flightData)
+                if (part.flightData < flightData)
                 {
-                    flightData = partFlightData;
+                    flightData = part.flightData;
                     returnPart = part.PartName;
                 }
             }
@@ -818,12 +584,9 @@ namespace TestFlightCore
         // This is a utility method that will return the "flightData" value directly or -1 if not found
         public float GetFlightDataForPartName(string partName)
         {
-            var stack = UnityEngine.StackTraceUtility.ExtractStackTrace();
-            Log(stack);
             if (partData.ContainsKey(partName))
             {
-                Log($"Get flight data for {partName}: {partData[partName].GetFloat("flightData")}");
-                return partData[partName].GetFloat("flightData");
+                return partData[partName].flightData;
             }
             else
                 return -1f;
@@ -832,7 +595,7 @@ namespace TestFlightCore
         public float GetTransferDataForPartName(string partName)
         {
             if (partData.ContainsKey(partName))
-                return partData[partName].GetFloat("transferData");
+                return partData[partName].transferData;
             else
                 return -1f;
         }
@@ -840,7 +603,7 @@ namespace TestFlightCore
         public float GetResearchDataForPartName(string partName)
         {
             if (partData.ContainsKey(partName))
-                return partData[partName].GetFloat("researchData");
+                return partData[partName].researchData;
             else
                 return -1f;
         }
@@ -849,16 +612,13 @@ namespace TestFlightCore
         // This is a utility method that sets the "flightData" value directly
         public void SetFlightDataForPartName(string partName, float data)
         {
-            var stack = UnityEngine.StackTraceUtility.ExtractStackTrace();
-            Log(stack);
-            Log($"Set flight data for {partName} to {data}");
             if (partData.ContainsKey(partName))
-                partData[partName].SetValue("flightData", data.ToString());
+                partData[partName].flightData = data;
             else
             {
                 TestFlightPartData newData = new TestFlightPartData();
                 newData.PartName = partName;
-                newData.SetValue("flightData", data.ToString());
+                newData.flightData = data;
                 partData.Add(partName, newData);
             }
         }
@@ -866,12 +626,12 @@ namespace TestFlightCore
         public void SetTransferDataForPartName(string partName, float data)
         {
             if (partData.ContainsKey(partName))
-                partData[partName].SetValue("transferData", data.ToString());
+                partData[partName].transferData = data;
             else
             {
                 TestFlightPartData newData = new TestFlightPartData();
                 newData.PartName = partName;
-                newData.SetValue("transferData", data.ToString());
+                newData.transferData = data;
                 partData.Add(partName, newData);
             }
         }
@@ -879,12 +639,12 @@ namespace TestFlightCore
         public void SetResearchDataForPartName(string partName, float data)
         {
             if (partData.ContainsKey(partName))
-                partData[partName].SetValue("researchData", data.ToString());
+                partData[partName].researchData = data;
             else
             {
                 TestFlightPartData newData = new TestFlightPartData();
                 newData.PartName = partName;
-                newData.SetValue("researchData", data.ToString());
+                newData.researchData = data;
                 partData.Add(partName, newData);
             }
         }
@@ -892,12 +652,12 @@ namespace TestFlightCore
         public void AddFlightDataForPartName(string partName, float data)
         {
             if (partData.ContainsKey(partName))
-                partData[partName].AddValue("flightData", data);
+                partData[partName].flightData += data;
             else
             {
                 TestFlightPartData newData = new TestFlightPartData();
                 newData.PartName = partName;
-                newData.SetValue("flightData", data);
+                newData.flightData = data;
                 partData.Add(partName, newData);
             }
         }
@@ -905,12 +665,12 @@ namespace TestFlightCore
         public void AddTransferDataForPartName(string partName, float data)
         {
             if (partData.ContainsKey(partName))
-                partData[partName].AddValue("transferData", data);
+                partData[partName].transferData += data;
             else
             {
                 TestFlightPartData newData = new TestFlightPartData();
                 newData.PartName = partName;
-                newData.SetValue("transferData", data);
+                newData.transferData = data;
                 partData.Add(partName, newData);
             }
         }
@@ -918,12 +678,12 @@ namespace TestFlightCore
         public void AddResearchDataForPartName(string partName, float data)
         {
             if (partData.ContainsKey(partName))
-                partData[partName].AddValue("researchData", data);
+                partData[partName].researchData += data;
             else
             {
                 TestFlightPartData newData = new TestFlightPartData();
                 newData.PartName = partName;
-                newData.SetValue("researchData", data);
+                newData.researchData = data;
                 partData.Add(partName, newData);
             }
         }
@@ -932,9 +692,7 @@ namespace TestFlightCore
         {
             base.OnLoad(node);
             if (userSettings != null)
-            {
                 userSettings.Load();
-            }
             if (bodySettings != null)
                 bodySettings.Load();
 
@@ -943,37 +701,12 @@ namespace TestFlightCore
                 rawSaveData = node.GetValue("saveData");
             else
                 rawSaveData = "";
-            decodeRawSaveData();
+            DecodeRawSaveData();
 
             if (partData == null)
                 partData = new Dictionary<String, TestFlightPartData>();
             else
                 partData.Clear();
-            // TODO: This old method of storing scope specific data is deprecated and needs to be removed in the next major release (Probably 1.4)
-            if (node.HasNode("FLIGHTDATA_PART"))
-            {
-                foreach (ConfigNode partNode in node.GetNodes("FLIGHTDATA_PART"))
-                {
-                    PartFlightData partFlightData = new PartFlightData();
-                    partFlightData.Load(partNode);
-
-                    // migrates old data into new noscope layout
-                    TestFlightPartData storedPartData = new TestFlightPartData();
-                    storedPartData.PartName = partFlightData.GetPartName();
-                    // Add up all the data and time from the old system for each scope, and then save that as the new migrated vales
-                    double totalData = 0;
-                    double totalTime = 0;
-                    List<TestFlightData> allData = partFlightData.GetFlightData();
-                    foreach (TestFlightData data in allData)
-                    {
-                        totalData += data.flightData;
-                        totalTime += data.flightTime;
-                    }
-                    storedPartData.SetValue("flightData", totalData.ToString());
-                    storedPartData.SetValue("flightTime", totalTime.ToString());
-                    partData.Add(storedPartData.PartName, storedPartData);
-                }
-            }
             // new noscope
             if (node.HasNode("partData"))
             {
@@ -982,7 +715,7 @@ namespace TestFlightCore
                     TestFlightPartData storedPartData = new TestFlightPartData();
                     storedPartData.Load(partDataNode);
                     partData.Add(storedPartData.PartName, storedPartData);
-                    Log($"Loaded Part Data for {storedPartData.PartName}: {storedPartData.GetFloat("flightData")}");
+                    Log($"Loaded Part Data for {storedPartData.PartName}: {storedPartData.flightData}");
                 }
             }
         }
@@ -991,13 +724,11 @@ namespace TestFlightCore
         {
             base.OnSave(node);
             if (userSettings != null)
-            {
                 userSettings.Save();
-            }
             if (bodySettings != null)
                 bodySettings.Save();
 
-            encodeRawSaveData();
+            EncodeRawSaveData();
             node.AddValue("saveData", rawSaveData);
 
             // new noscope format

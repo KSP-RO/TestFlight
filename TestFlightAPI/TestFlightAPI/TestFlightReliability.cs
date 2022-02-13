@@ -22,7 +22,7 @@ namespace TestFlightAPI
         public float lastReliability = 1.0f;
 
     
-        public List<ConfigNode> configs;
+        public List<ConfigNode> configs = new List<ConfigNode>();
         public ConfigNode currentConfig;
         public string configNodeData;
 
@@ -30,11 +30,7 @@ namespace TestFlightAPI
         {
             get
             {
-                // Verify we have a valid core attached
-                if (core == null)
-                    return false;
-                Log("TestFlightEnabled");
-                return core.TestFlightEnabled;
+                return (core != null) && core.TestFlightEnabled;
             }
         }
 
@@ -57,8 +53,7 @@ namespace TestFlightAPI
 
         protected void Log(string message)
         {
-            message = String.Format("TestFlightReliability({0}[{1}]): {2}", Configuration, Configuration, message);
-            TestFlightUtil.Log(message, this.part);
+            TestFlightUtil.Log($"TestFlightReliability({Configuration}[{Configuration}]): {message}", this.part);
         }
 
         // New API
@@ -71,12 +66,12 @@ namespace TestFlightAPI
         {
             if (reliabilityCurve != null)
             {
-                Log(String.Format("{0:F2} data evaluates to {1:F2} failure rate", flightData, reliabilityCurve.Evaluate(flightData)));
+                //Log($"{flightData:F2} data evaluates to {reliabilityCurve.Evaluate(flightData):F2} failure rate");
                 return reliabilityCurve.Evaluate(flightData);
             }
             else
             {
-                Log("No reliability curve. Returning min failure rate.");
+                //Log("No reliability curve. Returning min failure rate.");
                 return TestFlightUtil.MIN_FAILURE_RATE;
             }
         }
@@ -107,14 +102,6 @@ namespace TestFlightAPI
             }
         }
 
-        public void OnEnable()
-        {
-            if (core == null)
-                core = TestFlightUtil.GetCore(this.part, Configuration);
-            if (core != null)
-                Startup();
-        }
-
         public override void OnStart(StartState state)
         {
             base.OnStart(state);
@@ -127,9 +114,6 @@ namespace TestFlightAPI
 
         public virtual void SetActiveConfig(string alias)
         {
-            if (configs == null)
-                configs = new List<ConfigNode>();
-            
             foreach (var configNode in configs)
             {
                 if (!configNode.HasValue("configuration")) continue;
@@ -160,9 +144,6 @@ namespace TestFlightAPI
             if (node.HasNode("MODULE"))
                 node = node.GetNode("MODULE");
 
-            if (configs == null)
-                configs = new List<ConfigNode>();
-
             ConfigNode[] cNodes = node.GetNodes("CONFIG");
             if (cNodes != null && cNodes.Length > 0)
             {
@@ -177,17 +158,6 @@ namespace TestFlightAPI
 
             configNodeData = node.ToString();
         }
-
-        // public override void OnLoad(ConfigNode node)
-        // {
-        //     // As of v1.3 we dont' need to worry about reliability bodies anymore, just a simple FloatCurve
-        //     if (node.HasNode("reliabilityCurve"))
-        //     {
-        //         reliabilityCurve = new FloatCurve();
-        //         reliabilityCurve.Load(node.GetNode("reliabilityCurve"));
-        //     }
-        //     base.OnLoad(node);
-        // }
 
 
         public override void OnUpdate()
@@ -229,14 +199,14 @@ namespace TestFlightAPI
             double failureRoll = core.RandomGenerator.NextDouble();
             if (verboseDebugging)
             {
-                Log(String.Format("Survival Chance at Time {0:F2} is {1:f4}.  Rolled {2:f4}", (float)operatingTime, survivalChance, failureRoll));
+                Log($"Survival Chance at Time {(float)operatingTime:F2} is {survivalChance:f4}.  Rolled {failureRoll:f4}");
             }
             if (failureRoll > survivalChance)
             {
 //                Debug.Log(String.Format("TestFlightReliability: Survival Chance at Time {0:F2} is {1:f4} -- {2:f4}^({3:f4}*{0:f2}*-1.0)", (float)operatingTime, survivalChance, Mathf.Exp(1), (float)currentFailureRate));
                 if (verboseDebugging)
                 {
-                    Log(String.Format("Part has failed after {1:F1} secodns of operation at MET T+{2:F2} seconds with roll of {0:F4}", failureRoll, operatingTime, this.vessel.missionTime));
+                    Log($"Part has failed after {operatingTime:F1} secodns of operation at MET T+{vessel.missionTime:F2} seconds with roll of {failureRoll:F4}");
                 }
                 core.TriggerFailure();
             }

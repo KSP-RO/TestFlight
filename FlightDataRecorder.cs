@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
-using TestFlightAPI;
+﻿using TestFlightAPI;
 
 namespace TestFlight
 {
@@ -10,10 +7,6 @@ namespace TestFlight
 
     public class FlightDataRecorder : FlightDataRecorderBase
     {
-        public override void OnAwake()
-        {
-            base.OnAwake();
-        }
     }
 }
 

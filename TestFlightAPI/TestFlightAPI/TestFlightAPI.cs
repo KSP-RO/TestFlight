@@ -279,13 +279,7 @@ namespace TestFlightAPI
 
             // Find the active core
             ITestFlightCore core = TestFlightUtil.GetCore(part, alias);
-            if (core == null)
-                return baseName;
-
-            if (String.IsNullOrEmpty(core.Title))
-                return baseName;
-            else
-                return core.Title;
+            return (core != null && !string.IsNullOrEmpty(core.Title)) ? core.Title : baseName;
         }
         // Get the active Core Module - can only ever be one.
         public static ITestFlightCore GetCore(Part part)
@@ -371,50 +365,22 @@ namespace TestFlightAPI
         // Get the Data Recorder Module - can only ever be one.
         public static IFlightDataRecorder GetDataRecorder(Part part, string alias)
         {
-            if (part == null)
-                return null;
-
-            return part.GetComponent(typeof(IFlightDataRecorder)) as IFlightDataRecorder;
+            return (part != null) ? part.FindModuleImplementing<IFlightDataRecorder>() : null;
         }
         // Get all Reliability Modules - can be more than one.
         public static List<ITestFlightReliability> GetReliabilityModules(Part part, string alias, bool checkEnabled = true)
         {
-            if (part == null || part.Modules == null)
-                return null;
-
-            var reliabilityModules = new List<ITestFlightReliability>();
-            foreach (var pm in part.Modules)
-            {
-                if (pm is ITestFlightReliability)
-                    reliabilityModules.Add(pm as ITestFlightReliability);
-            }
-
-            return reliabilityModules;
+            return part != null ? part.FindModulesImplementing<ITestFlightReliability>() : new List<ITestFlightReliability>();
         }
         // Get all Failure Modules - can be more than one.
         public static List<ITestFlightFailure> GetFailureModules(Part part, string alias, bool checkEnabled = true)
         {
-            if (part == null || part.Modules == null)
-                return null;
-
-            var failureModules = new List<ITestFlightFailure>();
-            foreach (var pm in part.Modules)
-            {
-                if (pm is ITestFlightFailure)
-                    failureModules.Add(pm as ITestFlightFailure);
-            }
-            return failureModules;
+            return part != null ? part.FindModulesImplementing<ITestFlightFailure>() : new List<ITestFlightFailure>();
         }
 
         public static ITestFlightInterop GetInteropModule(Part part)
         {
-            if (part == null || part.Modules == null)
-                return null;
-
-            if (part.Modules.Contains("TestFlightInterop"))
-                return part.Modules["TestFlightInterop"] as ITestFlightInterop;
-
-            return null;
+            return part != null ? part.FindModuleImplementing<ITestFlightInterop>() : null;
         }
 
         // Originally `configuration` was just a string to match again ModuleEngineConfigs property of the same name.
@@ -626,105 +592,24 @@ namespace TestFlightAPI
         }
 
         // This block of methods allow for interrogating the scenario's data store in various ways
-        public static string PartWithMostData()
+        public static T InvokeTool<T>(string methodName, object[] parameters)
         {
             Type tfInterface = null;
             bool connected = false;
-
             try
             {
                 tfInterface = Type.GetType("TestFlightCore.TestFlightInterface, TestFlightCore");
+                connected = (bool)tfInterface.InvokeMember("TestFlightInstalled", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
+                if (connected)
+                    connected = (bool)tfInterface.InvokeMember("TestFlightReady", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
             }
-            catch
-            {
-                return "";
-            }
-            connected = (bool)tfInterface.InvokeMember("TestFlightInstalled", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
-            if (connected)
-            {
-                connected = (bool)tfInterface.InvokeMember("TestFlightReady", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
-            }
-
-            if (!connected)
-                return "";
-            else
-                return (string)tfInterface.InvokeMember("PartWithMostData", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
+            catch { }
+            return connected ? (T)tfInterface.InvokeMember(methodName, BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, parameters) : default(T);
         }
-
-        public static string PartWithLeastData()
-        {
-            Type tfInterface = null;
-            bool connected = false;
-
-            try
-            {
-                tfInterface = Type.GetType("TestFlightCore.TestFlightInterface, TestFlightCore");
-            }
-            catch
-            {
-                return "";
-            }
-            connected = (bool)tfInterface.InvokeMember("TestFlightInstalled", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
-            if (connected)
-            {
-                connected = (bool)tfInterface.InvokeMember("TestFlightReady", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
-            }
-
-            if (!connected)
-                return "";
-            else
-                return (string)tfInterface.InvokeMember("PartWithLeastData", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
-        }
-
-        public static string PartWithNoData(string partList)
-        {
-            Type tfInterface = null;
-            bool connected = false;
-
-            try
-            {
-                tfInterface = Type.GetType("TestFlightCore.TestFlightInterface, TestFlightCore");
-            }
-            catch
-            {
-                return "";
-            }
-            connected = (bool)tfInterface.InvokeMember("TestFlightInstalled", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
-            if (connected)
-            {
-                connected = (bool)tfInterface.InvokeMember("TestFlightReady", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
-            }
-
-            if (!connected)
-                return "";
-            else
-                return (string)tfInterface.InvokeMember("PartWithNoData", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, new object[] { partList });
-        }
-
-        public static TestFlightPartData GetPartDataForPart(string partName)
-        {
-            Type tfInterface = null;
-            bool connected = false;
-
-            try
-            {
-                tfInterface = Type.GetType("TestFlightCore.TestFlightInterface, TestFlightCore");
-            }
-            catch
-            {
-                return null;
-            }
-            connected = (bool)tfInterface.InvokeMember("TestFlightInstalled", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
-            if (connected)
-            {
-                connected = (bool)tfInterface.InvokeMember("TestFlightReady", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
-            }
-
-            if (!connected)
-                return null;
-            else
-                return (TestFlightPartData)tfInterface.InvokeMember("GetPartDataForPart", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, new object[] { partName });
-        }
+        public static string PartWithMostData() => InvokeTool<string>("PartWithMostData", null);
+        public static string PartWithLeastData() => InvokeTool<string>("PartWithLeastData", null);
+        public static string PartWithNoData(string partList) => InvokeTool<string>("PartWithNoData", new object[] { partList });
+        public static TestFlightPartData GetPartDataForPart(string partName) => InvokeTool<TestFlightPartData>("GetPartDataForPart", new object[] { partName });
     }
 
     public struct TestFlightFailureDetails

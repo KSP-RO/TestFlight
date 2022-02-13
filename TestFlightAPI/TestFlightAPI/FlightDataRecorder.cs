@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-
-using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace TestFlightAPI
 {
-
     public class FlightDataRecorderBase : PartModule, IFlightDataRecorder
     {
         private ITestFlightCore core = null;
@@ -22,15 +18,14 @@ namespace TestFlightAPI
         public string configuration = "";
         #endregion
 
-        public List<ConfigNode> configs;
+        public List<ConfigNode> configs = new List<ConfigNode>();
         public ConfigNode currentConfig;
         public string configNodeData;
         
 
         protected void Log(string message)
         {
-            message = String.Format("FlightDataRecorder({0}[{1}]): {2}", Configuration, Configuration, message);
-            TestFlightUtil.Log(message, this.part);
+            TestFlightUtil.Log($"FlightDataRecorder({Configuration}[{Configuration}]): {message}", this.part);
         }
 
 
@@ -38,18 +33,14 @@ namespace TestFlightAPI
         {
             get
             {
-                // Verify we have a valid core attached
-                if (core == null)
-                    return false;
-                // Our enabled status is the same as our bound core
-                return core.TestFlightEnabled;
+                return core != null && core.TestFlightEnabled;
             }
         }
         public string Configuration
         {
             get 
             { 
-                if (configuration.Equals(string.Empty))
+                if (string.IsNullOrEmpty(configuration))
                     configuration = TestFlightUtil.GetPartName(this.part);
 
                 return configuration; 
@@ -62,9 +53,6 @@ namespace TestFlightAPI
 
         public void SetActiveConfig(string alias)
         {
-            if (configs == null)
-                configs = new List<ConfigNode>();
-            
             foreach (var configNode in configs)
             {
                 if (!configNode.HasValue("configuration")) continue;
@@ -92,9 +80,6 @@ namespace TestFlightAPI
             if (node.HasNode("MODULE"))
                 node = node.GetNode("MODULE");
 
-            if (configs == null)
-                configs = new List<ConfigNode>();
-
             ConfigNode[] cNodes = node.GetNodes("CONFIG");
             if (cNodes != null && cNodes.Length > 0)
             {
@@ -110,12 +95,6 @@ namespace TestFlightAPI
             configNodeData = node.ToString();
         }
 
-        public void OnEnable()
-        {
-            if (core == null)
-                core = TestFlightUtil.GetCore(this.part, Configuration);
-        }
-
         public override void OnStart(StartState state)
         {
             base.OnStart(state);
@@ -127,16 +106,11 @@ namespace TestFlightAPI
         {
             if (!TestFlightEnabled)
                 return;
+            Profiler.BeginSample("TestFlight.FlightDataRecorder.OnUpdate");
 
             base.OnUpdate();
 
             float currentMet = core.GetOperatingTime();
-            if (!IsRecordingFlightData())
-            {
-                lastRecordedMet = currentMet;
-                return;
-            }
-
             if (IsRecordingFlightData())
             {
                 float flightData = (currentMet - lastRecordedMet) * flightDataMultiplier;
@@ -144,11 +118,10 @@ namespace TestFlightAPI
                 flightData *= engineerBonus;
                 if (flightData >= 0)
                     core.ModifyFlightData(flightData, true);
+                core.ModifyFlightTime(currentMet - lastRecordedMet, true);
             }
-
-            core.ModifyFlightTime(currentMet - lastRecordedMet, true);
-
             lastRecordedMet = currentMet;
+            Profiler.EndSample();
         }
 
         public virtual bool IsPartOperating()
@@ -187,14 +160,9 @@ namespace TestFlightAPI
             base.OnAwake();
         }
 
-        public override void OnSave(ConfigNode node)
-        {
-            base.OnSave(node);
-        }
-
         public virtual List<string> GetTestFlightInfo()
         {
-            return null;
+            return new List<string>();
         }
     }
 }
