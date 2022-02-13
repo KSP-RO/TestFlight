@@ -39,11 +39,17 @@ avc = {
 		"PATCH" : patch,
 		"BUILD" : build
 	},
-	"KSP_VERSION" :
+	"KSP_VERSION_MIN" :
 	{
 		"MAJOR" : 1,
 		"MINOR" : 10,
 		"PATCH" : 1
+	},
+	"KSP_VERSION_MAX" :
+	{
+		"MAJOR" : 1,
+		"MINOR" : 12,
+		"PATCH" : 99
 	}
 }
 with open("TestFlight.version", "w") as f:
