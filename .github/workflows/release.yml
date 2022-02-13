@@ -35,6 +35,7 @@ jobs:
       - name: Build mod solution
         run: |
           rm -f ${GITHUB_WORKSPACE}/GameData/TestFlight/Plugins/*.dll
+          mkdir -p "${GITHUB_WORKSPACE}/GameData/TestFlight/Plugins/"
           msbuild /p:Configuration=Release /p:ReferencePath="${{ steps.download-assemblies.outputs.ksp-dll-path }}" TestFlight.sln
           cp -v ${GITHUB_WORKSPACE}/bin/Release/TestFlight.dll ${GITHUB_WORKSPACE}/GameData/TestFlight/Plugins/TestFlight.dll
           cp -v ${GITHUB_WORKSPACE}/TestFlightAPI/TestFlightAPI/bin/Release/TestFlightAPI.dll ${GITHUB_WORKSPACE}/GameData/TestFlight/Plugins/TestFlightAPI.dll
