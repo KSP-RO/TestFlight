@@ -53,4 +53,4 @@ avc = {
 	}
 }
 with open("TestFlight.version", "w") as f:
-	f.write(json.dumps(avc))
+	f.write(json.dumps(avc, indent=4))
