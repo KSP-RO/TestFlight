@@ -570,8 +570,12 @@ namespace TestFlightAPI
 
         public static string Configuration(Part part)
         {
-            if (!part.Modules.Contains("ModuleEngineConfigs")) return "";
-            string configuration = (string)(part.Modules["ModuleEngineConfigs"].GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
+            PartModule mec = part.Modules["ModuleEngineConfigs"];
+            if (mec == null)
+                mec = part.Modules["ModulePatchableEngineConfigs"];
+            if (mec == null) return "";
+            
+            string configuration = (string)(mec.GetType().GetField("configuration").GetValue(part.Modules["ModuleEngineConfigs"]));
             return configuration.ToLower();
         }
 
