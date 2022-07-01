@@ -89,6 +89,24 @@ namespace TestFlightCore.KSPPluginFramework
             ClampToScreenOffset = new RectOffset(0, 0, 0, 0);
         }
 
+        internal override void OnDestroy()
+        {
+            base.OnDestroy();
+
+            GameEvents.onShowUI.Remove(ShowUI);
+            GameEvents.onHideUI.Remove(HideUI);
+            GameEvents.onGUIAdministrationFacilitySpawn.Remove(HideUI);
+            GameEvents.onGUIAdministrationFacilityDespawn.Remove(ShowUI);
+            GameEvents.onGUIMissionControlSpawn.Remove(HideUI);
+            GameEvents.onGUIMissionControlDespawn.Remove(HideUI);
+            GameEvents.onGUIKSPediaSpawn.Remove(HideUI);
+            GameEvents.onGUIKSPediaDespawn.Remove(ShowUI);
+            GameEvents.onGUIAstronautComplexSpawn.Remove(HideUI);
+            GameEvents.onGUIAstronautComplexDespawn.Remove(ShowUI);
+            GameEvents.onGUIRnDComplexSpawn.Remove(HideUI);
+            GameEvents.onGUIRnDComplexDespawn.Remove(ShowUI);
+        }
+
         internal bool bHideUI = false;
         public void ShowUI()
         {
