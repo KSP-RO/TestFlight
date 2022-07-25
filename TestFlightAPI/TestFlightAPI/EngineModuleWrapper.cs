@@ -300,6 +300,7 @@ public class EngineModuleWrapper
         if (engineType == EngineModuleType.UNKNOWN)
             return;
 
+        moduleEngine.allowShutdown = true;
         moduleEngine.Shutdown();
         moduleEngine.DeactivateRunningFX();
         moduleEngine.DeactivatePowerFX();
