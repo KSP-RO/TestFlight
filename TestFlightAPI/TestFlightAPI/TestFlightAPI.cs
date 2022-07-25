@@ -983,6 +983,7 @@ namespace TestFlightAPI
         List<string> GetTestFlightInfo();
 
         float GetTechTransfer();
+        void LogCareerFailure(Vessel vessel, string failureTitle);
     }
 }
 

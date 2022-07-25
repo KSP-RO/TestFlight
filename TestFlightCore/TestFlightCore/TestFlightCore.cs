@@ -867,6 +867,12 @@ namespace TestFlightCore
             return AttemptTechTransfer();
         }
 
+        public void LogCareerFailure(Vessel vessel, string failureTitle)
+        {
+            if (!initialized) return;
+            TestFlightManagerScenario.Instance.LogCareerFailure(vessel, Title, failureTitle);
+        }
+
         internal float AttemptTechTransfer()
         {
             // attempts to transfer data from a predecessor part
