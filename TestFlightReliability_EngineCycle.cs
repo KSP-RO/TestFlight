@@ -30,7 +30,13 @@ namespace TestFlight
         /// </summary>
         [KSPField]
         public float ratedBurnTime = 0f;
-
+        
+        /// <summary>
+        /// Multiplier to how much time is added to the engine's runTime based on set throttle position
+        /// </summary>
+        [KSPField]
+        public FloatCurve thrustModifier = null;
+        
         /// <summary>
         /// maximum rated continuous burn time between restarts
         /// </summary>
@@ -94,8 +100,10 @@ namespace TestFlight
                     // engine is running
                     
                     // increase both continuous and cumulative run times
-                    currentRunTime += deltaTime; // continuous
-                    engineOperatingTime += deltaTime; // cumulative
+                    // add burn time based on time passed, optionally modified by the thrust
+                    float actualThrustModifier = thrustModifier.Evaluate(engine.commandedThrust);
+                    currentRunTime += deltaTime * actualThrustModifier; // continuous
+                    engineOperatingTime += deltaTime * actualThrustModifier; // cumulative
                     
 
                     // calculate total failure rate modifier
@@ -276,6 +284,12 @@ namespace TestFlight
             {
                 continuousCycle = new FloatCurve();
                 continuousCycle.Add(0f, 1f);
+            }
+
+            if (thrustModifier == null)
+            {
+                thrustModifier = new FloatCurve();
+                thrustModifier.Add(0f, 1f);                
             }
 
         }

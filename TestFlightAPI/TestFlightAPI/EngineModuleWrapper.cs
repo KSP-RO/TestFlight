@@ -244,6 +244,17 @@ public class EngineModuleWrapper
         }
     }
 
+    public float commandedThrust
+    {
+        get
+        {
+            if (engineType == EngineModuleType.UNKNOWN)
+                return 0f;
+            
+            return Mathf.Lerp(moduleEngine.minThrust, moduleEngine.maxThrust, moduleEngine.currentThrottle);
+        }
+    }
+
     public float finalThrust
     {
         get
