@@ -109,6 +109,7 @@ namespace TestFlightAPI
 
                 }
                 FlightLogger.eventLog.Add(failMessage);
+                core.LogCareerFailure(vessel, failureTitle);
             }
         }
         
