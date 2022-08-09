@@ -305,6 +305,22 @@ public class EngineModuleWrapper
         moduleEngine.DeactivatePowerFX();
     }
 
+    // Disable restarts for failed engines
+    public void DisableRestart()
+    {
+        if (engineType == EngineModuleType.UNKNOWN)
+            return;
+
+        // Need to disable this to prevent other mods from restarting the engine.
+        moduleEngine.allowRestart = false;
+
+        // For some reason, need to disable GUI as well
+        Events["Activate"].active = false;
+        Events["Shutdown"].active = false;
+        Events["Activate"].guiActive = false;
+        Events["Shutdown"].guiActive = false;
+    }
+
     // Reduce fuel flow
     public void SetFuelFlowMult(float multiplier)
     {

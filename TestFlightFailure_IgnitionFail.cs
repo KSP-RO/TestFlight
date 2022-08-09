@@ -301,16 +301,13 @@ namespace TestFlight
                 EngineHandler engine = engines[i];
                 if (engine.failEngine)
                 {
-                    engine.engine.Shutdown();
-
                     if (severity.ToLowerInvariant() == "major")
                     {
-                        // For some reason, need to disable GUI as well
-                        engine.engine.Events["Activate"].active = false;
-                        engine.engine.Events["Shutdown"].active = false;
-                        engine.engine.Events["Activate"].guiActive = false;
-                        engine.engine.Events["Shutdown"].guiActive = false;
+                        engine.engine.DisableRestart();
                     }
+
+                    engine.engine.Shutdown();
+
                     if ((restoreIgnitionCharge) || (this.vessel.situation == Vessel.Situations.PRELAUNCH) )
                         RestoreIgnitor();
                     engines[i].failEngine = false;
