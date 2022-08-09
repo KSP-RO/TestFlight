@@ -33,11 +33,7 @@ namespace TestFlight
                 {
                     numIgnitionsToRemove = -1;
 
-                    // For some reason, need to disable GUI as well
-                    engine.engine.Events["Activate"].active = false;
-                    engine.engine.Events["Shutdown"].active = false;
-                    engine.engine.Events["Activate"].guiActive = false;
-                    engine.engine.Events["Shutdown"].guiActive = false;
+                    engine.engine.DisableRestart();
 
                     engine.engine.failed = true;
                     engine.engine.failMessage = failureTitle;
