@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.Profiling;
 using TestFlightCore.KSPPluginFramework;
@@ -406,10 +408,58 @@ namespace TestFlightCore
         public bool SettingsEnabled { get { return settingsEnabled; } set { settingsEnabled = value; } }
         public bool SettingsAlwaysMaxData { get { return settingsAlwaysMaxData; } set { settingsAlwaysMaxData = value; } }
 
+        private bool rp1Available = false;
+        private bool careerLogging = false;
+        private PropertyInfo careerLoggingInstanceProperty;
+        private MethodInfo careerLogFailureMethod;
 
         internal void Log(string message)
         {
             TestFlightUtil.Log($"[TestFlightManagerScenario] {message}", Instance.userSettings.debugLog);
+        }
+
+        internal void LogCareerFailure(Vessel vessel, string part, string failureType)
+        {
+            if (!rp1Available || !careerLogging)
+            {
+                Log("Unable to log career failure.  RP1 or Career Logging is unavailable");
+                return;
+            }
+            
+            var instance = careerLoggingInstanceProperty.GetValue(null);
+            Log("Logging career failure");
+            careerLogFailureMethod.Invoke(instance, new object[] { vessel, part, failureType });
+        }
+        
+        private void InitRP1Connection()
+        {
+            Assembly a = AssemblyLoader.loadedAssemblies.FirstOrDefault(la => string.Equals(la.name, "RP-0", StringComparison.OrdinalIgnoreCase))?.assembly;
+            if (a == null)
+            {
+                Log("RP1 Assembly not found");
+                rp1Available = false;
+                return;
+            }
+            rp1Available = true;
+            Type t = a.GetType("RP0.CareerLog");
+            
+            careerLogFailureMethod =
+                t?.GetMethod("AddFailureEvent", new[] { typeof(Vessel), typeof(string), typeof(string) });
+            if (careerLogFailureMethod == null)
+            {
+                careerLogging = false;
+                return;
+            }
+            careerLoggingInstanceProperty = t.GetProperty("Instance", BindingFlags.Public | BindingFlags.Static);
+            if (careerLoggingInstanceProperty != null)
+            {
+                careerLogging = true;
+                Log("RP1 Career Logging enabled");
+            }
+            else
+            {
+                careerLogging = false;
+            }
         }
 
         private void InitDataStore()
@@ -498,6 +548,7 @@ namespace TestFlightCore
                 userSettings.Save();
 
             InitDataStore();
+            InitRP1Connection();
             base.OnAwake();
 
             if (RandomGenerator == null)
