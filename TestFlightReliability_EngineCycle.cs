@@ -61,6 +61,9 @@ namespace TestFlight
         /// </summary>
         [KSPField(isPersistant = true, guiName = "Current run time", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true, guiFormat = "N0")]
         public double currentRunTime;
+        
+        [KSPField(isPersistant = false, guiName = "Thrust Modifier", groupName = "TestFlightDebug", groupDisplayName = "TestFlightDebug", guiActive = true, guiFormat = "N0")]
+        public float currentThrustModifier = 1f;
 
         [KSPField(isPersistant = true)]
         public double previousOperatingTime = 0d;
@@ -101,9 +104,9 @@ namespace TestFlight
                     
                     // increase both continuous and cumulative run times
                     // add burn time based on time passed, optionally modified by the thrust
-                    float actualThrustModifier = thrustModifier.Evaluate(engine.commandedThrust);
-                    currentRunTime += deltaTime * actualThrustModifier; // continuous
-                    engineOperatingTime += deltaTime * actualThrustModifier; // cumulative
+                    currentThrustModifier = thrustModifier.Evaluate(engine.commandedThrust);
+                    currentRunTime += deltaTime * currentThrustModifier; // continuous
+                    engineOperatingTime += deltaTime * currentThrustModifier; // cumulative
                     
 
                     // calculate total failure rate modifier
