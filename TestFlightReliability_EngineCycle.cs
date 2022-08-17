@@ -12,6 +12,15 @@ namespace TestFlight
     public class TestFlightReliability_EngineCycle : TestFlightReliabilityBase
     {
         private EngineModuleWrapper engine;
+        private const float curveHigh = 0.8f;
+        private const float curveLow = 0.3f;
+
+        enum CurveState
+        {
+            Low,
+            High,
+            Unknown
+        }
 
         /// <summary>
         /// failure rate modifier applied to cumulative lifecycle
@@ -67,6 +76,8 @@ namespace TestFlight
 
         [KSPField(isPersistant = true)]
         public double previousOperatingTime = 0d;
+
+        private bool hasThrustModifier;
 
         public override void OnStart(StartState state)
         {
@@ -176,6 +187,18 @@ namespace TestFlight
             {
                 ratedContinuousBurnTime = ratedBurnTime;
             }
+
+            thrustModifier = new FloatCurve();
+            if (currentConfig.HasNode("thrustModifier"))
+            {
+                thrustModifier.Load(currentConfig.GetNode("thrustModifier"));
+                hasThrustModifier = true;
+            }
+            else
+            {
+                thrustModifier.Add(0, 1f);
+                hasThrustModifier = false;
+            }
         }
 
         public override string GetModuleInfo(string configuration, float reliabilityAtTime)
@@ -198,7 +221,14 @@ namespace TestFlight
                         configNode.TryGetValue("ratedBurnTime", ref nodeBurnTime);
 
                         float burnThrough = nodeCycle.Evaluate(nodeCycle.maxTime);
-                        return String.Format("  Rated Burn Time: <color=#b1cc00ff>{0:F0} s</color>\n  <color=#ec423fff>{1:F0}%</color> failure at <color=#b1cc00ff>{2:F0} s</color>", nodeBurnTime, burnThrough, nodeCycle.maxTime);
+                        var infoString = String.Format("  Rated Burn Time: <color=#b1cc00ff>{0:F0} s</color>\n  <color=#ec423fff>{1:F0}%</color> failure at <color=#b1cc00ff>{2:F0} s</color>", nodeBurnTime, burnThrough, nodeCycle.maxTime);
+
+                        if (configNode.HasNode("thrustModifier"))
+                        {
+                            infoString = $"{infoString}\n  Burn time is modified by commanded thrust";
+                        }
+
+                        return infoString;
                     }
                 }
             }
@@ -317,7 +347,64 @@ namespace TestFlight
             {
                 infoStrings.Add($"<b>Rated Run Time</b>: {TestFlightUtil.FormatTime(ratedBurnTime, TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, true)}");
             }
+
+            if (hasThrustModifier)
+            {
+                infoStrings.AddRange(ThrustModifierCurveDescription());
+            }
             return infoStrings;
+        }
+        
+        private static float ClampModifier(float input)
+        {
+            if (input >= curveHigh) return 1;
+            if (input <= curveLow) return 0;
+
+            return 0.5f;
+        }
+
+        private CurveState GetState(float clampedModifier)
+        {
+            if (clampedModifier >= 1) return CurveState.High;
+            if (clampedModifier <= 0) return CurveState.Low;
+            return CurveState.Unknown;
+        }
+
+        public List<string> ThrustModifierCurveDescription()
+        {
+            var currentValue = ClampModifier(thrustModifier.Evaluate(0f));
+            var currentState = GetState(currentValue);
+            List<string> info = new List<string>();
+
+            for (float t = 0; t < thrustModifier.maxTime; t += 0.01f)
+            {
+                var modifier = thrustModifier.Evaluate(t);
+                var state = GetState(ClampModifier(modifier));
+                if (state != currentState)
+                {
+                    if (currentState == CurveState.High)
+                    {
+                        info.Add($"Thrust modifier is >={curveHigh:P} until ~{t:P}");
+                    }
+                    else if (currentState == CurveState.Low)
+                    {
+                        info.Add($"Thrust modifier is <={curveLow:P} until ~{t:P}");
+                    }
+
+                    if (currentState == CurveState.Unknown && state == CurveState.High)
+                    {
+                        info.Add($"Thrust modifier climbs to >={curveHigh:P} at ~{t:P}");
+                    }
+                    if (currentState == CurveState.Unknown && state == CurveState.Low)
+                    {
+                        info.Add($"Thrust modifier drops to <={curveLow:P} at ~{t:P}");
+                    }
+
+                    currentState = state;
+                }
+            }
+
+            return info;
         }
     }
 }
