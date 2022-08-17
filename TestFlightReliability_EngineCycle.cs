@@ -74,6 +74,10 @@ namespace TestFlight
         [KSPField(isPersistant = false, guiName = "Thrust Modifier", groupName = "TestFlightDebug", groupDisplayName = "TestFlightDebug", guiActive = true, guiFormat = "P2")]
         public float thrustModifierDisplay = 1f;
 
+        [KSPField(isPersistant = false, guiName = "Engine Module", groupName = "TestFlightDebug",
+            groupDisplayName = "TestFlightDebug", guiActive = true)]
+        public string engineModule;
+
         [KSPField(isPersistant = true)]
         public double previousOperatingTime = 0d;
 
@@ -84,6 +88,18 @@ namespace TestFlight
             base.OnStart(state);
             engine = new EngineModuleWrapper();
             engine.InitWithEngine(this.part, engineID);
+            switch (engine.engineType)
+            {
+                case EngineModuleWrapper.EngineModuleType.UNKNOWN:
+                    engineModule = "UNKNOWN";
+                    break;
+                case EngineModuleWrapper.EngineModuleType.ENGINE:
+                    engineModule = "ENGINE";
+                    break;
+                case EngineModuleWrapper.EngineModuleType.SOLVERENGINE:
+                    engineModule = "SOLVERENGINE";
+                    break;
+            }
             Fields[nameof(currentRunTime)].guiUnits = $"s/{ratedContinuousBurnTime}s";
             Fields[nameof(engineOperatingTime)].guiUnits = $"s/{ratedBurnTime}s";
         }
