@@ -244,7 +244,7 @@ public class EngineModuleWrapper
         }
     }
 
-    public float commandedThrust
+    public float thrustRatio
     {
         get
         {
