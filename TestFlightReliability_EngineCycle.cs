@@ -39,9 +39,9 @@ namespace TestFlight
 
         [KSPField]
         public string engineID = "";
+        
         [KSPField]
         public string engineConfig = "";
-
 
         // Used for tracking burn states over time
         /// <summary>
@@ -62,20 +62,37 @@ namespace TestFlight
         [KSPField(guiName = "Burn time", groupName = "TestFlight_Plan", groupDisplayName = "TestFlight Planning", guiActiveEditor = true, guiUnits = "s"),
             UI_FloatRange(minValue = 0f, stepIncrement = 1f, scene = UI_Scene.Editor)]
         public float plannerBurnTime;
+        
         [KSPField(guiName = "Continuous burn time", groupName = "TestFlight_Plan", groupDisplayName = "TestFlight Planning", guiActiveEditor = true, guiUnits = "s"),
             UI_FloatRange(minValue = 1f, stepIncrement = 1f, scene = UI_Scene.Editor)]
         public float plannerContinuousBurnTime;
+        
         [KSPField(guiName = "Survival chance", groupName = "TestFlight_Plan", groupDisplayName = "TestFlight Planning", guiActiveEditor = true, guiFormat = "P2")]
         public float plannerSurvivalChance;
+
+        /// <summary>
+        /// Current flight data
+        /// </summary>
+        [KSPField(guiName = "Flight data", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true, guiActiveEditor = true, guiFormat = "F0")]
+        public double flightData = 0d;
+
+        private double maxFlightData = 0d;
+
+        [KSPField(guiName = "Current reliability", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActiveEditor = true, guiFormat = "P2")]
+        public double currentReliability = 0f;
+
+        [KSPField(guiName = "Reliability at max data", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActiveEditor = true, guiFormat = "P2")]
+        public double maxReliability = 0f;
 
         public override void OnStart(StartState state)
         {
             base.OnStart(state);
             engine = new EngineModuleWrapper();
             engine.InitWithEngine(this.part, engineID);
-            Fields[nameof(currentRunTime)].guiUnits = $"s/{ratedContinuousBurnTime}s";
-            Fields[nameof(engineOperatingTime)].guiUnits = $"s/{ratedBurnTime}s";
-
+                        
+            Fields[nameof(currentRunTime)].guiUnits = $"s / {ratedContinuousBurnTime}s";
+            Fields[nameof(engineOperatingTime)].guiUnits = $"s / {ratedBurnTime}s";
+            
             Fields[nameof(plannerBurnTime)].uiControlEditor.onFieldChanged += onPlannerChanged;
             Fields[nameof(plannerBurnTime)].uiControlEditor.onSymmetryFieldChanged += onPlannerChanged;
             Fields[nameof(plannerContinuousBurnTime)].uiControlEditor.onFieldChanged += onPlannerChanged;
@@ -83,6 +100,9 @@ namespace TestFlight
             if (ratedBurnTime == ratedContinuousBurnTime) plannerBurnTime = ratedBurnTime; // Set the total burn time slider to the rated burn time only if there isn't a continuous burn time.
             plannerContinuousBurnTime = ratedContinuousBurnTime;
             UpdatePlanner();
+
+            // update engine PAW with flight data
+            GetFlightData(ref flightData, ref maxFlightData);
         }
 
         public override double GetBaseFailureRate(float flightData)
@@ -95,9 +115,12 @@ namespace TestFlight
         {
             double currentTime = Planetarium.GetUniversalTime();
             double deltaTime = (currentTime - previousOperatingTime) / 1d;
+            
+            // update run times every second
             if (deltaTime >= 1d)
             {
                 previousOperatingTime = currentTime;
+                
                 // Is our engine running?
                 if (!core.IsPartOperating())
                 {
@@ -114,7 +137,6 @@ namespace TestFlight
                     currentRunTime += deltaTime; // continuous
                     engineOperatingTime += deltaTime; // cumulative
 
-
                     // calculate total failure rate modifier
                     float cumulativeModifier = cycle.Evaluate((float)engineOperatingTime);
                     float continuousModifier = continuousCycle.Evaluate((float)currentRunTime);
@@ -122,6 +144,8 @@ namespace TestFlight
                     core.SetTriggerMomentaryFailureModifier("EngineCycle", cumulativeModifier * continuousModifier, this);
                 }
             }
+            
+            GetFlightData(ref flightData);
         }
 
         public override void OnUpdate()
@@ -183,6 +207,8 @@ namespace TestFlight
             }
 
             UpdatePlanner();
+            GetFlightData(ref flightData, ref maxFlightData);
+            GetReliability(ratedBurnTime, ref currentReliability, ref maxReliability);
         }
 
         public override string GetModuleInfo(string configuration, float reliabilityAtTime)
@@ -326,7 +352,7 @@ namespace TestFlight
         protected void UpdatePlanner()
         {
             if (core == null) return;
-
+            
             ((UI_FloatRange)(Fields[nameof(plannerBurnTime)].uiControlEditor)).maxValue = cycle.maxTime;
             plannerBurnTime = Mathf.Clamp(plannerBurnTime, 0f, cycle.maxTime);
             ((UI_FloatRange)(Fields[nameof(plannerContinuousBurnTime)].uiControlEditor)).maxValue = continuousCycle.maxTime;
@@ -351,6 +377,84 @@ namespace TestFlight
             // Since the base failure rate is constant, we can pull it out of the integral.
             plannerSurvivalChance = Mathf.Exp(-(float)core.GetBaseFailureRate()
                 * TestFlightUtil.Integrate(instantaneousFailureRateMult, 0f, burnTime));
+
+            // add display in minutes and seconds for longer burn times
+            if (ratedBurnTime >= 60)
+                Fields[nameof(ratedBurnTime)].guiUnits = $"s ({TestFlightUtil.FormatTime(ratedBurnTime, TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false)})";
+            else
+                Fields[nameof(ratedBurnTime)].guiUnits = $"s";
+        }
+
+        /// <summary>
+        /// Gets flight data for use in engine PAW. Does NOT modify flight data.
+        /// </summary>
+        /// <param name="flightData"></param>
+        /// <param name="maxFlightData"></param>
+        private void GetFlightData(ref double flightData, ref double maxFlightData)
+        {
+            if (core == null)
+            {
+                Log("Core is null");
+                return;
+            }
+
+            maxFlightData = core.GetMaximumData();
+            Fields[nameof(flightData)].guiUnits = $" du / {maxFlightData:F0} du";
+
+            flightData = Mathf.Max(0f, core.GetFlightData());
+            float fd_test1 = TestFlightManagerScenario.Instance.GetFlightDataForPartName(core.Alias);
+                    
+            if (flightData > maxFlightData)
+                flightData = maxFlightData;
+        }                
+
+        /// <summary>
+        /// Gets flight data for use in engine PAW. Does NOT modify flight data.
+        /// </summary>
+        /// <param name="flightData"></param>
+        private void GetFlightData(ref double flightData)
+        {
+            if (core == null)
+            {
+                Log("Core is null");
+                return;
+            }
+
+            flightData = Mathf.Max(0f, core.GetFlightData());
+
+            if (flightData > maxFlightData)
+                flightData = maxFlightData;
+        }
+
+        /// <summary>
+        /// Gets current and max data realibility for use in engine PAW
+        /// </summary>
+        /// <param name="reliabilityAtTime"></param>
+        private void GetReliability(float reliabilityAtTime, ref double currentReliability, ref double maxReliability)
+        {
+            if (core == null)
+            {
+                Log("Core is null");
+                return;
+            }
+
+            FloatCurve curve = core.GetBaseReliabilityCurve();
+
+            if (curve == null)
+            {
+                Log("Curve is null");
+                return;
+            }
+
+            float flightData = Mathf.Max(0f, core.GetFlightData());
+            double currentFailRate = curve.Evaluate(flightData);
+            double maxFailRate = curve.Evaluate(curve.maxTime);
+
+            currentReliability = TestFlightUtil.FailureRateToReliability(currentFailRate, reliabilityAtTime);
+            maxReliability = TestFlightUtil.FailureRateToReliability(maxFailRate, reliabilityAtTime);
+
+            //string currentMTBF = core.FailureRateToMTBFString(currentFailRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
+            //string maxMTBF = core.FailureRateToMTBFString(maxFailRate, TestFlightUtil.MTBFUnits.SECONDS, 999);
         }
     }
 }

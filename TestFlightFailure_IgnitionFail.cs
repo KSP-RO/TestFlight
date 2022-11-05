@@ -49,6 +49,11 @@ namespace TestFlight
         [KSPField(guiName = "Last Restart", groupName = "TestFlightDebug", groupDisplayName = "TestFlightDebug", guiActive = true)]
         private string restartRollString;
 
+        [KSPField(guiName = "Current ignition chance", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActiveEditor = true, guiFormat = "P2")]
+        public float currentIgnitionChance = 0f;
+
+        [KSPField(guiName = "Max ignition chance", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActiveEditor = true, guiFormat = "P2")]
+        public float maxIgnitionChance = 0f;
 
         private bool hasRestartWindow;
         private bool engineHasRun;
@@ -421,7 +426,8 @@ namespace TestFlight
                 restartWindowPenalty.Add(0f, 1f);
                 hasRestartWindow = false;
             }
-            
+
+            GetIgnitionChance(ref currentIgnitionChance, ref maxIgnitionChance);            
         }
 
         public override string GetModuleInfo(string configuration)
@@ -494,6 +500,46 @@ namespace TestFlight
 
             return infoStrings;
         }
+
+        /// <summary>
+        /// Gets current and max data ignition chance for use in engine PAW
+        /// </summary>
+        /// <param name="currentIgnitionChance"></param>
+        /// <param name="maxIgnitionChance"></param>
+        private void GetIgnitionChance(ref float currentIgnitionChance, ref float maxIgnitionChance)
+        {
+            if (core == null)
+            {
+                Log("Core is null");
+                return;
+            }
+
+            foreach (var failureModule in TestFlightUtil.GetFailureModules(this.part, core.Alias))
+            {
+                TestFlightFailure_IgnitionFail ignitionFailure = failureModule as TestFlightFailure_IgnitionFail;
+
+                if (ignitionFailure != null)
+                {
+                    FloatCurve curve = ignitionFailure.baseIgnitionChance;
+
+                    if (curve == null)
+                    {
+                        Log("Curve is null");
+                        return;
+                    }
+
+                    float flightData = core.GetFlightData();
+                    if (flightData < 0f)
+                        flightData = 0f;
+
+                    currentIgnitionChance = curve.Evaluate(flightData);
+                    maxIgnitionChance = curve.Evaluate(curve.maxTime);
+
+                    return;
+                }
+            }
+        }
+
     }
 }
 

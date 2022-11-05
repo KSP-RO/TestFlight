@@ -125,8 +125,8 @@ namespace TestFlight
                 {
                     foreach (var handler in engines)
                     {
-                        handler.engine.Status = "Failed";
-                        handler.engine.StatusL2 = failureTitle;
+                        handler.engine.Status = "<color=orange>Failed</color>";
+                        handler.engine.StatusL2 = $"<color=orange>{failureTitle}</color>";
                     }
                 }
             }
