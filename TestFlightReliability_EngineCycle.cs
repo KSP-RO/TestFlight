@@ -80,6 +80,7 @@ namespace TestFlight
         [KSPField(isPersistant = false, guiName = "Engine Module", groupName = "TestFlightDebug",
             groupDisplayName = "TestFlightDebug", guiActive = true)]
         public string engineModule;
+        public string engineModule2;
 
         [KSPField(isPersistant = true)]
         public double previousOperatingTime = 0d;
