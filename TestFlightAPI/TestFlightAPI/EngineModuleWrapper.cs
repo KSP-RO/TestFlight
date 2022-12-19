@@ -244,7 +244,7 @@ public class EngineModuleWrapper
         }
     }
 
-    public float commandedThrust
+    public float thrustRatio
     {
         get
         {
@@ -253,12 +253,12 @@ public class EngineModuleWrapper
             // current thrust / maxThrust * vac_Isp / current_Isp / ispMult / flowMult
             // var currentThrust = moduleEngine.finalThrust;
             // var maxThrust = moduleEngine.maxThrust;
-            // var vac_Isp = moduleEngine.atmCurveIsp.Evaluate(0f);
+            // var vac_Isp = moduleEngine.atmosphereCurve.Evaluate(0f);
             // var current_Isp = moduleEngine.realIsp;
             // var ispMult = moduleEngine.multIsp;
             // var flowMult = moduleEngine.flowMultiplier;
 
-            return moduleEngine.finalThrust / moduleEngine.maxThrust * moduleEngine.atmCurveIsp.Evaluate(0f) / 
+            return moduleEngine.finalThrust / moduleEngine.maxThrust * moduleEngine.atmosphereCurve.Evaluate(0f) / 
                    moduleEngine.realIsp / moduleEngine.multIsp / moduleEngine.flowMultiplier;
         }
     }
