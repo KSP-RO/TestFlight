@@ -28,7 +28,7 @@ namespace TestFlight
         /// <summary>
         /// maximum rated cumulative run time of the engine over the entire lifecycle
         /// </summary>
-        [KSPField(guiName = "Rated Burn Time", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActiveEditor = true, guiUnits = "s")]
+        [KSPField(guiName = "Rated Cumulative Burn Time", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActiveEditor = true, guiUnits = "s")]
         public float ratedBurnTime = 0f;
         
         /// <summary>
@@ -40,7 +40,7 @@ namespace TestFlight
         /// <summary>
         /// maximum rated continuous burn time between restarts
         /// </summary>
-        [KSPField(guiName = "Rated Continuous Burn Time", groupName = "TestFlight", groupDisplayName = "TestFlight", guiUnits = "s")]
+        [KSPField(guiName = "Rated Continuous Burn Time", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActiveEditor = true, guiUnits = "s")]
         public float ratedContinuousBurnTime;
         
         [KSPField]
@@ -204,14 +204,31 @@ namespace TestFlight
                 ratedContinuousBurnTime = ratedBurnTime;
             }
 
+            // hide continuous burn time if it's the same as cumulative
+            if (ratedBurnTime == ratedContinuousBurnTime)
+            {
+                Fields[nameof(ratedBurnTime)].guiName = "Rated Burn Time";
+                Fields[nameof(ratedContinuousBurnTime)].guiActiveEditor = false;
+            }
+            else
+            {
+                Fields[nameof(ratedBurnTime)].guiName = "Rated Cumulative Burn Time";
+                Fields[nameof(ratedContinuousBurnTime)].guiActiveEditor = true;
+            }
+
             GetFlightData(ref flightData, ref maxFlightData);
             GetReliability(ratedBurnTime, ref currentReliability, ref maxReliability);
 
-            // add display in minutes and seconds for longer burn times
+            // add display in hours, minutes and seconds for longer burn times
             if (ratedBurnTime >= 60)
                 Fields[nameof(ratedBurnTime)].guiUnits = $"s ({TestFlightUtil.FormatTime(ratedBurnTime, TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false)})";
             else
                 Fields[nameof(ratedBurnTime)].guiUnits = $"s";
+
+            if (ratedContinuousBurnTime >= 60)
+                Fields[nameof(ratedContinuousBurnTime)].guiUnits = $"s ({TestFlightUtil.FormatTime(ratedContinuousBurnTime, TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false)})";
+            else
+                Fields[nameof(ratedContinuousBurnTime)].guiUnits = $"s";
         }
 
         public override string GetModuleInfo(string configuration, float reliabilityAtTime)
