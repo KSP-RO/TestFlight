@@ -533,6 +533,7 @@ namespace TestFlight
 
             Fields[nameof(currentReliability)].guiUnits = $", MTBF: {currentMTBF}";
             Fields[nameof(maxReliability)].guiUnits = $", MTBF: {maxMTBF}";
+		}
 
         private static float ClampModifier(float input)
         {
@@ -587,4 +588,3 @@ namespace TestFlight
         }
     }
 }
-
