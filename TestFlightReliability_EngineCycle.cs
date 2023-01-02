@@ -33,11 +33,11 @@ namespace TestFlight
         /// </summary>
         [KSPField]
         public FloatCurve continuousCycle;
-        
+
         /// <summary>
         /// maximum rated cumulative run time of the engine over the entire lifecycle
         /// </summary>
-        [KSPField]
+        [KSPField(guiName = "Rated Cumulative Burn Time", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActiveEditor = true, guiUnits = "s")]
         public float ratedBurnTime = 0f;
         
         /// <summary>
@@ -45,11 +45,11 @@ namespace TestFlight
         /// </summary>
         [KSPField]
         public FloatCurve thrustModifier = null;
-        
+
         /// <summary>
         /// maximum rated continuous burn time between restarts
         /// </summary>
-        [KSPField]
+        [KSPField(guiName = "Rated Continuous Burn Time", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActiveEditor = true, guiUnits = "s")]
         public float ratedContinuousBurnTime;
         
         [KSPField]
@@ -62,13 +62,13 @@ namespace TestFlight
         /// <summary>
         /// amount of seconds engine has been running over the entire lifecycle (cumulative)
         /// </summary>
-        [KSPField(isPersistant = true, guiName = "Total run time", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true, guiFormat = "N0")]
+        [KSPField(isPersistant = true, guiName = "Total Run Time", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true, guiFormat = "N0")]
         public double engineOperatingTime = 0d;
 
         /// <summary>
         /// amount of second engine has been running since last start/restart
         /// </summary>
-        [KSPField(isPersistant = true, guiName = "Current run time", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true, guiFormat = "N0")]
+        [KSPField(isPersistant = true, guiName = "Current Run Time", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true, guiFormat = "N0")]
         public double currentRunTime;
         
         [KSPField(isPersistant = false, guiName = "Thrust Modifier", groupName = "TestFlightDebug", groupDisplayName = "TestFlightDebug", guiActive = true, guiFormat = "P2")]
@@ -84,6 +84,26 @@ namespace TestFlight
         [KSPField(isPersistant = true)]
         public double previousOperatingTime = 0d;
 
+        /// <summary>
+        /// Current MTBF
+        /// </summary>
+        [KSPField(guiName = "Mean Time Between Failures", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true)]
+        public string currentMTBF;
+
+        /// <summary>
+        /// Current flight data
+        /// </summary>
+        [KSPField(guiName = "Flight Data", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActive = true, guiActiveEditor = true, guiFormat = "F0")]
+        public double flightData = 0d;
+
+        private double maxFlightData = 0d;
+
+        [KSPField(guiName = "Current Reliability", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActiveEditor = true, guiFormat = "P2")]
+        public double currentReliability = 0f;
+
+        [KSPField(guiName = "Reliability at Max Data", groupName = "TestFlight", groupDisplayName = "TestFlight", guiActiveEditor = true, guiFormat = "P2")]
+        public double maxReliability = 0f;
+
         private bool hasThrustModifier;
 
         public override void OnStart(StartState state)
@@ -91,6 +111,11 @@ namespace TestFlight
             base.OnStart(state);
             engine = new EngineModuleWrapper();
             engine.InitWithEngine(this.part, engineID);
+
+            // update engine PAW with flight data
+            GetFlightData(ref flightData, ref maxFlightData);
+            GetMTBF();            
+
             switch (engine.engineType)
             {
                 case EngineModuleWrapper.EngineModuleType.UNKNOWN:
@@ -117,9 +142,12 @@ namespace TestFlight
         {
             double currentTime = Planetarium.GetUniversalTime();
             double deltaTime = (currentTime - previousOperatingTime) / 1d;
+
+            // update run times every second
             if (deltaTime >= 1d)
             {
                 previousOperatingTime = currentTime;
+
                 // Is our engine running?
                 if (!core.IsPartOperating())
                 {
@@ -148,6 +176,9 @@ namespace TestFlight
                     core.SetTriggerMomentaryFailureModifier("EngineCycle", cumulativeModifier * continuousModifier, this);
                 }
             }
+
+            GetFlightData(ref flightData);
+            GetMTBF();
         }
 
         public override void OnUpdate()
@@ -207,6 +238,32 @@ namespace TestFlight
             {
                 ratedContinuousBurnTime = ratedBurnTime;
             }
+
+            // hide continuous burn time if it's the same as cumulative
+            if (ratedBurnTime == ratedContinuousBurnTime)
+            {
+                Fields[nameof(ratedBurnTime)].guiName = "Rated Burn Time";
+                Fields[nameof(ratedContinuousBurnTime)].guiActiveEditor = false;
+            }
+            else
+            {
+                Fields[nameof(ratedBurnTime)].guiName = "Rated Cumulative Burn Time";
+                Fields[nameof(ratedContinuousBurnTime)].guiActiveEditor = true;
+            }
+
+            GetFlightData(ref flightData, ref maxFlightData);
+            GetReliability(ratedBurnTime, ref currentReliability, ref maxReliability);
+
+            // add display in hours, minutes and seconds for longer burn times
+            if (ratedBurnTime >= 60)
+                Fields[nameof(ratedBurnTime)].guiUnits = $"s ({TestFlightUtil.FormatTime(ratedBurnTime, TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false)})";
+            else
+                Fields[nameof(ratedBurnTime)].guiUnits = $"s";
+
+            if (ratedContinuousBurnTime >= 60)
+                Fields[nameof(ratedContinuousBurnTime)].guiUnits = $"s ({TestFlightUtil.FormatTime(ratedContinuousBurnTime, TestFlightUtil.TIMEFORMAT.SHORT_IDENTIFIER, false)})";
+            else
+                Fields[nameof(ratedContinuousBurnTime)].guiUnits = $"s";
 
             thrustModifier = new FloatCurve();
             if (currentConfig.HasNode("thrustModifier"))
@@ -374,7 +431,109 @@ namespace TestFlight
             }
             return infoStrings;
         }
-        
+
+        /// <summary>
+        /// Gets MTBF for use in engine PAW.
+        /// </summary>
+        private void GetMTBF()
+        {
+            if (core == null)
+            {
+                Log("Core is null");
+                return;
+            }
+
+            FloatCurve curve = core.GetBaseReliabilityCurve();
+
+            if (curve == null)
+            {
+                Log("Curve is null");
+                return;
+            }
+            
+            MomentaryFailureRate momentaryFailureRate = core.GetWorstMomentaryFailureRate();
+            if (!momentaryFailureRate.valid) return;
+
+            currentMTBF = core.FailureRateToMTBFString(momentaryFailureRate.failureRate, TestFlightUtil.MTBFUnits.SECONDS, true, 60);
+        }
+
+
+        /// <summary>
+        /// Gets flight data for use in engine PAW. Does NOT modify flight data.
+        /// </summary>
+        /// <param name="flightData"></param>
+        /// <param name="maxFlightData"></param>
+        private void GetFlightData(ref double flightData, ref double maxFlightData)
+        {
+            if (core == null)
+            {
+                Log("Core is null");
+                return;
+            }
+
+            maxFlightData = core.GetMaximumData();
+            Fields[nameof(flightData)].guiUnits = $" du / {maxFlightData:F0} du";
+
+            flightData = Mathf.Max(0f, core.GetFlightData());
+            float fd_test1 = TestFlightManagerScenario.Instance.GetFlightDataForPartName(core.Alias);
+
+            if (flightData > maxFlightData)
+                flightData = maxFlightData;
+        }
+
+        /// <summary>
+        /// Gets flight data for use in engine PAW. Does NOT modify flight data.
+        /// </summary>
+        /// <param name="flightData"></param>
+        private void GetFlightData(ref double flightData)
+        {
+            if (core == null)
+            {
+                Log("Core is null");
+                return;
+            }
+
+            flightData = Mathf.Max(0f, core.GetFlightData());
+
+            if (flightData > maxFlightData)
+                flightData = maxFlightData;
+        }
+
+        /// <summary>
+        /// Gets current and max data realibility for use in engine PAW
+        /// </summary>
+        /// <param name="reliabilityAtTime"></param>
+        private void GetReliability(float reliabilityAtTime, ref double currentReliability, ref double maxReliability)
+        {
+            if (core == null)
+            {
+                Log("Core is null");
+                return;
+            }
+
+            FloatCurve curve = core.GetBaseReliabilityCurve();
+
+            if (curve == null)
+            {
+                Log("Curve is null");
+                return;
+            }
+
+            float flightData = Mathf.Max(0f, core.GetFlightData());
+            double currentFailRate = curve.Evaluate(flightData);
+            double maxFailRate = curve.Evaluate(curve.maxTime);
+
+            currentReliability = TestFlightUtil.FailureRateToReliability(currentFailRate, reliabilityAtTime);
+            maxReliability = TestFlightUtil.FailureRateToReliability(maxFailRate, reliabilityAtTime);
+
+            // this also updates MTBF during initial flight scene load
+            currentMTBF = core.FailureRateToMTBFString(currentFailRate, TestFlightUtil.MTBFUnits.SECONDS, true, 60);            
+            
+            string maxMTBF = core.FailureRateToMTBFString(maxFailRate, TestFlightUtil.MTBFUnits.SECONDS, true, 60);
+
+            Fields[nameof(currentReliability)].guiUnits = $", MTBF: {currentMTBF}";
+            Fields[nameof(maxReliability)].guiUnits = $", MTBF: {maxMTBF}";
+
         private static float ClampModifier(float input)
         {
             if (input >= curveHigh) return 1;

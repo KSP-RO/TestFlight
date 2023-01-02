@@ -1107,6 +1107,13 @@ namespace TestFlightCore
             enabled = true;
             active = true;
 
+            if (TestFlightScenarioReady && HighLogic.LoadedSceneIsEditor)
+            {
+                float data = TestFlightManagerScenario.Instance.SettingsAlwaysMaxData
+                            ? maxData : Mathf.Max(0, TestFlightManagerScenario.Instance.GetFlightDataForPartName(Alias));
+                InitializeFlightData(data);
+            }
+
             List<PartModule> tfPartModules = TestFlightAPI.TestFlightUtil.GetAllTestFlightModulesForPart(part);
             foreach (var partModule in tfPartModules)
             {
@@ -1135,15 +1142,7 @@ namespace TestFlightCore
             for (int i = 0; i < testFlightModules.Count; i++)
             {
                 testFlightModules[i].enabled = enabled;
-            }
-
-
-            if (TestFlightScenarioReady && HighLogic.LoadedSceneIsEditor)
-            {
-                float data = TestFlightManagerScenario.Instance.SettingsAlwaysMaxData
-                            ? maxData : Mathf.Max(0, TestFlightManagerScenario.Instance.GetFlightDataForPartName(Alias));
-                InitializeFlightData(data);
-            }
+            }            
         }
 
         public float GetMaximumRnDData()
