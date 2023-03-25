@@ -507,8 +507,7 @@ namespace TestFlight
         {
             if (core == null)
             {
-                Log("Core is null");
-                return;
+                core = TestFlightUtil.GetCore(part);
             }
 
             foreach (var failureModule in TestFlightUtil.GetFailureModules(this.part, core.Alias))
