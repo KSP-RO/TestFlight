@@ -22,7 +22,8 @@ namespace TestFlightCore
 
         public void OnTreeSpawn(RDController controller)
         {
-            if (TestFlightManagerScenario.Instance == null || controller.nodes == null)
+            if (TestFlightManagerScenario.Instance == null || controller.nodes == null ||
+                !TestFlightManagerScenario.Instance.SettingsTechDiscountEnabled)
             {
                 return;
             }
