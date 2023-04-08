@@ -13,11 +13,13 @@ namespace TestFlightCore
     public class TestFlightRnD : MonoBehaviour
     {
         Dictionary<string, int> baseCost = null;
+
         public void Start()
         {
-            RDController.OnRDTreeSpawn.Add(new EventData<RDController>.OnEvent(OnTreeSpawn));
+            RDController.OnRDTreeSpawn.Add(OnTreeSpawn);
             DontDestroyOnLoad(this);
         }
+
         public void OnTreeSpawn(RDController controller)
         {
             if (TestFlightManagerScenario.Instance == null || controller.nodes == null)
