@@ -803,11 +803,8 @@ namespace TestFlightCore
         public override void OnDestroy()
         {
             base.OnDestroy();
-            if (HighLogic.LoadedSceneIsFlight)
-            {
-                GameEvents.onCrewTransferred.Remove(OnCrewChange);
-                GameEvents.onStageActivate.Remove(OnStageActivate);
-            }
+            GameEvents.onCrewTransferred.Remove(OnCrewChange);
+            GameEvents.onStageActivate.Remove(OnStageActivate);
         }
 
         public override void OnAwake()

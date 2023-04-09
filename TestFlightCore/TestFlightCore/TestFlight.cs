@@ -405,8 +405,10 @@ namespace TestFlightCore
 
         [KSPField(isPersistant = true)] public bool settingsEnabled = true;
         [KSPField(isPersistant = true)] public bool settingsAlwaysMaxData = false;
+        [KSPField(isPersistant = true)] public bool settingsTechDiscountEnabled = false;
         public bool SettingsEnabled { get { return settingsEnabled; } set { settingsEnabled = value; } }
         public bool SettingsAlwaysMaxData { get { return settingsAlwaysMaxData; } set { settingsAlwaysMaxData = value; } }
+        public bool SettingsTechDiscountEnabled { get { return settingsTechDiscountEnabled; } set { settingsTechDiscountEnabled = value; } }
 
         private bool rp1Available = false;
         private bool careerLogging = false;

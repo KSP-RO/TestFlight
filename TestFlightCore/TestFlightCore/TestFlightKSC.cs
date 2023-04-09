@@ -308,6 +308,13 @@ namespace TestFlightCore
                                 tfScenario.SettingsAlwaysMaxData = saveMaxData;
                             }
                             GUILayout.EndHorizontal();
+                            GUILayout.BeginHorizontal();
+                            bool techDiscountEnabled = tfScenario.SettingsTechDiscountEnabled;
+                            if (DrawToggle(ref techDiscountEnabled, "Apply discount to tech node cost for flown parts", Styles.styleToggle))
+                            {
+                                tfScenario.SettingsTechDiscountEnabled = techDiscountEnabled;
+                            }
+                            GUILayout.EndHorizontal();
                             break;
                     }
                     break;
