@@ -852,8 +852,11 @@ namespace TestFlightCore
                 
             currentFlightData = Mathf.Min(maxData, flightData);
             initialFlightData = Mathf.Min(maxData, flightData + researchData + transferData);
-
-            TestFlightManagerScenario.Instance.SetFlightDataForPartName(Alias, flightData);
+            
+            // Keep scenario flight data unchanged if it's higher than this part's flight data
+            float savedFlightData = TestFlightManagerScenario.Instance.GetFlightDataForPartName(Alias);
+            TestFlightManagerScenario.Instance.SetFlightDataForPartName(Alias, Mathf.Max(flightData, savedFlightData));
+            
             missionStartTime = Planetarium.GetUniversalTime();
 
             initialized |= HighLogic.LoadedSceneIsFlight;
