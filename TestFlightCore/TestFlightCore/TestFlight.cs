@@ -480,10 +480,7 @@ namespace TestFlightCore
         public void SetValue(string key, string value)
         {
             key = key.ToLowerInvariant();
-            if (saveData.ContainsKey(key))
-                saveData[key] = value;
-            else
-                saveData.Add(key, value);
+            saveData[key] = value;
         }
 
         private void DecodeRawSaveData()
@@ -616,10 +613,8 @@ namespace TestFlightCore
         // Get access to a part's data store for further set/get
         public TestFlightPartData GetPartDataForPart(string partName)
         {
-            TestFlightPartData returnValue = null;
-
-            if (partData.ContainsKey(partName))
-                returnValue = partData[partName];
+            TestFlightPartData returnValue;
+            partData.TryGetValue(partName, out returnValue);
 
             return returnValue;
         }
@@ -627,19 +622,17 @@ namespace TestFlightCore
         // Sets the existing partData for this part, or adds a new one
         public void SetPartDataForPart(string partName, TestFlightPartData newData)
         {
-            if (partData.ContainsKey(partName))
-                partData[partName] = newData;
-            else
-                partData.Add(partName, newData);
+            partData[partName] = newData;
         }
 
         // New noscope Format
         // This is a utility method that will return the "flightData" value directly or -1 if not found
         public float GetFlightDataForPartName(string partName)
         {
-            if (partData.ContainsKey(partName))
+            TestFlightPartData data;
+            if (partData.TryGetValue(partName, out data))
             {
-                return partData[partName].flightData;
+                return data.flightData;
             }
             else
                 return -1f;
@@ -647,16 +640,18 @@ namespace TestFlightCore
         // This is a utility method that will return the "transferData" value directly or -1 if not found
         public float GetTransferDataForPartName(string partName)
         {
-            if (partData.ContainsKey(partName))
-                return partData[partName].transferData;
+            TestFlightPartData data;
+            if (partData.TryGetValue(partName, out data))
+                return data.transferData;
             else
                 return -1f;
         }
         // This is a utility method that will return the "researchData" value directly or -1 if not found
         public float GetResearchDataForPartName(string partName)
         {
-            if (partData.ContainsKey(partName))
-                return partData[partName].researchData;
+            TestFlightPartData data;
+            if (partData.TryGetValue(partName, out data))
+                return data.researchData;
             else
                 return -1f;
         }
@@ -665,8 +660,9 @@ namespace TestFlightCore
         // This is a utility method that sets the "flightData" value directly
         public void SetFlightDataForPartName(string partName, float data)
         {
-            if (partData.ContainsKey(partName))
-                partData[partName].flightData = data;
+            TestFlightPartData pd;
+            if (partData.TryGetValue(partName, out pd))
+                pd.flightData = data;
             else
             {
                 TestFlightPartData newData = new TestFlightPartData();
@@ -678,8 +674,9 @@ namespace TestFlightCore
         // This is a utility method that sets the "transferData" value directly
         public void SetTransferDataForPartName(string partName, float data)
         {
-            if (partData.ContainsKey(partName))
-                partData[partName].transferData = data;
+            TestFlightPartData pd;
+            if (partData.TryGetValue(partName, out pd))
+                pd.transferData = data;
             else
             {
                 TestFlightPartData newData = new TestFlightPartData();
@@ -691,8 +688,9 @@ namespace TestFlightCore
         // This is a utility method that sets the "researchData" value directly
         public void SetResearchDataForPartName(string partName, float data)
         {
-            if (partData.ContainsKey(partName))
-                partData[partName].researchData = data;
+            TestFlightPartData pd;
+            if (partData.TryGetValue(partName, out pd))
+                pd.researchData = data;
             else
             {
                 TestFlightPartData newData = new TestFlightPartData();
@@ -704,8 +702,9 @@ namespace TestFlightCore
         // This is a utility method that adds the "flightData" value directly
         public void AddFlightDataForPartName(string partName, float data)
         {
-            if (partData.ContainsKey(partName))
-                partData[partName].flightData += data;
+            TestFlightPartData pd;
+            if (partData.TryGetValue(partName, out pd))
+                pd.flightData += data;
             else
             {
                 TestFlightPartData newData = new TestFlightPartData();
@@ -717,8 +716,9 @@ namespace TestFlightCore
         // This is a utility method that adds the "transferData" value directly
         public void AddTransferDataForPartName(string partName, float data)
         {
-            if (partData.ContainsKey(partName))
-                partData[partName].transferData += data;
+            TestFlightPartData pd;
+            if (partData.TryGetValue(partName, out pd))
+                pd.transferData += data;
             else
             {
                 TestFlightPartData newData = new TestFlightPartData();
@@ -730,8 +730,9 @@ namespace TestFlightCore
         // This is a utility method that adds the "researchData" value directly
         public void AddResearchDataForPartName(string partName, float data)
         {
-            if (partData.ContainsKey(partName))
-                partData[partName].researchData += data;
+            TestFlightPartData pd;
+            if (partData.TryGetValue(partName, out pd))
+                pd.researchData += data;
             else
             {
                 TestFlightPartData newData = new TestFlightPartData();

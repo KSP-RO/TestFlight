@@ -67,10 +67,7 @@ namespace TestFlightAPI
         public void SetValue(string key, object value)
         {
             key = key.ToLowerInvariant();
-            if (partData.ContainsKey(key))
-                partData[key] = value.ToString();
-            else
-                partData.Add(key, value.ToString());
+            partData[key] = value.ToString();
         }
 
         public void AddValue(string key, float value)

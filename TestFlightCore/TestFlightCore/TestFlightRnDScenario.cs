@@ -342,9 +342,10 @@ namespace TestFlightCore
 
         public void SetPartResearchState(string partName, bool researchActive)
         {
-            if (activeTeams.ContainsKey(partName))
+            TestFlightRnDTeam teams;
+            if (activeTeams.TryGetValue(partName, out teams))
             {
-                activeTeams[partName].ResearchActive = researchActive;
+                teams.ResearchActive = researchActive;
             }
         }
 

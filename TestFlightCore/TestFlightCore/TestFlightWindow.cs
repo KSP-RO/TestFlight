@@ -273,7 +273,8 @@ namespace TestFlightCore
                 // Display information on active vessel
                 Guid currentVessel = FlightGlobals.ActiveVessel.id;
 
-                if (masterStatus.ContainsKey(currentVessel) && masterStatus[currentVessel].allPartsStatus.Count > 0)
+                MasterStatusItem statusItem;
+                if (masterStatus.TryGetValue(currentVessel, out statusItem) && statusItem.allPartsStatus.Count > 0)
                 {
                     tfScenario.userSettings.currentMSDScrollPosition = GUILayout.BeginScrollView(tfScenario.userSettings.currentMSDScrollPosition);
                     foreach (PartStatus status in masterStatus[currentVessel].allPartsStatus)
