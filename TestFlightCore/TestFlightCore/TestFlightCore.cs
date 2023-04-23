@@ -29,6 +29,8 @@ namespace TestFlightCore
         [KSPField]
         public float techTransferMax = 1000;
         [KSPField]
+        public float perFlightMax = 0;
+        [KSPField]
         public float techTransferGenerationPenalty = 0.05f;
         [KSPField]
         public float maxData = 0f;
@@ -183,6 +185,7 @@ namespace TestFlightCore
             currentConfig.TryGetValue("techTransferMax", ref techTransferMax);
             currentConfig.TryGetValue("techTransferGenerationPenalty", ref techTransferGenerationPenalty);
             currentConfig.TryGetValue("maxData", ref maxData);
+            currentConfig.TryGetValue("perFlightMax", ref perFlightMax);
             currentConfig.TryGetValue("failureRateModifier", ref failureRateModifier);
             currentConfig.TryGetValue("scienceDataValue", ref scienceDataValue);
             currentConfig.TryGetValue("rndMaxData", ref rndMaxData);
@@ -552,8 +555,14 @@ namespace TestFlightCore
             {
                 newFlightData = existingData * modifier;
             }
+
+            if (perFlightMax > 0f)
+            {
+                newFlightData = Math.Min(newFlightData, initialFlightData + perFlightMax);
+            }
+
             // Adjust new flight data if neccesary to stay under the cap
-            if (newFlightData > (maxData * dataCap))
+            if (dataCap != 1f && newFlightData > (maxData * dataCap))
                 newFlightData = maxData * dataCap;
             if (newFlightData > maxData)
                 newFlightData = maxData;
