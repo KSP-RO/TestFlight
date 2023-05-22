@@ -288,8 +288,6 @@ namespace TestFlightAPI
             ITestFlightCore core = null;
             if (part != null)
                 core = part.FindModuleImplementing<ITestFlightCore>();
-            if (core != null && !core.TestFlightEnabled)
-                core = null;
             Profiler.EndSample();
             return core;
         }
