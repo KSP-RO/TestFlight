@@ -20,10 +20,10 @@ namespace TestFlight
         public override int SectionOrder { get { return 1; } }
         public override bool HasPresets { get { return true; } }
 
-        [GameParameters.CustomParameterUI("Pre-Launch Ignition Failures Enabled?", toolTip = "Set to enable ignition failures on the Launch Pad.")]
+        [GameParameters.CustomParameterUI("Pre-Launch Ignition Failures", toolTip = "Set to enable ignition failures on the Launch Pad.")]
         public bool preLaunchFailures = true;
 
-        [GameParameters.CustomParameterUI("Penalty For High Dynamic Pressure Enabled?", toolTip = "Whether engine ignition chance will suffer a penalty based on dynamic pressure.")]
+        [GameParameters.CustomParameterUI("Ignition Chance Penalty For High Dynamic Pressure", toolTip = "Whether engine ignition chance will suffer a penalty based on dynamic pressure.")]
         public bool dynPressurePenalties = true;
 
         public override void SetDifficultyPreset(GameParameters.Preset preset)
@@ -34,11 +34,9 @@ namespace TestFlight
                 case GameParameters.Preset.Normal:
                 case GameParameters.Preset.Moderate:
                     preLaunchFailures = false;
-                    dynPressurePenalties = false;
                     break;
                 case GameParameters.Preset.Hard:
                     preLaunchFailures = true;
-                    dynPressurePenalties = true;
                     break;
             }
         }
