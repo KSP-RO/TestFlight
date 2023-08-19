@@ -53,9 +53,7 @@ jobs:
         
       - name: Setup python
         uses: actions/setup-python@v2
-        with:
-          python-version: 2.7
-        
+
       - name: Build metadata
         shell: bash
         run: |
