@@ -282,7 +282,11 @@ namespace TestFlight
             ITestFlightCore core = TestFlightUtil.GetCore(this.part, Configuration);
             if (core != null)
             {
-                core.ModifyFlightData(duFail, true);
+                if (awardDuInPreLaunch || vessel.situation != Vessel.Situations.PRELAUNCH)
+                {
+                    core.ModifyFlightData(duFail, true);
+                }
+
                 string met = KSPUtil.PrintTimeCompact((int)Math.Floor(this.vessel.missionTime), false);
                 if (dynPressurePenalties)
                 {
