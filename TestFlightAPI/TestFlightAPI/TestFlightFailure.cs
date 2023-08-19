@@ -25,6 +25,8 @@ namespace TestFlightAPI
         public float duRepair = 0f;
         [KSPField]
         public bool oneShot = false;
+        [KSPField]
+        public bool awardDuInPreLaunch = true;
 
         [KSPField(isPersistant=true)]
         public bool failed;
@@ -98,7 +100,7 @@ namespace TestFlightAPI
             {
                 string failMessage;
                 var failTime = KSPUtil.PrintTimeCompact((int)Math.Floor(this.vessel.missionTime), false);
-                if (!previouslyFailed)
+                if (!previouslyFailed && (awardDuInPreLaunch || vessel.situation != Vessel.Situations.PRELAUNCH))
                 {
                     core.ModifyFlightData(duFail, true);
                     failMessage = $"[{failTime}] {core.Title} has failed with {failureTitle}, but this failure has given us valuable data";
@@ -127,7 +129,7 @@ namespace TestFlightAPI
         {
             Failed = false;
             ITestFlightCore core = TestFlightUtil.GetCore(this.part, Configuration);
-            if (core != null)
+            if (core != null && (awardDuInPreLaunch || vessel.situation != Vessel.Situations.PRELAUNCH))
                 core.ModifyFlightData(duRepair, true);
             return 0;
         }
@@ -160,6 +162,7 @@ namespace TestFlightAPI
             currentConfig.TryGetValue("duFail", ref duFail);
             currentConfig.TryGetValue("duRepair", ref duRepair);
             currentConfig.TryGetValue("oneShot", ref oneShot);
+            currentConfig.TryGetValue("awardDuInPreLaunch", ref awardDuInPreLaunch);
         }
 
         public virtual List<string> GetTestFlightInfo() => new List<string>();

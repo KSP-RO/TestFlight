@@ -282,7 +282,11 @@ namespace TestFlight
             ITestFlightCore core = TestFlightUtil.GetCore(this.part, Configuration);
             if (core != null)
             {
-                core.ModifyFlightData(duFail, true);
+                if (awardDuInPreLaunch || vessel.situation != Vessel.Situations.PRELAUNCH)
+                {
+                    core.ModifyFlightData(duFail, true);
+                }
+
                 string met = KSPUtil.PrintTimeCompact((int)Math.Floor(this.vessel.missionTime), false);
                 if (dynPressurePenalties)
                 {
@@ -291,9 +295,9 @@ namespace TestFlight
                         multiplier = 1f;
                 }
 
-                if (multiplier > float.Epsilon)
+                if (multiplier < 0.99)
                 {
-                    FlightLogger.eventLog.Add($"[{met}] {core.Title} failed: Ignition Failure.  {(float)(part.dynamicPressurekPa * 1000d)}Pa dynamic pressure caused a {(1f-multiplier) * 100f}% reduction in normal ignition reliability.");
+                    FlightLogger.eventLog.Add($"[{met}] {core.Title} failed: Ignition Failure.  {(float)(part.dynamicPressurekPa * 1000d)}Pa dynamic pressure caused a {(1f-multiplier) * 100f:0.#}% reduction in normal ignition reliability.");
                 }
                 else
                 {

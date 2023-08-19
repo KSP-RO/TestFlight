@@ -346,16 +346,16 @@ public class EngineModuleWrapper
     {
         if (engineType == EngineModuleType.UNKNOWN)
             return;
-        
-        moduleEngine.multIsp = multiplier;
+
+        moduleEngine.multFlow = multiplier;
     }
 
     public void SetFuelIspMult(float multiplier)
     {
         if (engineType == EngineModuleType.UNKNOWN)
             return;
-        
-        moduleEngine.multFlow = multiplier;
+
+        moduleEngine.multIsp = multiplier;
     }
 
     public void SetIgnitionCount(int numIgnitions)
