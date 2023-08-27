@@ -561,13 +561,27 @@ namespace TestFlightCore
                 newFlightData = Math.Min(newFlightData, initialFlightData + perFlightMax);
             }
 
-            // Adjust new flight data if neccesary to stay under the cap
+            // Adjust new flight data if necessary to stay under the cap
             if (dataCap != 1f && newFlightData > (maxData * dataCap))
                 newFlightData = maxData * dataCap;
             if (newFlightData > maxData)
                 newFlightData = maxData;
-            // update the scenario store to add (or subtract) the difference between the flight data before calculation and the flight data after (IE the relative change)
-            TestFlightManagerScenario.Instance.SetFlightDataForPartName(Alias, existingStoredFlightData + (newFlightData - existingData));
+
+            float dataToAdd = newFlightData - existingData;
+            if (perFlightMax > 0f)
+            {
+                // Prevent data from multiple engines from overflowing the per-flight cap
+                float currentFlightCap = initialFlightData + perFlightMax;
+                float distanceToPerFlightCap = currentFlightCap - existingStoredFlightData;
+                dataToAdd = Math.Min(distanceToPerFlightCap, dataToAdd);
+            }
+
+            if (!additive || dataToAdd > 0)
+            {
+                // update the scenario store to add the difference between the flight data before calculation and the flight data after (IE the relative change)
+                TestFlightManagerScenario.Instance.SetFlightDataForPartName(Alias, existingStoredFlightData + dataToAdd);
+            }
+
             // and update our part's saved data on the vessel
             currentFlightData = newFlightData;
 
