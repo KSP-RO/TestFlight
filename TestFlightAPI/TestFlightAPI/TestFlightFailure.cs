@@ -111,7 +111,10 @@ namespace TestFlightAPI
 
                 }
                 FlightLogger.eventLog.Add(failMessage);
-                core.LogCareerFailure(vessel, failureTitle);
+                if (!previouslyFailed)
+                {
+                    core.LogCareerFailure(vessel, failureTitle);
+                }
             }
         }
         
