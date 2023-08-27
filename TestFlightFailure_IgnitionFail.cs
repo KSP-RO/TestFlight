@@ -303,6 +303,8 @@ namespace TestFlight
                 {
                     FlightLogger.eventLog.Add($"[{met}] {core.Title} failed: Ignition Failure.");
                 }
+
+                core.LogCareerFailure(vessel, failureTitle);
             }
             Log($"IgnitionFail: Failing {engines.Count} engine(s)");
             for (int i = 0; i < engines.Count; i++)
@@ -317,7 +319,7 @@ namespace TestFlight
 
                     engine.engine.Shutdown();
 
-                    if ((restoreIgnitionCharge) || (this.vessel.situation == Vessel.Situations.PRELAUNCH) )
+                    if (restoreIgnitionCharge || this.vessel.situation == Vessel.Situations.PRELAUNCH)
                         RestoreIgnitor();
                     engines[i].failEngine = false;
                 }
