@@ -576,8 +576,12 @@ namespace TestFlightCore
                 dataToAdd = Math.Min(distanceToPerFlightCap, dataToAdd);
             }
 
-            // update the scenario store to add (or subtract) the difference between the flight data before calculation and the flight data after (IE the relative change)
-            TestFlightManagerScenario.Instance.SetFlightDataForPartName(Alias, existingStoredFlightData + dataToAdd);
+            if (!additive || dataToAdd > 0)
+            {
+                // update the scenario store to add the difference between the flight data before calculation and the flight data after (IE the relative change)
+                TestFlightManagerScenario.Instance.SetFlightDataForPartName(Alias, existingStoredFlightData + dataToAdd);
+            }
+
             // and update our part's saved data on the vessel
             currentFlightData = newFlightData;
 
