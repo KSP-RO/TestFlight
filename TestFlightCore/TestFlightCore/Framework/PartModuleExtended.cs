@@ -352,60 +352,6 @@ namespace TestFlightCore.KSPPluginFramework
 
         #endregion
 
-        #region OnGuiStuff
-        //flag to mark when OnceOnly has been done
-        private Boolean _OnGUIOnceOnlyHasRun = false;
-
-        /// <summary>
-        /// Unity: OnGUI is called for rendering and handling GUI events.
-        ///
-        /// Trigger: This is called multiple times per frame to lay stuff out etc. 
-        ///          Code here ignores the F2 key that disables user interface. So if you are making something to be user hidable then use the RenderingManager.PostDrawQueue functions in here
-        ///          Alternatively you could use the MonoBehaviourWindow Type and its DrawWindow Function
-        /// </summary>
-        public void OnGUI()
-        {
-            if (!_OnGUIOnceOnlyHasRun)
-            {
-                //set theflag so this only runs once
-                _OnGUIOnceOnlyHasRun = true;
-                //set up the skins library
-                if (!SkinsLibrary._Initialized)
-                    SkinsLibrary.InitSkinList();
-
-                //then pass it on to the downstream derivatives
-                OnGUIOnceOnly();
-            }
-
-            OnGUIEvery();
-        }
-
-        /// <summary>
-        /// Extension Function - OnGUIEvery is wrapped in OnGUI with some stuff to facilitate the OnGUIOnceOnly functionality, basically this is the OnGUI function
-        /// 
-        /// Unity: OnGUI is called for rendering and handling GUI events.
-        ///
-        /// Trigger: This is called multiple times per frame to lay stuff out etc. 
-        ///          Code here ignores the F2 key that disables user interface. So if you are making something to be user hidable then use the RenderingManager.PostDrawQueue functions in here
-        ///          Alternatively you could use the MonoBehaviourWindow Type and its DrawWindow Function
-        /// </summary>
-        internal virtual void OnGUIEvery()
-        {
-
-        }
-
-        /// <summary>
-        /// Extension Function - this will run only once each time the monobehaviour is awakened
-        /// 
-        /// Added this so you can put your GUI initialisation code in here. Running GUI initialisation stuff in Awake/Start will throw an error
-        /// </summary>
-        internal virtual void OnGUIOnceOnly()
-        {
-            LogFormatted_DebugOnly("Running OnGUI OnceOnly Code");
-
-        }
-        #endregion
-
         #region Assembly/Class Information
         /// <summary>
         /// Name of the Assembly that is running this MonoBehaviour
