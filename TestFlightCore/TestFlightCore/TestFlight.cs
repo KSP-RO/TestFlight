@@ -422,7 +422,7 @@ namespace TestFlightCore
 
         internal void LogCareerFailure(Vessel vessel, string part, string failureType)
         {
-            if (!rp1Available || !careerLogging)
+            if (!rp1Available || !careerLogging || HighLogic.CurrentGame?.Mode != Game.Modes.CAREER)
             {
                 Log("Unable to log career failure.  RP1 or Career Logging is unavailable");
                 return;
