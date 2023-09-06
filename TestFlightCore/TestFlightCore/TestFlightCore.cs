@@ -221,9 +221,9 @@ namespace TestFlightCore
                     subNode.CopyTo(newNode);
                     configs.Add(newNode);
                 }
-            }
 
-            configNodeData = node.ToString();
+                configNodeData = node.ToString();
+            }
         }
 
         internal void Log(string message)
