@@ -278,7 +278,7 @@ namespace TestFlight
             if (!TestFlightEnabled)
                 return;
             Failed = true;
-            float multiplier = 0;
+            float multiplier = 1f;
             ITestFlightCore core = TestFlightUtil.GetCore(this.part, Configuration);
             if (core != null)
             {

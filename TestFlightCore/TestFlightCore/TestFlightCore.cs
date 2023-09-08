@@ -65,7 +65,6 @@ namespace TestFlightCore
 
         public List<ConfigNode> configs = new List<ConfigNode>(8);
         public ConfigNode currentConfig;
-        public string configNodeData;
 
         bool initialized = false;
         float transferData;
@@ -216,14 +215,13 @@ namespace TestFlightCore
             {
                 configs.Clear();
 
-                foreach (ConfigNode subNode in cNodes) {
+                foreach (ConfigNode subNode in cNodes)
+                {
                     var newNode = new ConfigNode("CONFIG");
                     subNode.CopyTo(newNode);
                     configs.Add(newNode);
                 }
             }
-
-            configNodeData = node.ToString();
         }
 
         internal void Log(string message)
@@ -833,13 +831,13 @@ namespace TestFlightCore
         public override void OnAwake()
         {
             initialized = false;
-            
-            if (!string.IsNullOrEmpty(configNodeData))
+
+            TestFlightCore pm = GetCoreFromPrefab();
+            if (pm != null)
             {
-                var node = ConfigNode.Parse(configNodeData);
-                OnLoad(node);
+                configs = pm.configs;
             }
-            
+
             // poll failure modules for any existing failures
             foreach (ITestFlightFailure failure in TestFlightUtil.GetFailureModules(this.part, Alias))
             {
@@ -849,6 +847,22 @@ namespace TestFlightCore
                     hasMajorFailure |= failure.GetFailureDetails().severity.ToLowerInvariant() == "major";
                 }
             }
+        }
+
+        private TestFlightCore GetCoreFromPrefab()
+        {
+            Part prefab = part?.partInfo?.partPrefab;
+            if (prefab != null)
+            {
+                int index = part.Modules.IndexOf(this);
+                if (index < 0)
+                    index = part.Modules.Count;
+
+                var pm = prefab.Modules.Count > index ? prefab.Modules[index] as TestFlightCore : null;
+                return pm ?? prefab.FindModuleImplementing<TestFlightCore>();
+            }
+
+            return null;
         }
 
         public void OnCrewChange(GameEvents.HostedFromToAction<ProtoCrewMember, Part> e) => _OnCrewChange();
