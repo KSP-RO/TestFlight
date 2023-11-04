@@ -732,9 +732,20 @@ namespace TestFlightCore
             return failures;
         }
 
-        public void OnStageActivate(int stage)
+        private void OnStageActivate(int stage)
+        {
+            OnFlightStart();
+        }
+
+        private void OnEngineActiveChange(ModuleEngines data)
+        {
+            OnFlightStart();
+        }
+
+        private void OnFlightStart()
         {
             GameEvents.onStageActivate.Remove(OnStageActivate);
+            GameEvents.onEngineActiveChange.Remove(OnEngineActiveChange);
             firstStaged = true;
             missionStartTime = Planetarium.GetUniversalTime();
         }
@@ -815,7 +826,10 @@ namespace TestFlightCore
                 _OnCrewChange();
                 firstStaged = vessel.situation != Vessel.Situations.PRELAUNCH;
                 if (vessel.situation == Vessel.Situations.PRELAUNCH)
+                {
                     GameEvents.onStageActivate.Add(OnStageActivate);
+                    GameEvents.onEngineActiveChange.Add(OnEngineActiveChange);
+                }
                 else
                     missionStartTime = Planetarium.GetUniversalTime();
             }
@@ -826,6 +840,7 @@ namespace TestFlightCore
             base.OnDestroy();
             GameEvents.onCrewTransferred.Remove(OnCrewChange);
             GameEvents.onStageActivate.Remove(OnStageActivate);
+            GameEvents.onEngineActiveChange.Remove(OnEngineActiveChange);
         }
 
         public override void OnAwake()
