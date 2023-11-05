@@ -31,6 +31,8 @@ namespace TestFlight
 
         private readonly Dictionary<uint, EngineRunData> engineRunData = new Dictionary<uint, EngineRunData>(8);
 
+        private static bool dynPressureReminderShown;
+        private static bool restartWindowPenaltyReminderShown;
         private bool preLaunchFailures;
         private bool dynPressurePenalties;
         private bool verboseDebugging;
@@ -126,8 +128,22 @@ namespace TestFlight
         {
             base.OnStart(state);
             verboseDebugging = core.DebugEnabled;
-            preLaunchFailures = HighLogic.CurrentGame.Parameters.CustomParams<TestFlightGameSettings>().preLaunchFailures;
-            dynPressurePenalties = HighLogic.CurrentGame.Parameters.CustomParams<TestFlightGameSettings>().dynPressurePenalties;
+            TestFlightGameSettings tfSettings = HighLogic.CurrentGame.Parameters.CustomParams<TestFlightGameSettings>();
+            preLaunchFailures = tfSettings.preLaunchFailures;
+            dynPressurePenalties = tfSettings.dynPressurePenalties;
+
+            // Nothing gets saved in simulations. Use static fields to pass the information over to the editor scene where it gets correctly persisted.
+            if (dynPressureReminderShown)
+            {
+                tfSettings.dynPressurePenaltyReminderShown = true;
+            }
+            dynPressureReminderShown |= tfSettings.dynPressurePenaltyReminderShown;
+
+            if (restartWindowPenaltyReminderShown)
+            {
+                tfSettings.restartWindowPenaltyReminderShown = true;
+            }
+            restartWindowPenaltyReminderShown |= tfSettings.restartWindowPenaltyReminderShown;
         }
 
         public override void OnLoad(ConfigNode node)
@@ -183,36 +199,25 @@ namespace TestFlight
             {
                 EngineHandler engine = engines[i];
                 EngineModuleWrapper.EngineIgnitionState currentIgnitionState = engine.engine.IgnitionState;
-                var engineData = GetEngineRunDataForID(engine.engine.Module.PersistentId);
+                EngineRunData engineData = GetEngineRunDataForID(engine.engine.Module.PersistentId);
 
                 double initialFlightData = core.GetInitialFlightData();
-                float ignitionChance = 1f;
-                float pressureModifier = 1f;
-                float restartWindowModifier = 1f;
-                
+
+                float ignitionChance;
                 // Check to see if the vessel has not launched and if the player disabled pad failures
-                if (this.vessel.situation == Vessel.Situations.PRELAUNCH && !preLaunchFailures) {
-                  ignitionChance = 1.0f;
-                } else {
-                  ignitionChance = baseIgnitionChance.Evaluate((float)initialFlightData);
-                  if (ignitionChance <= 0)    
-                      ignitionChance = 1f;
-                }
-
-                if (dynPressurePenalties)
+                if (this.vessel.situation == Vessel.Situations.PRELAUNCH && !preLaunchFailures)
                 {
-                    pressureModifier = Mathf.Clamp(pressureCurve.Evaluate((float)(part.dynamicPressurekPa * 1000d)), 0, 1);
-                    if (pressureModifier <= 0f)
-                        pressureModifier = 1f;
+                    ignitionChance = 1.0f;
                 }
-
-                // if this engine has run before, and our config defines a restart window, we need to check against that and modify our ignition chance accordingly
-                if (hasRestartWindow && engineData.hasBeenRun)
+                else
                 {
-                    engineIdleTime = engineData.timeSinceLastShutdown;
-                    restartWindowModifier = Mathf.Clamp(restartWindowPenalty.Evaluate(engineIdleTime), 0, 1);
+                    ignitionChance = baseIgnitionChance.Evaluate((float)initialFlightData);
+                    if (ignitionChance <= 0)
+                        ignitionChance = 1f;
                 }
 
+                float pressureModifier = GetDynPressureModifier();
+                float restartWindowModifier = GetRestartWindowModifier(engineData);
 
                 if (this.vessel.situation != Vessel.Situations.PRELAUNCH)
                     ignitionChance = ignitionChance * pressureModifier * ignitionUseMultiplier.Evaluate(numIgnitions) * restartWindowModifier;
@@ -221,15 +226,6 @@ namespace TestFlight
                 dynamicPressurePenalty = 1f - pressureModifier;
                 restartPenalty = 1f - restartWindowModifier;
                 engineHasRun = engineData.hasBeenRun;
-
-                if (currentIgnitionState == EngineModuleWrapper.EngineIgnitionState.IGNITED)
-                {
-                    engineData.timeSinceLastShutdown = 0;
-                }
-                else
-                {
-                    engineData.timeSinceLastShutdown += (float)deltaTime;
-                }
 
                 // If we are transitioning from not ignited to ignited, we do our check
                 // The ignitionFailureRate defines the failure rate per flight data
@@ -241,12 +237,12 @@ namespace TestFlight
                         {
                             Log($"IgnitionFail: Engine {engine.engine.Module.GetInstanceID()} transitioning to INGITED state");
                             Log("IgnitionFail: Checking curves...");
-                        }                        
+                        }
                         numIgnitions++;
 
                         double failureRoll = core.RandomGenerator.NextDouble();
                         restartRollString = $"Roll: {failureRoll:P}, Chance: {ignitionChance:P}";
-                        
+
                         if (verboseDebugging)
                         {
                             Log($"IgnitionFail: Engine {engine.engine.Module.GetInstanceID()} ignition chance {ignitionChance:F4}, roll {failureRoll:F4}");
@@ -267,6 +263,15 @@ namespace TestFlight
                         }
                     }
                 }
+
+                if (currentIgnitionState == EngineModuleWrapper.EngineIgnitionState.IGNITED)
+                {
+                    engineData.timeSinceLastShutdown = 0;
+                }
+                else
+                {
+                    engineData.timeSinceLastShutdown += (float)deltaTime;
+                }
                 engine.ignitionState = currentIgnitionState;
             }
             Profiler.EndSample();
@@ -278,7 +283,6 @@ namespace TestFlight
             if (!TestFlightEnabled)
                 return;
             Failed = true;
-            float multiplier = 1f;
             ITestFlightCore core = TestFlightUtil.GetCore(this.part, Configuration);
             if (core != null)
             {
@@ -288,24 +292,38 @@ namespace TestFlight
                 }
 
                 string met = KSPUtil.PrintTimeCompact((int)Math.Floor(this.vessel.missionTime), false);
-                if (dynPressurePenalties)
-                {
-                    multiplier = pressureCurve.Evaluate((float)(part.dynamicPressurekPa * 1000d));
-                    if (multiplier <= 0f)
-                        multiplier = 1f;
-                }
+                float multiplier = GetDynPressureModifier();
 
                 if (multiplier < 0.99)
                 {
-                    FlightLogger.eventLog.Add($"[{met}] {core.Title} failed: Ignition Failure.  {(float)(part.dynamicPressurekPa * 1000d)}Pa dynamic pressure caused a {(1f-multiplier) * 100f:0.#}% reduction in normal ignition reliability.");
+                    string sPenaltyPercent = $"{(1f - multiplier) * 100f:0.#}%";
+                    FlightLogger.eventLog.Add($"[{met}] {core.Title} failed: Ignition Failure.  {(float)(part.dynamicPressurekPa * 1000d)}Pa dynamic pressure caused a {sPenaltyPercent} reduction in normal ignition reliability.");
+
+                    if (!dynPressureReminderShown && multiplier < 0.95)
+                    {
+                        ShowDynPressurePenaltyInfo(sPenaltyPercent);
+                    }
                 }
                 else
                 {
                     FlightLogger.eventLog.Add($"[{met}] {core.Title} failed: Ignition Failure.");
                 }
 
+                EngineHandler engine = engines.Find(e => e.failEngine);
+                if (!restartWindowPenaltyReminderShown && engine != null)
+                {
+                    EngineRunData engineData = GetEngineRunDataForID(engine.engine.Module.PersistentId);
+                    float restartWindowModifier = GetRestartWindowModifier(engineData);
+                    if (restartWindowModifier < 0.95)
+                    {
+                        string sPenaltyPercent = $"{(1f - restartWindowModifier) * 100f:0.#}%";
+                        ShowRestartWindowPenaltyInfo(sPenaltyPercent);
+                    }
+                }
+
                 core.LogCareerFailure(vessel, failureTitle);
             }
+
             Log($"IgnitionFail: Failing {engines.Count} engine(s)");
             for (int i = 0; i < engines.Count; i++)
             {
@@ -324,8 +342,8 @@ namespace TestFlight
                     engines[i].failEngine = false;
                 }
             }
-
         }
+
         public override float DoRepair()
         {
             base.DoRepair();
@@ -345,6 +363,7 @@ namespace TestFlight
             }
             return 0;
         }
+
         public void RestoreIgnitor()
         {
             // part.Modules["ModuleEngineIgnitor"].GetType().GetField("ignitionsRemained").GetValue(part.Modules["ModuleEngineIgnitor"]));
@@ -540,6 +559,61 @@ namespace TestFlight
                     return;
                 }
             }
+        }
+
+        private float GetDynPressureModifier()
+        {
+            float pressureModifier = 1f;
+            if (dynPressurePenalties)
+            {
+                pressureModifier = Mathf.Clamp(pressureCurve.Evaluate((float)(part.dynamicPressurekPa * 1000d)), 0, 1);
+                if (pressureModifier <= 0f)
+                    pressureModifier = 1f;
+            }
+
+            return pressureModifier;
+        }
+
+        private float GetRestartWindowModifier(EngineRunData engineData)
+        {
+            // if this engine has run before, and our config defines a restart window, we need to check against that and modify our ignition chance accordingly
+            if (hasRestartWindow && engineData.hasBeenRun)
+            {
+                engineIdleTime = engineData.timeSinceLastShutdown;
+                return Mathf.Clamp(restartWindowPenalty.Evaluate(engineIdleTime), 0, 1);
+            }
+
+            return 1f;
+        }
+
+        private static void ShowDynPressurePenaltyInfo(string sPenaltyPercent)
+        {
+            string msg = $"High dynamic pressure caused a {sPenaltyPercent} reduction in normal ignition reliability. Consider lighting the engine on the ground or higher up in the atmosphere.\nThese penalties are listed in both the flight log (F3) and in the Part Action Window.";
+            PopupDialog.SpawnPopupDialog(new Vector2(0.5f, 0.5f),
+                 new Vector2(0.5f, 0.5f),
+                 "IgnitionDynPressurePenaltyTip",
+                 "Ignition Failure",
+                 msg,
+                 "OK",
+                 false,
+                 HighLogic.UISkin);
+            TestFlightGameSettings tfSettings = HighLogic.CurrentGame.Parameters.CustomParams<TestFlightGameSettings>();
+            tfSettings.dynPressurePenaltyReminderShown = dynPressureReminderShown = true;
+        }
+
+        private void ShowRestartWindowPenaltyInfo(string sPenaltyPercent)
+        {
+            string msg = $"{core.Title} has restart window modifiers which caused a {sPenaltyPercent} reduction in normal ignition reliability. Please refer to the Part Action Window to see the current penalty in-flight or middle click on the engine while in editor.";
+            PopupDialog.SpawnPopupDialog(new Vector2(0.5f, 0.5f),
+                 new Vector2(0.5f, 0.5f),
+                 "RestartWindowPressurePenaltyTip",
+                 "Ignition Failure",
+                 msg,
+                 "OK",
+                 false,
+                 HighLogic.UISkin);
+            TestFlightGameSettings tfSettings = HighLogic.CurrentGame.Parameters.CustomParams<TestFlightGameSettings>();
+            tfSettings.restartWindowPenaltyReminderShown = restartWindowPenaltyReminderShown = true;
         }
     }
 }
