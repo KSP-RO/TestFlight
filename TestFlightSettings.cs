@@ -28,6 +28,7 @@ namespace TestFlight
 
         // The following values are persisted to the savegame but are not shown in the difficulty settings UI
         public bool dynPressurePenaltyReminderShown = false;
+        public bool restartWindowPenaltyReminderShown = false;
 
         public override void SetDifficultyPreset(GameParameters.Preset preset)
         {
