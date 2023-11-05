@@ -31,6 +31,7 @@ namespace TestFlight
 
         private readonly Dictionary<uint, EngineRunData> engineRunData = new Dictionary<uint, EngineRunData>(8);
 
+        private static bool dynPressureReminderShown;
         private bool preLaunchFailures;
         private bool dynPressurePenalties;
         private bool verboseDebugging;
@@ -126,8 +127,16 @@ namespace TestFlight
         {
             base.OnStart(state);
             verboseDebugging = core.DebugEnabled;
-            preLaunchFailures = HighLogic.CurrentGame.Parameters.CustomParams<TestFlightGameSettings>().preLaunchFailures;
-            dynPressurePenalties = HighLogic.CurrentGame.Parameters.CustomParams<TestFlightGameSettings>().dynPressurePenalties;
+            TestFlightGameSettings tfSettings = HighLogic.CurrentGame.Parameters.CustomParams<TestFlightGameSettings>();
+            preLaunchFailures = tfSettings.preLaunchFailures;
+            dynPressurePenalties = tfSettings.dynPressurePenalties;
+
+            // Nothing gets saved in simulations. Use static fields to pass the information over to the editor scene where it gets correctly persisted.
+            if (dynPressureReminderShown)
+            {
+                tfSettings.dynPressurePenaltyReminderShown = true;
+            }
+            dynPressureReminderShown |= tfSettings.dynPressurePenaltyReminderShown;
         }
 
         public override void OnLoad(ConfigNode node)
@@ -297,7 +306,23 @@ namespace TestFlight
 
                 if (multiplier < 0.99)
                 {
-                    FlightLogger.eventLog.Add($"[{met}] {core.Title} failed: Ignition Failure.  {(float)(part.dynamicPressurekPa * 1000d)}Pa dynamic pressure caused a {(1f-multiplier) * 100f:0.#}% reduction in normal ignition reliability.");
+                    string sPenaltyPercent = $"{(1f - multiplier) * 100f:0.#}%";
+                    FlightLogger.eventLog.Add($"[{met}] {core.Title} failed: Ignition Failure.  {(float)(part.dynamicPressurekPa * 1000d)}Pa dynamic pressure caused a {sPenaltyPercent} reduction in normal ignition reliability.");
+
+                    if (!dynPressureReminderShown && multiplier < 0.95)
+                    {
+                        string msg = $"High dynamic pressure caused a {sPenaltyPercent} reduction in normal ignition reliability. Consider lighting the engine on the ground or higher up in the atmosphere.\nThese penalties are listed in both the flight log (F3) and in the Part Action Window.";
+                        PopupDialog.SpawnPopupDialog(new Vector2(0.5f, 0.5f),
+                             new Vector2(0.5f, 0.5f),
+                             "IgnitionDynPressurePenaltyTip",
+                             "Ignition Failure",
+                             msg,
+                             "OK",
+                             false,
+                             HighLogic.UISkin);
+                        TestFlightGameSettings tfSettings = HighLogic.CurrentGame.Parameters.CustomParams<TestFlightGameSettings>();
+                        tfSettings.dynPressurePenaltyReminderShown = dynPressureReminderShown = true;
+                    }
                 }
                 else
                 {
