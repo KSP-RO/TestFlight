@@ -297,7 +297,7 @@ namespace TestFlight
                 if (multiplier < 0.99)
                 {
                     string sPenaltyPercent = $"{(1f - multiplier) * 100f:0.#}%";
-                    FlightLogger.eventLog.Add($"[{met}] {core.Title} failed: Ignition Failure.  {(float)(part.dynamicPressurekPa * 1000d)}Pa dynamic pressure caused a {sPenaltyPercent} reduction in normal ignition reliability.");
+                    FlightLogger.eventLog.Add($"[{met}] {core.Title} failed: Ignition Failure.  {(float)(vessel.dynamicPressurekPa * 1000d)}Pa dynamic pressure caused a {sPenaltyPercent} reduction in normal ignition reliability.");
 
                     if (!dynPressureReminderShown && multiplier < 0.95)
                     {
@@ -566,7 +566,7 @@ namespace TestFlight
             float pressureModifier = 1f;
             if (dynPressurePenalties)
             {
-                pressureModifier = Mathf.Clamp(pressureCurve.Evaluate((float)(part.dynamicPressurekPa * 1000d)), 0, 1);
+                pressureModifier = Mathf.Clamp(pressureCurve.Evaluate((float)(vessel.dynamicPressurekPa * 1000d)), 0, 1);
                 if (pressureModifier <= 0f)
                     pressureModifier = 1f;
             }
