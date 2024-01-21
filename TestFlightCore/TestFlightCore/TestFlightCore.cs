@@ -228,6 +228,7 @@ namespace TestFlightCore
         {
             TestFlightUtil.Log($"TestFlightCore({Alias}[{Configuration}]): {message}", true);
         }
+
         private void CalculateMaximumData()
         {
             if (maxData > 0f)
@@ -244,6 +245,7 @@ namespace TestFlightCore
                 }
             }
         }
+
         // Retrieves the maximum amount of data a part can gain
         public float GetMaximumData()
         {
@@ -269,6 +271,7 @@ namespace TestFlightCore
             baseFailureRate = Math.Max(totalBFR, TestFlightUtil.MIN_FAILURE_RATE);
             return baseFailureRate;
         }
+
         // Get the Reliability Curve for the part
         public FloatCurve GetBaseReliabilityCurve()
         {
@@ -282,6 +285,7 @@ namespace TestFlightCore
 
             return null;
         }
+
         public float GetRunTime(RatingScope ratingScope)
         {
             float burnTime = 0f;
@@ -292,6 +296,7 @@ namespace TestFlightCore
 
             return burnTime;
         }
+
         // Get the momentary (IE current dynamic) failure rates (Can vary per reliability/failure modules)
         // These  methods will let you get a list of all momentary rates or you can get the best (lowest chance of failure)/worst (highest chance of failure) rates
         public MomentaryFailureRate GetWorstMomentaryFailureRate()
@@ -324,6 +329,7 @@ namespace TestFlightCore
             return mfrIndex > -1 ? momentaryFailureRates[mfrIndex] : new MomentaryFailureRate();
 
         }
+
         public MomentaryFailureRate GetBestMomentaryFailureRate()
         {
             MomentaryFailureRate bestMFR = new MomentaryFailureRate
@@ -339,14 +345,17 @@ namespace TestFlightCore
 
             return bestMFR;
         }
+
         public List<MomentaryFailureRate> GetAllMomentaryFailureRates()
         {
             return momentaryFailureRates;
         }
+
         public double GetMomentaryFailureRateForTrigger(String trigger)
         {
             return GetMomentaryFailureRate(trigger).failureRate;
         }
+
         // The momentary failure rate is tracked per named "trigger" which allows multiple Reliability or FailureTrigger modules to cooperate
         // Returns the total modified failure rate back to the caller for convenience
         // IMPORTANT: For performance reasons a module should only set its Momentary Modifier WHEN IT CHANGES.  The core will cache the value.
@@ -365,6 +374,7 @@ namespace TestFlightCore
 
             return new MomentaryFailureModifier();
         }
+
         internal MomentaryFailureRate GetMomentaryFailureRate(string trigger)
         {
             trigger = trigger.Trim();
@@ -404,6 +414,7 @@ namespace TestFlightCore
                 return CalculateMomentaryFailureRate(trigger);
             }
         }
+
         internal double CalculateMomentaryFailureRate(String trigger)
         {
             trigger = trigger.Trim();
@@ -433,6 +444,7 @@ namespace TestFlightCore
             }
             return momentaryRate;
         }
+
         // simply converts the failure rate into a MTBF string.  Convenience method
         // Returned string will be of the format "123 units"
         // units should be one of:
@@ -441,10 +453,12 @@ namespace TestFlightCore
         {
             return FailureRateToMTBFString(failureRate, units, false, int.MaxValue);
         }
+
         public String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, int maximum)
         {
             return FailureRateToMTBFString(failureRate, units, false, maximum);
         }
+
         // Short version of MTBFString uses a single letter to denote (s)econds, (m)inutes, (h)ours, (d)ays, (y)ears
         // The returned string will be of the format "12.00s" or "0.20d"
         public String FailureRateToMTBFString(double failureRate, TestFlightUtil.MTBFUnits units, bool shortForm)
@@ -475,6 +489,7 @@ namespace TestFlightCore
         {
             return Mathf.Min(maxData, currentFlightData + researchData + transferData);
         }
+
         public float GetInitialFlightData()
         {
             if (initialFlightData > maxData)
@@ -482,6 +497,7 @@ namespace TestFlightCore
             
             return initialFlightData;
         }
+
         public float GetFlightTime()
         {
             if (TestFlightManagerScenario.Instance != null)
@@ -492,6 +508,7 @@ namespace TestFlightCore
             else
                 return 0f;
         }
+
         public float GetMaximumFlightData()
         {
             return maxData;
@@ -504,12 +521,14 @@ namespace TestFlightCore
             dataRateLimiter = limit;
             return oldRate;
         }
+
         public float SetDataCap(float cap)
         {
             float oldCap = dataCap;
             dataCap = cap;
             return oldCap;
         }
+
         // Set the FlightData for FlightTime or the part - this is an absolute set and replaces the previous FlightData.
         // This will NOT apply any global TestFlight modifiers!
         // Be sure these are the methods you want to use.  99% of the time you want to use ModifyFlightData instead
@@ -520,6 +539,7 @@ namespace TestFlightCore
             
             currentFlightData = data;
         }
+
         public void SetFlightTime(float flightTime)
         {
             if (TestFlightManagerScenario.Instance != null)
@@ -632,10 +652,12 @@ namespace TestFlightCore
             float mult = TestFlightManagerScenario.Instance == null ? 1 : TestFlightManagerScenario.Instance.userSettings.flightDataMultiplier;
             return baseData * mult;
         }
+
         public ITestFlightFailure TriggerFailure()
         {
             return TriggerFailure("any");
         }
+
         // Cause a failure to occur, either a random failure or a specific one
         // If fallbackToRandom is true, then if the specified failure can't be found or can't be triggered, a random failure will be triggered instead
         // Returns the triggered failure module, or null if none
@@ -678,10 +700,12 @@ namespace TestFlightCore
             Debug.LogError($"Failed to fail! {failureModules.Count} options for severity: {severity}, chose {chosenWeight} from {totalWeight}?");
             return null;
         }
+
         public ITestFlightFailure TriggerNamedFailure(String failureModuleName)
         {
             return TriggerNamedFailure(failureModuleName, false);
         }
+
         public ITestFlightFailure TriggerNamedFailure(String failureModuleName, bool fallbackToRandom)
         {
             failureModuleName = failureModuleName.ToLower().Trim();
@@ -697,6 +721,7 @@ namespace TestFlightCore
                 fm = TriggerFailure();
             return fm;
         }
+
         // Returns a list of all available failures on the part
         public List<string> GetAvailableFailures()
         {
@@ -705,12 +730,14 @@ namespace TestFlightCore
                 failureModulesString.Add((fm as PartModule).moduleName);
             return failureModulesString;
         }
+
         // Enable a failure so it can be triggered (this is the default state)
         public void EnableFailure(String failureModuleName)
         {
             failureModuleName = failureModuleName.ToLowerInvariant().Trim();
             disabledFailures.Remove(failureModuleName);
         }
+
         // Disable a failure so it can not be triggered
         public void DisableFailure(String failureModuleName)
         {
@@ -718,6 +745,7 @@ namespace TestFlightCore
             if (!disabledFailures.Contains(failureModuleName))
                 disabledFailures.Add(failureModuleName);
         }
+
         // Returns the Operational Time or the time, in MET, since the last time the part was fully functional. 
         // If a part is currently in a failure state, return will be -1 and the part should not fail again
         // This counts from mission start time until a failure, at which point it is reset to the time the
@@ -800,6 +828,7 @@ namespace TestFlightCore
                 InitializeFlightData(data);
             }
         }
+
         public override void Start()
         {
             if (!TestFlightEnabled)
@@ -822,6 +851,8 @@ namespace TestFlightCore
 
             if (HighLogic.LoadedSceneIsFlight)
             {
+                PollExistingFailuresOnStart();
+
                 GameEvents.onCrewTransferred.Add(OnCrewChange);
                 _OnCrewChange();
                 firstStaged = vessel.situation != Vessel.Situations.PRELAUNCH;
@@ -851,16 +882,6 @@ namespace TestFlightCore
             if (pm != null)
             {
                 configs = pm.configs;
-            }
-
-            // poll failure modules for any existing failures
-            foreach (ITestFlightFailure failure in TestFlightUtil.GetFailureModules(this.part, Alias))
-            {
-                if (failure.Failed)
-                {
-                    failures.Add(failure);
-                    hasMajorFailure |= failure.GetFailureDetails().severity.ToLowerInvariant() == "major";
-                }
             }
         }
 
@@ -996,6 +1017,19 @@ namespace TestFlightCore
             return false;
         }
             
+        private void PollExistingFailuresOnStart()
+        {
+            List<ITestFlightFailure> m = TestFlightUtil.GetFailureModules(this.part, Alias);
+            foreach (ITestFlightFailure failure in m)
+            {
+                if (failure.Failed)
+                {
+                    failures.Add(failure);
+                    hasMajorFailure |= failure.GetFailureDetails().severity.ToLowerInvariant() == "major";
+                }
+            }
+        }
+
         public void HighlightPart(bool doHighlight)
         {
 //            Color highlightColor;

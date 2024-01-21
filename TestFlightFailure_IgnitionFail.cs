@@ -127,7 +127,23 @@ namespace TestFlight
         public override void OnStart(StartState state)
         {
             base.OnStart(state);
+
             verboseDebugging = core.DebugEnabled;
+
+            if (Failed && IsMajor)
+            {
+                for (int i = 0; i < engines.Count; i++)
+                {
+                    EngineHandler engine = engines[i];
+                    CachedEngineState engineState;
+                    // Ignition failure can only trigger on one engine PM out of many
+                    if (engineStates?.TryGetValue(i, out engineState) ?? false)
+                    {
+                        engine.engine.DisableRestart();
+                    }
+                }
+            }
+
             TestFlightGameSettings tfSettings = HighLogic.CurrentGame.Parameters.CustomParams<TestFlightGameSettings>();
             preLaunchFailures = tfSettings.preLaunchFailures;
             dynPressurePenalties = tfSettings.dynPressurePenalties;
@@ -337,7 +353,7 @@ namespace TestFlight
                     var engineState = new CachedEngineState(engine.engine);
                     engineStates.Add(i, engineState);
 
-                    if (severity.ToLowerInvariant() == "major")
+                    if (IsMajor)
                     {
                         engine.engine.DisableRestart();
                     }
@@ -346,7 +362,7 @@ namespace TestFlight
 
                     if (restoreIgnitionCharge || this.vessel.situation == Vessel.Situations.PRELAUNCH)
                         RestoreIgnitor();
-                    engines[i].failEngine = false;
+                    engine.failEngine = false;
                 }
             }
         }

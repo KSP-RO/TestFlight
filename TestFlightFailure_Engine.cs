@@ -22,6 +22,8 @@ namespace TestFlight
         protected ITestFlightCore core = null;
         protected Dictionary<int, CachedEngineState> engineStates;
 
+        public bool IsMajor => string.Equals(severity, "major", StringComparison.OrdinalIgnoreCase);
+
         public new bool TestFlightEnabled
         {
             get

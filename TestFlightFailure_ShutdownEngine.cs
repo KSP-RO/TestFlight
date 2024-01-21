@@ -4,6 +4,21 @@ namespace TestFlight
 {
     public class TestFlightFailure_ShutdownEngine : TestFlightFailure_Engine
     {
+        public override void OnStart(StartState state)
+        {
+            base.OnStart(state);
+
+            if (Failed && IsMajor)
+            {
+                foreach (EngineHandler engine in engines)
+                {
+                    engine.engine.DisableRestart();
+                    engine.engine.failed = true;
+                    engine.engine.failMessage = failureTitle;
+                }
+            }
+        }
+
         /// <summary>
         /// Triggers the failure controlled by the failure module
         /// </summary>
@@ -19,12 +34,11 @@ namespace TestFlight
                 var engineState = new CachedEngineState(engine.engine);
                 engine.engine.Shutdown();
                 var numIgnitionsToRemove = 1;
-                if (severity.ToLowerInvariant() == "major")
+                if (IsMajor)
                 {
                     numIgnitionsToRemove = -1;
 
                     engine.engine.DisableRestart();
-
                     engine.engine.failed = true;
                     engine.engine.failMessage = failureTitle;
                 }
