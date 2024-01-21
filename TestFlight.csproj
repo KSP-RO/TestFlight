@@ -67,6 +67,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CachedEngineState.cs" />
     <Compile Include="EngineRunData.cs" />
     <Compile Include="Failure Bases\TestFlightFailureBase_Avionics.cs" />
     <Compile Include="Failure Bases\TestFlightFailureBase_Docking.cs" />

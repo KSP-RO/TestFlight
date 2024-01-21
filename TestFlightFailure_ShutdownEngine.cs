@@ -4,14 +4,6 @@ namespace TestFlight
 {
     public class TestFlightFailure_ShutdownEngine : TestFlightFailure_Engine
     {
-        protected struct CachedEngineState
-        {
-            public bool allowShutdown;
-            public int numIgnitions;
-        }
-
-        Dictionary<int, CachedEngineState> engineStates;
-
         /// <summary>
         /// Triggers the failure controlled by the failure module
         /// </summary>
@@ -23,10 +15,8 @@ namespace TestFlight
             engineStates.Clear();
             foreach (EngineHandler engine in engines)
             {
-                int id = engine.engine.Module.GetInstanceID();
-                CachedEngineState engineState = new CachedEngineState();
-                engineState.allowShutdown = engine.engine.allowShutdown;
-                engineState.numIgnitions = engine.engine.GetIgnitionCount();
+                int id = engines.IndexOf(engine);
+                var engineState = new CachedEngineState(engine.engine);
                 engine.engine.Shutdown();
                 var numIgnitionsToRemove = 1;
                 if (severity.ToLowerInvariant() == "major")
@@ -45,24 +35,26 @@ namespace TestFlight
 
         public override float DoRepair()
         {
-            base.DoRepair();
             // for each engine restore it
             foreach (EngineHandler engine in engines)
             {
-                int id = engine.engine.Module.GetInstanceID();
-                if (engineStates.ContainsKey(id))
+                int id = engines.IndexOf(engine);
+                CachedEngineState engineState = null;
+                if (engineStates?.TryGetValue(id, out engineState) ?? false)
                 {
                     engine.engine.enabled = true;
                     engine.engine.Events["Activate"].active = true;
                     engine.engine.Events["Activate"].guiActive = true;
                     engine.engine.Events["Shutdown"].guiActive = true;
-                    engine.engine.allowShutdown = engineStates[id].allowShutdown;
-                    engine.engine.SetIgnitionCount(engineStates[id].numIgnitions);
+                    engine.engine.allowShutdown = engineState.allowShutdown;
+                    engine.engine.allowRestart = engineState.allowRestart;
+                    engine.engine.SetIgnitionCount(engineState.numIgnitions);
                     engine.engine.failed = false;
                     engine.engine.failMessage = "";
                 }
             }
             engineStates.Clear();
+            base.DoRepair();
             return 0;
         }
     }

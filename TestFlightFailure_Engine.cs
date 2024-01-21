@@ -20,6 +20,7 @@ namespace TestFlight
 
         protected List<EngineHandler> engines = new List<EngineHandler>();
         protected ITestFlightCore core = null;
+        protected Dictionary<int, CachedEngineState> engineStates;
 
         public new bool TestFlightEnabled
         {
@@ -43,6 +44,43 @@ namespace TestFlight
             base.OnStart(state);
             core = TestFlightUtil.GetCore(part, Configuration);
             Startup();
+        }
+
+        public override void OnLoad(ConfigNode node)
+        {
+            base.OnLoad(node);
+
+            ConfigNode[] cNodes = node.GetNodes("ENGINESTATE");
+            if (cNodes.Length > 0 && engineStates == null)
+                engineStates = new Dictionary<int, CachedEngineState>();
+
+            foreach (ConfigNode cNode in cNodes)
+            {
+                int id = 0;
+                if (!cNode.TryGetValue("id", ref id))
+                {
+                    Debug.LogError("[TestFlight] Invalid ENGINESTATE data in OnLoad:" + cNode);
+                    continue;
+                }
+                var state = new CachedEngineState(cNode);
+                engineStates.Add(id, state);
+            }
+        }
+
+        public override void OnSave(ConfigNode node)
+        {
+            base.OnSave(node);
+
+            if (engineStates?.Count > 0)
+            {
+                foreach (KeyValuePair<int, CachedEngineState> kvp in engineStates)
+                {
+                    var cn = new ConfigNode("ENGINESTATE");
+                    kvp.Value.Save(cn);
+                    cn.AddValue("id", kvp.Key);
+                    node.AddNode(cn);
+                }
+            }
         }
 
         private void AddEngine(EngineModuleWrapper engine)
@@ -112,6 +150,15 @@ namespace TestFlight
 
             // update current values with those from the current config node
             currentConfig.TryGetValue("engineID", ref engineID);
+        }
+
+        public override float DoRepair()
+        {
+            foreach (EngineHandler engine in engines)
+            {
+                engine.engine.ResetStatus();
+            }
+            return base.DoRepair();
         }
 
         private readonly WaitForFixedUpdate _wait = new WaitForFixedUpdate();
