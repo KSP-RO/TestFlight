@@ -770,10 +770,19 @@ namespace TestFlightCore
             OnFlightStart();
         }
 
+        private void OnVesselSituationChange(GameEvents.HostedFromToAction<Vessel, Vessel.Situations> ev)
+        {
+            if (ev.from == Vessel.Situations.PRELAUNCH && ev.host == FlightGlobals.ActiveVessel)
+            {
+                OnFlightStart();
+            }
+        }
+
         private void OnFlightStart()
         {
             GameEvents.onStageActivate.Remove(OnStageActivate);
             GameEvents.onEngineActiveChange.Remove(OnEngineActiveChange);
+            GameEvents.onVesselSituationChange.Remove(OnVesselSituationChange);
             firstStaged = true;
             missionStartTime = Planetarium.GetUniversalTime();
         }
@@ -856,10 +865,17 @@ namespace TestFlightCore
                 GameEvents.onCrewTransferred.Add(OnCrewChange);
                 _OnCrewChange();
                 firstStaged = vessel.situation != Vessel.Situations.PRELAUNCH;
-                if (vessel.situation == Vessel.Situations.PRELAUNCH)
+
+                if (!firstStaged && part.isEngine())
+                {
+                    firstStaged = part.FindModulesImplementing<ModuleEngines>().Find(e => e.staged) != null;
+                }
+
+                if (!firstStaged)
                 {
                     GameEvents.onStageActivate.Add(OnStageActivate);
                     GameEvents.onEngineActiveChange.Add(OnEngineActiveChange);
+                    GameEvents.onVesselSituationChange.Add(OnVesselSituationChange);
                 }
                 else
                     missionStartTime = Planetarium.GetUniversalTime();
@@ -872,6 +888,7 @@ namespace TestFlightCore
             GameEvents.onCrewTransferred.Remove(OnCrewChange);
             GameEvents.onStageActivate.Remove(OnStageActivate);
             GameEvents.onEngineActiveChange.Remove(OnEngineActiveChange);
+            GameEvents.onVesselSituationChange.Remove(OnVesselSituationChange);
         }
 
         public override void OnAwake()
