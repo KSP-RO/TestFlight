@@ -297,6 +297,17 @@ namespace TestFlightCore
             return burnTime;
         }
 
+        public void ResetRunTime()
+        {
+            List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part, Alias);
+
+            foreach (ITestFlightReliability rm in reliabilityModules)
+            {
+                rm.SetScopedRunTime(RatingScope.Continuous, 0);
+                rm.SetScopedRunTime(RatingScope.Cumulative, 0);
+            }
+        }
+
         // Get the momentary (IE current dynamic) failure rates (Can vary per reliability/failure modules)
         // These  methods will let you get a list of all momentary rates or you can get the best (lowest chance of failure)/worst (highest chance of failure) rates
         public MomentaryFailureRate GetWorstMomentaryFailureRate()
@@ -1020,6 +1031,7 @@ namespace TestFlightCore
                 return 0;
 
             failure.ForceRepair();
+            failures.Remove(failure);
             // update our major failure flag in case this repair changes things
             hasMajorFailure = HasMajorFailure();
 
@@ -1033,7 +1045,7 @@ namespace TestFlightCore
                     return true;
             return false;
         }
-            
+
         private void PollExistingFailuresOnStart()
         {
             List<ITestFlightFailure> m = TestFlightUtil.GetFailureModules(this.part, Alias);

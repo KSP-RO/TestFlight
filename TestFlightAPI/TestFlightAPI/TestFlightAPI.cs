@@ -720,7 +720,13 @@ namespace TestFlightAPI
         /// </summary>
         /// <returns>The current burn time for scope or 0 if this module does not track burn time.</returns>
         float GetScopedRunTime(RatingScope ratingScope);
- 
+
+        /// <summary>
+        /// Sets the current burn time for the given scope.
+        /// Does nothing if this module does not track burn time.
+        /// </summary>
+        void SetScopedRunTime(RatingScope ratingScope, float time);
+
         /// <summary>
         /// Should return a string if the module wants to report any information to the user in the TestFlight Editor window.
         /// </summary>
@@ -958,6 +964,8 @@ namespace TestFlightAPI
         bool IsPartOperating();
 
         float GetRunTime(RatingScope ratingScope);
+
+        void ResetRunTime();
 
         /// <summary>
         /// Called whenever an Interop value is added, changed, or removed to allow the modules on the part to update to the proper config
