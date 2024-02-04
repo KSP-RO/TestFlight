@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
+using KSP.Localization;
 using UnityEngine;
 
 using TestFlightAPI;
@@ -104,6 +105,23 @@ public class EngineModuleWrapper
             if (engineType == EngineModuleType.UNKNOWN)
                 return;
             moduleEngine.allowShutdown = value;
+        }
+    }
+
+    public bool allowRestart
+    {
+        get
+        {
+            if (engineType == EngineModuleType.UNKNOWN)
+                return false;
+
+            return moduleEngine.allowRestart;
+        }
+        set
+        {
+            if (engineType == EngineModuleType.UNKNOWN)
+                return;
+            moduleEngine.allowRestart = value;
         }
     }
 
@@ -332,13 +350,19 @@ public class EngineModuleWrapper
             return;
 
         // Need to disable this to prevent other mods from restarting the engine.
-        moduleEngine.allowRestart = false;
+        allowRestart = false;
 
         // For some reason, need to disable GUI as well
         Events["Activate"].active = false;
         Events["Shutdown"].active = false;
         Events["Activate"].guiActive = false;
         Events["Shutdown"].guiActive = false;
+    }
+
+    public void ResetStatus()
+    {
+        Status = Localizer.Format("#autoLOC_219034");
+        StatusL2 = string.Empty;
     }
 
     // Reduce fuel flow

@@ -78,13 +78,61 @@ namespace TestFlightCore
             else
                 return true;
         }
+
+        public static void ResetAllFailuresOnVessel(Vessel vessel)
+        {
+            foreach (Part part in vessel.parts)
+            {
+                ITestFlightCore core = GetCore(part);
+                if (core == null) continue;
+
+                List<ITestFlightFailure> failures = core.GetActiveFailures();
+                for (int i = failures.Count - 1; i >= 0; i--)
+                {
+                    core.ForceRepair(failures[i]);
+                }
+            }
+        }
+
+        public static void ResetAllRunTimesOnVessel(Vessel vessel)
+        {
+            foreach (Part part in vessel.parts)
+            {
+                ITestFlightCore core = GetCore(part);
+                if (core == null) continue;
+
+                core.ResetRunTime();
+            }
+        }
+
         /// <summary>
-        /// 0 = OK, 1 = Minor Failure, 2 = Failure, 3 = Major Failure, -1 = Could not find TestFlight Core on Part
+        /// 0 = OK, 1 = Has failure, -1 = Could not find TestFlight Core on Part
+        /// </summary>
+        /// <returns>The part status.</returns>
+        public static int GetVesselStatus(Vessel vessel)
+        {
+            int retVal = -1;
+            foreach (Part part in vessel.parts)
+            {
+                int statusForPart;
+                ITestFlightCore core = GetCore(part);
+                if (core == null)
+                    statusForPart = - 1;
+                else
+                    statusForPart = core.GetPartStatus();
+                retVal = Math.Max(retVal, statusForPart);
+            }
+
+            return retVal;
+        }
+
+        /// <summary>
+        /// 0 = OK, 1 = Has failure, -1 = Could not find TestFlight Core on Part
         /// </summary>
         /// <returns>The part status.</returns>
         public static int GetPartStatus(Part part, string alias)
         {
-            ITestFlightCore core = TestFlightInterface.GetCore(part, alias);
+            ITestFlightCore core = GetCore(part, alias);
             if (core == null)
                 return -1;
 
@@ -346,6 +394,11 @@ namespace TestFlightCore
         }
         // Methods for accessing the TestFlight modules on a given part
 
+        // Get the active Core Module - can only ever be one.
+        public static ITestFlightCore GetCore(Part part)
+        {
+            return TestFlightUtil.GetCore(part);
+        }
         // Get the active Core Modules that are bound to a given alias
         public static ITestFlightCore GetCore(Part part, string alias)
         {

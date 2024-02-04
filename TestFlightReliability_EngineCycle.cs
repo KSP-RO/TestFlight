@@ -378,6 +378,21 @@ namespace TestFlight
             }
         }
 
+        public override void SetScopedRunTime(RatingScope ratingScope, float time)
+        {
+            switch (ratingScope)
+            {
+                case RatingScope.Cumulative:
+                    engineOperatingTime = time;
+                    break;
+                case RatingScope.Continuous:
+                    currentRunTime = time;
+                    break;
+                default:
+                    break;
+            }
+        }
+
         public override void OnAwake()
         {
             base.OnAwake();

@@ -127,7 +127,23 @@ namespace TestFlight
         public override void OnStart(StartState state)
         {
             base.OnStart(state);
+
             verboseDebugging = core.DebugEnabled;
+
+            if (Failed && IsMajor)
+            {
+                for (int i = 0; i < engines.Count; i++)
+                {
+                    EngineHandler engine = engines[i];
+                    CachedEngineState engineState;
+                    // Ignition failure can only trigger on one engine PM out of many
+                    if (engineStates?.TryGetValue(i, out engineState) ?? false)
+                    {
+                        engine.engine.DisableRestart();
+                    }
+                }
+            }
+
             TestFlightGameSettings tfSettings = HighLogic.CurrentGame.Parameters.CustomParams<TestFlightGameSettings>();
             preLaunchFailures = tfSettings.preLaunchFailures;
             dynPressurePenalties = tfSettings.dynPressurePenalties;
@@ -324,13 +340,20 @@ namespace TestFlight
                 core.LogCareerFailure(vessel, failureTitle);
             }
 
+            if (engineStates == null)
+                engineStates = new Dictionary<int, CachedEngineState>();
+            engineStates.Clear();
+
             Log($"IgnitionFail: Failing {engines.Count} engine(s)");
             for (int i = 0; i < engines.Count; i++)
             {
                 EngineHandler engine = engines[i];
                 if (engine.failEngine)
                 {
-                    if (severity.ToLowerInvariant() == "major")
+                    var engineState = new CachedEngineState(engine.engine);
+                    engineStates.Add(i, engineState);
+
+                    if (IsMajor)
                     {
                         engine.engine.DisableRestart();
                     }
@@ -339,28 +362,38 @@ namespace TestFlight
 
                     if (restoreIgnitionCharge || this.vessel.situation == Vessel.Situations.PRELAUNCH)
                         RestoreIgnitor();
-                    engines[i].failEngine = false;
+                    engine.failEngine = false;
                 }
             }
         }
 
         public override float DoRepair()
         {
-            base.DoRepair();
             for (int i = 0; i < engines.Count; i++)
             {
                 EngineHandler engine = engines[i];
+                // Prevent auto-ignition on repair
+                engine.engine.Shutdown();
+                engine.engine.Events["Activate"].active = true;
+                engine.engine.Events["Activate"].guiActive = true;
+                engine.engine.Events["Shutdown"].guiActive = true;
+                engine.engine.allowRestart = true;
+
+                CachedEngineState engineState = null;
+                if (engineStates?.TryGetValue(i, out engineState) ?? false)
                 {
-                    // Prevent auto-ignition on repair
-                    engine.engine.Shutdown();
-                    engine.engine.Events["Activate"].active = true;
-                    engine.engine.Events["Activate"].guiActive = true;
-                    engine.engine.Events["Shutdown"].guiActive = true;
-                    if (restoreIgnitionCharge || this.vessel.situation == Vessel.Situations.PRELAUNCH)
-                        RestoreIgnitor();
-                    engines[i].failEngine = false;
+                    engine.engine.allowShutdown = engineState.allowShutdown;
+                    engine.engine.allowRestart = engineState.allowRestart;
+                    engine.engine.SetIgnitionCount(engineState.numIgnitions);
                 }
+
+                if (restoreIgnitionCharge || this.vessel.situation == Vessel.Situations.PRELAUNCH)
+                    RestoreIgnitor();
+                engine.failEngine = false;
+                engine.engine.failed = false;
+                engine.engine.failMessage = "";
             }
+            base.DoRepair();
             return 0;
         }
 
