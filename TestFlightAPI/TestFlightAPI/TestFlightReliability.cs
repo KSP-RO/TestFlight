@@ -256,6 +256,10 @@ namespace TestFlightAPI
         {
             return 0f;
         }
+
+        public virtual void SetScopedRunTime(RatingScope ratingScope, float time)
+        {
+        }
     }
 }
 
