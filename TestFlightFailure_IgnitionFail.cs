@@ -275,6 +275,15 @@ namespace TestFlight
                         }
                         else
                         {
+                            if (core.GetFlightData() == initialFlightData) //Only award DU on the first ignition of each flight.
+                            {
+                                float ignitionDU = core.GetMaximumData() / 40;
+                                if (verboseDebugging)
+                                {
+                                    Log($"IginitionFail Awarding successful ignition DU: {ignitionDU:F4}");
+                                }
+                                core.ModifyFlightData(ignitionDU, true); //Award DU for first successful ignition
+                            }
                             engineData.hasBeenRun = true;
                         }
                     }
