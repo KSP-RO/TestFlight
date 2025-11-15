@@ -18,8 +18,6 @@ namespace TestFlightAPI
         public FloatCurve reliabilityCurve;
         [KSPField(isPersistant=true)]
         public float lastCheck = 0;
-        [KSPField(isPersistant=true)]
-        public float lastReliability = 1.0f;
 
     
         public List<ConfigNode> configs = new List<ConfigNode>();
@@ -173,6 +171,7 @@ namespace TestFlightAPI
             if (operatingTime < lastCheck + 1f)
                 return;
 
+            double timestep = operatingTime - lastCheck;
             lastCheck = operatingTime;
             double baseFailureRate = core.GetBaseFailureRate();
             MomentaryFailureRate momentaryFailureRate = core.GetWorstMomentaryFailureRate();
@@ -183,19 +182,11 @@ namespace TestFlightAPI
             else
                 currentFailureRate = baseFailureRate;
 
-            // Given we have been operating for a given number of seconds, calculate our chance of survival to that time based on currentFailureRate
-            // This is *not* an exact science, as the real calculations are much more complex than this, plus technically the momentary rate for
-            // *each* second should be accounted for, but this is a simplification of the system.  It provides decent enough numbers for fun gameplay
-            // with chance of failure increasing exponentially over time as it approaches the *current* MTBF
-            // S() is survival chance, f is currentFailureRate
-            // S(t) = e^(-f*t)
-
-            float reliability = Mathf.Exp((float)-currentFailureRate * (float)operatingTime);
-//            double survivalChance = Mathf.Pow(Mathf.Exp(1), (float)currentFailureRate * (float)operatingTime * -0.693f);
-            double survivalChance = reliability / lastReliability;
-            lastReliability = reliability;
-//            float failureRoll = Mathf.Min(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f));
-//            float failureRoll = UnityEngine.Random.Range(0f, 1f);
+            // The momentary failure rate, as implemented in TF, is more accurately called the 'hazard rate', h(t). This is defined as the
+            // proportional failure rate of systems still functioning at time t.
+            // For a working system at time t and a small interval dt, the chance to fail in the next dt seconds is approximately h(t)*dt; this
+            // approximation is exact in the limit where dt goes to 0.
+            double survivalChance = 1 - currentFailureRate * timestep;
             double failureRoll = core.RandomGenerator.NextDouble();
             if (verboseDebugging)
             {
@@ -206,7 +197,7 @@ namespace TestFlightAPI
 //                Debug.Log(String.Format("TestFlightReliability: Survival Chance at Time {0:F2} is {1:f4} -- {2:f4}^({3:f4}*{0:f2}*-1.0)", (float)operatingTime, survivalChance, Mathf.Exp(1), (float)currentFailureRate));
                 if (verboseDebugging)
                 {
-                    Log($"Part has failed after {operatingTime:F1} secodns of operation at MET T+{vessel.missionTime:F2} seconds with roll of {failureRoll:F4}");
+                    Log($"Part has failed after {operatingTime:F1} seconds of operation at MET T+{vessel.missionTime:F2} seconds with roll of {failureRoll:F4}");
                 }
                 core.TriggerFailure();
             }
