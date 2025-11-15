@@ -275,6 +275,7 @@ namespace TestFlight
                         }
                         else
                         {
+                            OnIgnition();
                             engineData.hasBeenRun = true;
                         }
                     }
@@ -647,6 +648,19 @@ namespace TestFlight
                  HighLogic.UISkin);
             TestFlightGameSettings tfSettings = HighLogic.CurrentGame.Parameters.CustomParams<TestFlightGameSettings>();
             tfSettings.restartWindowPenaltyReminderShown = restartWindowPenaltyReminderShown = true;
+        }
+
+        private void OnIgnition()
+        {
+            if (core.GetFlightData() == core.GetInitialFlightData() && (vessel.situation != Vessel.Situations.PRELAUNCH || awardDuInPreLaunch)) //Only award DU on the first ignition of each flight, and only when not attached to launch clamps.
+            {
+                float ignitionDU = Mathf.Max(duSucceed, core.GetMaximumData() / 40);
+                if (verboseDebugging)
+                {
+                    Log($"IgnitionFail: Awarding successful ignition DU: {ignitionDU:F4}");
+                }
+                core.ModifyFlightData(ignitionDU, true); //Award DU for first successful ignition
+            }
         }
     }
 }

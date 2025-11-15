@@ -22,6 +22,8 @@ namespace TestFlightAPI
         [KSPField]
         public float duFail = 0f;
         [KSPField]
+        public float duSucceed = 0f;
+        [KSPField]
         public float duRepair = 0f;
         [KSPField]
         public bool oneShot = false;
@@ -163,6 +165,7 @@ namespace TestFlightAPI
             currentConfig.TryGetValue("weight", ref weight);
             currentConfig.TryGetValue("failureTitle", ref failureTitle);
             currentConfig.TryGetValue("duFail", ref duFail);
+            currentConfig.TryGetValue("duSucceed", ref duSucceed);
             currentConfig.TryGetValue("duRepair", ref duRepair);
             currentConfig.TryGetValue("oneShot", ref oneShot);
             currentConfig.TryGetValue("awardDuInPreLaunch", ref awardDuInPreLaunch);
