@@ -303,13 +303,13 @@ namespace TestFlight
             ITestFlightCore core = TestFlightUtil.GetCore(this.part, Configuration);
             if (core != null)
             {
+                float multiplier = GetDynPressureModifier();
                 if (awardDuInPreLaunch || vessel.situation != Vessel.Situations.PRELAUNCH)
                 {
-                    core.ModifyFlightData(duFail, true);
+                    core.ModifyFlightData(duFail * multiplier, true);
                 }
 
                 string met = KSPUtil.PrintTimeCompact((int)Math.Floor(this.vessel.missionTime), false);
-                float multiplier = GetDynPressureModifier();
 
                 if (multiplier < 0.99)
                 {
