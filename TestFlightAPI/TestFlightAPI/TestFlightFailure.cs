@@ -116,6 +116,7 @@ namespace TestFlightAPI
                 if (!previouslyFailed)
                 {
                     core.LogCareerFailure(vessel, failureTitle);
+                    TimeWarp.SetRate(0, true);
                 }
             }
         }
