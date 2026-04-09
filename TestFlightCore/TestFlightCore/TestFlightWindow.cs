@@ -80,8 +80,6 @@ namespace TestFlightCore
             onWindowMoveComplete += MainWindow_OnWindowMoveComplete;
             CalculateWindowBounds();
             Visible = tfScenario.userSettings.showMSD;
-            // If the window is being restored as visible from saved settings, mark it sticky
-            // so HoverOutButton() doesn't immediately hide it on the first stray mouse move.
             stickyWindow = Visible;
         }
 
