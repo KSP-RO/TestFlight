@@ -80,6 +80,7 @@ namespace TestFlightCore
             onWindowMoveComplete += MainWindow_OnWindowMoveComplete;
             CalculateWindowBounds();
             Visible = tfScenario.userSettings.showMSD;
+            stickyWindow = Visible;
         }
 
         public void Event_OnGameSceneLoadRequested(GameScenes scene)
@@ -244,6 +245,8 @@ namespace TestFlightCore
             GUILayout.BeginVertical();
             GUILayout.Space(10);
 
+            GUIContent closeButton = new GUIContent("X", "Close");
+
             if (masterStatus == null)
             {
                 GUILayout.BeginHorizontal();
@@ -253,6 +256,10 @@ namespace TestFlightCore
                     tfScenario.userSettings.displaySettingsWindow = !tfScenario.userSettings.displaySettingsWindow;
                     CalculateWindowBounds();
                     tfScenario.userSettings.Save();
+                }
+                if (GUILayout.Button(closeButton, GUILayout.Width(25)))
+                {
+                    CloseWindow();
                 }
                 GUILayout.EndHorizontal();
             }
@@ -265,6 +272,10 @@ namespace TestFlightCore
                     tfScenario.userSettings.displaySettingsWindow = !tfScenario.userSettings.displaySettingsWindow;
                     CalculateWindowBounds();
                     tfScenario.userSettings.Save();
+                }
+                if (GUILayout.Button(closeButton, GUILayout.Width(25)))
+                {
+                    CloseWindow();
                 }
                 GUILayout.EndHorizontal();
             }
@@ -360,12 +371,18 @@ namespace TestFlightCore
                     }
                     GUILayout.EndScrollView();
 
+                    GUILayout.BeginHorizontal();
                     if (GUILayout.Button(settingsButton, GUILayout.Width(38)))
                     {
                         tfScenario.userSettings.displaySettingsWindow = !tfScenario.userSettings.displaySettingsWindow;
                         CalculateWindowBounds();
                         tfScenario.userSettings.Save();
                     }
+                    if (GUILayout.Button(closeButton, GUILayout.Width(25)))
+                    {
+                        CloseWindow();
+                    }
+                    GUILayout.EndHorizontal();
                 }
             }
               
@@ -456,15 +473,12 @@ namespace TestFlightCore
                         {
                             if (tfScenario.userSettings.mainWindowLocked)
                             {
-                                tfScenario.userSettings.mainWindowLocked = true;
                                 CalculateWindowBounds();
                                 tfScenario.userSettings.mainWindowPosition = WindowRect;
                                 DragEnabled = false;
-                                tfScenario.userSettings.showMSD = false;
                             }
                             else
                             {
-                                tfScenario.userSettings.showMSD = Visible;
                                 DragEnabled = true;
                             }
                             tfScenario.userSettings.Save();
@@ -549,7 +563,7 @@ namespace TestFlightCore
 
         internal override void Update()
         {
-            if (Input.GetKeyDown(KeyCode.T) && Input.GetKeyDown(KeyCode.LeftAlt))
+            if (Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyDown(KeyCode.T))
             {
                 if (Visible)
                     CloseWindow();
