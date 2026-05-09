@@ -652,7 +652,7 @@ namespace TestFlight
 
         private void OnIgnition()
         {
-            if (core.GetFlightData() == core.GetInitialFlightData() && (vessel.situation != Vessel.Situations.PRELAUNCH || awardDuInPreLaunch)) //Only award DU on the first ignition of each flight, and only when not attached to launch clamps.
+            if (core.GetFlightData() == core.GetInitialFlightData() && (vessel.situation != Vessel.Situations.PRELAUNCH || (awardDuInPreLaunch && preLaunchFailures))) //Only award DU on the first ignition of each flight, and only when not attached to launch clamps or attached to clamps with prelaunch failures on.
             {
                 float ignitionDU = Mathf.Max(duSucceed, core.GetMaximumData() / 40);
                 if (verboseDebugging)
