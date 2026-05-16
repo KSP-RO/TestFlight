@@ -29,6 +29,9 @@ namespace TestFlight
         [KSPField(isPersistant=true)]
         public int numIgnitions = 0;
 
+        [KSPField(isPersistant=true)]
+        private float pendingIgnitionDU = 0f;
+
         private readonly Dictionary<uint, EngineRunData> engineRunData = new Dictionary<uint, EngineRunData>(8);
 
         private static bool dynPressureReminderShown;
@@ -205,6 +208,14 @@ namespace TestFlight
         {
             if (!TestFlightEnabled)
                 return;
+
+            if (pendingIgnitionDU > 0f && vessel.situation != Vessel.Situations.PRELAUNCH)
+            {
+                if (verboseDebugging)
+                    Log($"IgnitionFail: Awarding deferred ignition DU on liftoff: {pendingIgnitionDU:F4}");
+                core.ModifyFlightData(pendingIgnitionDU, true);
+                pendingIgnitionDU = 0f;
+            }
 
             Profiler.BeginSample("TestFlight.IgnitionFail");
             double currentTime = Planetarium.GetUniversalTime();
@@ -655,11 +666,19 @@ namespace TestFlight
             if (core.GetFlightData() == core.GetInitialFlightData() && (vessel.situation != Vessel.Situations.PRELAUNCH || awardDuInPreLaunch)) //Only award DU on the first ignition of each flight, and only when not attached to launch clamps.
             {
                 float ignitionDU = Mathf.Max(duSucceed, core.GetMaximumData() / 40);
-                if (verboseDebugging)
+                if (vessel.situation == Vessel.Situations.PRELAUNCH)
                 {
-                    Log($"IgnitionFail: Awarding successful ignition DU: {ignitionDU:F4}");
+                    // Defer the DU award until the vessel actually lifts off
+                    pendingIgnitionDU = ignitionDU;
+                    if (verboseDebugging)
+                        Log($"IgnitionFail: Deferring successful ignition DU until liftoff: {ignitionDU:F4}");
                 }
-                core.ModifyFlightData(ignitionDU, true); //Award DU for first successful ignition
+                else
+                {
+                    if (verboseDebugging)
+                        Log($"IgnitionFail: Awarding successful ignition DU: {ignitionDU:F4}");
+                    core.ModifyFlightData(ignitionDU, true); //Award DU for first successful ignition
+                }
             }
         }
     }
