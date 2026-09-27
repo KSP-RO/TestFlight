@@ -193,6 +193,7 @@ namespace TestFlightCore
         private readonly Dictionary<Guid, MasterStatusItem> masterStatus = new Dictionary<Guid, MasterStatusItem>(32);
 
         double currentUTC = 0.0f;
+        private int curConfigWaitFrames = 0;
 
         internal void Log(string message)
         {
@@ -366,13 +367,33 @@ namespace TestFlightCore
             if (!tfScenario.SettingsEnabled)
                 return;
 
-            if (!masterStatus.ContainsKey(FlightGlobals.ActiveVessel.id))
+            Vessel vessel = FlightGlobals.ActiveVessel;
+            if (!masterStatus.ContainsKey(vessel.id))
             {
-                InitializeParts(FlightGlobals.ActiveVessel);
-                AddVesselToMasterStatusDisplay(FlightGlobals.ActiveVessel);
+                // Parts of a freshly loaded vessel may not have started yet
+                if (!AreAllCoreConfigsResolved(vessel) && curConfigWaitFrames++ < TestFlightCore.MaxConfigWaitFrames)
+                    return;
+
+                curConfigWaitFrames = 0;
+                InitializeParts(vessel);
+                AddVesselToMasterStatusDisplay(vessel);
             }
 
-            UpdateVesselInMasterStatusDisplay(FlightGlobals.ActiveVessel);
+            UpdateVesselInMasterStatusDisplay(vessel);
+        }
+
+        private static bool AreAllCoreConfigsResolved(Vessel vessel)
+        {
+            foreach (Part p in vessel.Parts)
+            {
+                foreach (var core in p.gameObject.GetComponents<TestFlightCore>())
+                {
+                    if (core.TestFlightEnabled && !core.AreConfigsResolved)
+                        return false;
+                }
+            }
+
+            return true;
         }
 
     }

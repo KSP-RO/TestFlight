@@ -129,6 +129,31 @@ namespace TestFlightCore
         public string Title => string.IsNullOrEmpty(title) ? part.partInfo.title : title;
         public bool DebugEnabled => TestFlightManagerScenario.Instance != null && TestFlightManagerScenario.Instance.userSettings.debugLog;
 
+        // Number of frames to wait for configs to resolve before giving up
+        internal const int MaxConfigWaitFrames = 100;
+
+        /// <summary>
+        /// True once this core and all reliability modules on the part have picked their CONFIG.
+        /// Modules without CONFIG nodes are configured at MODULE level and always count as resolved.
+        /// </summary>
+        internal bool AreConfigsResolved
+        {
+            get
+            {
+                if (currentConfig == null && configs.Count > 0)
+                    return false;
+
+                foreach (TestFlightReliabilityBase rm in part.FindModulesImplementing<TestFlightReliabilityBase>())
+                {
+                    if (rm.currentConfig == null && rm.configs.Count > 0)
+                        return false;
+                }
+
+                return true;
+            }
+        }
+
+        /// <returns>true if the active config changed</returns>
         bool SetActiveConfigFromInterop()
         {
             ConfigNode prevConfig = currentConfig;
@@ -172,7 +197,7 @@ namespace TestFlightCore
                 }
             }
 
-            if (currentConfig == null) return prevConfig == null;
+            if (currentConfig == null) return false;
 
             // update current values with those from the current config node
             currentConfig.TryGetValue("startFlightData", ref startFlightData);
@@ -191,7 +216,7 @@ namespace TestFlightCore
             currentConfig.TryGetValue("rndRate", ref rndRate);
             currentConfig.TryGetValue("rndCost", ref rndCost);
 
-            return prevConfig == currentConfig;
+            return prevConfig != currentConfig;
         }
 
         [KSPEvent(guiActiveEditor=false, guiName = "R&D Window")]            
@@ -260,6 +285,9 @@ namespace TestFlightCore
             if (baseFailureRate > 0)
                 return baseFailureRate;
 
+            if (DebugEnabled && !AreConfigsResolved)
+                Log($"BFR requested before the active config was resolved\n{Environment.StackTrace}");
+
             double totalBFR = 0f;
             List<ITestFlightReliability> reliabilityModules = TestFlightUtil.GetReliabilityModules(this.part, Alias);
             foreach (ITestFlightReliability rm in reliabilityModules)
@@ -270,6 +298,16 @@ namespace TestFlightCore
             totalBFR *= failureRateModifier;
             baseFailureRate = Math.Max(totalBFR, TestFlightUtil.MIN_FAILURE_RATE);
             return baseFailureRate;
+        }
+
+        // Drops the cached base failure rate and recalculates all cached momentary rates from it.
+        // Must be called whenever any input of the base failure rate changes.
+        private void RecalculateFailureRates()
+        {
+            baseFailureRate = 0;
+            // The called method will mutate the collection
+            foreach (MomentaryFailureRate mfr in momentaryFailureRates.ToArray())
+                CalculateMomentaryFailureRate(mfr.triggerName);
         }
 
         // Get the Reliability Curve for the part
@@ -837,16 +875,33 @@ namespace TestFlightCore
 
         public IEnumerator InitializeData(float du=0)
         {
-            yield return new WaitUntil(() => TestFlightManagerScenario.Instance != null);
-            yield return new WaitUntil(() => TestFlightManagerScenario.Instance.isReady);
-            
-            if (TestFlightManagerScenario.Instance.SettingsAlwaysMaxData)
-                InitializeFlightData(maxData);
-            else
+            yield return new WaitUntil(() => TestFlightScenarioReady);
+
+            for (int i = 0; !AreConfigsResolved; i++)
             {
-                var data = Mathf.Max(0, TestFlightManagerScenario.Instance.GetFlightDataForPartName(Alias));
-                InitializeFlightData(data);
+                if (i >= MaxConfigWaitFrames)
+                {
+                    Log("No matching CONFIG found, flight data not initialized");
+                    yield break;
+                }
+                yield return null;
             }
+
+            InitializeFlightDataOnStart();
+        }
+
+        private void InitializeFlightDataOnStart()
+        {
+            CalculateMaximumData();
+
+            float data;
+            if (TestFlightManagerScenario.Instance.SettingsAlwaysMaxData)
+                data = maxData;
+            else if (HighLogic.LoadedSceneIsFlight && vessel.situation != Vessel.Situations.PRELAUNCH)
+                data = currentFlightData;
+            else
+                data = Mathf.Max(0, TestFlightManagerScenario.Instance.GetFlightDataForPartName(Alias));
+            InitializeFlightData(data);
         }
 
         public override void Start()
@@ -854,20 +909,13 @@ namespace TestFlightCore
             if (!TestFlightEnabled)
                 return;
 
-            CalculateMaximumData();
-            if (!TestFlightScenarioReady)
-                StartCoroutine(InitializeData());
+            // All part modules exist by now, so this gives every module a chance to pick its CONFIG
+            UpdatePartConfig();
+
+            if (TestFlightScenarioReady && AreConfigsResolved)
+                InitializeFlightDataOnStart();
             else
-            {
-                float data;
-                if (TestFlightManagerScenario.Instance.SettingsAlwaysMaxData)
-                    data = maxData;
-                else if (HighLogic.LoadedSceneIsFlight && vessel.situation != Vessel.Situations.PRELAUNCH)
-                    data = currentFlightData;
-                else
-                    data = Mathf.Max(0, TestFlightManagerScenario.Instance.GetFlightDataForPartName(Alias));
-                InitializeFlightData(data);
-            }
+                StartCoroutine(InitializeData());
 
             if (HighLogic.LoadedSceneIsFlight)
             {
@@ -943,6 +991,16 @@ namespace TestFlightCore
             if (initialized)
                 return;
 
+            // Without a resolved config the alias and max data are not known yet
+            if (!AreConfigsResolved)
+            {
+                if (DebugEnabled)
+                    Log($"Flight data init requested before the active config was resolved\n{Environment.StackTrace}");
+                return;
+            }
+
+            float prevInitialFlightData = initialFlightData;
+
             researchData = Mathf.Min(TestFlightManagerScenario.Instance.GetResearchDataForPartName(Alias), rndMaxData);
             if (researchData < 0f) researchData = 0f;
             transferData = AttemptTechTransfer();
@@ -959,6 +1017,9 @@ namespace TestFlightCore
             TestFlightManagerScenario.Instance.SetFlightDataForPartName(Alias, Mathf.Max(flightData, savedFlightData));
             
             missionStartTime = Planetarium.GetUniversalTime();
+
+            if (initialFlightData != prevInitialFlightData)
+                RecalculateFailureRates();
 
             initialized |= HighLogic.LoadedSceneIsFlight;
         }
@@ -1214,8 +1275,8 @@ namespace TestFlightCore
 
         public void UpdatePartConfig()
         {
-            SetActiveConfigFromInterop();
-            
+            bool configChanged = SetActiveConfigFromInterop();
+
             // enabled = ActiveConfiguration;
             // active = enabled;
 
@@ -1242,8 +1303,15 @@ namespace TestFlightCore
                 // TestFlightReliability
                 ITestFlightReliability reliability = partModule as ITestFlightReliability;
                 if (reliability != null)
+                {
+                    // Reliability curves are only loaded once the module finds a config matching our alias
+                    var reliabilityBase = reliability as TestFlightReliabilityBase;
+                    ConfigNode prevReliabilityConfig = reliabilityBase?.currentConfig;
                     reliability.SetActiveConfig(Alias);
-                
+                    if (reliabilityBase != null && reliabilityBase.currentConfig != prevReliabilityConfig)
+                        configChanged = true;
+                }
+
                 // TestFlightFailure
                 ITestFlightFailure failure = partModule as ITestFlightFailure;
                 if (failure != null)
@@ -1251,7 +1319,9 @@ namespace TestFlightCore
                     failure.SetActiveConfig(Alias);
                 }
             }
-            
+
+            if (configChanged)
+                RecalculateFailureRates();
 
             List<PartModule> testFlightModules = TestFlightUtil.GetAllTestFlightModulesForAlias(this.part, Alias);
             for (int i = 0; i < testFlightModules.Count; i++)
